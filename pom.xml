@@ -27,6 +27,7 @@
 
         <module>plugin/plugin-proxy</module>
         <module>plugin/plugin-minecraft</module>
+        <module>commons</module>
 
     </modules>
 

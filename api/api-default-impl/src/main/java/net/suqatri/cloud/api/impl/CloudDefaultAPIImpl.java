@@ -1,19 +1,21 @@
 package net.suqatri.cloud.api.impl;
 
+import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.event.CloudEventHandler;
+import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.utils.ApplicationType;
 
-public abstract class CloudAPIImpl extends CloudAPI {
+@Getter
+public abstract class CloudDefaultAPIImpl extends CloudAPI {
 
     private CloudEventHandler eventHandler;
 
-    public CloudAPIImpl(ApplicationType type) {
+    public CloudDefaultAPIImpl(ApplicationType type) {
         super(type);
         this.eventHandler = new CloudEventHandler();
     }
 
-    public CloudEventHandler getEventHandler() {
-        return this.eventHandler;
-    }
+    public abstract IRedisConnection getRedisConnection();
+
 }

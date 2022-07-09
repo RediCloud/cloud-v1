@@ -2,14 +2,13 @@ package net.suqatri.cloud.node.console;
 
 import lombok.Getter;
 import net.suqatri.cloud.api.console.ICommandManager;
-import net.suqatri.commands.console.CommandSender;
-import net.suqatri.commands.console.ConsoleCommand;
-import net.suqatri.commands.console.ConsoleCommandManager;
-import net.suqatri.commands.core.Locales;
-import net.suqatri.commands.core.MessageKeys;
+import net.suqatri.commands.CommandSender;
+import net.suqatri.commands.ConsoleCommand;
+import net.suqatri.commands.ConsoleCommandManager;
+import net.suqatri.commands.Locales;
+import net.suqatri.commands.MessageKeys;
 import net.suqatri.commands.locales.MessageKeyProvider;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;

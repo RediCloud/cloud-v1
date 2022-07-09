@@ -20,8 +20,9 @@ public class CommandConsoleManager extends ConsoleCommandManager implements ICom
     private final Map<MessageKeyProvider, String> messages;
     private NodeConsole nodeConsole;
 
-    public CommandConsoleManager() {
+    public CommandConsoleManager() throws Exception {
         this.messages = new HashMap<>();
+        this.nodeConsole = createNodeConsole();
         this.loadDefaultLanguage();
         this.commandSender = new NodeConsoleSender(this);
         this.enableUnstableAPI("help");

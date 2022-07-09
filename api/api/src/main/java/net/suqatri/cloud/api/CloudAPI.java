@@ -8,6 +8,7 @@ import net.suqatri.cloud.api.group.ICloudGroupManager;
 import net.suqatri.cloud.api.node.ICloudNodeManager;
 import net.suqatri.cloud.api.packet.ICloudPacketManager;
 import net.suqatri.cloud.api.player.ICloudPlayerManager;
+import net.suqatri.cloud.api.scheduler.IScheduler;
 import net.suqatri.cloud.api.service.ICloudServiceManager;
 import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
@@ -26,6 +27,7 @@ public abstract class CloudAPI {
         this.applicationType = type;
     }
 
+    public abstract IScheduler getScheduler();
     public abstract IConsole getConsole();
     public abstract ICommandManager<?> getCommandManager();
     public abstract ICloudGroupManager getGroupManager();

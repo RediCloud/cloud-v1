@@ -4,7 +4,8 @@ public interface ICloudPacketReceiver {
 
     void receive(ICloudPacket packet);
 
-    void connect();
-    void disconnect();
+    void connectPacketListener(Class packetClass);
+    void disconnectPacketListener(Class packetClass);
+    boolean isPacketListenerConnected(Class packetClass);
 
 }

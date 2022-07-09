@@ -19,7 +19,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Getter
 public class NodeConsole implements IConsole {
@@ -36,18 +38,29 @@ public class NodeConsole implements IConsole {
     private Setup currentSetup;
     private List<String> allWroteLines;
     @Getter
-    private String prefix;
+    private String prefix = translateColorCodes("Test > ");
     @Setter
-    private String mainPrefix = translateColorCodes("Test > ");
+    private String mainPrefix;
+    private Collection<Consumer<String>> inputHandler;
 
     public NodeConsole(CommandConsoleManager consoleManager) throws IOException {
         this.consoleManager = consoleManager;
-        this.thread = new NodeConsoleThread(this, "node-console");
         this.inputStream = System.in;
         this.outputStream = System.out;
         this.lineReader = createLineReader();
+        this.thread = new NodeConsoleThread(this, "node-console");
         this.allWroteLines = new ArrayList<>();
+        this.inputHandler = new ArrayList<>();
+        this.mainPrefix = prefix;
         this.startThread();
+    }
+
+    public void addInputHandler(Consumer<String> inputHandler) {
+        this.inputHandler.add(inputHandler);
+    }
+
+    public void removeInputHandler(Consumer<String> inputHandler) {
+        this.inputHandler.remove(inputHandler);
     }
 
     public void resetPrefix(){
@@ -65,7 +78,7 @@ public class NodeConsole implements IConsole {
         this.consoleCompleter = new ConsoleCompleter(this.consoleManager);
 
         return LineReaderBuilder.builder()
-                .terminal(terminal)
+                .terminal(this.terminal)
                 .completer(this.consoleCompleter)
                 .option(LineReader.Option.DISABLE_EVENT_EXPANSION, true)
                 .option(LineReader.Option.AUTO_REMOVE_SLASH, false)
@@ -108,12 +121,10 @@ public class NodeConsole implements IConsole {
     }
 
     private void redisplay() {
-        if (!lineReader.isReading()) {
-            return;
-        }
+        if (!this.lineReader.isReading()) return;
 
-        lineReader.callWidget(LineReader.REDRAW_LINE);
-        lineReader.callWidget(LineReader.REDISPLAY);
+        this.lineReader.callWidget(LineReader.REDRAW_LINE);
+        this.lineReader.callWidget(LineReader.REDISPLAY);
     }
 
     @Override
@@ -141,7 +152,4 @@ public class NodeConsole implements IConsole {
         return ColorTranslator.translate(message);
     }
 
-    public String getInput(){
-        return this.lineReader.readLine(getPrefix());
-    }
 }

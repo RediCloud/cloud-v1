@@ -10,6 +10,7 @@ import net.suqatri.cloud.node.console.setup.annotations.*;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Consumer;
 
 public abstract class Setup<T extends Setup<?>> {
 
@@ -101,6 +102,8 @@ public abstract class Setup<T extends Setup<?>> {
      */
     public abstract boolean shouldPrintHeader();
 
+    private Consumer<String> inputConsumer;
+
     public SetupHeaderBehaviour headerBehaviour() {
         return SetupHeaderBehaviour.CLEAR_SCREEN_AFTER;
     }
@@ -128,20 +131,22 @@ public abstract class Setup<T extends Setup<?>> {
         this.setup = this.getEntry(1);
         this.printQuestion(this.setup.getValue());
 
-        //While current id is in range of map-cache
-        while (this.current < this.map.size() + 1) {
-            //Reading input and executing Setup#next(String)
-            String line = this.console.getInput();
-            if (line != null) {
-                executeInput(line);
+        this.inputConsumer = input -> {
+            if(this.current < this.map.size() + 1) {
+                executeInput(input);
+            }else{
+                this.exit(true);
             }
-        }
-
-        this.exit(true);
+        };
+        this.console.addInputHandler(this.inputConsumer);
     }
 
     @SuppressWarnings("unchecked")
     private void exit(boolean success) {
+
+        if(this.inputConsumer != null){
+            this.console.removeInputHandler(this.inputConsumer);
+        }
 
         if (headerBehaviour() == SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES) {
             this.console.clearScreen();

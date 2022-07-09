@@ -2,9 +2,10 @@ package net.suqatri.cloud.api.service;
 
 import net.suqatri.cloud.api.group.ICloudGroup;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public interface ICloudService {
+public interface ICloudService extends Serializable {
 
     IServiceStartConfiguration getConfiguration();
 

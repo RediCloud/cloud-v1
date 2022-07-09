@@ -4,6 +4,8 @@ public interface IConsole {
 
     void log(LogLevel logLevel, String message);
 
+    void print(String message);
+
     default void error(String message, Throwable ... args) {
         log(LogLevel.ERROR, String.format(message, args));
     }
@@ -34,5 +36,9 @@ public interface IConsole {
     default boolean canLog(LogLevel logLevel) {
         return  logLevel.getId() >= getLogLevel().getId();
     }
+
+    void clearScreen();
+
+    String translateColorCodes(String message);
 
 }

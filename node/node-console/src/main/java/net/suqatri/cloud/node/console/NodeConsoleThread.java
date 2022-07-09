@@ -1,6 +1,6 @@
 package net.suqatri.cloud.node.console;
 
-import net.suqatri.commands.core.RootCommand;
+import net.suqatri.commands.RootCommand;
 import org.jline.reader.UserInterruptException;
 
 import java.util.List;

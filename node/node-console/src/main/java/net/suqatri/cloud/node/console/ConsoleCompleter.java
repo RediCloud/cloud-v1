@@ -1,7 +1,11 @@
 package net.suqatri.cloud.node.console;
 
-import net.suqatri.commands.console.ConsoleCommandIssuer;
-import net.suqatri.commands.core.RootCommand;
+import net.suqatri.cloud.commons.reflection.ReflectionUtils;
+import net.suqatri.cloud.node.console.setup.Setup;
+import net.suqatri.cloud.node.console.setup.SetupEntry;
+import net.suqatri.cloud.node.console.setup.SetupSuggester;
+import net.suqatri.commands.ConsoleCommandIssuer;
+import net.suqatri.commands.RootCommand;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
@@ -20,8 +24,22 @@ public class ConsoleCompleter implements Completer {
 
     @Override
     public void complete(LineReader lineReader, ParsedLine parsedLine, List<Candidate> list) {
-        ConsoleCommandIssuer commandSender = this.consoleManager.getCommandIssuer(this.consoleManager.getCommandSender());
         String line = parsedLine.line();
+
+        Setup<?> currentSetup = consoleManager.getNodeConsole().getCurrentSetup();
+        if(currentSetup != null){
+            SetupEntry entry = currentSetup.getSetup().getValue();
+            if(entry.getCompleter() != null){
+                Class<? extends SetupSuggester> value = entry.getCompleter().value();
+                SetupSuggester suggester = ReflectionUtils.createEmpty(value);
+                for (String s : suggester.suggest(currentSetup, currentSetup.getSetup().getValue())) {
+                    list.add(new Candidate(s));
+                }
+            }
+            return;
+        }
+
+        ConsoleCommandIssuer commandSender = this.consoleManager.getCommandIssuer(this.consoleManager.getCommandSender());
 
         String name = line.split(" ")[0];
         String[] args = line.split(" ");

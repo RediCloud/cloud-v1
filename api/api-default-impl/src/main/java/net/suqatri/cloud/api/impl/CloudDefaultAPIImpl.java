@@ -2,6 +2,7 @@ package net.suqatri.cloud.api.impl;
 
 import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.impl.event.CloudEventHandler;
 import net.suqatri.cloud.api.event.ICloudEventManager;
 import net.suqatri.cloud.api.impl.event.CloudEventManager;
 import net.suqatri.cloud.api.impl.packet.CloudPacketManager;

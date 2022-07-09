@@ -1,5 +1,6 @@
 package net.suqatri.cloud.node.commands;
 
+import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.commands.CommandSender;
 import net.suqatri.commands.ConsoleCommand;
 import net.suqatri.commands.annotation.CommandAlias;
@@ -14,9 +15,13 @@ public class StopCommand extends ConsoleCommand {
 
     @Default
     public void onStop(CommandSender commandSender){
-        if((System.currentTimeMillis() - lastTime) < TimeUnit.SECONDS.toMillis(5)){
-
+        if((System.currentTimeMillis() - this.lastTime) < TimeUnit.SECONDS.toMillis(5)){
+            System.out.println("Shutdown node by command...");
+            NodeLauncher.getInstance().shutdown();
+            return;
         }
+        this.lastTime = System.currentTimeMillis();
+        commandSender.sendMessage("Enter 'stop' in the next 10 seconds again to shutdown the node.");
     }
 
 }

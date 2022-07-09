@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.suqatri.api.node.NodeCloudAPI;
 import net.suqatri.cloud.api.console.ICommandManager;
 import net.suqatri.cloud.api.console.IConsole;
+import net.suqatri.cloud.api.event.CloudGlobalEvent;
 import net.suqatri.cloud.api.event.ICloudEventManager;
 import net.suqatri.cloud.api.group.ICloudGroupManager;
 import net.suqatri.cloud.api.node.ICloudNode;
@@ -39,6 +40,11 @@ public class NodeLauncher extends NodeCloudAPI{
 
     private void connectToCluster(){
 
+    }
+
+    @Override
+    public void shutdown() {
+        this.console.stopThread();
     }
 
     @Override

@@ -11,6 +11,8 @@ public abstract class NodeCloudAPI extends CloudAPIImpl {
         super(ApplicationType.NODE);
     }
 
+    public abstract void shutdown();
+
     protected abstract ICloudNode getCloudNode();
 
 }

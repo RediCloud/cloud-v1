@@ -1,23 +1,29 @@
 package net.suqatri.cloud.api.node;
 
-import net.suqatri.cloud.api.player.ICloudPlayer;
 import net.suqatri.cloud.api.service.ICloudService;
+import net.suqatri.cloud.commons.function.future.FutureAction;
 
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.UUID;
 
-public interface ICloudNode {
+public interface ICloudNode extends Serializable {
 
+    UUID getUniqueId();
     String getName();
     String getHostname();
-    void setHostName();
-
     boolean isConnected();
 
-    Collection<ICloudService> getStartedServices();
+    FutureAction<Collection<ICloudService>> getStartedServices();
     int getStartedServicesCount();
+    int getMaxServiceCount();
+    void setMaxServiceCount(int maxServiceCount);
+    int getMaxParallelStartingServiceCount();
+    void setMaxParallelStartingServiceCount(int maxStartingServiceCount);
 
-    double getCPUUsage();
+    double getCpuUsage();
     int getMemoryUsage();
     int getMaxMemory();
+    void setMaxMemory(int maxMemory);
 
 }

@@ -4,6 +4,7 @@ import net.suqatri.commands.RootCommand;
 import org.jline.reader.UserInterruptException;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class NodeConsoleThread extends Thread {
@@ -31,11 +32,20 @@ public class NodeConsoleThread extends Thread {
     public void handleInput(String raw){
         String line = raw;
 
+        if(line == null) return;
         if(line.isEmpty()) return;
+
+
 
         while(line.startsWith(" ")){
             line = line.substring(1);
         }
+
+        for (Consumer<String> inputHandler : this.nodeConsole.getInputHandler()) {
+            inputHandler.accept(line);
+        }
+
+        if(this.nodeConsole.getCurrentSetup() != null) return;
 
         String name = line.split(" ")[0];
         String[] args = line.split(" ");
@@ -57,7 +67,5 @@ public class NodeConsoleThread extends Thread {
                 return;
             }
         }
-
-
     }
 }

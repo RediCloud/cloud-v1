@@ -1,0 +1,7 @@
+net\suqatri\cloud\node\console\setup\suggester\HostNameSuggester.class
+net\suqatri\cloud\node\console\setup\suggester\EnumSuggester.class
+net\suqatri\cloud\node\console\setup\suggester\BooleanSuggester.class
+net\suqatri\cloud\node\console\setup\suggester\MemorySuggester.class
+net\suqatri\cloud\node\console\NodeConsoleThread.class
+net\suqatri\cloud\node\console\setup\suggester\RedisPortSuggester.class
+net\suqatri\cloud\node\console\setup\Setup.class

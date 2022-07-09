@@ -26,8 +26,8 @@ public interface IConsole {
         log(LogLevel.DEBUG, message);
     }
 
-    default void fatal(String message){
-        log(LogLevel.FATAL, message);
+    default void fatal(String message, Throwable ... args){
+        log(LogLevel.FATAL, String.format(message, args));
     }
 
     void setLogLevel(LogLevel level);

@@ -7,9 +7,10 @@ import net.suqatri.cloud.api.service.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 
+import java.io.Serializable;
 import java.util.Collection;
 
-public interface ICloudGroup {
+public interface ICloudGroup extends Serializable {
 
     String getName();
     void setName(String name);

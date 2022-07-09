@@ -1,0 +1,10 @@
+net\suqatri\cloud\node\scheduler\SchedulerTask.class
+net\suqatri\cloud\node\setup\node\NodeConnectionDataSetup.class
+net\suqatri\cloud\node\scheduler\Scheduler.class
+net\suqatri\cloud\node\NodeLauncherMain.class
+net\suqatri\cloud\node\setup\redis\RedisSetup.class
+net\suqatri\cloud\node\scheduler\RepeatSchedulerTask.class
+net\suqatri\cloud\node\commands\StopCommand.class
+net\suqatri\cloud\node\commands\ClearCommand.class
+net\suqatri\cloud\node\node\ClusterConnectionInformation.class
+net\suqatri\cloud\node\NodeLauncher.class

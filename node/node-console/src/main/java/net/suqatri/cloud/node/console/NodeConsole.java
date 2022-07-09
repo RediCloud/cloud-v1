@@ -1,17 +1,25 @@
 package net.suqatri.cloud.node.console;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.suqatri.cloud.api.console.IConsole;
 import net.suqatri.cloud.api.console.LogLevel;
+import net.suqatri.cloud.node.console.setup.Setup;
+import org.fusesource.jansi.Ansi;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.AnsiWriter;
+import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public class NodeConsole implements IConsole {
@@ -24,6 +32,13 @@ public class NodeConsole implements IConsole {
     private Terminal terminal;
     private final LineReader lineReader;
     private ConsoleCompleter consoleCompleter;
+    @Setter
+    private Setup currentSetup;
+    private List<String> allWroteLines;
+    @Getter
+    private String prefix;
+    @Setter
+    private String mainPrefix = translateColorCodes("Test > ");
 
     public NodeConsole(CommandConsoleManager consoleManager) throws IOException {
         this.consoleManager = consoleManager;
@@ -31,10 +46,12 @@ public class NodeConsole implements IConsole {
         this.inputStream = System.in;
         this.outputStream = System.out;
         this.lineReader = createLineReader();
+        this.allWroteLines = new ArrayList<>();
+        this.startThread();
     }
 
-    public String getPrefix() {
-        return "Test > ";
+    public void resetPrefix(){
+        this.prefix = this.mainPrefix;
     }
 
     private LineReader createLineReader() throws IOException {
@@ -73,7 +90,30 @@ public class NodeConsole implements IConsole {
     @Override
     public void log(LogLevel logLevel, String message) {
         if(!canLog(logLevel)) return;
-        System.out.println(message);
+        print(message);
+    }
+
+    @Override
+    public void print(String message) {
+        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+
+        this.allWroteLines.add(message);
+
+        String s = translateColorCodes(message);
+        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
+        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + s + Ansi.ansi().reset());
+        this.lineReader.getTerminal().writer().flush();
+
+        this.redisplay();
+    }
+
+    private void redisplay() {
+        if (!lineReader.isReading()) {
+            return;
+        }
+
+        lineReader.callWidget(LineReader.REDRAW_LINE);
+        lineReader.callWidget(LineReader.REDISPLAY);
     }
 
     @Override
@@ -84,5 +124,24 @@ public class NodeConsole implements IConsole {
     @Override
     public LogLevel getLogLevel() {
         return this.logLevel;
+    }
+
+    @Override
+    public void clearScreen() {
+        this.terminal.puts(InfoCmp.Capability.clear_screen);
+        this.terminal.flush();
+    }
+
+    public void setCommandInput(String input){
+        this.lineReader.getBuffer().write(input);
+    }
+
+    @Override
+    public String translateColorCodes(String message) {
+        return ColorTranslator.translate(message);
+    }
+
+    public String getInput(){
+        return this.lineReader.readLine(getPrefix());
     }
 }

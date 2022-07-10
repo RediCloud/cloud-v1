@@ -7,6 +7,7 @@ import net.suqatri.cloud.api.impl.redis.RedissonManager;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.bucket.IRBucketObject;
 import net.suqatri.cloud.api.redis.bucket.IRedissonBucketManager;
+import net.suqatri.cloud.commons.function.Predicates;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import org.redisson.api.RBucket;
 
@@ -35,6 +36,9 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
     public FutureAction<IRBucketHolder<T>> getBucketHolderAsync(String identifier) {
         if(this.bucketHolders.containsKey(identifier)) return new FutureAction<>(this.bucketHolders.get(identifier));
         FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
+
+        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'", futureAction);
+
         existsAsync(identifier)
                 .onFailure(futureAction)
                 .onSuccess(exists -> {
@@ -64,6 +68,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
     @SneakyThrows
     @Override
     public IRBucketHolder getBucketHolder(String identifier) {
+        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
         if(this.bucketHolders.containsKey(identifier)) return this.bucketHolders.get(identifier);
         RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
         T object = bucket.get();
@@ -79,6 +84,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
     }
 
     public IRBucketHolder createBucket(String identifier, T object) {
+        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).set(object);
         RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
         IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, bucket.get());
@@ -88,6 +94,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
 
     public FutureAction<IRBucketHolder<T>> createBucketAsync(String identifier, T object) {
         FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
+        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'", futureAction);
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).setAsync(object)
                 .whenComplete((object1, throwable) -> {
                     if(throwable != null) {
@@ -103,6 +110,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
     }
 
     public void updateBucket(String identifier, String json){
+        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
         if(!identifier.startsWith(getRedisPrefix())) return;
         if(!this.bucketHolders.containsKey(identifier)) return;
         IRBucketHolder bucketHolder = this.bucketHolders.get(identifier);
@@ -110,11 +118,23 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
     }
 
     public boolean exists(String identifier) {
+        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
         return getClient().getBucket(getRedisKey(identifier), getObjectCodec()).isExists();
     }
 
     public FutureAction<Boolean> existsAsync(String identifier) {
-        return new FutureAction<>(getClient().getBucket(getRedisKey(identifier), getObjectCodec()).isExistsAsync());
+        FutureAction<Boolean> futureAction = new FutureAction<>();
+        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'", futureAction);
+        getClient().getBucket(getRedisKey(identifier), getObjectCodec()).isExistsAsync()
+                .whenComplete((exists, throwable) -> {
+                    if(throwable != null) {
+                        futureAction.completeExceptionally(throwable);
+                        return;
+                    }
+                    System.out.println("Exists " + getRedisKey(identifier) + ": " + exists);
+                    futureAction.complete(exists);
+                });
+        return futureAction;
     }
 
     @Override

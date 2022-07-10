@@ -2,16 +2,15 @@ package net.suqatri.cloud.node.console;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.IConsole;
 import net.suqatri.cloud.api.console.LogLevel;
 import net.suqatri.cloud.node.console.setup.Setup;
 import org.fusesource.jansi.Ansi;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.impl.LineReaderImpl;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import org.jline.utils.AnsiWriter;
 import org.jline.utils.InfoCmp;
 
 import java.io.IOException;
@@ -38,21 +37,45 @@ public class NodeConsole implements IConsole {
     private Setup currentSetup;
     private List<String> allWroteLines;
     @Getter
-    private String prefix = translateColorCodes("Test > ");
+    @Setter
+    private String prefix = translateColorCodes("§b" + System.getProperty("user.name") + "§a@§cUnknownNode §f=> ");
     @Setter
     private String mainPrefix;
     private Collection<Consumer<String>> inputHandler;
+
+    private String textColor = "§b";
+    private String highlightColor = "§f";
 
     public NodeConsole(CommandConsoleManager consoleManager) throws IOException {
         this.consoleManager = consoleManager;
         this.inputStream = System.in;
         this.outputStream = System.out;
         this.lineReader = createLineReader();
-        this.thread = new NodeConsoleThread(this, "node-console");
+        this.thread = new NodeConsoleThread(this, "node");
         this.allWroteLines = new ArrayList<>();
         this.inputHandler = new ArrayList<>();
         this.mainPrefix = prefix;
         this.startThread();
+        this.printStart();
+    }
+
+    private void printStart(){
+        clearScreen();
+        printRaw("    ", true, true);
+        printRaw("    ", true, true);
+        printRaw("§f     ▄████▄   ██▓     ▒█████   █    ██ ▓█████▄ ", true, true);
+        printRaw("§f    ▒██▀ ▀█  ▓██▒    ▒██▒  ██▒ ██  ▓██▒▒██▀ ██▌", true, true);
+        printRaw("§f    ▒▓█    ▄ ▒██░    ▒██░  ██▒▓██  ▒██░░██   █▌", true, true);
+        printRaw("§f    ▒▓▓▄ ▄██▒▒██░    ▒██   ██░▓▓█  ░██░░▓█▄   ▌", true, true);
+        printRaw("§f    ▒ ▓███▀ ░░██████▒░ ████▓▒░▒▒█████▓ ░▒████▓ ", true, true);
+        printRaw("§f    ░ ░▒ ▒  ░░ ▒░▓  ░░ ▒░▒░▒░ ░▒▓▒ ▒ ▒  ▒▒▓  ▒ ", true, true);
+        printRaw("§f      ░  ▒   ░ ░ ▒  ░  ░ ▒ ▒░ ░░▒░ ░ ░  ░ ▒  ▒ ", true, true);
+        printRaw("§f    ░          ░ ░   ░ ░ ░ ▒   ░░░ ░ ░  ░ ░  ░ ", true, true);
+        printRaw("§f    ░ ░          ░  ░    ░ ░     ░        ░    ", true, true);
+        printRaw(this.textColor + "    A cluster based cloud system for Minecraft", true, true);
+        printRaw("    §8» " + this.textColor + "Version: " + this.highlightColor + CloudAPI.getVersion() + " §8| " + this.textColor + "Discord: " + this.highlightColor +"https://discord.gg/vPwUhbVu4Y", true, true);
+        printRaw("    §8» " + this.textColor + "System: " + this.highlightColor + System.getProperty("os.name") + " §8| " + this.textColor + "Java: " + System.getProperty("java.version"), true, true);
+        printRaw("    ", true, true);
     }
 
     public void addInputHandler(Consumer<String> inputHandler) {
@@ -101,20 +124,64 @@ public class NodeConsole implements IConsole {
     }
 
     @Override
-    public void log(LogLevel logLevel, String message) {
-        if(!canLog(logLevel)) return;
-        print(message);
+    public void log(LogLevel level, String message, boolean translateColorCodes, boolean storeInHistory) {
+        if(!canLog(level)) return;
+        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+
+        if(storeInHistory) this.allWroteLines.add(message);
+
+        String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
+        String prefix = "§7[§f" + dateTime + "§7] §f" + level.name() + "§7: " + this.textColor;
+
+        String line = translateColorCodes ? translateColorCodes(prefix + message) : prefix + message;
+        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
+        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
+        this.lineReader.getTerminal().writer().flush();
+
+        this.redisplay();
     }
 
-    @Override
-    public void print(String message) {
+    public void setupResponse(String message){
+        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+
+        String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
+        String prefix = "§7[§f" + dateTime + "§7] §fSETUP§7: " + this.textColor;
+
+        String line = translateColorCodes(prefix + message);
+        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
+        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
+        this.lineReader.getTerminal().writer().flush();
+
+        this.redisplay();
+    }
+
+    public void commandResponse(String message){
         if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
 
         this.allWroteLines.add(message);
 
-        String s = translateColorCodes(message);
+        String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
+        String prefix = "§7[§f" + dateTime + "§7] §fCOMMAND§7: " + this.textColor;
+
+        String s = translateColorCodes(prefix + message);
         this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
         this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + s + Ansi.ansi().reset());
+        this.lineReader.getTerminal().writer().flush();
+
+        this.redisplay();
+    }
+
+    @Override
+    public void print(String message) {
+        this.log(LogLevel.INFO, message);
+    }
+
+    @Override
+    public void printRaw(String message, boolean translateColorCodes, boolean storeInHistory) {
+        if(storeInHistory) this.allWroteLines.add(message);
+
+        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
+        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + (translateColorCodes ? translateColorCodes(message) : message) + Ansi.ansi().reset());
         this.lineReader.getTerminal().writer().flush();
 
         this.redisplay();

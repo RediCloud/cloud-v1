@@ -52,6 +52,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private RBucketHolder<CloudNode> cloudNode;
     private final CloudNodeManager nodeManager;
     private NetworkComponentInfo networkComponentInfo;
+    private boolean shutdownInitialized = false;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -283,6 +284,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     @Override
     public void shutdown(boolean fromHook) {
+        if(this.shutdownInitialized) return;
+        this.shutdownInitialized = true;
         if(this.cloudNode != null){
             if(this.console != null) this.console.info("Disconnecting from cluster...");
             CloudNodeDisconnectEvent event = new CloudNodeDisconnectEvent();
@@ -304,7 +307,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     if(!fromHook) System.exit(0);
                 }, 1, TimeUnit.SECONDS);
             }, 1, TimeUnit.SECONDS);
-        }, 5, TimeUnit.SECONDS);
+        }, 1, TimeUnit.SECONDS);
     }
 
     @Override

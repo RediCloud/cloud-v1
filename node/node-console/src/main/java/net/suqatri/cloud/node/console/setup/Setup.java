@@ -8,7 +8,6 @@ import net.suqatri.cloud.node.console.NodeConsole;
 import net.suqatri.cloud.node.console.setup.annotations.*;
 
 import java.lang.reflect.Field;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -22,22 +21,22 @@ public abstract class Setup<T extends Setup<?>> {
 
     static {
 
-        registerTransformer(int.class, (entry, input) -> Integer.parseInt(input));
-        registerTransformer(double.class, (entry, input) -> Double.parseDouble(input));
-        registerTransformer(long.class, (entry, input) -> Long.parseLong(input));
-        registerTransformer(byte.class, ((entry, input) -> Byte.parseByte(input)));
-        registerTransformer(short.class, ((entry, input) -> Short.parseShort(input)));
-        registerTransformer(float.class, (entry, input) -> Float.parseFloat(input));
-        registerTransformer(boolean.class, (entry, input) -> Boolean.parseBoolean(input));
+        registerTransformer(int.class, (entry, input) -> Integer.parseInt(input.replaceAll(" ", "")));
+        registerTransformer(double.class, (entry, input) -> Double.parseDouble(input.replaceAll(" ", "")));
+        registerTransformer(long.class, (entry, input) -> Long.parseLong(input.replaceAll(" ", "")));
+        registerTransformer(byte.class, ((entry, input) -> Byte.parseByte(input.replaceAll(" ", ""))));
+        registerTransformer(short.class, ((entry, input) -> Short.parseShort(input.replaceAll(" ", ""))));
+        registerTransformer(float.class, (entry, input) -> Float.parseFloat(input.replaceAll(" ", "")));
+        registerTransformer(boolean.class, (entry, input) -> Boolean.parseBoolean(input.replaceAll(" ", "")));
 
         registerTransformer(String.class, (entry, input) -> input);
-        registerTransformer(Integer.class, (entry, input) -> Integer.parseInt(input));
-        registerTransformer(Double.class, (entry, input) -> Double.parseDouble(input));
-        registerTransformer(Long.class, (entry, input) -> Long.parseLong(input));
-        registerTransformer(Byte.class, ((entry, input) -> Byte.parseByte(input)));
-        registerTransformer(Short.class, ((entry, input) -> Short.parseShort(input)));
-        registerTransformer(Float.class, (entry, input) -> Float.parseFloat(input));
-        registerTransformer(Boolean.class, (entry, input) -> Boolean.parseBoolean(input));
+        registerTransformer(Integer.class, (entry, input) -> Integer.parseInt(input.replaceAll(" ", "")));
+        registerTransformer(Double.class, (entry, input) -> Double.parseDouble(input.replaceAll(" ", "")));
+        registerTransformer(Long.class, (entry, input) -> Long.parseLong(input.replaceAll(" ", "")));
+        registerTransformer(Byte.class, ((entry, input) -> Byte.parseByte(input.replaceAll(" ", ""))));
+        registerTransformer(Short.class, ((entry, input) -> Short.parseShort(input.replaceAll(" ", ""))));
+        registerTransformer(Float.class, (entry, input) -> Float.parseFloat(input.replaceAll(" ", "")));
+        registerTransformer(Boolean.class, (entry, input) -> Boolean.parseBoolean(input.replaceAll(" ", "")));
         registerTransformer(Enum.class, (entry, input) -> {
             if (entry.getRequiresEnum() == null) {
                 throw new IllegalStateException("To use an Enum in Setup you need the @RequiresEnum annotation!");
@@ -45,7 +44,7 @@ public abstract class Setup<T extends Setup<?>> {
             RequiresEnum requiresEnum = entry.getRequiresEnum();
             Class value = requiresEnum.value();
 
-            return Enum.valueOf(value, input.trim().toUpperCase());
+            return Enum.valueOf(value, input.replaceAll(" ", "").trim().toUpperCase());
         });
     }
 
@@ -183,17 +182,17 @@ public abstract class Setup<T extends Setup<?>> {
 
             //No input provided
             if (input.trim().isEmpty()) {
-                this.console.info("§cPlease do not enter §eempty §cinput!");
+                this.console.setupResponse("§cPlease do not enter empty input!");
                 return;
             }
 
             //Cancelling setup
             if (input.equalsIgnoreCase("cancel")) {
                 if (!this.isCancellable()) {
-                    this.console.info("§cYou cannot cancel the current setup§c!");
+                    this.console.setupResponse("§cYou cannot cancel the current setup!");
                     return;
                 }
-                this.console.info("§cThe current setup was §ecancelled§c!");
+                this.console.setupResponse("§cThe current setup was cancelled!");
                 this.cancelled = true;
                 this.current += 10000;
 
@@ -205,7 +204,7 @@ public abstract class Setup<T extends Setup<?>> {
 
             //If answer is enum only
             if (!setupEntry.isEnumRequired(input)) {
-                this.console.info("§cPossible answers: §e" + Arrays.toString(setup.getValue().getRequiresEnum().value().getEnumConstants()).replace("]", ")").replace("[", "("));
+                this.console.setupResponse("§cPossible answers: §e" + Arrays.toString(setup.getValue().getRequiresEnum().value().getEnumConstants()).replace("]", ")").replace("[", "("));
                 return;
             }
 
@@ -218,17 +217,17 @@ public abstract class Setup<T extends Setup<?>> {
                 }
 
                 if (onlyAllowed == null || onlyAllowed.length == 0) {
-                    this.console.info("§cCouldn't show you any possible answers because no possible answers were provided in the Setup!");
+                    this.console.setupResponse("§cCouldn't show you any possible answers because no possible answers were provided in the Setup!");
                 } else {
-                    this.console.info("§cPossible answers: §e" + Arrays.toString(onlyAllowed).replace("]", "").replace("[", ""));
+                    this.console.setupResponse("§cPossible answers: §e" + Arrays.toString(onlyAllowed).replace("]", "").replace("[", ""));
                 }
-                this.console.info("§cRequired Type: §e" + this.setup.getKey().getType().getSimpleName());
+                this.console.setupResponse("§cRequired Type: §e" + this.setup.getKey().getType().getSimpleName());
                 return;
             }
 
             //If the current input is forbidden to use
             if (setupEntry.isForbidden(input)) {
-                this.console.info(!input.trim().isEmpty() ? ("§cThe answer '§e" + input + " §cmay not be used for this question!") : "§cThis §eanswer §cmay not be used for this question!");
+                this.console.setupResponse(!input.trim().isEmpty() ? ("§cThe answer '§e" + input + " §cmay not be used for this question!") : "§cThis §eanswer §cmay not be used for this question!");
                 return;
             }
 
@@ -238,7 +237,7 @@ public abstract class Setup<T extends Setup<?>> {
                 BiSupplier<String, Boolean> supplier = ReflectionUtils.createEmpty(value);
                 if (supplier != null) {
                     if (supplier.supply(input)) {
-                        this.console.info(checker.message().replace("%input%", input));
+                        this.console.setupResponse(checker.message().replace("%input%", input));
                         return;
                     }
                 }
@@ -259,7 +258,7 @@ public abstract class Setup<T extends Setup<?>> {
                 value = transformer.parse(setupEntry, input);
 
                 if (value == null) {
-                    this.console.info("§cPlease try again");
+                    this.console.setupResponse("§cPlease try again");
                     return;
                 }
 
@@ -267,7 +266,7 @@ public abstract class Setup<T extends Setup<?>> {
                 this.setup.getKey().set(this, value);
 
             } catch (Exception ex) {
-                this.console.info("§cThe §einput §cdidn't match any of the available §eAnswerTypes§c!");
+                this.console.setupResponse("§cThe §einput §cdidn't match any of the available §eAnswerTypes§c!");
                 return;
             }
 
@@ -336,7 +335,7 @@ public abstract class Setup<T extends Setup<?>> {
 
     private void printQuestion(SetupEntry entry) {
         if (this.shouldPrintHeader()) {
-            this.printHeader(getClass().getSimpleName() + " at " + new SimpleDateFormat("HH:mm:ss").format(System.currentTimeMillis()));
+            this.printHeader("");
         }
 
         //Sending first question without any input
@@ -345,10 +344,10 @@ public abstract class Setup<T extends Setup<?>> {
         if (entry.getAnswers() != null) {
             sb.append(" ").append((Arrays.toString(entry.getAnswers().only())).replace("[", "(").replace("]", ")"));
         }
-        this.console.info(sb.toString());
+        this.console.setupResponse(sb.toString());
 
         if (entry.getRequiresEnum() != null) {
-            this.console.info("§7Possible Answers§8: §b" + Arrays.toString(entry.getRequiresEnum().value().getEnumConstants()).replace("]", "§8)").replace("[", "§8(§b").replace(",", "§8, §b"));
+            this.console.setupResponse(this.console.getTextColor() + "Possible Answers: " + this.console.getHighlightColor() + Arrays.toString(entry.getRequiresEnum().value().getEnumConstants()).replace("]", "§8)").replace("[", "§8(" + this.console.getHighlightColor()).replace(",", "§7, " + this.console.getHighlightColor()));
         }
 
         if (entry.getSuggestedAnswer() != null) {
@@ -369,19 +368,13 @@ public abstract class Setup<T extends Setup<?>> {
     private void printHeader(String header) {
         this.console.clearScreen();
 
-        this.console.info("§8");
-        this.console.info(header);
-        this.console.info("§8");
+        this.console.setupResponse("§8");
         if (this.isCancellable()) {
-            this.console.info("§7» §7You can cancel this setup by typing \"§ecancel§7\"!");
-        } else {
-            this.console.info("§7» §7This setup is §cnot allowed §7to be cancelled!");
+            this.console.setupResponse("     " + this.console.getTextColor() + "You can cancel this setup by typing §7\"" + this.console.getHighlightColor() + "cancel§7\"" + this.console.getTextColor() + "!");
         }
-        this.console.info("§7» §7Suggested answers can be §coverridden §7by typing your own!");
-        this.console.info("§7» §7Suggested answers can be accepted by hitting §aenter§7!");
-        this.console.info("§7» §7Hit §eTAB §7to see possible answers§7!");
-        this.console.info("§7» §7Current Question §f: §b" + (this.current == 1 ? 1 : current) + "/" + (this.map.keySet().size() == 0 ? "Loading" : this.map.keySet().size() + ""));
-        this.console.info("§8");
+        this.console.setupResponse("     " + this.console.getTextColor() + "Use " + this.console.getHighlightColor() + "TAB" + this.console.getTextColor() + " to see possible answers!");
+        this.console.setupResponse("     " + this.console.getTextColor() + "Current Question: " + this.console.getHighlightColor() + (this.current == 1 ? 1 : current) + "/" + (this.map.keySet().size() == 0 ? "Loading" : this.map.keySet().size() + ""));
+        this.console.setupResponse("§8");
     }
 
 }

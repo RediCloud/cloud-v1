@@ -4,6 +4,9 @@ import com.google.common.collect.ImmutableSet;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.event.*;
 import net.suqatri.cloud.api.impl.event.packet.GlobalEventPacket;
+import net.suqatri.cloud.api.impl.node.CloudNode;
+import net.suqatri.cloud.api.network.INetworkComponentInfo;
+import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,15 +14,18 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 public class CloudEventManager implements ICloudEventManager {
 
     private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
     private final Map<Class<?>, CloudEventInvoker[]> byEventBaked = new ConcurrentHashMap<>();
-    private final Lock lock = new ReentrantLock();
+    private final Lock listenerLock = new ReentrantLock();
+    private final Map<String, List<Consumer<? extends CloudEvent>>> consumers = new HashMap<>();
+    private final Lock consumerLock = new ReentrantLock();
 
     @Override
-    public void postLocal(CloudEvent event) {
+    public <T extends CloudEvent> void postLocal(T event) {
         CloudEventInvoker[] handlers = this.byEventBaked.get(event.getClass());
 
         if (handlers != null) {
@@ -42,14 +48,41 @@ public class CloudEventManager implements ICloudEventManager {
                 }
             }
         }
+
+        List<Consumer<? extends CloudEvent>> consumers = this.consumers.get(event.getClass().getName());
+        if (consumers != null) {
+            for (Consumer consumer : consumers) {
+                long start = System.nanoTime();
+
+                try {
+                    consumer.accept(event);
+                } catch (Throwable ex) {
+                    CloudAPI.getInstance().getConsole().warn("Error dispatching event " + event + " to consumer " + consumer, ex);
+                }
+
+                long elapsed = System.nanoTime() - start;
+                if (elapsed > 50000000) {
+                    CloudAPI.getInstance().getConsole().warn("Consumer " + consumer.getClass().getName() + " took " + (elapsed / 1000000) + " to process event " + event.getClass().getName());
+                }
+            }
+            this.consumers.remove(event.getClass());
+        }
     }
 
     @Override
-    public void postGlobal(CloudGlobalEvent event) {
+    public <T extends CloudGlobalEvent> void postGlobal(T event) {
         postLocal(event);
         GlobalEventPacket packet = new GlobalEventPacket();
         packet.setEvent(event);
-        packet.publishAsync();
+        packet.publishAll();
+    }
+
+    @Override
+    public <T extends CloudGlobalEvent> void postGlobalAsync(T event) {
+        postLocal(event);
+        GlobalEventPacket packet = new GlobalEventPacket();
+        packet.setEvent(event);
+        packet.publishAllAsync();
     }
 
     private Map<Class<?>, Map<Byte, Set<Method>>> findHandlers(Object listener) {
@@ -74,7 +107,7 @@ public class CloudEventManager implements ICloudEventManager {
     @Override
     public void register(Object listener) {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
-        this.lock.lock();
+        this.listenerLock.lock();
         try {
             for(Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet()) {
                 Map<Byte, Map<Object, Method[]>> prioritiesMap = this.byListenerAndPriority.computeIfAbsent( e.getKey(), k -> new HashMap<>());
@@ -85,14 +118,14 @@ public class CloudEventManager implements ICloudEventManager {
                 bakeHandlers(e.getKey());
             }
         } finally {
-            this.lock.unlock();
+            this.listenerLock.unlock();
         }
     }
 
     @Override
     public void unregister(Object listener) {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers(listener);
-        this.lock.lock();
+        this.listenerLock.lock();
         try {
             for(Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet()) {
                 Map<Byte, Map<Object, Method[]>> prioritiesMap = this.byListenerAndPriority.get(e.getKey());
@@ -113,7 +146,33 @@ public class CloudEventManager implements ICloudEventManager {
                 bakeHandlers(e.getKey());
             }
         } finally {
-            this.lock.unlock();
+            this.listenerLock.unlock();
+        }
+    }
+
+    @Override
+    public <T extends CloudEvent> void register(Class<T> eventClass, Consumer<T> consumer) {
+        this.consumerLock.lock();
+        try {
+            List<Consumer<? extends CloudEvent>> consumers = this.consumers.getOrDefault(eventClass.getName(), new ArrayList<>());
+            consumers.add(consumer);
+            this.consumers.put(eventClass.getName(), consumers);
+        } finally {
+            this.consumerLock.unlock();
+        }
+    }
+
+    @Override
+    public <T extends CloudEvent> void unregister(Class<T> eventClass, Consumer<T> consumer) {
+        this.consumerLock.lock();
+        try {
+            List<Consumer<? extends CloudEvent>> consumers = this.consumers.get(eventClass);
+            if (consumers != null) {
+                consumers.remove(consumer);
+            }
+            this.consumers.put(eventClass.getName(), consumers);
+        } finally {
+            this.consumerLock.unlock();
         }
     }
 

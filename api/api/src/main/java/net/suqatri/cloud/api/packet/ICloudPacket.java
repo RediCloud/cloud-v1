@@ -5,5 +5,8 @@ public interface ICloudPacket {
     void receive();
     void publish();
     void publishAsync();
+    void publishAllAsync();
+    void publishAll();
+    ICloudPacketData getPacketData();
 
 }

@@ -15,69 +15,7 @@ import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.api.utils.ApplicationType;
 
-public class MinecraftCloudAPI extends CloudDefaultAPIImpl {
+public class MinecraftCloudAPI  {
 
-    public MinecraftCloudAPI(){
-        super(ApplicationType.SERVICE_MINECRAFT);
-    }
 
-    @Override
-    public IScheduler getScheduler() {
-        return null;
-    }
-
-    @Override
-    public IConsole getConsole() {
-        return null;
-    }
-
-    @Override
-    public ICommandManager<?> getCommandManager() {
-        return null;
-    }
-
-    @Override
-    public ICloudGroupManager getGroupManager() {
-        return null;
-    }
-
-    @Override
-    public ICloudNodeManager getNodeManager() {
-        return null;
-    }
-
-    @Override
-    public ICloudPacketManager getPacketManager() {
-        return null;
-    }
-
-    @Override
-    public ICloudPlayerManager getPlayerManager() {
-        return null;
-    }
-
-    @Override
-    public ICloudServiceFactory getServiceFactory() {
-        return null;
-    }
-
-    @Override
-    public ICloudServiceManager getServiceManager() {
-        return null;
-    }
-
-    @Override
-    public ICloudServiceTemplateManager getServiceTemplateManager() {
-        return null;
-    }
-
-    @Override
-    public ICloudEventManager getEventManager() {
-        return null;
-    }
-
-    @Override
-    public IRedisConnection getRedisConnection() {
-        return null;
-    }
 }

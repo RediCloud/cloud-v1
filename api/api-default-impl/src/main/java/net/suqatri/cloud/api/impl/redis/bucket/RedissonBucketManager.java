@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 public abstract class RedissonBucketManager<T extends IRBucketObject> extends RedissonManager implements IRedissonBucketManager {
 
+    @Getter
     private static HashMap<String, RedissonBucketManager<?>> managers = new HashMap<>();
 
     @Getter
@@ -24,7 +25,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
     private final String redisPrefix;
 
     public RedissonBucketManager(String prefix, Class<T> objectClass) {
-        managers.put(getRedisPrefix(), this);
+        managers.put(prefix, this);
         this.bucketHolders = new ConcurrentHashMap<>();
         this.objectClass = objectClass;
         this.redisPrefix = prefix;
@@ -35,16 +36,24 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
         if(this.bucketHolders.containsKey(identifier)) return new FutureAction<>(this.bucketHolders.get(identifier));
         FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
         existsAsync(identifier)
-                .parent(futureAction)
+                .onFailure(futureAction)
                 .onSuccess(exists -> {
-                    RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier));
+                    if(!exists) {
+                        futureAction.completeExceptionally(new IllegalArgumentException("Bucket[" + identifier + "] does not exist"));
+                        return;
+                    }
+                    RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
                     bucket.getAsync()
                             .whenComplete((object, throwable) -> {
                                 if(throwable != null) {
                                     futureAction.completeExceptionally(throwable);
                                     return;
                                 }
-                                IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket);
+                                if(object == null){
+                                    futureAction.completeExceptionally(new IllegalArgumentException("Bucket[" + identifier + "] not found! Create first before getting!"));
+                                    return;
+                                }
+                                IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, (RBucketObject) object);
                                 this.bucketHolders.put(identifier, bucketHolder);
                                 futureAction.complete(bucketHolder);
                             });
@@ -56,8 +65,10 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
     @Override
     public IRBucketHolder getBucketHolder(String identifier) {
         if(this.bucketHolders.containsKey(identifier)) return this.bucketHolders.get(identifier);
-        RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier));
-        IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket);
+        RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
+        T object = bucket.get();
+        if(object == null) throw new IllegalArgumentException("Bucket[" + identifier + "] not found! Create first before getting!");
+        IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, (RBucketObject) object);
         this.bucketHolders.put(identifier, bucketHolder);
         return bucketHolder;
     }
@@ -68,23 +79,23 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
     }
 
     public IRBucketHolder createBucket(String identifier, T object) {
-        getClient().getBucket(getRedisKey(identifier)).set(object);
-        RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier));
-        IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket);
+        getClient().getBucket(getRedisKey(identifier), getObjectCodec()).set(object);
+        RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
+        IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, bucket.get());
         this.bucketHolders.put(identifier, bucketHolder);
         return bucketHolder;
     }
 
     public FutureAction<IRBucketHolder<T>> createBucketAsync(String identifier, T object) {
         FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
-        getClient().getBucket(getRedisKey(identifier)).setAsync(object)
+        getClient().getBucket(getRedisKey(identifier), getObjectCodec()).setAsync(object)
                 .whenComplete((object1, throwable) -> {
                     if(throwable != null) {
                         futureAction.completeExceptionally(throwable);
                         return;
                     }
-                    RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier));
-                    IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket);
+                    RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
+                    IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, (RBucketObject) object);
                     this.bucketHolders.put(identifier, bucketHolder);
                     futureAction.complete(bucketHolder);
                 });
@@ -99,16 +110,16 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
     }
 
     public boolean exists(String identifier) {
-        return getClient().getBucket(getRedisKey(identifier)).isExists();
+        return getClient().getBucket(getRedisKey(identifier), getObjectCodec()).isExists();
     }
 
     public FutureAction<Boolean> existsAsync(String identifier) {
-        return new FutureAction<>(getClient().getBucket(getRedisKey(identifier)).isExistsAsync());
+        return new FutureAction<>(getClient().getBucket(getRedisKey(identifier), getObjectCodec()).isExistsAsync());
     }
 
     @Override
     public String getRedisKey(String identifier) {
-        return this.redisPrefix;
+        return this.redisPrefix + "@" + identifier;
     }
 
     @Override

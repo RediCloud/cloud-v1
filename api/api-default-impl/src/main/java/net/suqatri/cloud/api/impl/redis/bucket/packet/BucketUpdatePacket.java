@@ -4,6 +4,7 @@ import net.suqatri.cloud.api.impl.packet.CloudPacket;
 import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.cloud.api.redis.bucket.packet.IBucketUpdatePacket;
 
+//TODO use SetObjectListener to listen to changes
 public class BucketUpdatePacket extends CloudPacket implements IBucketUpdatePacket {
 
     private String identifier;
@@ -12,7 +13,9 @@ public class BucketUpdatePacket extends CloudPacket implements IBucketUpdatePack
 
     @Override
     public void receive() {
-        RedissonBucketManager.getManager(this.redisPrefix + "@" + this.identifier).updateBucket(this.identifier, this.json);
+        RedissonBucketManager manager = RedissonBucketManager.getManager(this.redisPrefix);
+        if(manager == null) throw new NullPointerException("RedissonBucketManager is null of prefix " + this.redisPrefix + "!");
+        manager.updateBucket(this.identifier, this.json);
     }
 
     @Override

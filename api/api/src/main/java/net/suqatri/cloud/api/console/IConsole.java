@@ -2,16 +2,28 @@ package net.suqatri.cloud.api.console;
 
 public interface IConsole {
 
-    void log(LogLevel logLevel, String message);
+    default void log(LogLevel logLevel, String message) {
+        log(logLevel, message, true, true);
+    }
+    void log(LogLevel logLevel, String message, boolean translateColorCodes, boolean storeInHistory);
 
     void print(String message);
+    void printRaw(String message, boolean translateColorCodes, boolean storeInHistory);
 
-    default void error(String message, Throwable ... args) {
-        log(LogLevel.ERROR, String.format(message, args));
+    default void error(String message, Throwable throwable) {
+        log(LogLevel.FATAL, message);
+        log(LogLevel.FATAL, throwable.getMessage());
+        log(LogLevel.FATAL, throwable.getStackTrace());
     }
 
-    default void warn(String message, Throwable ... args) {
-        log(LogLevel.WARN, String.format(message, args));
+    default void error(String message){
+        log(LogLevel.ERROR, message);
+    }
+
+    default void warn(String message, Throwable throwable) {
+        log(LogLevel.FATAL, message);
+        log(LogLevel.FATAL, throwable.getMessage());
+        log(LogLevel.FATAL, throwable.getStackTrace());
     }
 
     default void warn(String message){
@@ -26,8 +38,14 @@ public interface IConsole {
         log(LogLevel.DEBUG, message);
     }
 
-    default void fatal(String message, Throwable ... args){
-        log(LogLevel.FATAL, String.format(message, args));
+    default void fatal(String message, Throwable throwable){
+        log(LogLevel.FATAL, message);
+        log(LogLevel.FATAL, throwable.getMessage());
+        log(LogLevel.FATAL, throwable.getStackTrace());
+    }
+
+    default void log(LogLevel level, Object[] messages){
+        for(Object message : messages) log(level, message.toString());
     }
 
     void setLogLevel(LogLevel level);

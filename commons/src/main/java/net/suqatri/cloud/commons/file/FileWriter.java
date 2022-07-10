@@ -22,21 +22,12 @@ public class FileWriter {
         }
     }
 
-    public static void writeObject(Object object, File file){
-        try {
-            write(file, new JsonJacksonCodec().getObjectMapper().writeValueAsString(object));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+    public static void writeObject(Object object, File file) throws Exception{
+        write(file, new JsonJacksonCodec().getObjectMapper().writeValueAsString(object));
     }
 
-    public static <T> T readObject(File file, Class<T> clazz){
-        try {
-            return new JsonJacksonCodec().getObjectMapper().readValue(file, clazz);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public static <T> T readObject(File file, Class<T> clazz) throws Exception{
+        return new JsonJacksonCodec().getObjectMapper().readValue(file, clazz);
     }
 
 }

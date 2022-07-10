@@ -2,6 +2,7 @@ package net.suqatri.cloud.api.impl.redis.bucket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.impl.redis.bucket.packet.BucketUpdatePacket;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.bucket.IRedissonBucketManager;
 import net.suqatri.cloud.commons.function.future.FutureAction;
@@ -14,45 +15,64 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
     private final RBucket<T> bucket;
     private T publishedObject;
 
-    public RBucketHolder(String identifier, IRedissonBucketManager<T> bucketManager, RBucket<T> bucket) {
+    public RBucketHolder(String identifier, IRedissonBucketManager<T> bucketManager, RBucket<T> bucket, T object) {
         this.bucket = bucket;
         this.identifier = identifier;
         this.bucketManager = bucketManager;
-    }
-
-    @Override
-    public T getObject(boolean force) {
-        if(this.publishedObject != null && !force) return this.publishedObject;
-        this.publishedObject = this.bucket.get();
+        if(object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
+        this.publishedObject = object;
         this.publishedObject.setHolder(this);
-        return this.publishedObject;
+    }
+
+    public void setPublishedObject(T object) {
+        CloudAPI.getInstance().getConsole().debug("Setting published object for bucket " + identifier + " to " + object);
+        this.publishedObject = object;
+        this.publishedObject.setHolder(this);
     }
 
     @Override
-    public FutureAction<T> getObjectAsync(boolean force) {
-        FutureAction<T> future = new FutureAction<>();
-        if(this.publishedObject != null && !force) {
-            future.complete(this.publishedObject);
-            return future;
-        }
-        this.bucket.getAsync().whenComplete((object, throwable) -> {
-            if(throwable != null) return;
-            this.publishedObject = object;
-            this.publishedObject.setHolder(this);
-            future.complete(object);
-        });
-        return future;
+    public T get(boolean force) {
+        if(this.publishedObject != null && !force) return this.publishedObject;
+        setPublishedObject(this.bucket.get());
+        return this.publishedObject;
     }
 
     @Override
     public IRBucketHolder<T> update(T object) {
         this.bucket.set(object);
+        try {
+            BucketUpdatePacket packet = new BucketUpdatePacket();
+            packet.setIdentifier(this.identifier);
+            packet.setRedisPrefix(this.getRedisPrefix());
+            packet.setJson(this.bucketManager.getObjectCodec().getObjectMapper().writeValueAsString(object));
+            packet.publishAll();
+        } catch (JsonProcessingException e) {
+            CloudAPI.getInstance().getConsole().error("Error while publishing bucket update packet for " + getRedisKey(), e);
+        }
         return this;
     }
 
     @Override
     public FutureAction<IRBucketHolder<T>> updateAsync(T object) {
-        return new FutureAction<>(this.bucket.setAsync(object)).map(v -> this);
+        FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
+
+        new FutureAction<>(this.bucket.setAsync(object))
+                .onFailure(futureAction)
+                .onSuccess(a -> {
+                    try {
+                        BucketUpdatePacket packet = new BucketUpdatePacket();
+                        packet.setIdentifier(this.identifier);
+                        packet.setRedisPrefix(this.getRedisPrefix());
+                        packet.setJson(this.bucketManager.getObjectCodec().getObjectMapper().writeValueAsString(object));
+                        packet.publishAllAsync();
+                    } catch (JsonProcessingException e) {
+                        futureAction.completeExceptionally(e);
+                        return;
+                    }
+                    futureAction.complete(this);
+                });
+
+        return futureAction;
     }
 
     @Override
@@ -65,8 +85,9 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
         try {
             if(this.publishedObject != null) {
                 this.bucketManager.getObjectCodec().getObjectMapper().readerForUpdating(this.publishedObject).readValue(json);
+                this.publishedObject.setHolder(this);
             }else{
-                this.publishedObject = this.bucketManager.getObjectCodec().getObjectMapper().readValue(json, this.bucketManager.getObjectClass());
+                this.setPublishedObject(this.bucketManager.getObjectCodec().getObjectMapper().readValue(json, this.bucketManager.getObjectClass()));
             }
         } catch (JsonProcessingException e) {
             CloudAPI.getInstance().getConsole().error("Failed to merge changes of bucket " + getRedisKey(), e);

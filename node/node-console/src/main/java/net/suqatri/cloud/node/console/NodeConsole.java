@@ -37,9 +37,7 @@ public class NodeConsole implements IConsole {
     private Setup currentSetup;
     private List<String> allWroteLines;
     @Getter
-    @Setter
     private String prefix = translateColorCodes("§b" + System.getProperty("user.name") + "§a@§cUnknownNode §f=> ");
-    @Setter
     private String mainPrefix;
     private Collection<Consumer<String>> inputHandler;
 
@@ -88,6 +86,17 @@ public class NodeConsole implements IConsole {
 
     public void resetPrefix(){
         this.prefix = this.mainPrefix;
+        this.redisplay();
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+        this.redisplay();
+    }
+
+    public void setMainPrefix(String mainPrefix) {
+        this.mainPrefix = mainPrefix;
+        this.redisplay();
     }
 
     private LineReader createLineReader() throws IOException {

@@ -14,6 +14,6 @@ public class NodeConsoleSender extends CommandSender {
 
     @Override
     public void sendMessage(String message) {
-        this.consoleManager.getNodeConsole().log(LogLevel.INFO, message);
+        this.consoleManager.getNodeConsole().commandResponse(message);
     }
 }

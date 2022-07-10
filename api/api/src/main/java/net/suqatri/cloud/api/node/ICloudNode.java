@@ -1,5 +1,6 @@
 package net.suqatri.cloud.api.node;
 
+import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
@@ -25,5 +26,9 @@ public interface ICloudNode extends Serializable {
     int getMemoryUsage();
     int getMaxMemory();
     void setMaxMemory(int maxMemory);
+    long getLastConnection();
+    long getUpTime();
+    void shutdown();
+    INetworkComponentInfo getNetworkComponentInfo();
 
 }

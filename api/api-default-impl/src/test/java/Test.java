@@ -15,8 +15,9 @@ public class Test {
                 .setDatabase(2);
         RedissonClient redissonClient = Redisson.create(config);
         String uuid = "a60409b3-4bd7-4c99-a5f9-a1e6cfac5882";
+
         RBucket<CloudNode> bucket = redissonClient.getBucket("node@" + uuid, new JsonJacksonCodec());
-        System.out.println(bucket.isExists());
+        System.out.println("Exists node@" + uuid + ": " + bucket.isExists());
         CloudNode cloudNode = bucket.get();
         System.out.println(cloudNode.getUniqueId().toString() + " | " + cloudNode.getName());
     }

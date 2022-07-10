@@ -12,7 +12,6 @@
 
         <module>api/api</module>
         <module>api/api-node</module>
-        <module>api/api-service</module>
         <module>api/api-proxy</module>
         <module>api/api-minecraft</module>
         <module>api/api-default-impl</module>

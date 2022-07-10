@@ -1,7 +1,5 @@
 package net.suqatri.cloud.commons.function.future;
 
-import org.redisson.api.RFuture;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Consumer;
@@ -9,6 +7,10 @@ import java.util.function.Consumer;
 public class FutureAction<V> extends CompletableFuture<V> {
 
     public FutureAction() {}
+
+    public FutureAction(Throwable t){
+        this.completeExceptionally(t);
+    }
 
     public FutureAction(V value) {
         this.complete(value);
@@ -24,7 +26,7 @@ public class FutureAction<V> extends CompletableFuture<V> {
         });
     }
 
-    public FutureAction<V> parent(FutureAction futureAction) {
+    public FutureAction<V> onFailure(FutureAction futureAction) {
         this.whenComplete((v, t) -> {
             if(t != null) {
                 futureAction.completeExceptionally(t);

@@ -41,7 +41,7 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode> implement
     public Collection<IRBucketHolder<CloudNode>> getNodes() {
         List<IRBucketHolder<CloudNode>> buckets = new ArrayList<>();
         getClient().getKeys().getKeysByPattern("node@*").forEach(key -> {
-            buckets.add(getBucketHolder(key));
+            buckets.add(getBucketHolder(key.split("@")[1]));
         });
         return buckets;
     }
@@ -51,7 +51,7 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode> implement
         FutureAction<Collection<IRBucketHolder<CloudNode>>> futureAction = new FutureAction<>();
         FutureActionCollection<String, IRBucketHolder<CloudNode>> futureActionCollection = new FutureActionCollection<>();
         getClient().getKeys().getKeysByPattern("node@*").forEach(key -> {
-            futureActionCollection.addToProcess(key, getBucketHolderAsync(key));
+            futureActionCollection.addToProcess(key, getBucketHolderAsync(key.split("@")[1]));
         });
         futureActionCollection.process()
                 .onFailure(futureAction)

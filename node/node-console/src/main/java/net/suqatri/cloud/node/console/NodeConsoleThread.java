@@ -1,5 +1,6 @@
 package net.suqatri.cloud.node.console;
 
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.commands.RootCommand;
 import org.jline.reader.UserInterruptException;
 
@@ -24,8 +25,8 @@ public class NodeConsoleThread extends Thread {
                 line = this.nodeConsole.getLineReader().readLine(this.nodeConsole.getPrefix());
                 handleInput(line);
             }
-        }catch (UserInterruptException | IllegalStateException e){
-            e.printStackTrace();
+        }catch (UserInterruptException e){
+            CloudAPI.getInstance().shutdown(false);
         }
     }
 

@@ -7,12 +7,12 @@ import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.utils.ApplicationType;
 
-public abstract class NodeCloudDefaultAPI extends CloudDefaultAPIImpl {
+public abstract class NodeCloudDefaultAPI extends CloudDefaultAPIImpl<CloudNode> {
 
     public NodeCloudDefaultAPI() {
         super(ApplicationType.NODE);
     }
 
-    protected abstract RBucketHolder<CloudNode> getCloudNode();
+    public abstract CloudNode getNode();
 
 }

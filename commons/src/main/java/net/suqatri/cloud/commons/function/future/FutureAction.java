@@ -35,13 +35,31 @@ public class FutureAction<V> extends CompletableFuture<V> {
         return this;
     }
 
+    public <R> FutureAction<R> map(FutureMapper<V, R> mapper, Class<R> clazz) {
+        FutureAction<R> future = new FutureAction<>();
+        this.whenComplete((v, t) -> {
+            if(t != null) {
+                future.completeExceptionally(t);
+            } else {
+                R value = mapper.get(v);
+                if(value instanceof Throwable) {
+                    future.completeExceptionally((Throwable) value);
+                    return;
+                }
+                future.complete(value);
+            }
+        });
+        return future;
+    }
+
     public <R> FutureAction<R> map(FutureMapper<V, R> mapper) {
         FutureAction<R> future = new FutureAction<>();
         this.whenComplete((v, t) -> {
             if(t != null) {
                 future.completeExceptionally(t);
             } else {
-                future.complete(mapper.get(v));
+                R value = mapper.get(v);
+                future.complete(value);
             }
         });
         return future;

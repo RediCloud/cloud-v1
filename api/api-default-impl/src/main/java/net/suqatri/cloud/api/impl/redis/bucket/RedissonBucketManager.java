@@ -2,6 +2,7 @@ package net.suqatri.cloud.api.impl.redis.bucket;
 
 import lombok.Getter;
 import lombok.SneakyThrows;
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.node.CloudNode;
 import net.suqatri.cloud.api.impl.redis.RedissonManager;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
@@ -111,8 +112,9 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
 
     public void updateBucket(String identifier, String json){
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
-        if(!identifier.startsWith(getRedisPrefix())) return;
+
         if(!this.bucketHolders.containsKey(identifier)) return;
+        CloudAPI.getInstance().getConsole().debug("Updating bucket: " + getRedisKey(identifier));
         IRBucketHolder bucketHolder = this.bucketHolders.get(identifier);
         bucketHolder.mergeChanges(json);
     }

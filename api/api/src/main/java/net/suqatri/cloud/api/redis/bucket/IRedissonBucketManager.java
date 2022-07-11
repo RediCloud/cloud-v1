@@ -5,7 +5,7 @@ import net.suqatri.cloud.commons.function.future.FutureAction;
 
 public interface IRedissonBucketManager<T extends IRBucketObject> extends IRedissonManager {
 
-    Class<T> getObjectClass();
+    Class<T> getImplClass();
     FutureAction<IRBucketHolder<T>> getBucketHolderAsync(String identifier);
     IRBucketHolder<T> getBucketHolder(String identifier);
     void unlink(IRBucketHolder<T> bucketHolder);

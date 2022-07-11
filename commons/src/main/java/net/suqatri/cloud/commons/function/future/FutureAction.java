@@ -1,7 +1,12 @@
 package net.suqatri.cloud.commons.function.future;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class FutureAction<V> extends CompletableFuture<V> {
@@ -24,6 +29,18 @@ public class FutureAction<V> extends CompletableFuture<V> {
                 this.complete(v);
             }
         });
+    }
+
+    public FutureAction<V> orTimeout(long timeout, TimeUnit unit) {
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(!isDone() && !isCancelled() && !isCompletedExceptionally()) {
+                    completeExceptionally(new TimeoutException());
+                }
+            }
+        }, unit.toMillis(timeout));
+        return this;
     }
 
     public FutureAction<V> onFailure(FutureAction futureAction) {

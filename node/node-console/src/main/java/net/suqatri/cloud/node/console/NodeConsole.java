@@ -54,10 +54,9 @@ public class NodeConsole implements IConsole {
         this.inputHandler = new ArrayList<>();
         this.mainPrefix = prefix;
         this.startThread();
-        this.printStart();
     }
 
-    private void printStart(){
+    public void printCloudHeader(){
         clearScreen();
         printRaw("    ", true, true);
         printRaw("    ", true, true);
@@ -187,6 +186,7 @@ public class NodeConsole implements IConsole {
 
     @Override
     public void printRaw(String message, boolean translateColorCodes, boolean storeInHistory) {
+        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
         if(storeInHistory) this.allWroteLines.add(message);
 
         this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);

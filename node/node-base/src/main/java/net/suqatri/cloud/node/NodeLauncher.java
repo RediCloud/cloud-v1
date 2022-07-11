@@ -80,6 +80,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     }
 
     private void init(Runnable runnable){
+        this.console.printCloudHeader();
         this.createDefaultFiles();
         this.initRedis(redisConnection -> {
             this.initClusterConnection(node -> {

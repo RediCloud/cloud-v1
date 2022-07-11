@@ -22,14 +22,23 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode> implement
 
     @Override
     public FutureAction<IRBucketHolder<CloudNode>> getNodeAsync(String name) {
-        return getNodesAsync().map(nodes -> {
-            Optional<IRBucketHolder<CloudNode>> optional = nodes
-                    .parallelStream()
-                    .filter(node -> node.get().getName().equalsIgnoreCase(name))
-                    .findFirst();
-            if(optional.isPresent()) return optional.get();
-            throw new NullPointerException("No node found with name " + name);
-        });
+        FutureAction<IRBucketHolder<CloudNode>> futureAction = new FutureAction<>();
+
+        getNodesAsync()
+                .onFailure(futureAction)
+                .onSuccess(nodes -> {
+                    Optional<IRBucketHolder<CloudNode>> optional = nodes
+                            .parallelStream()
+                            .filter(node -> node.get().getName().equalsIgnoreCase(name))
+                            .findFirst();
+                    if(optional.isPresent()) {
+                        futureAction.complete(optional.get());
+                    } else {
+                        futureAction.completeExceptionally(new IllegalArgumentException("Node not found"));
+                    }
+                });
+
+        return futureAction;
     }
 
     @Override
@@ -39,24 +48,12 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode> implement
 
     @Override
     public Collection<IRBucketHolder<CloudNode>> getNodes() {
-        List<IRBucketHolder<CloudNode>> buckets = new ArrayList<>();
-        getClient().getKeys().getKeysByPattern("node@*").forEach(key -> {
-            buckets.add(getBucketHolder(key.split("@")[1]));
-        });
-        return buckets;
+        return this.getBucketHolders();
     }
 
     @Override
     public FutureAction<Collection<IRBucketHolder<CloudNode>>> getNodesAsync() {
-        FutureAction<Collection<IRBucketHolder<CloudNode>>> futureAction = new FutureAction<>();
-        FutureActionCollection<String, IRBucketHolder<CloudNode>> futureActionCollection = new FutureActionCollection<>();
-        getClient().getKeys().getKeysByPattern("node@*").forEach(key -> {
-            futureActionCollection.addToProcess(key, getBucketHolderAsync(key.split("@")[1]));
-        });
-        futureActionCollection.process()
-                .onFailure(futureAction)
-                .onSuccess(buckets -> futureAction.complete(buckets.values()));
-        return futureAction;
+        return this.getBucketHoldersAsync();
     }
 
     @Override
@@ -89,11 +86,11 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode> implement
     }
 
     public boolean existsNode(UUID uniqueId) {
-        return this.exists(uniqueId.toString());
+        return this.existsBucket(uniqueId.toString());
     }
 
     public FutureAction<Boolean> existsNodeAsync(UUID uniqueId) {
-        return this.existsAsync(uniqueId.toString());
+        return this.existsBucketAsync(uniqueId.toString());
     }
 
     @Override

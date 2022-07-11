@@ -18,28 +18,28 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class RedissonBucketManager<T extends IRBucketObject> extends RedissonManager implements IRedissonBucketManager {
+public abstract class RedissonBucketManager<T extends IRBucketObject , I> extends RedissonManager implements IRedissonBucketManager {
 
     @Getter
-    private static HashMap<String, RedissonBucketManager<?>> managers = new HashMap<>();
+    private static HashMap<String, RedissonBucketManager<?, ?>> managers = new HashMap<>();
 
     private final ConcurrentHashMap<String, IRBucketHolder<T>> bucketHolders;
     @Getter
-    private final Class<T> objectClass;
+    private final Class<I> interfaceClass;
     @Getter
     private final String redisPrefix;
 
-    public RedissonBucketManager(String prefix, Class<T> objectClass) {
+    public RedissonBucketManager(String prefix, Class<I> interfaceClass) {
         managers.put(prefix, this);
         this.bucketHolders = new ConcurrentHashMap<>();
-        this.objectClass = objectClass;
+        this.interfaceClass = interfaceClass;
         this.redisPrefix = prefix;
     }
 
     @Override
-    public FutureAction<IRBucketHolder<T>> getBucketHolderAsync(String identifier) {
-        if(this.bucketHolders.containsKey(identifier)) return new FutureAction<>(this.bucketHolders.get(identifier));
-        FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
+    public FutureAction<IRBucketHolder<I>> getBucketHolderAsync(String identifier) {
+        if(this.bucketHolders.containsKey(identifier)) return new FutureAction(this.bucketHolders.get(identifier));
+        FutureAction<IRBucketHolder<I>> futureAction = new FutureAction<>();
 
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'", futureAction);
 
@@ -71,9 +71,9 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
 
     @SneakyThrows
     @Override
-    public IRBucketHolder getBucketHolder(String identifier) {
+    public IRBucketHolder<I> getBucketHolder(String identifier) {
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
-        if(this.bucketHolders.containsKey(identifier)) return this.bucketHolders.get(identifier);
+        if(this.bucketHolders.containsKey(identifier)) return (IRBucketHolder<I>) this.bucketHolders.get(identifier);
         RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
         T object = bucket.get();
         if(object == null) throw new IllegalArgumentException("Bucket[" + identifier + "] not found! Create first before getting!");
@@ -87,7 +87,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
         this.bucketHolders.remove(bucketHolder.getIdentifier());
     }
 
-    public IRBucketHolder createBucket(String identifier, T object) {
+    public IRBucketHolder<I> createBucket(String identifier, I object) {
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).set(object);
         RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
@@ -96,8 +96,8 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
         return bucketHolder;
     }
 
-    public FutureAction<IRBucketHolder<T>> createBucketAsync(String identifier, T object) {
-        FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
+    public FutureAction<IRBucketHolder<I>> createBucketAsync(String identifier, I object) {
+        FutureAction<IRBucketHolder<I>> futureAction = new FutureAction<>();
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'", futureAction);
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).setAsync(object)
                 .whenComplete((object1, throwable) -> {
@@ -143,16 +143,16 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
         return futureAction;
     }
 
-    public FutureAction<Collection<IRBucketHolder<T>>> getBucketHoldersAsync(){
-        FutureActionCollection<String, IRBucketHolder<T>> futureActionCollection = new FutureActionCollection<>();
+    public FutureAction<Collection<IRBucketHolder<I>>> getBucketHoldersAsync(){
+        FutureActionCollection<String, IRBucketHolder<I>> futureActionCollection = new FutureActionCollection<>();
         for (String s : getClient().getKeys().getKeysByPattern(this.redisPrefix + "@*")) {
             futureActionCollection.addToProcess(s.split("@")[1], getBucketHolderAsync(s.split("@")[1]));
         }
         return futureActionCollection.process().map(HashMap::values);
     }
 
-    public Collection<IRBucketHolder<T>> getBucketHolders() {
-        Collection<IRBucketHolder<T>> bucketHolders = new ArrayList<>();
+    public Collection<IRBucketHolder<I>> getBucketHolders() {
+        Collection<IRBucketHolder<I>> bucketHolders = new ArrayList<>();
         for (String s : getClient().getKeys().getKeysByPattern(this.redisPrefix + "@*")) {
             bucketHolders.add(getBucketHolder(s.split("@")[1]));
         }
@@ -165,11 +165,11 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
     }
 
     @Override
-    public Class<T> getObjectClass() {
-        return this.objectClass;
+    public Class<I> getImplClass() {
+        return this.interfaceClass;
     }
 
-    public static RedissonBucketManager<?> getManager(String prefix) {
+    public static RedissonBucketManager<?, ?> getManager(String prefix) {
         return managers.get(prefix);
     }
 

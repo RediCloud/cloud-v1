@@ -24,6 +24,7 @@ import net.suqatri.cloud.commons.connection.IPUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
 import net.suqatri.cloud.node.commands.ClearCommand;
 import net.suqatri.cloud.node.commands.ClusterCommand;
+import net.suqatri.cloud.node.commands.DebugCommand;
 import net.suqatri.cloud.node.commands.StopCommand;
 import net.suqatri.cloud.node.console.CommandConsoleManager;
 import net.suqatri.cloud.node.console.NodeConsole;
@@ -73,6 +74,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.commandManager.registerCommand(new ClearCommand());
         this.commandManager.registerCommand(new StopCommand());
         this.commandManager.registerCommand(new ClusterCommand());
+        this.commandManager.registerCommand(new DebugCommand());
     }
 
     private void registerListeners(){

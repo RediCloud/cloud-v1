@@ -12,14 +12,14 @@ import java.util.UUID;
 @Data
 public class CloudNodeEvent extends CloudGlobalEvent {
 
-    private UUID cloudNodeId;
+    private UUID nodeId;
 
     public IRBucketHolder<ICloudNode> getCloudNode(){
-        return CloudAPI.getInstance().getNodeManager().getNode(this.cloudNodeId);
+        return CloudAPI.getInstance().getNodeManager().getNode(this.nodeId);
     }
 
     public FutureAction<IRBucketHolder<ICloudNode>> getCloudNodeAsync(){
-        return CloudAPI.getInstance().getNodeManager().getNodeAsync(this.cloudNodeId);
+        return CloudAPI.getInstance().getNodeManager().getNodeAsync(this.nodeId);
     }
 
 }

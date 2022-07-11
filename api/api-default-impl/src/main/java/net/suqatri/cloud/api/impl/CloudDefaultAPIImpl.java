@@ -55,11 +55,9 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
         this.serviceManager = new CloudServiceManager();
         this.serviceTemplateManager = new CloudServiceTemplateManager();
         this.serviceVersionManager = new CloudServiceVersionManager();
-
-        this.registerListener();
     }
 
-    private void registerListener(){
+    public void registerInternalListeners(){
         this.eventManager.register(new CloudNodeConnectedListener());
         this.eventManager.register(new CloudNodeDisconnectListener());
         this.eventManager.register(new CloudServiceStartedListener());

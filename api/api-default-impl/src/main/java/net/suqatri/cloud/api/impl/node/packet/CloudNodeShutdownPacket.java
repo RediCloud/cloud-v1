@@ -20,7 +20,7 @@ public class CloudNodeShutdownPacket extends CloudNodePacket {
             return;
         }
         CloudAPI.getInstance().getNodeManager().getNodeAsync(this.nodeId)
-                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node " + this.nodeId, (Throwable) e))
-                .onSuccess((Consumer<CloudNode>) CloudNode::shutdown);
+                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node " + this.nodeId, e))
+                .onSuccess(c -> c.get().shutdown());
     }
 }

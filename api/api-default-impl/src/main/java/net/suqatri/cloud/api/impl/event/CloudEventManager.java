@@ -1,6 +1,7 @@
 package net.suqatri.cloud.api.impl.event;
 
 import com.google.common.collect.ImmutableSet;
+import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.event.*;
 import net.suqatri.cloud.api.impl.event.packet.GlobalEventPacket;
@@ -16,13 +17,22 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
+@Getter
 public class CloudEventManager implements ICloudEventManager {
 
-    private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
-    private final Map<Class<?>, CloudEventInvoker[]> byEventBaked = new ConcurrentHashMap<>();
-    private final Lock listenerLock = new ReentrantLock();
-    private final Map<String, List<Consumer<? extends CloudEvent>>> consumers = new HashMap<>();
-    private final Lock consumerLock = new ReentrantLock();
+    private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority;
+    private final Map<Class<?>, CloudEventInvoker[]> byEventBaked;
+    private final Lock listenerLock;
+    private final Map<String, List<Consumer<? extends CloudEvent>>> consumers;
+    private final Lock consumerLock;
+
+    public CloudEventManager(){
+        this.byListenerAndPriority = new HashMap<>();
+        this.byEventBaked = new ConcurrentHashMap<>();
+        this.listenerLock = new ReentrantLock();
+        this.consumerLock = new ReentrantLock();
+        this.consumers = new HashMap<>();
+    }
 
     @Override
     public <T extends CloudEvent> void postLocal(T event) {
@@ -36,12 +46,12 @@ public class CloudEventManager implements ICloudEventManager {
                 long start = System.nanoTime();
 
                 try {
-                    method.invoke( event );
-                } catch ( IllegalAccessException ex ) {
-                    throw new Error( "Method became inaccessible: " + event, ex );
-                } catch ( IllegalArgumentException ex ) {
-                    throw new Error( "Method rejected target/argument: " + event, ex );
-                } catch ( InvocationTargetException ex ) {
+                    method.invoke(event);
+                } catch (IllegalAccessException ex) {
+                    throw new Error("Method became inaccessible: " + event, ex);
+                } catch (IllegalArgumentException ex) {
+                    throw new Error("Method rejected target/argument: " + event, ex);
+                } catch (InvocationTargetException ex) {
                     CloudAPI.getInstance().getConsole().warn("Error dispatching event " + event + " to listener " + method.getListener(), ex.getCause());
                 }
 
@@ -90,7 +100,7 @@ public class CloudEventManager implements ICloudEventManager {
 
     private Map<Class<?>, Map<Byte, Set<Method>>> findHandlers(Object listener) {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = new HashMap<>();
-        Set<Method> methods = ImmutableSet.<Method>builder().add( listener.getClass().getMethods() ).add( listener.getClass().getDeclaredMethods() ).build();
+        Set<Method> methods = ImmutableSet.<Method>builder().add(listener.getClass().getMethods()).add(listener.getClass().getDeclaredMethods()).build();
         for (final Method m : methods) {
             CloudListener annotation = m.getAnnotation(CloudListener.class);
             if (annotation != null) {
@@ -99,9 +109,9 @@ public class CloudEventManager implements ICloudEventManager {
                     CloudAPI.getInstance().getConsole().info("Method " + m.getName() + " in " + listener.getClass().getName() + " is annotated with @CloudListener but has " + params.length + " parameters. Only one parameter is supported.");
                     continue;
                 }
-                Map<Byte, Set<Method>> prioritiesMap = handler.computeIfAbsent( params[0], k -> new HashMap<>() );
-                Set<Method> priority = prioritiesMap.computeIfAbsent( annotation.priority(), k -> new HashSet<>() );
-                priority.add( m );
+                Map<Byte, Set<Method>> prioritiesMap = handler.computeIfAbsent(params[0], k -> new HashMap<>());
+                Set<Method> priority = prioritiesMap.computeIfAbsent(annotation.priority(), k -> new HashSet<>());
+                priority.add(m);
             }
         }
         return handler;
@@ -109,14 +119,14 @@ public class CloudEventManager implements ICloudEventManager {
 
     @Override
     public void register(Object listener) {
-        Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers( listener );
+        Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers(listener);
         this.listenerLock.lock();
         try {
             for(Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet()) {
-                Map<Byte, Map<Object, Method[]>> prioritiesMap = this.byListenerAndPriority.computeIfAbsent( e.getKey(), k -> new HashMap<>());
+                Map<Byte, Map<Object, Method[]>> prioritiesMap = this.byListenerAndPriority.computeIfAbsent(e.getKey(), k -> new HashMap<>());
                 for (Map.Entry<Byte, Set<Method>> entry : e.getValue().entrySet()) {
-                    Map<Object, Method[]> currentPriorityMap = prioritiesMap.computeIfAbsent( entry.getKey(), k -> new HashMap<>());
-                    currentPriorityMap.put(listener, entry.getValue().toArray( new Method[0]));
+                    Map<Object, Method[]> currentPriorityMap = prioritiesMap.computeIfAbsent(entry.getKey(), k -> new HashMap<>());
+                    currentPriorityMap.put(listener, entry.getValue().toArray(new Method[0]));
                 }
                 bakeHandlers(e.getKey());
             }

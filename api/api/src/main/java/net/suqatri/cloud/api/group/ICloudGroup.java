@@ -5,15 +5,18 @@ import net.suqatri.cloud.api.player.ICloudPlayer;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.IServiceStartConfiguration;
+import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.UUID;
 
 public interface ICloudGroup extends Serializable {
 
+    ServiceEnvironment getServiceEnvironment();
     String getName();
 
     String[] getProcessParameters();
@@ -32,6 +35,7 @@ public interface ICloudGroup extends Serializable {
     void setMaxServices(int maxServices);
 
     FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> getTemplates();
+    Collection<String> getTemplateNames();
     void setTemplates(Collection<ICloudServiceTemplate> templates);
     void addTemplate(ICloudServiceTemplate template);
     void removeTemplate(ICloudServiceTemplate template);
@@ -47,6 +51,7 @@ public interface ICloudGroup extends Serializable {
     void setStatic(boolean staticGroup);
 
     FutureAction<Collection<IRBucketHolder<ICloudNode>>> getAssociatedNodes();
+    Collection<UUID> getAssociatedNodeIds();
     void addAssociatedNode(ICloudNode node);
     void removeAssociatedNode(ICloudNode node);
     boolean hasAssociatedNode(ICloudNode node);

@@ -2,6 +2,7 @@ package net.suqatri.cloud.api.impl.packet;
 
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
+import net.suqatri.cloud.api.impl.event.packet.GlobalEventPacket;
 import net.suqatri.cloud.api.packet.ICloudPacket;
 import net.suqatri.cloud.api.packet.ICloudPacketManager;
 import net.suqatri.cloud.api.packet.ICloudPacketReceiver;
@@ -31,6 +32,8 @@ public class CloudPacketManager implements ICloudPacketManager {
             for (Class<? extends ICloudPacket> aClass : this.packetWaitingList) {
                 this.receiver.connectPacketListener(aClass);
             }
+            CloudAPI.getInstance().getConsole().info("Connecting to event cluster...");
+            registerPacket(GlobalEventPacket.class);
         });
     }
 

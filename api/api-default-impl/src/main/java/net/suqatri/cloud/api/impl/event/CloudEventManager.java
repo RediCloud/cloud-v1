@@ -9,6 +9,7 @@ import net.suqatri.cloud.api.impl.node.CloudNode;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -17,7 +18,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
-@Getter
 public class CloudEventManager implements ICloudEventManager {
 
     private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority;
@@ -119,6 +119,7 @@ public class CloudEventManager implements ICloudEventManager {
 
     @Override
     public void register(Object listener) {
+        CloudAPI.getInstance().getConsole().debug("Registering listener " + listener.getClass().getName());
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers(listener);
         this.listenerLock.lock();
         try {
@@ -137,6 +138,7 @@ public class CloudEventManager implements ICloudEventManager {
 
     @Override
     public void unregister(Object listener) {
+        CloudAPI.getInstance().getConsole().debug("Registering listener " + listener.getClass().getName());
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers(listener);
         this.listenerLock.lock();
         try {

@@ -3,8 +3,13 @@ package net.suqatri.cloud.api.impl;
 import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.event.ICloudEventManager;
+import net.suqatri.cloud.api.group.ICloudGroupManager;
 import net.suqatri.cloud.api.impl.event.CloudEventManager;
+import net.suqatri.cloud.api.impl.group.CloudGroup;
+import net.suqatri.cloud.api.impl.group.CloudGroupManager;
+import net.suqatri.cloud.api.impl.network.NetworkComponentInfo;
 import net.suqatri.cloud.api.impl.network.NetworkComponentManager;
+import net.suqatri.cloud.api.impl.node.CloudNode;
 import net.suqatri.cloud.api.impl.node.CloudNodeManager;
 import net.suqatri.cloud.api.impl.packet.CloudPacketManager;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
@@ -22,8 +27,9 @@ public abstract class CloudDefaultAPIImpl extends CloudAPI {
 
     private final ICloudEventManager eventManager;
     private final ICloudPacketManager packetManager;
-    private final INetworkComponentManager networkComponentManager;
-    private final ICloudNodeManager nodeManager;
+    private final INetworkComponentManager<NetworkComponentInfo> networkComponentManager;
+    private final ICloudNodeManager<CloudNode> nodeManager;
+    private final ICloudGroupManager<CloudGroup> groupManager;
 
     public CloudDefaultAPIImpl(ApplicationType type) {
         super(type);
@@ -32,6 +38,7 @@ public abstract class CloudDefaultAPIImpl extends CloudAPI {
         this.packetManager = new CloudPacketManager();
         this.networkComponentManager = new NetworkComponentManager();
         this.nodeManager = new CloudNodeManager();
+        this.groupManager = new CloudGroupManager();
     }
 
     @Override

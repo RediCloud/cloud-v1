@@ -84,7 +84,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
     public void mergeChanges(String json) {
         try {
             if(this.publishedObject != null) {
-                CloudAPI.getInstance().getConsole().debug("Merging changes for bucket " + this.identifier + " with " + json);
+                CloudAPI.getInstance().getConsole().debug("Merging changes for bucket " + this.identifier);
                 this.bucketManager.getObjectCodec().getObjectMapper().readerForUpdating(this.publishedObject).readValue(json);
                 this.publishedObject.setHolder(this);
             }else{

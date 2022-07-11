@@ -27,7 +27,7 @@ public class ClusterCommand extends ConsoleCommand {
     @Subcommand("info")
     public void onInfo(CommandSender commandSender){
         CloudNode node = NodeLauncher.getInstance().getCloudNode().get();
-        commandSender.sendMessage("§8➤ " + NodeLauncher.getInstance().getConsole().getTextColor() + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getName());
+        commandSender.sendMessage(NodeLauncher.getInstance().getConsole().getTextColor() + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getName());
         commandSender.sendMessage("§8   » " + NodeLauncher.getInstance().getConsole().getTextColor() + "Last-IP: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getHostname());
         commandSender.sendMessage("§8   » " + NodeLauncher.getInstance().getConsole().getTextColor() + "Up-Time: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getUpTime());
         commandSender.sendMessage("§8   » " + NodeLauncher.getInstance().getConsole().getTextColor() + "Services: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getStartedServiceUniqueIds().size());
@@ -42,7 +42,7 @@ public class ClusterCommand extends ConsoleCommand {
             .onSuccess((Consumer<IRBucketHolder<CloudNode>>) nodeHolder -> {
                 CloudNode node = nodeHolder.get();
                 if(node.isConnected()){
-                    commandSender.sendMessage("§8➤ " + NodeLauncher.getInstance().getConsole().getTextColor() + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getName());
+                    commandSender.sendMessage(NodeLauncher.getInstance().getConsole().getTextColor() + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getName());
                     commandSender.sendMessage("§8   » " + NodeLauncher.getInstance().getConsole().getTextColor() + "Last-IP: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getHostname());
                     commandSender.sendMessage("§8   » " + NodeLauncher.getInstance().getConsole().getTextColor() + "Up-Time: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getUpTime());
                     commandSender.sendMessage("§8   » " + NodeLauncher.getInstance().getConsole().getTextColor() + "Services: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getStartedServiceUniqueIds().size());
@@ -69,7 +69,7 @@ public class ClusterCommand extends ConsoleCommand {
                     commandSender.sendMessage("Connected nodes: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + connectedNodes.size());
                     commandSender.sendMessage("Offline nodes: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + offlineNodes.size());
                     for(CloudNode node : connectedNodes){
-                        commandSender.sendMessage("§8➤ " + NodeLauncher.getInstance().getConsole().getTextColor() + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getName());
+                        commandSender.sendMessage(NodeLauncher.getInstance().getConsole().getTextColor() + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getName());
                         commandSender.sendMessage("§8   » " + NodeLauncher.getInstance().getConsole().getTextColor() + "Last-IP: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getHostname());
                         commandSender.sendMessage("§8   » " + NodeLauncher.getInstance().getConsole().getTextColor() + "Up-Time: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getUpTime());
                         commandSender.sendMessage("§8   » " + NodeLauncher.getInstance().getConsole().getTextColor() + "Services: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getStartedServiceUniqueIds().size());

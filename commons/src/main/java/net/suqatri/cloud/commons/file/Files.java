@@ -22,6 +22,7 @@ public enum Files {
     MINECRAFT_PLUGIN_JAR("./storage/plugin-minecraft.jar"),
     PROXY_PLUGIN_JAR("./storage/plugin-proxy.jar"),
     NODE_JSON("./node.json"),
+    VERSIONS_FOLDER("./storage/versions"),
     REDIS_CONFIG("./storage/redis.json");
 
 

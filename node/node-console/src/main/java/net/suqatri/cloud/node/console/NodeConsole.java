@@ -142,7 +142,7 @@ public class NodeConsole implements IConsole {
         if(storeInHistory) this.allWroteLines.add(message);
 
         String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
-        String prefix = "§7[§f" + dateTime + "§7] §f" + level.name() + "§7: " + this.textColor;
+        String prefix = "§7[§f" + dateTime + "§7] §f" + level.name() + "§7: " + (logLevel == LogLevel.INFO ? this.textColor : Ansi.ansi().a(Ansi.Attribute.RESET).fgRgb(level.getColor().getRed(), level.getColor().getGreen(), level.getColor().getBlue()).toString());
 
         String line = translateColorCodes ? translateColorCodes(prefix + message) : prefix + message;
         this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);

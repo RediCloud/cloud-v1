@@ -52,7 +52,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private RedisConnection redisConnection;
     private final Scheduler scheduler;
     private RBucketHolder<CloudNode> cloudNode;
-    private final CloudNodeManager nodeManager;
     private INetworkComponentInfo networkComponentInfo;
     private boolean shutdownInitialized = false;
 
@@ -61,7 +60,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.scheduler = new Scheduler();
         this.commandManager = new CommandConsoleManager();
         this.console = this.commandManager.getNodeConsole();
-        this.nodeManager = new CloudNodeManager();
 
         this.init(() -> {
             this.registerListeners();
@@ -136,7 +134,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     ClusterConnectionInformation connectionInformation = new ClusterConnectionInformation();
                     connectionInformation.setUniqueId(setup.getUniqueId());
 
-                    if(this.nodeManager.existsNode(connectionInformation.getUniqueId())){
+                    if(getNodeManager().existsNode(connectionInformation.getUniqueId())){
                         this.console.error("A Node with the same name already exists!");
                         this.console.error("Please choose a different name!");
                         this.console.log(LogLevel.INFO, "Restarting cluster connection setup in 5 seconds...", true, true);
@@ -155,7 +153,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     cloudNode.setMaxMemory(setup.getMaxMemory());
                     cloudNode.setMaxServiceCount(setup.getMaxServiceCount());
                     FileWriter.writeObject(connectionInformation, Files.NODE_JSON.getFile());
-                    consumer.accept((RBucketHolder<CloudNode>) this.nodeManager.createNode(cloudNode));
+                    consumer.accept((RBucketHolder<CloudNode>) ((CloudNodeManager)this.getNodeManager()).createNode(cloudNode));
                 }
             });
             return;
@@ -173,15 +171,15 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             return;
         }
 
-        if(!this.nodeManager.existsNode(connectionInformation.getUniqueId())){
+        if(!this.getNodeManager().existsNode(connectionInformation.getUniqueId())){
             CloudNode cloudNode = new CloudNode();
             connectionInformation.applyToNode(cloudNode);
             cloudNode.setConnected(true);
             cloudNode.setLastConnection(System.currentTimeMillis());
             cloudNode.setLastStart(System.currentTimeMillis());
-            this.cloudNode = (RBucketHolder<CloudNode>) this.nodeManager.createNode(cloudNode);
+            this.cloudNode = (RBucketHolder<CloudNode>) ((CloudNodeManager)this.getNodeManager()).createNode(cloudNode);
         }else {
-            this.cloudNode = (RBucketHolder<CloudNode>) this.nodeManager.getNode(connectionInformation.getUniqueId());
+            this.cloudNode = (RBucketHolder<CloudNode>) this.getNodeManager().getNode(connectionInformation.getUniqueId());
             if(this.cloudNode.get().getUniqueId().equals(connectionInformation.getUniqueId()) && this.cloudNode.get().isConnected()){
                 this.console.warn("A Node with the same uniqueId is already connected!");
                 this.console.warn("Please check if this node is already running in the background!");
@@ -206,7 +204,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     try {
                         this.redisConnection.connect();
                         FileWriter.writeObject(credentials, Files.REDIS_CONFIG.getFile());
-                        this.console.info("§aRedis connection established!");
+                        this.console.info("Redis connection established!");
                     }catch (Exception e){
                         this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
                         this.console.info("Restarting redis setup in 5 seconds...");
@@ -235,7 +233,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.redisConnection = new RedisConnection(credentials);
             try {
                 this.redisConnection.connect();
-                this.console.info("§aRedis connection established!");
+                this.console.info("Redis connection established!");
             }catch (Exception e){
                 this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
                 this.console.info("Trying to reconnect in 5 seconds...");
@@ -304,18 +302,14 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.cloudNode.get().setLastConnection(System.currentTimeMillis());
             this.cloudNode.get().update();
         }
+        if(this.console != null) this.console.info("Disconnecting from redis...");
+        if(this.redisConnection !=  null) this.redisConnection.disconnect();
+        if(this.console != null) this.console.info("Stopping node console thread...");
+        if(this.console != null) this.console.stopThread();
         getScheduler().runTaskLater(() -> {
-            if(this.console != null) this.console.info("Disconnecting from redis...");
-            if(this.redisConnection !=  null) this.redisConnection.disconnect();
-            getScheduler().runTaskLater(() -> {
-                if(this.console != null) this.console.info("Stopping node console thread...");
-                if(this.console != null) this.console.stopThread();
-                getScheduler().runTaskLater(() -> {
-                    if(this.console != null) this.console.info("Shutting down...");
-                    if(!fromHook) System.exit(0);
-                }, 1, TimeUnit.SECONDS);
-            }, 1, TimeUnit.SECONDS);
-        }, 1, TimeUnit.SECONDS);
+            if(this.console != null) this.console.info("Shutting down...");
+            if(!fromHook) System.exit(0);
+        }, 2, TimeUnit.SECONDS);
     }
 
     @Override

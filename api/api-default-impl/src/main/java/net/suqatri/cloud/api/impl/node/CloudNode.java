@@ -3,12 +3,14 @@ package net.suqatri.cloud.api.impl.node;
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.cloud.api.impl.node.packet.CloudNodeShutdownPacket;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.service.ICloudService;
+import net.suqatri.cloud.api.utils.ApplicationType;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 
@@ -69,4 +71,9 @@ public class CloudNode extends RBucketObject implements ICloudNode {
         return this.startedServiceUniqueIds.size();
     }
 
+    @Override
+    public void merged() {
+        if(CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
+        CloudDefaultAPIImpl.getInstance().updateApplicationProperties(this);
+    }
 }

@@ -7,29 +7,42 @@ import net.suqatri.cloud.api.group.ICloudGroupManager;
 import net.suqatri.cloud.api.impl.event.CloudEventManager;
 import net.suqatri.cloud.api.impl.group.CloudGroup;
 import net.suqatri.cloud.api.impl.group.CloudGroupManager;
+import net.suqatri.cloud.api.impl.listener.node.CloudNodeConnectedListener;
+import net.suqatri.cloud.api.impl.listener.node.CloudNodeDisconnectListener;
+import net.suqatri.cloud.api.impl.listener.service.CloudServiceStartedListener;
+import net.suqatri.cloud.api.impl.listener.service.CloudServiceStoppedListener;
 import net.suqatri.cloud.api.impl.network.NetworkComponentInfo;
 import net.suqatri.cloud.api.impl.network.NetworkComponentManager;
-import net.suqatri.cloud.api.impl.node.CloudNode;
 import net.suqatri.cloud.api.impl.node.CloudNodeManager;
 import net.suqatri.cloud.api.impl.packet.CloudPacketManager;
-import net.suqatri.cloud.api.network.INetworkComponentInfo;
+import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
+import net.suqatri.cloud.api.impl.service.CloudService;
+import net.suqatri.cloud.api.impl.service.CloudServiceManager;
+import net.suqatri.cloud.api.impl.service.version.CloudServiceVersionManager;
+import net.suqatri.cloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.cloud.api.network.INetworkComponentManager;
 import net.suqatri.cloud.api.node.ICloudNodeManager;
 import net.suqatri.cloud.api.packet.ICloudPacketManager;
 import net.suqatri.cloud.api.redis.IRedisConnection;
+import net.suqatri.cloud.api.service.ICloudServiceManager;
+import net.suqatri.cloud.api.service.version.ICloudServiceVersionManager;
+import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.api.utils.ApplicationType;
 
 @Getter
-public abstract class CloudDefaultAPIImpl extends CloudAPI {
+public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends CloudAPI {
 
     @Getter
     private static CloudDefaultAPIImpl instance;
 
     private final ICloudEventManager eventManager;
     private final ICloudPacketManager packetManager;
-    private final INetworkComponentManager<NetworkComponentInfo> networkComponentManager;
-    private final ICloudNodeManager<CloudNode> nodeManager;
-    private final ICloudGroupManager<CloudGroup> groupManager;
+    private final INetworkComponentManager networkComponentManager;
+    private final ICloudNodeManager nodeManager;
+    private final ICloudGroupManager groupManager;
+    private final ICloudServiceManager serviceManager;
+    private final ICloudServiceTemplateManager serviceTemplateManager;
+    private final ICloudServiceVersionManager serviceVersionManager;
 
     public CloudDefaultAPIImpl(ApplicationType type) {
         super(type);
@@ -39,6 +52,18 @@ public abstract class CloudDefaultAPIImpl extends CloudAPI {
         this.networkComponentManager = new NetworkComponentManager();
         this.nodeManager = new CloudNodeManager();
         this.groupManager = new CloudGroupManager();
+        this.serviceManager = new CloudServiceManager();
+        this.serviceTemplateManager = new CloudServiceTemplateManager();
+        this.serviceVersionManager = new CloudServiceVersionManager();
+
+        this.registerListener();
+    }
+
+    private void registerListener(){
+        this.eventManager.register(new CloudNodeConnectedListener());
+        this.eventManager.register(new CloudNodeDisconnectListener());
+        this.eventManager.register(new CloudServiceStartedListener());
+        this.eventManager.register(new CloudServiceStoppedListener());
     }
 
     @Override
@@ -53,5 +78,6 @@ public abstract class CloudDefaultAPIImpl extends CloudAPI {
     }
 
     public abstract IRedisConnection getRedisConnection();
+    public abstract void updateApplicationProperties(T object);
 
 }

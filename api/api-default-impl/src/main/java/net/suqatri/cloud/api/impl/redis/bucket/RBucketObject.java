@@ -27,4 +27,9 @@ public abstract class RBucketObject implements IRBucketObject {
         return getHolder().updateAsync(this).map(v -> null);
     }
 
+    @Override
+    public void merged(){
+
+    }
+
 }

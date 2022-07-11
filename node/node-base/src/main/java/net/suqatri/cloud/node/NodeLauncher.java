@@ -145,6 +145,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
                     CloudNode cloudNode = new CloudNode();
                     connectionInformation.applyToNode(cloudNode);
+                    cloudNode.setName(setup.getName());
+                    cloudNode.setHostname(publicIp);
+                    cloudNode.setMaxParallelStartingServiceCount(setup.getMaxParallelServiceCount());
+                    cloudNode.setMaxMemory(setup.getMaxMemory());
+                    cloudNode.setMaxServiceCount(setup.getMaxServiceCount());
                     FileWriter.writeObject(connectionInformation, Files.NODE_JSON.getFile());
                     consumer.accept((RBucketHolder<CloudNode>) this.nodeManager.createNode(cloudNode));
                 }

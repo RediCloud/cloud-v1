@@ -3,6 +3,7 @@ package net.suqatri.cloud.node;
 import lombok.Getter;
 import net.suqatri.cloud.api.console.LogLevel;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
+import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.node.NodeCloudDefaultAPI;
 import net.suqatri.cloud.api.node.event.CloudNodeConnectedEvent;
 import net.suqatri.cloud.api.impl.node.CloudNode;
@@ -11,10 +12,12 @@ import net.suqatri.cloud.api.node.event.CloudNodeDisconnectEvent;
 import net.suqatri.cloud.api.player.ICloudPlayerManager;
 import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
+import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.cloud.commons.connection.IPUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
+import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.commands.ClearCommand;
 import net.suqatri.cloud.node.commands.ClusterCommand;
 import net.suqatri.cloud.node.commands.DebugCommand;
@@ -22,6 +25,7 @@ import net.suqatri.cloud.node.commands.StopCommand;
 import net.suqatri.cloud.node.console.CommandConsoleManager;
 import net.suqatri.cloud.node.console.NodeConsole;
 import net.suqatri.cloud.node.console.setup.SetupControlState;
+import net.suqatri.cloud.node.file.FileTransferManager;
 import net.suqatri.cloud.node.listener.CloudNodeConnectedListener;
 import net.suqatri.cloud.node.listener.CloudNodeDisconnectListener;
 import net.suqatri.cloud.node.node.ClusterConnectionInformation;
@@ -47,6 +51,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private INetworkComponentInfo networkComponentInfo;
     private boolean shutdownInitialized = false;
     private CloudNode node;
+    private FileTransferManager fileTransferManager;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -55,6 +60,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.console = this.commandManager.getNodeConsole();
 
         this.init(() -> {
+            this.fileTransferManager = new FileTransferManager();
+            this.registerInternalListeners();
             this.registerListeners();
             this.registerCommands();
         });
@@ -76,35 +83,33 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private void init(Runnable runnable){
         this.console.printCloudHeader();
         this.createDefaultFiles();
-        this.initRedis(redisConnection -> {
-            this.initClusterConnection(node -> {
-                this.networkComponentInfo = node.getNetworkComponentInfo();
-                this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@§c" + node.getName() + " §f=> "));
-                this.console.resetPrefix();
-                this.node = node;
-                this.node.setLastConnection(System.currentTimeMillis());
-                this.node.setLastStart(System.currentTimeMillis());
-                this.node.setConnected(true);
-                this.node.setCpuUsage(0);
-                this.node.setStartedServiceUniqueIds(new ArrayList<>());
-                this.node.setMemoryUsage(0);
-                this.node.setHostname(IPUtils.getPublicIP());
+        this.initRedis(redisConnection -> this.initClusterConnection(node -> {
+            this.networkComponentInfo = node.getNetworkComponentInfo();
+            this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@§c" + node.getName() + " §f=> "));
+            this.console.resetPrefix();
+            this.node = node;
+            this.node.setLastConnection(System.currentTimeMillis());
+            this.node.setLastStart(System.currentTimeMillis());
+            this.node.setConnected(true);
+            this.node.setCpuUsage(0);
+            this.node.setStartedServiceUniqueIds(new ArrayList<>());
+            this.node.setMemoryUsage(0);
+            this.node.setHostname(IPUtils.getPublicIP());
 
-                runnable.run();
+            runnable.run();
 
-                RedisConnectedEvent redisConnectedEvent = new RedisConnectedEvent(this.redisConnection);
-                getEventManager().postLocal(redisConnectedEvent);
+            RedisConnectedEvent redisConnectedEvent = new RedisConnectedEvent(this.redisConnection);
+            getEventManager().postLocal(redisConnectedEvent);
 
-                this.node.update();
+            this.node.update();
 
-                CloudNodeConnectedEvent event = new CloudNodeConnectedEvent();
-                event.setNodeId(this.node.getUniqueId());
-                getEventManager().postGlobal(event);
+            CloudNodeConnectedEvent event = new CloudNodeConnectedEvent();
+            event.setNodeId(this.node.getUniqueId());
+            getEventManager().postGlobal(event);
 
-                this.console.info(this.node.getName() + " is now connected to the cluster!");
-                this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@" + this.console.getHighlightColor() + this.node.getName() + " §f=> "));
-            });
-        });
+            this.console.info(this.node.getName() + " is now connected to the cluster!");
+            this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@" + this.console.getHighlightColor() + this.node.getName() + " §f=> "));
+        }));
     }
 
     private void initClusterConnection(Consumer<CloudNode> consumer) {
@@ -146,7 +151,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     cloudNode.setMaxMemory(setup.getMaxMemory());
                     cloudNode.setMaxServiceCount(setup.getMaxServiceCount());
                     FileWriter.writeObject(connectionInformation, Files.NODE_JSON.getFile());
-                    this.getNodeManager().createNode(cloudNode);
+                    cloudNode = this.getNodeManager().createNode(cloudNode).getImpl(CloudNode.class);
                     consumer.accept(cloudNode);
                 }
             });
@@ -284,11 +289,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     @Override
     public void updateApplicationProperties(CloudNode object) {
-        if(!object.getNetworkComponentInfo().equals(this.networkComponentInfo)) {
-            this.console.warn("The properties of the node can´t change because the provided node is not the same as this node! (" + object.getNetworkComponentInfo().getKey() + " != " + this.networkComponentInfo.getKey() + ")");
-            return;
-        }
-        //Nothing to change
+        if(!object.getNetworkComponentInfo().equals(this.networkComponentInfo)) return;
+        //TODO: Update application properties
     }
 
     @Override

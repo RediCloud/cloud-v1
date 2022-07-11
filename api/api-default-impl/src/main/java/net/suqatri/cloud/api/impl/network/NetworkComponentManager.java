@@ -10,7 +10,9 @@ import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -18,6 +20,30 @@ public class NetworkComponentManager implements INetworkComponentManager {
 
     private final ConcurrentHashMap<String, INetworkComponentInfo> cachedNodes = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, INetworkComponentInfo> cachedServices = new ConcurrentHashMap<>();
+
+    public void addCachedNode(ICloudNode node) {
+        getComponentInfo(node);
+    }
+
+    public void addCachedService(ICloudService service) {
+        getComponentInfo(service);
+    }
+
+    public void removeCachedNode(ICloudNode node) {
+        this.cachedNodes.remove(node.getUniqueId().toString());
+    }
+
+    public void removeCachedService(ICloudService service) {
+        this.cachedServices.remove(service.getUniqueId().toString());
+    }
+
+    public void removeCachedNode(UUID uniqueId) {
+        this.cachedNodes.remove(uniqueId.toString());
+    }
+
+    public void removeCachedService(UUID uniqueId) {
+        this.cachedServices.remove(uniqueId.toString());
+    }
 
     @Override
     public INetworkComponentInfo getComponentInfo(String key) {
@@ -51,29 +77,43 @@ public class NetworkComponentManager implements INetworkComponentManager {
 
         CloudAPI.getInstance().getNodeManager().getNodesAsync()
                 .onFailure(futureAction)
-                .onSuccess(o -> {
-                    Collection<IRBucketHolder<CloudNode>> nodes = (Collection<IRBucketHolder<CloudNode>>) o;
-                    for(IRBucketHolder<CloudNode> node : nodes) {
+                .onSuccess(nodes -> {
+                    for(IRBucketHolder<ICloudNode> node : nodes) {
                         this.cachedNodes.put(node.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.NODE, node.get().getUniqueId().toString()));
                     }
                     futureAction.complete(this.cachedNodes.values());
                 });
 
-        //TODO add service
+
+        CloudAPI.getInstance().getServiceManager().getServicesAsync()
+                .onFailure(futureAction)
+                .onSuccess(services -> {
+                    for(IRBucketHolder<ICloudService> service : services) {
+                        this.cachedServices.put(service.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.SERVICE, service.get().getUniqueId().toString()));
+                    }
+                    futureAction.complete(this.cachedServices.values());
+                });
 
         return futureAction;
     }
 
     @Override
     public Collection<INetworkComponentInfo> getAllComponentInfo() {
-        Collection<IRBucketHolder<CloudNode>> nodes = CloudAPI.getInstance().getNodeManager().getNodes();
-        for(IRBucketHolder<CloudNode> node : nodes) {
+        Collection<IRBucketHolder<ICloudNode>> nodes = CloudAPI.getInstance().getNodeManager().getNodes();
+
+        for(IRBucketHolder<ICloudNode> node : nodes) {
             this.cachedNodes.put(node.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.NODE, node.get().getUniqueId().toString()));
         }
 
-        //TODO add service
+        Collection<IRBucketHolder<ICloudService>> services = CloudAPI.getInstance().getServiceManager().getServices();
+        for(IRBucketHolder<ICloudService> service : services) {
+            this.cachedServices.put(service.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.SERVICE, service.get().getUniqueId().toString()));
+        }
 
-        return this.cachedNodes.values();
+        Collection<INetworkComponentInfo> result = new ArrayList<>();
+        result.addAll(this.cachedNodes.values());
+        result.addAll(this.cachedServices.values());
+        return result;
     }
 
 }

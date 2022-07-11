@@ -2,6 +2,7 @@ package net.suqatri.cloud.node.commands;
 
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.node.CloudNode;
+import net.suqatri.cloud.api.impl.node.CloudNodeManager;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.node.NodeLauncher;
@@ -54,7 +55,7 @@ public class ClusterCommand extends ConsoleCommand {
 
     @Subcommand("shutdown")
     public void onShutdown(CommandSender commandSender){
-        NodeLauncher.getInstance().getNodeManager().shutdownClusterAsync();
+        ((CloudNodeManager)NodeLauncher.getInstance().getNodeManager()).shutdownClusterAsync();
     }
 
     @Subcommand("nodes")

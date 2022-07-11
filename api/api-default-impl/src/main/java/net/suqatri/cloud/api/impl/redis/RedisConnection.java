@@ -7,6 +7,9 @@ import net.suqatri.cloud.api.redis.RedisCredentials;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.redisson.connection.pool.MasterPubSubConnectionPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RedisConnection implements IRedisConnection {
 

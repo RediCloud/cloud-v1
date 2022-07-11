@@ -7,13 +7,13 @@ import net.suqatri.cloud.commons.function.future.FutureAction;
 import java.util.Collection;
 import java.util.UUID;
 
-public interface ICloudGroupManager<T extends ICloudGroup> {
+public interface ICloudGroupManager {
 
-    FutureAction<IRBucketHolder<T>> getGroupAsync(UUID uniqueId);
-    IRBucketHolder<T> getGroup(UUID uniqueId);
+    FutureAction<IRBucketHolder<ICloudGroup>> getGroupAsync(UUID uniqueId);
+    IRBucketHolder<ICloudGroup> getGroup(UUID uniqueId);
 
-    FutureAction<IRBucketHolder<T>> getGroupAsync(String name);
-    IRBucketHolder<T> getGroup(String name);
+    FutureAction<IRBucketHolder<ICloudGroup>> getGroupAsync(String name);
+    IRBucketHolder<ICloudGroup> getGroup(String name);
 
     FutureAction<Boolean> existsGroupAsync(UUID uniqueId);
     boolean existsGroup(UUID uniqueId);
@@ -21,7 +21,7 @@ public interface ICloudGroupManager<T extends ICloudGroup> {
     FutureAction<Boolean> existsGroupAsync(String name);
     boolean existsGroup(String name);
 
-    Collection<IRBucketHolder<T>> getGroups();
-    FutureAction<Collection<IRBucketHolder<T>>> getGroupsAsync();
+    Collection<IRBucketHolder<ICloudGroup>> getGroups();
+    FutureAction<Collection<IRBucketHolder<ICloudGroup>>> getGroupsAsync();
 
 }

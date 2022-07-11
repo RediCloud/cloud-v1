@@ -25,6 +25,10 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
 
     @Override
     public void receive(ICloudPacket packet) {
+        if(CloudAPI.getInstance().getPacketManager().isRegisteredPacket(packet.getClass())){
+            CloudAPI.getInstance().getConsole().warn("Received packet: " + packet.getClass().getSimpleName() + " but it is not registered!");
+            return;
+        }
         if(!packet.getPacketData().getReceivers().contains(CloudAPI.getInstance().getNetworkComponentInfo()) && !packet.getPacketData().getReceivers().isEmpty()) return;
         if(packet.getPacketData().getSender().equals(CloudAPI.getInstance().getNetworkComponentInfo()) && !packet.getPacketData().isSenderAsReceiverAllowed()) return;
         CloudAPI.getInstance().getConsole().debug("Received packet: " + packet.getClass().getSimpleName());

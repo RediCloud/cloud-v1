@@ -4,20 +4,15 @@ import lombok.Getter;
 import net.suqatri.cloud.api.console.LogLevel;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.node.NodeCloudDefaultAPI;
-import net.suqatri.cloud.api.impl.redis.bucket.RBucketHolder;
 import net.suqatri.cloud.api.node.event.CloudNodeConnectedEvent;
-import net.suqatri.cloud.api.group.ICloudGroupManager;
 import net.suqatri.cloud.api.impl.node.CloudNode;
-import net.suqatri.cloud.api.impl.node.CloudNodeManager;
 import net.suqatri.cloud.api.impl.redis.RedisConnection;
 import net.suqatri.cloud.api.node.event.CloudNodeDisconnectEvent;
 import net.suqatri.cloud.api.player.ICloudPlayerManager;
 import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
-import net.suqatri.cloud.api.service.ICloudServiceManager;
 import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
-import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.commons.connection.IPUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
 import net.suqatri.cloud.node.commands.ClearCommand;
@@ -34,9 +29,6 @@ import net.suqatri.cloud.node.scheduler.Scheduler;
 import net.suqatri.cloud.node.setup.node.NodeConnectionDataSetup;
 import net.suqatri.cloud.node.setup.redis.RedisSetup;
 import net.suqatri.cloud.commons.file.Files;
-import org.slf4j.LoggerFactory;
-import org.slf4j.impl.SimpleLogger;
-import org.slf4j.impl.SimpleLoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,9 +44,9 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private final CommandConsoleManager commandManager;
     private RedisConnection redisConnection;
     private final Scheduler scheduler;
-    private RBucketHolder<CloudNode> cloudNode;
     private INetworkComponentInfo networkComponentInfo;
     private boolean shutdownInitialized = false;
+    private CloudNode node;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -86,36 +78,36 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.createDefaultFiles();
         this.initRedis(redisConnection -> {
             this.initClusterConnection(node -> {
-                this.networkComponentInfo = node.get().getNetworkComponentInfo();
-                this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@§c" + node.get().getName() + " §f=> "));
+                this.networkComponentInfo = node.getNetworkComponentInfo();
+                this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@§c" + node.getName() + " §f=> "));
                 this.console.resetPrefix();
-                this.cloudNode = node;
-                this.cloudNode.get().setLastConnection(System.currentTimeMillis());
-                this.cloudNode.get().setLastStart(System.currentTimeMillis());
-                this.cloudNode.get().setConnected(true);
-                this.cloudNode.get().setCpuUsage(0);
-                this.cloudNode.get().setStartedServiceUniqueIds(new ArrayList<>());
-                this.cloudNode.get().setMemoryUsage(0);
-                this.cloudNode.get().setHostname(IPUtils.getPublicIP());
+                this.node = node;
+                this.node.setLastConnection(System.currentTimeMillis());
+                this.node.setLastStart(System.currentTimeMillis());
+                this.node.setConnected(true);
+                this.node.setCpuUsage(0);
+                this.node.setStartedServiceUniqueIds(new ArrayList<>());
+                this.node.setMemoryUsage(0);
+                this.node.setHostname(IPUtils.getPublicIP());
 
                 runnable.run();
 
                 RedisConnectedEvent redisConnectedEvent = new RedisConnectedEvent(this.redisConnection);
                 getEventManager().postLocal(redisConnectedEvent);
 
-                this.cloudNode.get().update();
+                this.node.update();
 
                 CloudNodeConnectedEvent event = new CloudNodeConnectedEvent();
-                event.setCloudNodeId(this.cloudNode.get().getUniqueId());
+                event.setNodeId(this.node.getUniqueId());
                 getEventManager().postGlobal(event);
 
-                this.console.info(this.cloudNode.get().getName() + " is now connected to the cluster!");
-                this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@" + this.console.getHighlightColor() + node.get().getName() + " §f=> "));
+                this.console.info(this.node.getName() + " is now connected to the cluster!");
+                this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@" + this.console.getHighlightColor() + this.node.getName() + " §f=> "));
             });
         });
     }
 
-    private void initClusterConnection(Consumer<RBucketHolder<CloudNode>> consumer) {
+    private void initClusterConnection(Consumer<CloudNode> consumer) {
         String publicIp = IPUtils.getPublicIP();
         boolean firstClusterConnection = !Files.NODE_JSON.exists();
         if(firstClusterConnection){
@@ -154,7 +146,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     cloudNode.setMaxMemory(setup.getMaxMemory());
                     cloudNode.setMaxServiceCount(setup.getMaxServiceCount());
                     FileWriter.writeObject(connectionInformation, Files.NODE_JSON.getFile());
-                    consumer.accept((RBucketHolder<CloudNode>) ((CloudNodeManager)this.getNodeManager()).createNode(cloudNode));
+                    this.getNodeManager().createNode(cloudNode);
+                    consumer.accept(cloudNode);
                 }
             });
             return;
@@ -178,17 +171,17 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             cloudNode.setConnected(true);
             cloudNode.setLastConnection(System.currentTimeMillis());
             cloudNode.setLastStart(System.currentTimeMillis());
-            this.cloudNode = (RBucketHolder<CloudNode>) ((CloudNodeManager)this.getNodeManager()).createNode(cloudNode);
+            this.node = this.getNodeManager().createNode(cloudNode).getImpl(CloudNode.class);
         }else {
-            this.cloudNode = (RBucketHolder<CloudNode>) this.getNodeManager().getNode(connectionInformation.getUniqueId());
-            if(this.cloudNode.get().getUniqueId().equals(connectionInformation.getUniqueId()) && this.cloudNode.get().isConnected()){
+            this.node = this.getNodeManager().getNode(connectionInformation.getUniqueId()).getImpl(CloudNode.class);
+            if(this.node.getUniqueId().equals(connectionInformation.getUniqueId()) && this.node.isConnected()){
                 this.console.warn("A Node with the same uniqueId is already connected!");
                 this.console.warn("Please check if this node is already running in the background!");
             }
-            connectionInformation.applyToNode(this.cloudNode.get());
+            connectionInformation.applyToNode(this.node);
         }
 
-        consumer.accept(this.cloudNode);
+        consumer.accept(this.node);
     }
 
     private void initRedis(Consumer<RedisConnection> consumer){
@@ -262,11 +255,45 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         Files.LIBS_REPO_FOLDER.createIfNotExists();
         Files.TEMP_FOLDER.createIfNotExists();
         Files.TEMPLATE_FOLDER.createIfNotExists();
+        Files.VERSIONS_FOLDER.createIfNotExists();
     }
 
     @Override
-    public ICloudGroupManager getGroupManager() {
-        return null;
+    public void shutdown(boolean fromHook) {
+        if(this.shutdownInitialized) return;
+        this.shutdownInitialized = true;
+        if(this.node != null){
+            if(this.console != null) this.console.info("Disconnecting from cluster...");
+            CloudNodeDisconnectEvent event = new CloudNodeDisconnectEvent();
+            event.setNodeId(this.node.getUniqueId());
+            getEventManager().postGlobal(event);
+            this.node.setConnected(false);
+            this.node.setStartedServiceUniqueIds(new ArrayList<>());
+            this.node.setLastConnection(System.currentTimeMillis());
+            this.node.update();
+        }
+        if(this.console != null) this.console.info("Disconnecting from redis...");
+        if(this.redisConnection !=  null) this.redisConnection.disconnect();
+        if(this.console != null) this.console.info("Stopping node console thread...");
+        if(this.console != null) this.console.stopThread();
+        getScheduler().runTaskLater(() -> {
+            if(this.console != null) this.console.info("Shutting down...");
+            if(!fromHook) System.exit(0);
+        }, 2, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void updateApplicationProperties(CloudNode object) {
+        if(!object.getNetworkComponentInfo().equals(this.networkComponentInfo)) {
+            this.console.warn("The properties of the node can´t change because the provided node is not the same as this node! (" + object.getNetworkComponentInfo().getKey() + " != " + this.networkComponentInfo.getKey() + ")");
+            return;
+        }
+        //Nothing to change
+    }
+
+    @Override
+    public IRedisConnection getRedisConnection() {
+        return this.redisConnection;
     }
 
     @Override
@@ -280,47 +307,12 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     }
 
     @Override
-    public ICloudServiceManager getServiceManager() {
-        return null;
-    }
-
-    @Override
-    public ICloudServiceTemplateManager getServiceTemplateManager() {
-        return null;
-    }
-
-    @Override
-    public void shutdown(boolean fromHook) {
-        if(this.shutdownInitialized) return;
-        this.shutdownInitialized = true;
-        if(this.cloudNode != null){
-            if(this.console != null) this.console.info("Disconnecting from cluster...");
-            CloudNodeDisconnectEvent event = new CloudNodeDisconnectEvent();
-            event.setCloudNodeId(this.cloudNode.get().getUniqueId());
-            getEventManager().postGlobal(event);
-            this.cloudNode.get().setConnected(false);
-            this.cloudNode.get().setStartedServiceUniqueIds(new ArrayList<>());
-            this.cloudNode.get().setLastConnection(System.currentTimeMillis());
-            this.cloudNode.get().update();
-        }
-        if(this.console != null) this.console.info("Disconnecting from redis...");
-        if(this.redisConnection !=  null) this.redisConnection.disconnect();
-        if(this.console != null) this.console.info("Stopping node console thread...");
-        if(this.console != null) this.console.stopThread();
-        getScheduler().runTaskLater(() -> {
-            if(this.console != null) this.console.info("Shutting down...");
-            if(!fromHook) System.exit(0);
-        }, 2, TimeUnit.SECONDS);
-    }
-
-    @Override
-    public IRedisConnection getRedisConnection() {
-        return this.redisConnection;
-    }
-
-    @Override
     public Scheduler getScheduler() {
         return this.scheduler;
     }
 
+    @Override
+    public CloudNode getNode() {
+        return this.node;
+    }
 }

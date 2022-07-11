@@ -25,7 +25,7 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
 
     @Override
     public void receive(ICloudPacket packet) {
-        if(CloudAPI.getInstance().getPacketManager().isRegisteredPacket(packet.getClass())){
+        if(!CloudAPI.getInstance().getPacketManager().isRegisteredPacket(packet.getClass())){
             CloudAPI.getInstance().getConsole().warn("Received packet: " + packet.getClass().getSimpleName() + " but it is not registered!");
             return;
         }
@@ -36,21 +36,20 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
     }
 
     @Override
-    public void connectPacketListener(Class packetClass) {
-        RFuture<Integer> future = this.topic.addListenerAsync(packetClass, (MessageListener<ICloudPacket>) (charSequence, packet) -> {
-            packet.receive();
-        });
+    public <T extends ICloudPacket> void connectPacketListener(Class<T> packetClass) {
+        RFuture<Integer> future = this.topic.addListenerAsync(packetClass, (charSequence, packet) -> this.receive(packet));
         future.whenComplete((v, e) -> {
             if (e != null) {
                 CloudAPI.getInstance().getConsole().error("Failed to connect packet listener for " + packetClass.getName(), e);
                 return;
             }
+            CloudAPI.getInstance().getConsole().debug("Connected packet listener for " + packetClass.getName());
             this.listeners.put(packetClass, v);
         });
     }
 
     @Override
-    public void disconnectPacketListener(Class packetClass) {
+    public <T extends ICloudPacket> void disconnectPacketListener(Class<T> packetClass) {
         if(!this.listeners.containsKey(packetClass)) return;
         int listenerId = this.listeners.get(packetClass);
         this.topic.removeListenerAsync(listenerId);
@@ -58,7 +57,7 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
     }
 
     @Override
-    public boolean isPacketListenerConnected(Class packetClass) {
+    public <T extends ICloudPacket> boolean isPacketListenerConnected(Class<T> packetClass) {
         return this.listeners.containsKey(packetClass);
     }
 

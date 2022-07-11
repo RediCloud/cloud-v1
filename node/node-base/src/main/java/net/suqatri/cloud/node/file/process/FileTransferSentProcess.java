@@ -5,6 +5,7 @@ import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.commons.file.FileUtils;
+import net.suqatri.cloud.commons.file.Files;
 import net.suqatri.cloud.commons.file.ZipUtils;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.NodeLauncher;
@@ -37,7 +38,7 @@ public class FileTransferSentProcess implements FileTransferProcess {
                 return;
             }
 
-            this.zipFile = new File(this.originalFile.getName() + ".zip");
+            this.zipFile = new File(Files.TEMP_FOLDER.getFile(), this.originalFile.getName() + ".zip");
             if(this.zipFile.exists()){
                 this.zipFile.delete();
             }

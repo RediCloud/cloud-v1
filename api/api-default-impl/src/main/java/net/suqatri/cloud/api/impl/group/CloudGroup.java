@@ -10,6 +10,7 @@ import net.suqatri.cloud.api.player.ICloudPlayer;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.IServiceStartConfiguration;
+import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import net.suqatri.cloud.commons.function.future.FutureAction;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 @Getter
 public class CloudGroup extends RBucketObject implements ICloudGroup {
 
+    private ServiceEnvironment serviceEnvironment;
     private UUID uniqueId;
     private String name;
     @Setter
@@ -35,10 +37,10 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     private int minServices;
     @Setter
     private int maxServices;
-    private Collection<String> templatesNames;
+    private Collection<String> templateNames;
     @Setter
     private boolean staticGroup;
-    private Collection<UUID> associatedNodesIds;
+    private Collection<UUID> associatedNodeIds;
     @Setter
     private int startPort;
     @Setter
@@ -59,22 +61,22 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
 
     @Override
     public void setTemplates(Collection<ICloudServiceTemplate> templates) {
-        this.templatesNames = templates.stream().map(ICloudServiceTemplate::getName).collect(Collectors.toList());
+        this.templateNames = templates.stream().map(ICloudServiceTemplate::getName).collect(Collectors.toList());
     }
 
     @Override
     public void addTemplate(ICloudServiceTemplate template) {
-        this.templatesNames.add(template.getName());
+        this.templateNames.add(template.getName());
     }
 
     @Override
     public void removeTemplate(ICloudServiceTemplate template) {
-        this.templatesNames.remove(template.getName());
+        this.templateNames.remove(template.getName());
     }
 
     @Override
     public boolean hasTemplate(ICloudServiceTemplate template) {
-        return this.templatesNames.contains(template.getName());
+        return this.templateNames.contains(template.getName());
     }
 
     @Override
@@ -110,7 +112,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     @Override
     public FutureAction<Collection<IRBucketHolder<ICloudNode>>> getAssociatedNodes() {
         FutureActionCollection<UUID, IRBucketHolder<ICloudNode>> futureActionCollection = new FutureActionCollection<>();
-        for (UUID nodeId : this.associatedNodesIds) {
+        for (UUID nodeId : this.associatedNodeIds) {
             futureActionCollection.addToProcess(nodeId, CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeId));
         }
         return futureActionCollection.process().map(HashMap::values);
@@ -118,23 +120,23 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
 
     @Override
     public void addAssociatedNode(ICloudNode node) {
-        this.associatedNodesIds.remove(node.getUniqueId());
+        this.associatedNodeIds.remove(node.getUniqueId());
     }
 
     @Override
     public void removeAssociatedNode(ICloudNode node) {
-        this.associatedNodesIds.remove(node.getUniqueId());
+        this.associatedNodeIds.remove(node.getUniqueId());
     }
 
     @Override
     public boolean hasAssociatedNode(ICloudNode node) {
-        return this.associatedNodesIds.contains(node.getUniqueId());
+        return this.associatedNodeIds.contains(node.getUniqueId());
     }
 
     @Override
     public void setAssociatedNodes(Collection<ICloudNode> nodes) {
-        this.associatedNodesIds.clear();
-        this.associatedNodesIds.addAll(nodes.stream().map(ICloudNode::getUniqueId).collect(Collectors.toList()));
+        this.associatedNodeIds.clear();
+        this.associatedNodeIds.addAll(nodes.stream().map(ICloudNode::getUniqueId).collect(Collectors.toList()));
     }
 
     @Override

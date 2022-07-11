@@ -10,5 +10,6 @@ public interface IRBucketObject extends Serializable {
 
     void update();
     FutureAction<Void> updateAsync();
+    void merged();
 
 }

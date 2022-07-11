@@ -1,6 +1,8 @@
 package net.suqatri.cloud.api.service;
 
-public enum ServiceEnvironment {
+import java.io.Serializable;
+
+public enum ServiceEnvironment implements Serializable {
     MINECRAFT,
     PROXY;
 }

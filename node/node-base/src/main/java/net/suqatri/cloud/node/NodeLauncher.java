@@ -2,6 +2,7 @@ package net.suqatri.cloud.node;
 
 import lombok.Getter;
 import net.suqatri.cloud.api.console.LogLevel;
+import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.node.NodeCloudDefaultAPI;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketHolder;
 import net.suqatri.cloud.api.node.event.CloudNodeConnectedEvent;
@@ -51,7 +52,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private final Scheduler scheduler;
     private RBucketHolder<CloudNode> cloudNode;
     private final CloudNodeManager nodeManager;
-    private NetworkComponentInfo networkComponentInfo;
+    private INetworkComponentInfo networkComponentInfo;
     private boolean shutdownInitialized = false;
 
     public NodeLauncher(String[] args) throws Exception{
@@ -84,6 +85,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.createDefaultFiles();
         this.initRedis(redisConnection -> {
             this.initClusterConnection(node -> {
+                this.networkComponentInfo = node.get().getNetworkComponentInfo();
                 this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@§c" + node.get().getName() + " §f=> "));
                 this.console.resetPrefix();
                 this.cloudNode = node;
@@ -184,8 +186,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             }
             connectionInformation.applyToNode(this.cloudNode.get());
         }
-
-        this.networkComponentInfo = (NetworkComponentInfo) getNetworkComponentManager().getComponentInfo(NetworkComponentType.NODE, this.cloudNode.get().getUniqueId().toString());
 
         consumer.accept(this.cloudNode);
     }

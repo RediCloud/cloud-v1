@@ -36,6 +36,7 @@ public class CloudPacketManager implements ICloudPacketManager {
 
     @Override
     public void registerPacket(Class<? extends ICloudPacket> packet) {
+        CloudAPI.getInstance().getConsole().debug("Registering packet: " + packet.getName());
         this.packets.add(packet);
         if(this.receiver != null){
             this.receiver.connectPacketListener(packet);
@@ -46,6 +47,7 @@ public class CloudPacketManager implements ICloudPacketManager {
 
     @Override
     public void unregisterPacket(Class<? extends ICloudPacket> packet) {
+        CloudAPI.getInstance().getConsole().debug("Unregistering packet: " + packet.getName());
         this.packets.remove(packet);
         if(this.receiver != null){
             this.receiver.disconnectPacketListener(packet);
@@ -71,13 +73,18 @@ public class CloudPacketManager implements ICloudPacketManager {
 
     @Override
     public void publish(ICloudPacket packet) {
-        if(this.topic == null) return;
+        if(this.topic == null) {
+            CloudAPI.getInstance().getConsole().warn("Cannot publish packet " + packet.getClass().getSimpleName() + " because topic is not connected.");
+            return;
+        }
+        CloudAPI.getInstance().getConsole().debug("Publishing packet: " + packet.getClass().getName());
         this.topic.publish(packet);
     }
 
     @Override
     public FutureAction<Long> publishAsync(ICloudPacket packet) {
-        if(this.topic == null) return new FutureAction<>(new IllegalStateException("Redis connection is not established"));
+        if(this.topic == null) return new FutureAction<>(new NullPointerException("Cannot publish packet " + packet.getClass().getSimpleName() + " because topic is not connected."));
+        CloudAPI.getInstance().getConsole().debug("Publishing packet: " + packet.getClass().getName());
         return new FutureAction<>(this.topic.publishAsync(packet));
     }
 }

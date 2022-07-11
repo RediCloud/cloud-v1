@@ -2,6 +2,7 @@ package net.suqatri.cloud.api.service;
 
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.node.ICloudNode;
+import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,26 +16,19 @@ public interface IServiceStartConfiguration {
     String getName();
     UUID getUniqueId();
 
-    @Nullable
     int getId();
 
     int getMaxMemory();
 
-    Collection<ICloudNode> getPossibleNodes();
+    Collection<UUID> getPossibleNodeIds();
 
-    default int getStartPriority(){
-        return 0;
-    }
+    int getStartPriority();
 
-    default boolean isStatic(){
-        return false;
-    }
+    boolean isStatic();
 
-    Collection<ICloudServiceTemplate> getTemplates();
+    Collection<String> getTemplatesNames();
 
     @Nullable
-    ICloudGroup getGroup();
-
-    void applyFromGroup(ICloudGroup group);
+    IRBucketHolder<ICloudGroup> getGroup();
 
 }

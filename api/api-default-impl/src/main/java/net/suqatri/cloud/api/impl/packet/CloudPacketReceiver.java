@@ -27,6 +27,7 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
     public void receive(ICloudPacket packet) {
         if(!packet.getPacketData().getReceivers().contains(CloudAPI.getInstance().getNetworkComponentInfo()) && !packet.getPacketData().getReceivers().isEmpty()) return;
         if(packet.getPacketData().getSender().equals(CloudAPI.getInstance().getNetworkComponentInfo()) && !packet.getPacketData().isSenderAsReceiverAllowed()) return;
+        CloudAPI.getInstance().getConsole().debug("Received packet: " + packet.getClass().getSimpleName());
         packet.receive();
     }
 

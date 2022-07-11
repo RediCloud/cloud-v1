@@ -2,15 +2,18 @@ package net.suqatri.cloud.api.redis.bucket;
 
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
-public interface IRBucketHolder<T> {
+public interface IRBucketHolder<I> {
 
-    default T get() {
+    default I get() {
         return this.get(false);
     }
-    T get(boolean force);
+    I get(boolean force);
+    default <T extends I> T getImpl(Class<T> clazz){
+        return clazz.cast(this.get());
+    }
 
-    IRBucketHolder<T> update(T object);
-    FutureAction<IRBucketHolder<T>> updateAsync(T object);
+    IRBucketHolder<I> update(I object);
+    FutureAction<IRBucketHolder<I>> updateAsync(I object);
 
     void unlink();
 

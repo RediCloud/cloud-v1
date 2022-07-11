@@ -34,7 +34,7 @@ public class RedisConnection implements IRedisConnection {
     public void connect() {
         Config config = new Config();
         config.useSingleServer()
-                .setAddress("redis://" + redisCredentials.getHostname() + ":" + redisCredentials.getPort())
+                .setAddress("redis://" + this.redisCredentials.getHostname() + ":" + this.redisCredentials.getPort())
                 .setPassword(this.redisCredentials.getPassword())
                 .setDatabase(this.redisCredentials.getDatabaseId());
         this.client = Redisson.create(config);

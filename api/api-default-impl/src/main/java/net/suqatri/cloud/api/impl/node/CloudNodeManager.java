@@ -2,32 +2,32 @@ package net.suqatri.cloud.api.impl.node;
 
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
+import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.node.ICloudNodeManager;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.commons.function.future.FutureAction;
-import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 
 import java.util.*;
 
-public class CloudNodeManager extends RedissonBucketManager<CloudNode> implements ICloudNodeManager {
+public class CloudNodeManager extends RedissonBucketManager<CloudNode, ICloudNode> implements ICloudNodeManager {
 
     public CloudNodeManager() {
-        super("node", CloudNode.class);
+        super("node", ICloudNode.class);
     }
 
     @Override
-    public IRBucketHolder<CloudNode> getNode(UUID uniqueId) {
+    public IRBucketHolder<ICloudNode> getNode(UUID uniqueId) {
         return this.getBucketHolder(uniqueId.toString());
     }
 
     @Override
-    public FutureAction<IRBucketHolder<CloudNode>> getNodeAsync(String name) {
-        FutureAction<IRBucketHolder<CloudNode>> futureAction = new FutureAction<>();
+    public FutureAction<IRBucketHolder<ICloudNode>> getNodeAsync(String name) {
+        FutureAction<IRBucketHolder<ICloudNode>> futureAction = new FutureAction<>();
 
         getNodesAsync()
                 .onFailure(futureAction)
                 .onSuccess(nodes -> {
-                    Optional<IRBucketHolder<CloudNode>> optional = nodes
+                    Optional<IRBucketHolder<ICloudNode>> optional = nodes
                             .parallelStream()
                             .filter(node -> node.get().getName().equalsIgnoreCase(name))
                             .findFirst();
@@ -42,27 +42,27 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode> implement
     }
 
     @Override
-    public IRBucketHolder<CloudNode> getNode(String name) {
+    public IRBucketHolder<ICloudNode> getNode(String name) {
         return getNodes().parallelStream().filter(node -> node.get().getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     @Override
-    public Collection<IRBucketHolder<CloudNode>> getNodes() {
+    public Collection<IRBucketHolder<ICloudNode>> getNodes() {
         return this.getBucketHolders();
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<CloudNode>>> getNodesAsync() {
+    public FutureAction<Collection<IRBucketHolder<ICloudNode>>> getNodesAsync() {
         return this.getBucketHoldersAsync();
     }
 
     @Override
-    public FutureAction<IRBucketHolder<CloudNode>> getNodeAsync(UUID uniqueId){
+    public FutureAction<IRBucketHolder<ICloudNode>> getNodeAsync(UUID uniqueId){
         return this.getBucketHolderAsync(uniqueId.toString());
     }
 
     public void shutdownCluster(){
-        for (IRBucketHolder<CloudNode> node : getNodes()) {
+        for (IRBucketHolder<ICloudNode> node : getNodes()) {
             node.get().shutdown();
         }
     }
@@ -71,17 +71,19 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode> implement
         getNodesAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while shutting down cluster", e))
                 .onSuccess(nodes -> {
-                    for (IRBucketHolder<CloudNode> node : nodes) {
+                    for (IRBucketHolder<ICloudNode> node : nodes) {
                         node.get().shutdown();
                     }
                 });
     }
 
-    public IRBucketHolder<CloudNode> createNode(CloudNode node) {
+    @Override
+    public IRBucketHolder<ICloudNode> createNode(ICloudNode node) {
         return this.createBucket(node.getUniqueId().toString(), node);
     }
 
-    public FutureAction<IRBucketHolder<CloudNode>> createNodeAsync(CloudNode node) {
+    @Override
+    public FutureAction<IRBucketHolder<ICloudNode>> createNodeAsync(ICloudNode node) {
         return this.createBucketAsync(node.getUniqueId().toString(), node);
     }
 

@@ -9,6 +9,7 @@ import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.node.ICloudNode;
+import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.utils.ApplicationType;
 import net.suqatri.cloud.commons.function.future.FutureAction;
@@ -59,11 +60,15 @@ public class CloudNode extends RBucketObject implements ICloudNode {
 
     @Override
     public FutureAction<Collection<ICloudService>> getStartedServices() {
-        FutureActionCollection<String, ICloudService> futureActionCollection = new FutureActionCollection<>();
-        for (FutureAction<ICloudService> iCloudServiceFutureAction : this.startedServiceUniqueIds.parallelStream().map(UUID::toString).map(name -> CloudAPI.getInstance().getServiceManager().getServiceAsync(name)).collect(Collectors.toList())) {
-            futureActionCollection.addToProcess(iCloudServiceFutureAction);
+        FutureActionCollection<UUID, IRBucketHolder<ICloudService>> futureActionCollection = new FutureActionCollection<>();
+        for (UUID startedServiceUniqueId : this.startedServiceUniqueIds) {
+            futureActionCollection.addToProcess(startedServiceUniqueId, CloudAPI.getInstance().getServiceManager().getServiceAsync(startedServiceUniqueId));
         }
-        return futureActionCollection.process().map(map -> map.values());
+        return futureActionCollection.process()
+                .map(c -> c.values())
+                .map(v -> v.stream()
+                        .map(IRBucketHolder::get)
+                .collect(Collectors.toList()));
     }
 
     @Override

@@ -25,7 +25,6 @@ public enum Files {
     VERSIONS_FOLDER("./storage/versions"),
     REDIS_CONFIG("./storage/redis.json");
 
-
     private final String path;
 
     public File getFile(){

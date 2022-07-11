@@ -15,7 +15,7 @@ public class CloudNodeDisconnectListener {
                    CloudAPI.getInstance().getConsole().error("Error while getting disconnected node information!", t);
                    return;
                }
-               if(nodeHolder.get().getUniqueId().equals(NodeLauncher.getInstance().getCloudNode().get().getUniqueId())) return;
+               if(nodeHolder.get().getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) return;
                CloudAPI.getInstance().getConsole().info("Node " + NodeLauncher.getInstance().getConsole().getHighlightColor() + nodeHolder.get().getName() + NodeLauncher.getInstance().getConsole().getTextColor() + " has been disconnected from the cluster!");
             });
     }

@@ -26,6 +26,9 @@ public class CloudEventManager implements ICloudEventManager {
 
     @Override
     public <T extends CloudEvent> void postLocal(T event) {
+
+        CloudAPI.getInstance().getConsole().debug("Posting local event: " + event.getClass().getSimpleName());
+
         CloudEventInvoker[] handlers = this.byEventBaked.get(event.getClass());
 
         if (handlers != null) {

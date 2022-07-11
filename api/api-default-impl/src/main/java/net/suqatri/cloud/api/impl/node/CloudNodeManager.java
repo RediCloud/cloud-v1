@@ -28,7 +28,7 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode> implement
                     .filter(node -> node.get().getName().equalsIgnoreCase(name))
                     .findFirst();
             if(optional.isPresent()) return optional.get();
-            throw new IllegalArgumentException("No node found with name " + name);
+            throw new NullPointerException("No node found with name " + name);
         });
     }
 
@@ -94,6 +94,28 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode> implement
 
     public FutureAction<Boolean> existsNodeAsync(UUID uniqueId) {
         return this.existsAsync(uniqueId.toString());
+    }
+
+    @Override
+    public boolean existsNode(String name) {
+        return getNode(name) != null;
+    }
+
+    @Override
+    public FutureAction<Boolean> existsNodeAsync(String name) {
+        FutureAction<Boolean> futureAction = new FutureAction<>();
+
+        getNodeAsync(name)
+                .onFailure(e -> {
+                    if(e instanceof NullPointerException){
+                        futureAction.complete(false);
+                    }else{
+                        futureAction.completeExceptionally(e);
+                    }
+                })
+                .onSuccess(node -> futureAction.complete(true));
+
+        return futureAction;
     }
 
 }

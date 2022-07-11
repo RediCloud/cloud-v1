@@ -74,7 +74,7 @@ public class NodeConsole implements IConsole {
         printRaw("    ", true, true);
         printRaw(this.textColor + "    A cluster based cloud system for Minecraft", true, true);
         printRaw("    §8» " + this.textColor + "Version: " + this.highlightColor + CloudAPI.getVersion() + " §8| " + this.textColor + "Discord: " + this.highlightColor +"https://discord.gg/vPwUhbVu4Y", true, true);
-        printRaw("    §8» " + this.textColor + "System: " + this.highlightColor + System.getProperty("os.name") + " §8| " + this.textColor + "Java: " + System.getProperty("java.version"), true, true);
+        printRaw("    §8» " + this.textColor + "System: " + this.highlightColor + System.getProperty("os.name") + " §8| " + this.textColor + "Java: " + this.highlightColor + System.getProperty("java.version"), true, true);
         printRaw("    ", true, true);
     }
 

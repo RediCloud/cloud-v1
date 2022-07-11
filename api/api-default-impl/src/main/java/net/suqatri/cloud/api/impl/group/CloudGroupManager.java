@@ -1,5 +1,6 @@
 package net.suqatri.cloud.api.impl.group;
 
+import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.group.ICloudGroupManager;
 import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
@@ -10,30 +11,30 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
-public class CloudGroupManager extends RedissonBucketManager<CloudGroup> implements ICloudGroupManager<CloudGroup> {
+public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudGroup> implements ICloudGroupManager {
 
     public CloudGroupManager() {
-        super("group", CloudGroup.class);
+        super("group", ICloudGroup.class);
     }
 
     @Override
-    public FutureAction<IRBucketHolder<CloudGroup>> getGroupAsync(UUID uniqueId) {
+    public FutureAction<IRBucketHolder<ICloudGroup>> getGroupAsync(UUID uniqueId) {
         return this.getBucketHolderAsync(uniqueId.toString());
     }
 
     @Override
-    public IRBucketHolder<CloudGroup> getGroup(UUID uniqueId) {
+    public IRBucketHolder<ICloudGroup> getGroup(UUID uniqueId) {
         return this.getBucketHolder(uniqueId.toString());
     }
 
     @Override
-    public FutureAction<IRBucketHolder<CloudGroup>> getGroupAsync(String name) {
-        FutureAction<IRBucketHolder<CloudGroup>> futureAction = new FutureAction<>();
+    public FutureAction<IRBucketHolder<ICloudGroup>> getGroupAsync(String name) {
+        FutureAction<IRBucketHolder<ICloudGroup>> futureAction = new FutureAction<>();
 
         getGroupsAsync()
                 .onFailure(futureAction)
                 .onSuccess(groups -> {
-                    Optional<IRBucketHolder<CloudGroup>> optional = groups
+                    Optional<IRBucketHolder<ICloudGroup>> optional = groups
                             .parallelStream()
                             .filter(group -> group.get().getName().equalsIgnoreCase(name))
                             .findFirst();
@@ -48,7 +49,7 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup> impleme
     }
 
     @Override
-    public IRBucketHolder<CloudGroup> getGroup(String name) {
+    public IRBucketHolder<ICloudGroup> getGroup(String name) {
         return getGroups().parallelStream().filter(group -> group.get().getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
@@ -85,12 +86,12 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup> impleme
     }
 
     @Override
-    public Collection<IRBucketHolder<CloudGroup>> getGroups() {
+    public Collection<IRBucketHolder<ICloudGroup>> getGroups() {
         return this.getBucketHolders();
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<CloudGroup>>> getGroupsAsync() {
+    public FutureAction<Collection<IRBucketHolder<ICloudGroup>>> getGroupsAsync() {
         return this.getBucketHoldersAsync();
     }
 }

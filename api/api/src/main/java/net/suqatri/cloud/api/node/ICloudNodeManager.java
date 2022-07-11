@@ -18,4 +18,10 @@ public interface ICloudNodeManager<T extends ICloudNode> {
     Collection<IRBucketHolder<T>> getNodes();
     FutureAction<Collection<IRBucketHolder<T>>> getNodesAsync();
 
+    boolean existsNode(UUID uniqueId);
+    FutureAction<Boolean> existsNodeAsync(UUID uniqueId);
+
+    boolean existsNode(String name);
+    FutureAction<Boolean> existsNodeAsync(String name);
+
 }

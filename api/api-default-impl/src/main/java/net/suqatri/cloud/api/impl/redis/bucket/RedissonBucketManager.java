@@ -131,7 +131,6 @@ public abstract class RedissonBucketManager<T extends IRBucketObject> extends Re
                         futureAction.completeExceptionally(throwable);
                         return;
                     }
-                    System.out.println("Exists " + getRedisKey(identifier) + ": " + exists);
                     futureAction.complete(exists);
                 });
         return futureAction;

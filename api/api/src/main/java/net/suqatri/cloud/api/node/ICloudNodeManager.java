@@ -6,22 +6,25 @@ import net.suqatri.cloud.commons.function.future.FutureAction;
 import java.util.Collection;
 import java.util.UUID;
 
-public interface ICloudNodeManager<T extends ICloudNode> {
+public interface ICloudNodeManager {
 
 
-    FutureAction<IRBucketHolder<T>> getNodeAsync(UUID uniqueId);
-    IRBucketHolder<T> getNode(UUID uniqueId);
+    FutureAction<IRBucketHolder<ICloudNode>> getNodeAsync(UUID uniqueId);
+    IRBucketHolder<ICloudNode> getNode(UUID uniqueId);
 
-    FutureAction<IRBucketHolder<T>> getNodeAsync(String name);
-    IRBucketHolder<T> getNode(String name);
+    FutureAction<IRBucketHolder<ICloudNode>> getNodeAsync(String name);
+    IRBucketHolder<ICloudNode> getNode(String name);
 
-    Collection<IRBucketHolder<T>> getNodes();
-    FutureAction<Collection<IRBucketHolder<T>>> getNodesAsync();
+    Collection<IRBucketHolder<ICloudNode>> getNodes();
+    FutureAction<Collection<IRBucketHolder<ICloudNode>>> getNodesAsync();
 
     boolean existsNode(UUID uniqueId);
     FutureAction<Boolean> existsNodeAsync(UUID uniqueId);
 
     boolean existsNode(String name);
     FutureAction<Boolean> existsNodeAsync(String name);
+
+    IRBucketHolder<ICloudNode> createNode(ICloudNode node);
+    FutureAction<IRBucketHolder<ICloudNode>> createNodeAsync(ICloudNode node);
 
 }

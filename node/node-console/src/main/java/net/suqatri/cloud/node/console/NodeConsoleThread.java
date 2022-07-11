@@ -1,6 +1,7 @@
 package net.suqatri.cloud.node.console;
 
 import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.console.LogLevel;
 import net.suqatri.commands.RootCommand;
 import org.jline.reader.UserInterruptException;
 
@@ -28,6 +29,14 @@ public class NodeConsoleThread extends Thread {
             }
         }catch (UserInterruptException e){
             CloudAPI.getInstance().shutdown(false);
+        }catch (Exception e1){
+            if(e1 instanceof ClassNotFoundException) {
+                this.nodeConsole.log(LogLevel.FATAL, "Its seems that something overrides the node jar file! Please only override the node jar file when the node is not running!");
+                this.nodeConsole.fatal("Node is crashed!", e1);
+                CloudAPI.getInstance().shutdown(false);
+            }else{
+                this.nodeConsole.error("Error while reading console line!", e1);
+            }
         }
     }
 

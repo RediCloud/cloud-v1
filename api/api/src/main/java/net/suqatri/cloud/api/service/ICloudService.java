@@ -1,6 +1,7 @@
 package net.suqatri.cloud.api.service;
 
 import net.suqatri.cloud.api.group.ICloudGroup;
+import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -21,7 +22,9 @@ public interface ICloudService extends Serializable {
         return getConfiguration().getId();
     }
 
-    ICloudGroup getGroup();
+    default IRBucketHolder<ICloudGroup> getGroup(){
+        return getConfiguration().getGroup();
+    }
 
     String getMotd();
     void setMotd(String motd);

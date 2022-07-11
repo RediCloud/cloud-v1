@@ -6,13 +6,13 @@ import net.suqatri.cloud.commons.function.future.FutureAction;
 
 import java.util.Collection;
 
-public interface INetworkComponentManager {
+public interface INetworkComponentManager<T extends INetworkComponentInfo> {
 
-    INetworkComponentInfo getComponentInfo(String identifier);
-    INetworkComponentInfo getComponentInfo(NetworkComponentType type, String identifier);
-    INetworkComponentInfo getComponentInfo(ICloudNode node);
-    INetworkComponentInfo getComponentInfo(ICloudService service);
-    FutureAction<Collection<INetworkComponentInfo>> getAllComponentInfoAsync();
-    Collection<INetworkComponentInfo> getAllComponentInfo();
+    T getComponentInfo(String identifier);
+    T getComponentInfo(NetworkComponentType type, String identifier);
+    T getComponentInfo(ICloudNode node);
+    T getComponentInfo(ICloudService service);
+    FutureAction<Collection<T>> getAllComponentInfoAsync();
+    Collection<T> getAllComponentInfo();
 
 }

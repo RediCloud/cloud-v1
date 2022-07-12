@@ -14,11 +14,10 @@ import net.suqatri.cloud.node.file.packet.FileTransferCompletedPacket;
 import net.suqatri.cloud.node.file.packet.FileTransferStartPacket;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.UUID;
 
 @Data
-public class FileTransferSentProcess implements FileTransferProcess {
+public class FileTransferSentProcess implements IFileTransferProcess {
 
     private final UUID transferId = UUID.randomUUID();
     private INetworkComponentInfo receiver;
@@ -38,21 +37,24 @@ public class FileTransferSentProcess implements FileTransferProcess {
                 return;
             }
 
-            this.zipFile = new File(Files.TEMP_FOLDER.getFile(), this.originalFile.getName() + ".zip");
-            if(this.zipFile.exists()){
-                this.zipFile.delete();
-            }
+            this.zipFile = new File(Files.TEMP_FOLDER.getFile(), this.transferId + ".zip");
 
             ZipUtils.zipDirFiles(this.originalFile, FileUtils.getAllFilesAndDirs(this.originalFile), this.zipFile);
 
+            byte[] sentData = FileUtils.fileToBytes(this.zipFile.getAbsolutePath());
+            int size = sentData.length;
+            int packetCount = size / NodeLauncher.getInstance().getFileTransferManager().getBytesPerChunk();
+            if(size % NodeLauncher.getInstance().getFileTransferManager().getBytesPerChunk() != 0){
+                packetCount++;
+            }
             FileTransferStartPacket startPacket = new FileTransferStartPacket();
             startPacket.setOriginalFilePath(this.originalFile.getPath());
             startPacket.setDestinationFilePath(this.destinationFilePath);
             startPacket.setTransferId(this.transferId);
+            startPacket.setIndexes(packetCount);
             startPacket.getPacketData().addReceiver(this.receiver);
             startPacket.publish();
 
-            byte[] sentData = FileUtils.fileToBytes(this.zipFile.getAbsolutePath());
             int index = 0;
             int packetSize = NodeLauncher.getInstance().getFileTransferManager().getBytesPerChunk();
             while(index < sentData.length){

@@ -2,6 +2,7 @@ package net.suqatri.cloud.node;
 
 import lombok.Getter;
 import net.suqatri.cloud.api.console.LogLevel;
+import net.suqatri.cloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.node.NodeCloudDefaultAPI;
@@ -12,12 +13,11 @@ import net.suqatri.cloud.api.node.event.CloudNodeDisconnectEvent;
 import net.suqatri.cloud.api.player.ICloudPlayerManager;
 import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
-import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
+import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.commons.connection.IPUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
-import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.commands.ClearCommand;
 import net.suqatri.cloud.node.commands.ClusterCommand;
 import net.suqatri.cloud.node.commands.DebugCommand;
@@ -33,6 +33,7 @@ import net.suqatri.cloud.node.scheduler.Scheduler;
 import net.suqatri.cloud.node.setup.node.NodeConnectionDataSetup;
 import net.suqatri.cloud.node.setup.redis.RedisSetup;
 import net.suqatri.cloud.commons.file.Files;
+import net.suqatri.cloud.node.template.NodeCloudServiceTemplateManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private boolean shutdownInitialized = false;
     private CloudNode node;
     private FileTransferManager fileTransferManager;
+    private ICloudServiceTemplateManager templateManager;;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -61,6 +63,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
         this.init(() -> {
             this.fileTransferManager = new FileTransferManager();
+            this.templateManager = new NodeCloudServiceTemplateManager();
             this.registerInternalListeners();
             this.registerListeners();
             this.registerCommands();
@@ -305,6 +308,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     @Override
     public ICloudServiceFactory getServiceFactory() {
+        return null;
+    }
+
+    @Override
+    public ICloudServiceTemplateManager getServiceTemplateManager() {
         return null;
     }
 

@@ -1,6 +1,7 @@
 package net.suqatri.cloud.node.setup.node;
 
 import lombok.Getter;
+import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.cloud.node.console.NodeConsole;
 import net.suqatri.cloud.node.console.setup.Setup;
 import net.suqatri.cloud.node.console.setup.SetupHeaderBehaviour;
@@ -34,8 +35,8 @@ public class NodeConnectionDataSetup extends Setup<NodeConnectionDataSetup> {
 
     private UUID uniqueId = UUID.randomUUID();
 
-    public NodeConnectionDataSetup(NodeConsole console) {
-        super(console);
+    public NodeConnectionDataSetup() {
+        super(NodeLauncher.getInstance().getConsole());
     }
 
     @Override

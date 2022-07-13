@@ -1,6 +1,7 @@
 package net.suqatri.cloud.node.setup.redis;
 
 import lombok.Getter;
+import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.cloud.node.console.NodeConsole;
 import net.suqatri.cloud.node.console.setup.Setup;
 import net.suqatri.cloud.node.console.setup.SetupHeaderBehaviour;
@@ -26,8 +27,8 @@ public class RedisSetup extends Setup<RedisSetup> {
     @Question(id = 4, question = "What´s the database id of the Redis server?")
     private int databaseId;
 
-    public RedisSetup(NodeConsole console) {
-        super(console);
+    public RedisSetup() {
+        super(NodeLauncher.getInstance().getConsole());
     }
 
     @Override

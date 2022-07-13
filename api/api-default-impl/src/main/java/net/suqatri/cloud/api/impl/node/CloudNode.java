@@ -40,6 +40,7 @@ public class CloudNode extends RBucketObject implements ICloudNode {
     private long lastStart = 0L;
     private long lastDisconnect = 0L;
     private String filePath;
+    private boolean fileNode = false;
 
     public long getUpTime(){
         return System.currentTimeMillis() - this.lastStart;

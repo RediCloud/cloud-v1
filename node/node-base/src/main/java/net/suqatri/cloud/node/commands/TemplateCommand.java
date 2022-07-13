@@ -13,8 +13,10 @@ import net.suqatri.commands.CommandHelp;
 import net.suqatri.commands.CommandSender;
 import net.suqatri.commands.ConsoleCommand;
 import net.suqatri.commands.annotation.*;
+import net.suqatri.commands.annotation.HelpCommand;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @CommandAlias("template|templates")
 public class TemplateCommand extends ConsoleCommand {
@@ -31,20 +33,23 @@ public class TemplateCommand extends ConsoleCommand {
     @HelpCommand
     @Default
     @Subcommand("help")
+    @Description("Show help for template command")
+    @Syntax("[Page]")
     public void onHelp(CommandHelp commandHelp){
         commandHelp.showHelp();
     }
 
     @Subcommand("list")
+    @Description("List all templates")
     public void onList(CommandSender commandSender){
         commandSender.sendMessage("Listing templates...");
         NodeLauncher.getInstance().getServiceTemplateManager().getAllTemplatesAsync()
-                .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while getting templates!", throwable))
+                .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while getting templates!", throwable))
                 .onSuccess(templateHolders -> {
                     commandSender.sendMessage("");
-                    commandSender.sendMessage("Templates: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + templateHolders.size());
+                    commandSender.sendMessage("Templates: %hc" + templateHolders.size());
                     for (IRBucketHolder<ICloudServiceTemplate> templateHolder : templateHolders) {
-                        commandSender.sendMessage(" §8- " + NodeLauncher.getInstance().getConsole().getHighlightColor() + templateHolder.get().getName());
+                        commandSender.sendMessage(" §8- %hc" + templateHolder.get().getName());
                     }
                     commandSender.sendMessage("");
                 });
@@ -52,19 +57,20 @@ public class TemplateCommand extends ConsoleCommand {
 
     @Subcommand("create")
     @Syntax("<Name>")
+    @Description("Create a new template")
     public void onCreate(CommandSender commandSender, String name){
-        commandSender.sendMessage("Creating template " + NodeLauncher.getInstance().getConsole().getHighlightColor() + name + "...");
+        commandSender.sendMessage("Creating template %hc" + name + "...");
         NodeLauncher.getInstance().getServiceTemplateManager().existsTemplateAsync(name)
-            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while checking template existence!", throwable))
+            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while checking template existence!", throwable))
             .onSuccess(exists -> {
                 if (exists) {
                     commandSender.sendMessage("Template already exists!");
                 } else {
                     NodeLauncher.getInstance().getServiceTemplateManager().createTemplateAsync(name)
-                            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while creating template!", throwable))
+                            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while creating template!", throwable))
                             .onSuccess(templateHolder -> {
-                                commandSender.sendMessage("Template created with name " + templateHolder.get().getName());
-                                commandSender.sendMessage("Template folder: " + templateHolder.get().getTemplateFolder().getAbsolutePath());
+                                commandSender.sendMessage("Template created with name %hc" + templateHolder.get().getName());
+                                commandSender.sendMessage("Template folder: %hc" + templateHolder.get().getTemplateFolder().getAbsolutePath());
                             });
                 }
             });
@@ -73,15 +79,16 @@ public class TemplateCommand extends ConsoleCommand {
     @Subcommand("delete")
     @Syntax("<Template>")
     @CommandCompletion("@templates")
+    @Description("Delete a template")
     public void onDelete(CommandSender commandSender, String name){
-        commandSender.sendMessage("Deleting template " + NodeLauncher.getInstance().getConsole().getHighlightColor() + name + "...");
+        commandSender.sendMessage("Deleting template %hc" + name + "...");
         NodeLauncher.getInstance().getServiceTemplateManager().existsTemplateAsync(name)
-            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while checking template existence!", throwable))
+            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while checking template existence!", throwable))
             .onSuccess(exists -> {
                 if (exists) {
                     NodeLauncher.getInstance().getServiceTemplateManager().deleteTemplateAsync(name)
-                            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while deleting template!", throwable))
-                            .onSuccess(s -> commandSender.sendMessage("Template deleted with name " + name));
+                            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while deleting template!", throwable))
+                            .onSuccess(s -> commandSender.sendMessage("Template deleted with name %hc" + name));
                 } else {
                     commandSender.sendMessage("Template does not exist!");
                 }
@@ -89,28 +96,29 @@ public class TemplateCommand extends ConsoleCommand {
     }
 
     @Subcommand("info")
-    @Syntax("[Template]")
+    @Syntax("<Template>")
     @CommandCompletion("@templates")
-    public void onInfo(CommandSender commandSender, @Optional String name){
-        commandSender.sendMessage("Loading information of template " + NodeLauncher.getInstance().getConsole().getHighlightColor() + name + "...");
+    @Description("Show info for a template")
+    public void onInfo(CommandSender commandSender, String name){
+        commandSender.sendMessage("Loading information of template %hc" + name + "...");
         NodeLauncher.getInstance().getServiceTemplateManager().existsTemplateAsync(name)
-            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while checking template existence!", throwable))
+            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while checking template existence!", throwable))
             .onSuccess(exists -> {
                 if (exists) {
                     NodeLauncher.getInstance().getServiceTemplateManager().getTemplateAsync(name)
-                            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while getting template!", throwable))
+                            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while getting template!", throwable))
                             .onSuccess(templateHolder -> {
                                 CloudAPI.getInstance().getGroupManager().getGroupsAsync()
-                                        .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while getting groups!", throwable))
+                                        .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while getting groups!", throwable))
                                         .onSuccess(groupHolders -> {
                                             StringBuilder builder = new StringBuilder();
                                             for (IRBucketHolder<ICloudGroup> groupHolder : groupHolders) {
                                                 if(!builder.toString().isEmpty()) builder.append("§7, ");
                                                 builder.append(NodeLauncher.getInstance().getConsole().getHighlightColor() + groupHolder.get().getName());
                                             }
-                                            commandSender.sendMessage("Template » " + NodeLauncher.getInstance().getConsole().getHighlightColor() + templateHolder.get().getName());
-                                            commandSender.sendMessage("Template folder » " + NodeLauncher.getInstance().getConsole().getHighlightColor() + templateHolder.get().getTemplateFolder().getAbsolutePath());
-                                            commandSender.sendMessage("Groups » " + NodeLauncher.getInstance().getConsole().getHighlightColor() + builder);
+                                            commandSender.sendMessage("Template » %hc" + templateHolder.get().getName());
+                                            commandSender.sendMessage("Template folder » %hc" + templateHolder.get().getTemplateFolder().getAbsolutePath());
+                                            commandSender.sendMessage("Groups » %hc" + builder);
                                         });
                             });
                 } else {
@@ -122,6 +130,7 @@ public class TemplateCommand extends ConsoleCommand {
     @Subcommand("push")
     @Syntax("<Node>")
     @CommandCompletion("@nodes")
+    @Description("Push a template to a node")
     public void onPush(CommandSender commandSender, String nodeName){
         if(nodeName.equalsIgnoreCase(NodeLauncher.getInstance().getNode().getName())){
             commandSender.sendMessage("You can´t push from this node to itself!");
@@ -133,20 +142,22 @@ public class TemplateCommand extends ConsoleCommand {
             return;
         }
         CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)
-                .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while getting node!", throwable))
+                .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("cError while getting node!", throwable))
                 .onSuccess(nodeHolder -> {
                     if(!nodeHolder.get().isConnected()){
                         commandSender.sendMessage("Node is not connected!");
                         return;
                     }
-                    commandSender.sendMessage("Pushing template to node " + NodeLauncher.getInstance().getConsole().getHighlightColor() + nodeHolder.get().getName() + "...");
+                    commandSender.sendMessage("Pushing template to node %hc" + nodeHolder.get().getName() + "...");
+                    commandSender.sendMessage("This may take a while...");
                     NodeLauncher.getInstance().getServiceTemplateManager().pushAllTemplates(nodeHolder)
-                            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while pushing templates!", throwable))
-                            .onSuccess(s -> commandSender.sendMessage("Templates pushed to node " + nodeHolder.get().getName()));
+                            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while pushing templates!", throwable))
+                            .onSuccess(s -> commandSender.sendMessage("Templates pushed to node %hc" + nodeHolder.get().getName()));
                 });
     }
 
     @Subcommand("pushall")
+    @Description("Push all templates to all nodes")
     public void onPushAll(CommandSender commandSender){
         if(!FileTransferProcessThread.getSentProcesses().isEmpty() || FileTransferProcessThread.getCurrentSentProcess() != null){
             commandSender.sendMessage("There is already a file transfer process running!");
@@ -154,27 +165,28 @@ public class TemplateCommand extends ConsoleCommand {
             return;
         }
         commandSender.sendMessage("Pushing all templates...");
+        commandSender.sendMessage("This may take a while...");
         CloudAPI.getInstance().getNodeManager().getNodesAsync()
-                .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while getting nodes!", throwable))
+                .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while getting nodes!", throwable))
                 .onSuccess(nodeHolders -> {
                     FutureActionCollection<UUID, IRBucketHolder<ICloudNode>> futureActionCollection = new FutureActionCollection<>();
                     for (IRBucketHolder<ICloudNode> nodeHolder : nodeHolders) {
                         if(nodeHolder.get().getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) continue;
                         if(nodeHolder.get().isConnected()){
-                            commandSender.sendMessage("Pushing templates to node " + NodeLauncher.getInstance().getConsole().getHighlightColor() + nodeHolder.get().getName() + "...");
+                            commandSender.sendMessage("Pushing templates to node %hc" + nodeHolder.get().getName() + "...");
                             FutureAction<IRBucketHolder<ICloudNode>> futureAction = NodeLauncher.getInstance().getServiceTemplateManager().pushAllTemplates(nodeHolder);
                             futureAction.whenComplete((s, throwable) -> {
-                                if(throwable != null) commandSender.sendMessage("Error while pushing templates to node " + NodeLauncher.getInstance().getConsole().getHighlightColor() + nodeHolder.get().getName());
-                                else commandSender.sendMessage("Templates pushed to node " + NodeLauncher.getInstance().getConsole().getHighlightColor() + nodeHolder.get().getName());
+                                if(throwable != null) commandSender.sendMessage("Error while pushing templates to node %hc" + nodeHolder.get().getName());
+                                else commandSender.sendMessage("Templates pushed to node %hc" + nodeHolder.get().getName());
                             });
                             futureActionCollection.addToProcess(nodeHolder.get().getUniqueId(), futureAction);
                         }else{
-                            commandSender.sendMessage("Node " + nodeHolder.get().getName() + " is not connected!");
+                            commandSender.sendMessage("Node %hc" + nodeHolder.get().getName() + " is not connected!");
                         }
                     }
                     futureActionCollection.process()
-                            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("Error while pushing templates!", throwable))
-                            .onSuccess(s -> commandSender.sendMessage("Templates pushed to all nodes!"));
+                            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while pushing templates!", throwable))
+                            .onSuccess(s -> CloudAPI.getInstance().getScheduler().runTaskLater(() -> commandSender.sendMessage("Templates pushed to all nodes!"), 1, TimeUnit.SECONDS));
                 });
     }
 

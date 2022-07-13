@@ -6,12 +6,15 @@ import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.commons.file.FileUtils;
 import net.suqatri.cloud.commons.file.Files;
 import net.suqatri.cloud.commons.file.ZipUtils;
+import net.suqatri.cloud.commons.function.future.FutureAction;
+import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.cloud.node.file.packet.FileTransferReadFailedPacket;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Data
@@ -65,10 +68,15 @@ public class FileTransferReceiveProcess implements IFileTransferProcess {
             this.zipFile = new File(Files.TEMP_FOLDER.getFile(), this.transferId + ".zip");
             FileUtils.bytesToFile(bytes, this.zipFile.getAbsolutePath());
             this.lastAction.set(System.currentTimeMillis());
-            ZipUtils.unzipDir(zipFile, this.destinationFilePath);
+            ZipUtils.unzipDir(zipFile, destinationFile.getAbsolutePath());
             this.lastAction.set(System.currentTimeMillis());
 
             zipFile.delete();
+
+            CloudAPI.getInstance().getConsole().info("File-read-transfer " + this.transferId + " completed");
+
+            FutureAction<Boolean> futureAction = NodeLauncher.getInstance().getFileTransferManager().getPullingRequest();
+            if(futureAction != null) futureAction.complete(true);
         } catch (IOException e) {
             CloudAPI.getInstance().getConsole().error("File-read-transfer process error", e);
             this.receivedFileData.clear();

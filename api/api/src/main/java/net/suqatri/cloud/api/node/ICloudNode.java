@@ -3,6 +3,7 @@ package net.suqatri.cloud.api.node;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.redis.bucket.IRBucketObject;
 import net.suqatri.cloud.api.service.ICloudService;
+import net.suqatri.cloud.commons.file.Files;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import org.omg.CORBA.IRObject;
 
@@ -32,5 +33,8 @@ public interface ICloudNode extends IRBucketObject {
     long getUpTime();
     void shutdown();
     INetworkComponentInfo getNetworkComponentInfo();
+    String getFilePath();
+    String getFilePath(Files files);
+    long getLastDisconnect();
 
 }

@@ -45,33 +45,33 @@ public class CommandConsoleManager extends ConsoleCommandManager implements ICom
     }
 
     private void loadDefaultLanguage(){
-        addLanguageKey(MessageKeys.PERMISSION_DENIED, "%prefix%§cDafür hast du keine Rechte!");
-        addLanguageKey(MessageKeys.PERMISSION_DENIED_PARAMETER, "%prefix%§cDafür hast du keine Rechte!");
-        addLanguageKey(MessageKeys.ERROR_GENERIC_LOGGED, "%prefix%§cEs ist ein Fehler aufgetreten!");
-        addLanguageKey(MessageKeys.UNKNOWN_COMMAND, "%prefix%§cUnbekannter Befehl! /help");
-        addLanguageKey(MessageKeys.INVALID_SYNTAX, "%prefix%§cFalsch: §7{command} {syntax}");
+        addLanguageKey(MessageKeys.PERMISSION_DENIED, "You don't have permission to use this command.");
+        addLanguageKey(MessageKeys.PERMISSION_DENIED_PARAMETER, "You don't have permission to use this parameter!");
+        addLanguageKey(MessageKeys.ERROR_GENERIC_LOGGED, "Error: %error%");
+        addLanguageKey(MessageKeys.UNKNOWN_COMMAND, "Unknown command! Use %hc\"help\" %tcfor help.");
+        addLanguageKey(MessageKeys.INVALID_SYNTAX, "%tcUsage: %hc{command} {syntax}");
         addLanguageKey(MessageKeys.ERROR_PREFIX, "Error: {message}");
-        addLanguageKey(MessageKeys.ERROR_PERFORMING_COMMAND, "%prefix%§cEs ist ein Fehler aufgetreten!");
+        addLanguageKey(MessageKeys.ERROR_PERFORMING_COMMAND, "Error while performing command: {message}");
         addLanguageKey(MessageKeys.INFO_MESSAGE, "{message}");
-        addLanguageKey(MessageKeys.PLEASE_SPECIFY_ONE_OF, "Error: Please specify one of (<c2>{valid}</c2>).");
+        addLanguageKey(MessageKeys.PLEASE_SPECIFY_ONE_OF, "Error: Please specify one of {valid}");
         addLanguageKey(MessageKeys.MUST_BE_A_NUMBER, "%prefix%§c{num} muss eine Zahl sein!");
-        addLanguageKey(MessageKeys.MUST_BE_MIN_LENGTH, "%prefix%§cDas Argument muss min. {min} Zeichen lang sein!");
-        addLanguageKey(MessageKeys.MUST_BE_MAX_LENGTH, "%prefix%§cDas Argument darf max. {max} Zeichen lang sein!");
-        addLanguageKey(MessageKeys.PLEASE_SPECIFY_AT_MOST, "%prefix%§cDie Zahl darf nicht größer als {max} sein!");
-        addLanguageKey(MessageKeys.PLEASE_SPECIFY_AT_LEAST, "%prefix%§cDie Zahl darf nicht kleiner als {min} sen!");
-        addLanguageKey(MessageKeys.NOT_ALLOWED_ON_CONSOLE, "%prefix%§cDu musst ein Spieler sein!");
-        addLanguageKey(MessageKeys.COULD_NOT_FIND_PLAYER, "%prefix%§cEs konnte kein Spieler gefunden werden mit dem Namen %c1%{search}!");
-        addLanguageKey(MessageKeys.NO_COMMAND_MATCHED_SEARCH, "%prefix%§cEs wurde kein Befehl mit dem Namen {search} gefunden!");
-        addLanguageKey(MessageKeys.HELP_PAGE_INFORMATION, "§8§m--§8> §7Hilfe %c1%{page}§8/%c2%{totalpages}§7");
-        addLanguageKey(MessageKeys.HELP_NO_RESULTS, "%prefix%§cEs wurden keinen weiteren Seiten gefunden!");
-        addLanguageKey(MessageKeys.HELP_HEADER, "§8<§m------------|§7 Hilfe für %c1%{commandprefix}{command} §8§m-|§m------------§8>");
-        addLanguageKey(MessageKeys.HELP_FORMAT, "%c1%{commandprefix}{command} {parameters} §8| §7{description}");
-        addLanguageKey(MessageKeys.HELP_DETAILED_HEADER, "§8<§m------------|§7 Hilfe für %c1%{commandprefix}{command} §8§m-|§m------------§8>");
-        addLanguageKey(MessageKeys.HELP_DETAILED_COMMAND_FORMAT, "%c1%{commandprefix}{command} {parameters} §8| §7{description}");
-        addLanguageKey(MessageKeys.HELP_DETAILED_PARAMETER_FORMAT, "%c1%{syntaxorname}: §7{description}");
-        addLanguageKey(MessageKeys.HELP_SEARCH_HEADER, "§8<§m------------|§7 Hilfe für %c1%{commandprefix}{command} §8§m-|§m------------§8>");
-        saveLanguage(Locales.GERMAN);
-        getLocales().setDefaultLocale(Locales.GERMAN);
+        addLanguageKey(MessageKeys.MUST_BE_MIN_LENGTH, "The argument must be min. {min} characters long!");
+        addLanguageKey(MessageKeys.MUST_BE_MAX_LENGTH, "The argument must be max. {max} characters long!");
+        addLanguageKey(MessageKeys.PLEASE_SPECIFY_AT_MOST, "The argument must be at most {max}.");
+        addLanguageKey(MessageKeys.PLEASE_SPECIFY_AT_LEAST, "The number must be at least {min}.");
+        addLanguageKey(MessageKeys.NOT_ALLOWED_ON_CONSOLE, "NOT_SET: NOT_ALLOWED_ON_CONSOLE");
+        addLanguageKey(MessageKeys.COULD_NOT_FIND_PLAYER, "Could not find player {player}");
+        addLanguageKey(MessageKeys.NO_COMMAND_MATCHED_SEARCH, "§cNo matching command found for {search}!");
+        addLanguageKey(MessageKeys.HELP_PAGE_INFORMATION, "§8--> §7Help %tc{page}§8/%hc{totalpages}§7");
+        addLanguageKey(MessageKeys.HELP_NO_RESULTS, "There is no further help available.");
+        addLanguageKey(MessageKeys.HELP_HEADER, "§8<------------|§7 Help for %hc{commandprefix}%tc{command} §8|------------§8>");
+        addLanguageKey(MessageKeys.HELP_FORMAT, "%hc{commandprefix}{command} %tc{parameters} §8| %tc{description}");
+        addLanguageKey(MessageKeys.HELP_DETAILED_HEADER, "§8<------------|%tc Help for %hc{commandprefix}%tc{command} §8§|------------§8>");
+        addLanguageKey(MessageKeys.HELP_DETAILED_COMMAND_FORMAT, "%hc{commandprefix}{command} %tc{parameters} §8| %tc{description}");
+        addLanguageKey(MessageKeys.HELP_DETAILED_PARAMETER_FORMAT, "%hc{syntaxorname}: %tc{description}");
+        addLanguageKey(MessageKeys.HELP_SEARCH_HEADER, "§8<------------|%tc Hilfe für %hc{commandprefix}%tc{command} §8|-----------§8>");
+        saveLanguage(Locales.ENGLISH);
+        getLocales().setDefaultLocale(Locales.ENGLISH);
     }
 
     public void saveLanguage(Locale locale){

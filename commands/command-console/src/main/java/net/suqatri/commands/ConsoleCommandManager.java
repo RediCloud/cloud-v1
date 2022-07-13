@@ -49,14 +49,14 @@ public class ConsoleCommandManager extends CommandManager<
     protected Map<String, ConsoleRootCommand> registeredCommands = new HashMap<>();
     protected ConsoleCommandContexts contexts;
     protected ConsoleCommandCompletions completions;
+    private Locales locales;
 
     public ConsoleCommandManager() {
         this.formatters.put(MessageType.ERROR, defaultFormatter = new ConsoleMessageFormatter(Color.RED, Color.YELLOW, Color.RED));
         this.formatters.put(MessageType.SYNTAX, new ConsoleMessageFormatter(Color.YELLOW, Color.GREEN, Color.WHITE));
         this.formatters.put(MessageType.INFO, new ConsoleMessageFormatter(Color.BLUE, Color.GREEN, Color.GREEN));
         this.formatters.put(MessageType.HELP, new ConsoleMessageFormatter(Color.CYAN, Color.GREEN, Color.YELLOW));
-
-        getLocales(); // auto load locales
+        this.locales = new Locales(this);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class ConsoleCommandManager extends CommandManager<
 
     @Override
     public Locales getLocales() {
-        return new Locales(this);
+        return this.locales;
     }
 
     @Override

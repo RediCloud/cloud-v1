@@ -411,10 +411,10 @@ public abstract class CommandManager<
         message = getCommandReplacements().replace(message);
         message = getLocales().replaceI18NStrings(message);
 
-        MessageFormatter formatter = formatters.getOrDefault(type, defaultFormatter);
-        if (formatter != null) {
-            message = formatter.format(message);
-        }
+        //MessageFormatter formatter = formatters.getOrDefault(type, defaultFormatter);
+        //if (formatter != null) {
+         //   message = formatter.format(message);
+        //}
         return message;
     }
 

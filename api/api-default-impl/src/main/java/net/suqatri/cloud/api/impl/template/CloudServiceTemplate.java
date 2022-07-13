@@ -3,6 +3,7 @@ package net.suqatri.cloud.api.impl.template;
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
+import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import net.suqatri.cloud.commons.file.Files;
 
@@ -22,5 +23,10 @@ public class CloudServiceTemplate extends RBucketObject implements ICloudService
     @Override
     public void updateToNodes() {
         //TODO File Manager
+    }
+
+    @Override
+    public String getTemplatePath(ICloudNode node) {
+        return new File(node.getFilePath(Files.TEMPLATE_FOLDER), this.name).getAbsolutePath();
     }
 }

@@ -190,4 +190,29 @@ public class TemplateCommand extends ConsoleCommand {
                 });
     }
 
+    @Subcommand("pull")
+    @Syntax("<Node>")
+    @Description("Pull all templates from a node")
+    public void onPull(CommandSender commandSender, String nodeName){
+        CloudAPI.getInstance().getNodeManager().existsNodeAsync(nodeName)
+                .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while checking node existence!", throwable))
+                .onSuccess(exists -> {
+                    if(!exists){
+                        commandSender.sendMessage("Node does not exist!");
+                        return;
+                    }
+                    CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)
+                            .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while getting node!", throwable))
+                            .onSuccess(nodeHolder -> {
+                                if(!nodeHolder.get().isConnected()){
+                                    commandSender.sendMessage("Node is not connected!");
+                                    return;
+                                }
+                                commandSender.sendMessage("Pulling templates from node %hc" + nodeHolder.get().getName() + "...");
+                                commandSender.sendMessage("This may take a while...");
+                                NodeLauncher.getInstance().getServiceTemplateManager().pullTemplates(nodeHolder);
+                            });
+                });
+    }
+
 }

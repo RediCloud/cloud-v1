@@ -8,7 +8,7 @@ import java.io.File;
 @AllArgsConstructor @Getter
 public enum Files {
 
-    CLOUD_FOLDER(""),
+    CLOUD_FOLDER("./"),
     MODULES_FOLDER("modules"),
     STORAGE_FOLDER("storage"),
     TEMPLATE_FOLDER("templates"),

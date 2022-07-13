@@ -21,7 +21,7 @@ public class StopCommand extends ConsoleCommand {
             return;
         }
         this.lastTime = System.currentTimeMillis();
-        commandSender.sendMessage("Enter " + NodeLauncher.getInstance().getConsole().getHighlightColor() + "'stop'" + NodeLauncher.getInstance().getConsole().getTextColor() + " in the next 10 seconds again to shutdown the node.");
+        commandSender.sendMessage("Enter %hc'stop'%tc in the next 10 seconds again to shutdown the node.");
     }
 
 }

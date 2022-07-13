@@ -62,4 +62,16 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
         return this.getBucketHolders();
     }
 
+    //TODO stop service per packet to node
+    @Override
+    public boolean stopService(UUID uniqueId) {
+
+        return false;
+    }
+
+    //TODO stop service per packet to node
+    @Override
+    public FutureAction<Boolean> stopServiceAsync(UUID uniqueId) {
+        return null;
+    }
 }

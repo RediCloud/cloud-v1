@@ -36,5 +36,7 @@ public interface ICloudNode extends IRBucketObject {
     String getFilePath();
     String getFilePath(Files files);
     long getLastDisconnect();
+    boolean isFileNode();
+    void setFileNode(boolean fileNode);
 
 }

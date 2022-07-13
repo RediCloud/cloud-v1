@@ -33,7 +33,7 @@ public class NodeConnectionDataSetup extends Setup<NodeConnectionDataSetup> {
     @Question(id = 4, question = "What´s the maximum starting parallel service count of this node?")
     private int maxParallelServiceCount;
 
-    private UUID uniqueId = UUID.randomUUID();
+    private final UUID uniqueId = UUID.randomUUID();
 
     public NodeConnectionDataSetup() {
         super(NodeLauncher.getInstance().getConsole());

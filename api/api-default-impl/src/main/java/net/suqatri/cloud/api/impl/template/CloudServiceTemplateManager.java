@@ -36,22 +36,6 @@ public class CloudServiceTemplateManager extends RedissonBucketManager<CloudServ
     }
 
     @Override
-    public IRBucketHolder<ICloudServiceTemplate> createTemplate(String name) {
-        CloudServiceTemplate template = new CloudServiceTemplate();
-        template.setName(name);
-        //TODO FileManager
-        return this.createBucket(name, template);
-    }
-
-    @Override
-    public FutureAction<IRBucketHolder<ICloudServiceTemplate>> createTemplateAsync(String name) {
-        CloudServiceTemplate template = new CloudServiceTemplate();
-        template.setName(name);
-        //TODO FileManager
-        return this.createBucketAsync(name, template);
-    }
-
-    @Override
     public Collection<IRBucketHolder<ICloudServiceTemplate>> getAllTemplates() {
         return this.getBucketHolders();
     }

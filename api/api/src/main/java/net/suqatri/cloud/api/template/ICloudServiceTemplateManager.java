@@ -14,9 +14,6 @@ public interface ICloudServiceTemplateManager {
     boolean existsTemplate(String name);
     FutureAction<Boolean> existsTemplateAsync(String name);
 
-    IRBucketHolder<ICloudServiceTemplate> createTemplate(String name);
-    FutureAction<IRBucketHolder<ICloudServiceTemplate>> createTemplateAsync(String name);
-
     Collection<IRBucketHolder<ICloudServiceTemplate>> getAllTemplates();
     FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> getAllTemplatesAsync();
 }

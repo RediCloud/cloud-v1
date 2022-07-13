@@ -3,9 +3,7 @@ package net.suqatri.cloud.node;
 import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.LogLevel;
-import net.suqatri.cloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
-import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.node.NodeCloudDefaultAPI;
 import net.suqatri.cloud.api.node.event.CloudNodeConnectedEvent;
 import net.suqatri.cloud.api.impl.node.CloudNode;
@@ -16,7 +14,6 @@ import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
-import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.commons.connection.IPUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
 import net.suqatri.cloud.node.commands.*;
@@ -28,15 +25,15 @@ import net.suqatri.cloud.node.listener.CloudNodeConnectedListener;
 import net.suqatri.cloud.node.listener.CloudNodeDisconnectListener;
 import net.suqatri.cloud.node.node.ClusterConnectionInformation;
 import net.suqatri.cloud.node.scheduler.Scheduler;
+import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 import net.suqatri.cloud.node.setup.node.NodeConnectionDataSetup;
 import net.suqatri.cloud.node.setup.redis.RedisSetup;
 import net.suqatri.cloud.commons.file.Files;
 import net.suqatri.cloud.node.template.NodeCloudServiceTemplateManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -55,12 +52,14 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private CloudNode node;
     private FileTransferManager fileTransferManager;
     private NodeCloudServiceTemplateManager serviceTemplateManager;
+    private final NodeCloudServiceManager serviceManager;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
         this.scheduler = new Scheduler();
         this.commandManager = new CommandConsoleManager();
         this.console = this.commandManager.getNodeConsole();
+        this.serviceManager = new NodeCloudServiceManager();
         this.handleProgrammArguments(args);
 
         this.init(() -> {
@@ -114,6 +113,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.commandManager.registerCommand(new TemplateCommand());
         this.commandManager.registerCommand(new ServiceCommand());
         this.commandManager.registerCommand(new GroupCommand());
+        this.commandManager.registerCommand(new CloudHelpCommand());
+        this.commandManager.registerCommand(new ServiceVersionCommand());
     }
 
     private void registerListeners(){
@@ -136,6 +137,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.node.setStartedServiceUniqueIds(new ArrayList<>());
             this.node.setMemoryUsage(0);
             this.node.setHostname(IPUtils.getPublicIP());
+            this.node.setFilePath(Files.CLOUD_FOLDER.getFile().getAbsolutePath());
 
             runnable.run();
 
@@ -316,6 +318,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             event.setNodeId(this.node.getUniqueId());
             getEventManager().postGlobal(event);
             this.node.setConnected(false);
+            this.node.setLastDisconnect(System.currentTimeMillis());
             this.node.setStartedServiceUniqueIds(new ArrayList<>());
             this.node.setLastConnection(System.currentTimeMillis());
             this.node.update();

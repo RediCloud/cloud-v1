@@ -9,6 +9,7 @@ import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.IServiceStartConfiguration;
+import net.suqatri.cloud.api.service.ServiceState;
 
 
 @Getter
@@ -18,6 +19,7 @@ public class CloudService extends RBucketObject implements ICloudService {
     private IServiceStartConfiguration configuration;
     private String motd;
     private int maxPlayers;
+    private ServiceState serviceState;
 
     @Override
     public void merged() {

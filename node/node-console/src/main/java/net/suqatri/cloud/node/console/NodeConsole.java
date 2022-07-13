@@ -147,27 +147,12 @@ public class NodeConsole implements IConsole {
 
         if(storeInHistory) this.allWroteLines.add(message);
 
+        if(this.currentSetup != null && level != LogLevel.FATAL) return;
+
         String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
         String prefix = "§7[§f" + dateTime + "§7] §f" + level.name() + "§7: " + (logLevel == LogLevel.INFO ? this.textColor : Ansi.ansi().a(Ansi.Attribute.RESET).fgRgb(level.getColor().getRed(), level.getColor().getGreen(), level.getColor().getBlue()).toString());
 
         String line = translateColorCodes ? translateColorCodes(prefix + message) : prefix + message;
-        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
-        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
-        this.lineReader.getTerminal().writer().flush();
-
-        this.redisplay();
-    }
-
-    public void setupResponse(String message){
-        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
-
-        message = message.replaceAll("%tc", this.textColor)
-                .replaceAll("%hc", this.highlightColor);
-
-        String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
-        String prefix = "§7[§f" + dateTime + "§7] §fSETUP§7: " + this.textColor;
-
-        String line = translateColorCodes(prefix + message);
         this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
         this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
         this.lineReader.getTerminal().writer().flush();
@@ -182,6 +167,8 @@ public class NodeConsole implements IConsole {
                 .replaceAll("%hc", this.highlightColor);
 
         this.allWroteLines.add(message);
+
+        if(this.currentSetup != null) return;
 
         String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
         String prefix = "§7[§f" + dateTime + "§7] §fCOMMAND§7: " + this.textColor;
@@ -208,10 +195,39 @@ public class NodeConsole implements IConsole {
     }
 
     @Override
+    public void log(LogLevel level, Object[] messages) {
+        if(this.currentSetup != null && logLevel != LogLevel.FATAL) return;
+        IConsole.super.log(level, messages);
+    }
+
+    @Override
+    public void log(LogLevel logLevel, String message) {
+        if(this.currentSetup != null && logLevel != LogLevel.FATAL) return;
+        IConsole.super.log(logLevel, message);
+    }
+
+    @Override
     public void print(String message) {
         message = message.replaceAll("%tc", this.textColor)
                 .replaceAll("%hc", this.highlightColor);
         this.log(LogLevel.INFO, message);
+    }
+
+    public void printForce(String prefix, String message){
+        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+
+        message = message.replaceAll("%tc", this.textColor)
+                .replaceAll("%hc", this.highlightColor);
+
+        String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
+        String p = "§7[§f" + dateTime + "§7] §f" + prefix + "§7: " + this.textColor;
+
+        String line = translateColorCodes(p + message);
+        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
+        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
+        this.lineReader.getTerminal().writer().flush();
+
+        this.redisplay();
     }
 
     @Override
@@ -220,6 +236,8 @@ public class NodeConsole implements IConsole {
         message = message.replaceAll("%tc", this.textColor)
                 .replaceAll("%hc", this.highlightColor);
         if(storeInHistory) this.allWroteLines.add(message);
+
+        if(this.currentSetup != null) return;
 
         this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
         this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + (translateColorCodes ? translateColorCodes(message) : message) + Ansi.ansi().reset());

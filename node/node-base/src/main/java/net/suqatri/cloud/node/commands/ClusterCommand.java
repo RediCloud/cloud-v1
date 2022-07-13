@@ -19,6 +19,12 @@ import java.util.stream.Collectors;
 @CommandAlias("cluster")
 public class ClusterCommand extends ConsoleCommand {
 
+    /*
+        * /cluster nodes
+        * /cluster info [Node]
+        * /cluster shutdown
+     */
+
     @HelpCommand
     @Default
     public void onHelp(CommandHelp commandHelp){
@@ -77,17 +83,6 @@ public class ClusterCommand extends ConsoleCommand {
                     }
                     commandSender.sendMessage("");
                 });
-    }
-
-    @Subcommand("template push-all")
-    public void onTemplatePushAll(CommandSender commandSender){
-        commandSender.sendMessage("Pushing all templates to all nodes...");
-    }
-
-    @Subcommand("template push")
-    @Syntax("<Template>")
-    public void onTemplatePush(CommandSender commandSender, String template){
-        commandSender.sendMessage("Pushing template " + template + " to all nodes...");
     }
 
 }

@@ -40,7 +40,6 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     private final INetworkComponentManager networkComponentManager;
     private final ICloudNodeManager nodeManager;
     private final ICloudGroupManager groupManager;
-    private final ICloudServiceManager serviceManager;
     private final ICloudServiceVersionManager serviceVersionManager;
 
     public CloudDefaultAPIImpl(ApplicationType type) {
@@ -51,7 +50,6 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
         this.networkComponentManager = new NetworkComponentManager();
         this.nodeManager = new CloudNodeManager();
         this.groupManager = new CloudGroupManager();
-        this.serviceManager = new CloudServiceManager();
         this.serviceVersionManager = new CloudServiceVersionManager();
     }
 

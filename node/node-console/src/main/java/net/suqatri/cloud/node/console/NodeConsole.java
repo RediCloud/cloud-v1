@@ -142,6 +142,9 @@ public class NodeConsole implements IConsole {
         if(!canLog(level)) return;
         if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
 
+        message = message.replaceAll("%tc", this.textColor)
+                .replaceAll("%hc", this.highlightColor);
+
         if(storeInHistory) this.allWroteLines.add(message);
 
         String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
@@ -158,6 +161,9 @@ public class NodeConsole implements IConsole {
     public void setupResponse(String message){
         if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
 
+        message = message.replaceAll("%tc", this.textColor)
+                .replaceAll("%hc", this.highlightColor);
+
         String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
         String prefix = "§7[§f" + dateTime + "§7] §fSETUP§7: " + this.textColor;
 
@@ -171,6 +177,9 @@ public class NodeConsole implements IConsole {
 
     public void commandResponse(String message){
         if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+
+        message = message.replaceAll("%tc", this.textColor)
+                .replaceAll("%hc", this.highlightColor);
 
         this.allWroteLines.add(message);
 
@@ -187,6 +196,8 @@ public class NodeConsole implements IConsole {
 
     @Override
     public void error(String message, Throwable throwable) {
+        message = message.replaceAll("%tc", this.textColor)
+                .replaceAll("%hc", this.highlightColor);
         if(this.cleanConsoleMode) {
             log(LogLevel.ERROR, message);
         } else {
@@ -198,12 +209,16 @@ public class NodeConsole implements IConsole {
 
     @Override
     public void print(String message) {
+        message = message.replaceAll("%tc", this.textColor)
+                .replaceAll("%hc", this.highlightColor);
         this.log(LogLevel.INFO, message);
     }
 
     @Override
     public void printRaw(String message, boolean translateColorCodes, boolean storeInHistory) {
         if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+        message = message.replaceAll("%tc", this.textColor)
+                .replaceAll("%hc", this.highlightColor);
         if(storeInHistory) this.allWroteLines.add(message);
 
         this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);

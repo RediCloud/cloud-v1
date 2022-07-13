@@ -5,10 +5,7 @@ import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.commons.function.future.FutureAction;
-import net.suqatri.cloud.node.file.packet.FilePullPacket;
-import net.suqatri.cloud.node.file.packet.FileTransferBytesPacket;
-import net.suqatri.cloud.node.file.packet.FileTransferCompletedPacket;
-import net.suqatri.cloud.node.file.packet.FileTransferStartPacket;
+import net.suqatri.cloud.node.file.packet.*;
 import net.suqatri.cloud.node.file.process.FileTransferReceiveProcess;
 import net.suqatri.cloud.node.file.process.FileTransferSentProcess;
 
@@ -40,6 +37,8 @@ public class FileTransferManager {
         CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferStartPacket.class);
         CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferBytesPacket.class);
         CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferCompletedPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferCancelPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(FileDeletePacket.class);
         CloudAPI.getInstance().getPacketManager().registerPacket(FilePullPacket.class);
     }
 

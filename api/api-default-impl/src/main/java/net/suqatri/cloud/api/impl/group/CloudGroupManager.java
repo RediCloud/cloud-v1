@@ -1,10 +1,14 @@
 package net.suqatri.cloud.api.impl.group;
 
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.group.ICloudGroupManager;
 import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
+import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.commons.function.future.FutureAction;
+import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -93,5 +97,53 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
     @Override
     public FutureAction<Collection<IRBucketHolder<ICloudGroup>>> getGroupsAsync() {
         return this.getBucketHoldersAsync();
+    }
+
+    @Override
+    public FutureAction<IRBucketHolder<ICloudGroup>> createGroupAsync(ICloudGroup group) {
+        return this.createBucketAsync(group.getUniqueId().toString(), group);
+    }
+
+    @Override
+    public FutureAction<Boolean> deleteGroupAsync(UUID uniqueId) {
+        FutureAction<Boolean> futureAction = new FutureAction<>();
+        getGroupAsync(uniqueId)
+                .onFailure(futureAction)
+                .onSuccess(groupHolder -> {
+                    groupHolder.get().getOnlineServices()
+                        .onFailure(futureAction)
+                        .onSuccess(serviceHolders -> {
+                            FutureActionCollection<UUID, Boolean> futureActionFutureAction = new FutureActionCollection<>();
+                            for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
+                                futureActionFutureAction.addToProcess(serviceHolder.get().getUniqueId(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId()));
+                            }
+                            futureActionFutureAction.process()
+                                .onFailure(futureAction)
+                                .onSuccess(s1 -> {
+                                    this.deleteBucketAsync(uniqueId.toString())
+                                            .onFailure(futureAction)
+                                            .onSuccess(s2 -> futureAction.complete(true));
+                                });
+                        });
+                });
+        return futureAction;
+    }
+
+    @Override
+    public boolean deleteGroup(UUID uniqueId) {
+        IRBucketHolder<ICloudGroup> holder = getGroup(uniqueId);
+        for (IRBucketHolder<ICloudService> service : CloudAPI.getInstance().getServiceManager().getServices()) {
+            if(service.get().getGroup() == null) continue;
+            if(service.get().getGroup().get().getUniqueId().equals(uniqueId)) {
+                CloudAPI.getInstance().getServiceManager().stopService(service.get().getUniqueId());
+            }
+        }
+        this.deleteBucket(uniqueId.toString());
+        return true;
+    }
+
+    @Override
+    public IRBucketHolder<ICloudGroup> createGroup(ICloudGroup group) {
+        return this.createBucket(group.getUniqueId().toString(), group);
     }
 }

@@ -46,12 +46,13 @@ public class FileTransferManager {
         FileTransferProcessThread.getReceiveProcesses().put(transferId, this.waitingReceiveProcesses.get(transferId));
     }
 
-    public FutureAction<File> transferFolderToNode(File folder, File targetFile, IRBucketHolder<ICloudNode> holder){
+    public FutureAction<File> transferFolderToNode(File folder, File targetFile, String targetFilePathToDelete, IRBucketHolder<ICloudNode> holder){
         FutureAction<File> futureAction = new FutureAction<>();
 
         FileTransferSentProcess process = new FileTransferSentProcess();
         process.setOriginalFile(folder);
         process.setDestinationFilePath(targetFile.getPath());
+        process.setTargetFilePathToDelete(targetFilePathToDelete);
         process.setReceiver(holder);
         process.setFutureAction(futureAction);
 
@@ -62,11 +63,11 @@ public class FileTransferManager {
         return futureAction;
     }
 
-    public FutureAction<File> transferFolderToNode(File folder, File targetFile, UUID nodeId){
+    public FutureAction<File> transferFolderToNode(File folder, File targetFile, String targetFilePathToDelete, UUID nodeId){
         FutureAction<File> futureAction = new FutureAction<>();
         CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeId)
                 .onFailure(futureAction)
-                .onSuccess(nodeHolder -> this.transferFolderToNode(folder, targetFile, nodeHolder)
+                .onSuccess(nodeHolder -> this.transferFolderToNode(folder, targetFile, targetFilePathToDelete, nodeHolder)
                         .onFailure(futureAction)
                         .onSuccess(futureAction::complete));
 

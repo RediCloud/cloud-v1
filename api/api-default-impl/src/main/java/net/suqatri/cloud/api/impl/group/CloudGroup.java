@@ -16,45 +16,42 @@ import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
+@Setter
 public class CloudGroup extends RBucketObject implements ICloudGroup {
 
     private ServiceEnvironment serviceEnvironment;
     private UUID uniqueId;
     private String name;
-    @Setter
-    private String[] processParameters;
-    @Setter
-    private String[] jvmArguments;
-    @Setter
-    private String javaCommand;
-    @Setter
-    private int minServices;
-    @Setter
-    private int maxServices;
-    private Collection<String> templateNames;
-    @Setter
-    private boolean staticGroup;
-    private Collection<UUID> associatedNodeIds;
-    @Setter
-    private int startPort;
-    @Setter
-    private boolean maintenance;
-    @Setter
+    private String[] processParameters = new String[0];
+    private String[] jvmArguments = new String[0];
+    private String javaCommand = "java";
+    private int minServices = 0;
+    private int maxServices = -1;
+    private Collection<String> templateNames = new ArrayList<>();
+    private boolean staticGroup = false;
+    private Collection<UUID> associatedNodeIds = new ArrayList<>();
+    private int startPort = 5200;
+    private boolean maintenance = false;
     private int maxMemory;
-    @Setter
-    private int startPriority;
+    private int startPriority = 0;
 
     @Override
     public FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> getTemplates() {
         FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> futureAction = new FutureAction<>();
 
-        //TODO SErviceTEmplateManager
+        FutureActionCollection<String, IRBucketHolder<ICloudServiceTemplate>> futureActionCollection = new FutureActionCollection<>();
+        for(String templateName : templateNames) {
+            futureActionCollection.addToProcess(templateName, CloudAPI.getInstance().getServiceTemplateManager().getTemplateAsync(templateName));
+        }
+        futureActionCollection.process()
+                .onFailure(futureAction)
+                .onSuccess(templates -> {
+                    futureAction.complete(templates.values());
+                });
 
         return futureAction;
     }
@@ -90,13 +87,23 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     }
 
     @Override
-    public Collection<ICloudService> getOnlineServices() {
-        return null; //TODO ServiceManager
+    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getOnlineServices() {
+        return CloudAPI.getInstance().getServiceManager().getServicesAsync()
+                .map(holders -> holders
+                        .parallelStream()
+                        .filter(holder -> holder.get().getGroup() != null)
+                        .filter(holder -> holder.get().getGroup().get().getUniqueId().equals(this.uniqueId))
+                        .collect(Collectors.toList())
+                );
     }
 
     @Override
-    public Collection<ICloudService> getOnlineServices(ServiceState serviceState) {
-        return null; //TODO ServiceManager
+    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getOnlineServices(ServiceState serviceState) {
+        return getOnlineServices()
+                .map(holders -> holders
+                        .parallelStream()
+                        .filter(holder -> holder.get().getServiceState() == serviceState)
+                        .collect(Collectors.toList()));
     }
 
     @Override

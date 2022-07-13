@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -33,7 +34,7 @@ public class FileUtils {
         }
     }
 
-    public static byte[] mergeByteArrays(List<byte[]> list) {
+    public static byte[] mergeByteArrays(Collection<byte[]> list) {
         int length = 0;
         for (byte[] byteArray : list) {
             length += byteArray.length;

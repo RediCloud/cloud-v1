@@ -11,7 +11,7 @@ public enum Files {
     CLOUD_FOLDER("./"),
     MODULES_FOLDER("./modules"),
     STORAGE_FOLDER("./storage"),
-    TEMPLATE_FOLDER("/templates"),
+    TEMPLATE_FOLDER("./templates"),
     TEMP_FOLDER("./temp"),
     LIBS_FOLDER("./storage/libs"),
     LIBS_BLACKLIST_FOLDER("./storage/libs/blacklist"),

@@ -11,9 +11,9 @@ public interface IConsole {
     void printRaw(String message, boolean translateColorCodes, boolean storeInHistory);
 
     default void error(String message, Throwable throwable) {
-        log(LogLevel.FATAL, message);
-        log(LogLevel.FATAL, throwable.getMessage());
-        log(LogLevel.FATAL, throwable.getStackTrace());
+        log(LogLevel.ERROR, message);
+        log(LogLevel.ERROR, throwable.getMessage());
+        log(LogLevel.ERROR, throwable.getStackTrace());
     }
 
     default void error(String message){

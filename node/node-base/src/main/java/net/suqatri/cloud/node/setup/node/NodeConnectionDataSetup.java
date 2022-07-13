@@ -33,6 +33,9 @@ public class NodeConnectionDataSetup extends Setup<NodeConnectionDataSetup> {
     @Question(id = 4, question = "What´s the maximum starting parallel service count of this node?")
     private int maxParallelServiceCount;
 
+    @Question(id = 5, question = "Should this node be used to push files to the cluster?")
+    private boolean fileNode;
+
     private final UUID uniqueId = UUID.randomUUID();
 
     public NodeConnectionDataSetup() {

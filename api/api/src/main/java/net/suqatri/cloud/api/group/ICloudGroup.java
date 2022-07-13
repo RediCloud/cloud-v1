@@ -3,6 +3,7 @@ package net.suqatri.cloud.api.group;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.player.ICloudPlayer;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.api.redis.bucket.IRBucketObject;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
@@ -14,7 +15,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.UUID;
 
-public interface ICloudGroup extends Serializable {
+public interface ICloudGroup extends IRBucketObject {
 
     ServiceEnvironment getServiceEnvironment();
     String getName();

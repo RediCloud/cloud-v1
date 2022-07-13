@@ -11,6 +11,7 @@ public class FileTransferStartPacket extends FileTransferPacket {
     private String originalFilePath;
     private String destinationFilePath;
     private int indexes;
+    private String targetFilePathToDelete;
 
     @Override
     public void receive() {
@@ -18,6 +19,7 @@ public class FileTransferStartPacket extends FileTransferPacket {
         process.setDestinationFilePath(this.destinationFilePath);
         process.setOriginalFilePath(this.originalFilePath);
         process.setIndexes(this.indexes);
+        process.setTargetFilePathToDelete(this.targetFilePathToDelete);
         process.setSenderNetworkComponentInfo(this.getPacketData().getSender());
         NodeLauncher.getInstance().getFileTransferManager().getWaitingReceiveProcesses().put(this.getTransferId(), process);
     }

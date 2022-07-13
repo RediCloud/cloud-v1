@@ -2,6 +2,8 @@ package net.suqatri.cloud.node.file.packet;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.utils.ApplicationType;
 import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.cloud.node.file.process.FileTransferReceiveProcess;
 
@@ -15,6 +17,7 @@ public class FileTransferStartPacket extends FileTransferPacket {
 
     @Override
     public void receive() {
+        if(CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
         FileTransferReceiveProcess process = new FileTransferReceiveProcess(this.getTransferId());
         process.setDestinationFilePath(this.destinationFilePath);
         process.setOriginalFilePath(this.originalFilePath);

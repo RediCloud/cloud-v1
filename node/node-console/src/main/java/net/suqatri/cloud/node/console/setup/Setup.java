@@ -101,6 +101,10 @@ public abstract class Setup<T extends Setup<?>> {
      */
     public abstract boolean shouldPrintHeader();
 
+    public String getPrefix(){
+        return "SETUP";
+    }
+
     private Consumer<String> inputConsumer;
 
     public SetupHeaderBehaviour headerBehaviour() {
@@ -147,12 +151,6 @@ public abstract class Setup<T extends Setup<?>> {
             this.console.removeInputHandler(this.inputConsumer);
         }
 
-        if (headerBehaviour() == SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES) {
-            this.console.clearScreen();
-            for (String restoredLine : new ArrayList<>(this.restoredLines)) {
-                this.console.print(restoredLine);
-            }
-        }
         //If already exited by another code line
         if (this.setupListener != null) {
             //Setup done and accepting consumer
@@ -163,6 +161,14 @@ public abstract class Setup<T extends Setup<?>> {
                 this.setupListener.accept((T) this, SetupControlState.CANCELLED);
             }
             this.setupListener = null;
+        }
+
+
+        if (headerBehaviour() == SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES) {
+            this.console.clearScreen();
+            for (String restoredLine : new ArrayList<>(this.restoredLines)) {
+                this.console.print(restoredLine);
+            }
         }
 
     }
@@ -182,17 +188,17 @@ public abstract class Setup<T extends Setup<?>> {
 
             //No input provided
             if (input.trim().isEmpty()) {
-                this.console.setupResponse("§cPlease do not enter empty input!");
+                this.console.printForce(getPrefix(), "§cPlease do not enter empty input!");
                 return;
             }
 
             //Cancelling setup
             if (input.equalsIgnoreCase("cancel")) {
                 if (!this.isCancellable()) {
-                    this.console.setupResponse("§cYou cannot cancel the current setup!");
+                    this.console.printForce(getPrefix(), "§cYou cannot cancel the current setup!");
                     return;
                 }
-                this.console.setupResponse("§cThe current setup was cancelled!");
+                this.console.printForce(getPrefix(), "§cThe current setup was cancelled!");
                 this.cancelled = true;
                 this.current += 10000;
 
@@ -204,7 +210,7 @@ public abstract class Setup<T extends Setup<?>> {
 
             //If answer is enum only
             if (!setupEntry.isEnumRequired(input)) {
-                this.console.setupResponse("§cPossible answers: §e" + Arrays.toString(setup.getValue().getRequiresEnum().value().getEnumConstants()).replace("]", ")").replace("[", "("));
+                this.console.printForce(getPrefix(), "§cPossible answers: §e" + Arrays.toString(setup.getValue().getRequiresEnum().value().getEnumConstants()).replace("]", ")").replace("[", "("));
                 return;
             }
 
@@ -217,17 +223,17 @@ public abstract class Setup<T extends Setup<?>> {
                 }
 
                 if (onlyAllowed == null || onlyAllowed.length == 0) {
-                    this.console.setupResponse("§cCouldn't show you any possible answers because no possible answers were provided in the Setup!");
+                    this.console.printForce(getPrefix(), "§cCouldn't show you any possible answers because no possible answers were provided in the Setup!");
                 } else {
-                    this.console.setupResponse("§cPossible answers: §e" + Arrays.toString(onlyAllowed).replace("]", "").replace("[", ""));
+                    this.console.printForce(getPrefix(), "§cPossible answers: §e" + Arrays.toString(onlyAllowed).replace("]", "").replace("[", ""));
                 }
-                this.console.setupResponse("§cRequired Type: §e" + this.setup.getKey().getType().getSimpleName());
+                this.console.printForce(getPrefix(), "§cRequired Type: §e" + this.setup.getKey().getType().getSimpleName());
                 return;
             }
 
             //If the current input is forbidden to use
             if (setupEntry.isForbidden(input)) {
-                this.console.setupResponse(!input.trim().isEmpty() ? ("§cThe answer '§e" + input + " §cmay not be used for this question!") : "§cThis §eanswer §cmay not be used for this question!");
+                this.console.printForce(getPrefix(), !input.trim().isEmpty() ? ("§cThe answer '§e" + input + " §cmay not be used for this question!") : "§cThis §eanswer §cmay not be used for this question!");
                 return;
             }
 
@@ -237,7 +243,7 @@ public abstract class Setup<T extends Setup<?>> {
                 BiSupplier<String, Boolean> supplier = ReflectionUtils.createEmpty(value);
                 if (supplier != null) {
                     if (supplier.supply(input)) {
-                        this.console.setupResponse(checker.message().replace("%input%", input));
+                        this.console.printForce(getPrefix(), checker.message().replace("%input%", input));
                         return;
                     }
                 }
@@ -258,7 +264,7 @@ public abstract class Setup<T extends Setup<?>> {
                 value = transformer.parse(setupEntry, input);
 
                 if (value == null) {
-                    this.console.setupResponse("§cPlease try again");
+                    this.console.printForce(getPrefix(), "§cPlease try again");
                     return;
                 }
 
@@ -266,7 +272,7 @@ public abstract class Setup<T extends Setup<?>> {
                 this.setup.getKey().set(this, value);
 
             } catch (Exception ex) {
-                this.console.setupResponse("§cThe §einput §cdidn't match any of the available §eAnswerTypes§c!");
+                this.console.printForce(getPrefix(), "§cThe §einput §cdidn't match any of the available §eAnswerTypes§c!");
                 return;
             }
 
@@ -344,10 +350,10 @@ public abstract class Setup<T extends Setup<?>> {
         if (entry.getAnswers() != null) {
             sb.append(" ").append((Arrays.toString(entry.getAnswers().only())).replace("[", "(").replace("]", ")"));
         }
-        this.console.setupResponse(sb.toString());
+        this.console.printForce(getPrefix(), sb.toString());
 
         if (entry.getRequiresEnum() != null) {
-            this.console.setupResponse(this.console.getTextColor() + "Possible Answers: " + this.console.getHighlightColor() + Arrays.toString(entry.getRequiresEnum().value().getEnumConstants()).replace("]", "§8)").replace("[", "§8(" + this.console.getHighlightColor()).replace(",", "§7, " + this.console.getHighlightColor()));
+            this.console.printForce(getPrefix(), this.console.getTextColor() + "Possible Answers: " + this.console.getHighlightColor() + Arrays.toString(entry.getRequiresEnum().value().getEnumConstants()).replace("]", "§8)").replace("[", "§8(" + this.console.getHighlightColor()).replace(",", "§7, " + this.console.getHighlightColor()));
         }
 
         if (entry.getSuggestedAnswer() != null) {
@@ -368,13 +374,13 @@ public abstract class Setup<T extends Setup<?>> {
     private void printHeader(String header) {
         this.console.clearScreen();
 
-        this.console.setupResponse("§8");
+        this.console.printForce(getPrefix(), "§8");
         if (this.isCancellable()) {
-            this.console.setupResponse("     " + this.console.getTextColor() + "You can cancel this setup by typing §7\"" + this.console.getHighlightColor() + "cancel§7\"" + this.console.getTextColor() + "!");
+            this.console.printForce(getPrefix(), "     " + this.console.getTextColor() + "You can cancel this setup by typing §7\"" + this.console.getHighlightColor() + "cancel§7\"" + this.console.getTextColor() + "!");
         }
-        this.console.setupResponse("     " + this.console.getTextColor() + "Use " + this.console.getHighlightColor() + "TAB" + this.console.getTextColor() + " to see possible answers!");
-        this.console.setupResponse("     " + this.console.getTextColor() + "Current Question: " + this.console.getHighlightColor() + (this.current == 1 ? 1 : current) + "/" + (this.map.keySet().size() == 0 ? "Loading" : this.map.keySet().size() + ""));
-        this.console.setupResponse("§8");
+        this.console.printForce(getPrefix(), "     " + this.console.getTextColor() + "Use " + this.console.getHighlightColor() + "TAB" + this.console.getTextColor() + " to see possible answers!");
+        this.console.printForce(getPrefix(), "     " + this.console.getTextColor() + "Current Question: " + this.console.getHighlightColor() + (this.current == 1 ? 1 : current) + "/" + (this.map.keySet().size() == 0 ? "Loading" : this.map.keySet().size() + ""));
+        this.console.printForce(getPrefix(), "§8");
     }
 
 }

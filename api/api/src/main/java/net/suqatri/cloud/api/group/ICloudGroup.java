@@ -17,6 +17,7 @@ import java.util.UUID;
 
 public interface ICloudGroup extends IRBucketObject {
 
+    UUID getUniqueId();
     ServiceEnvironment getServiceEnvironment();
     String getName();
 
@@ -45,8 +46,8 @@ public interface ICloudGroup extends IRBucketObject {
     int getOnlineServiceCount();
     int getServicesCount(ServiceState serviceState);
 
-    Collection<ICloudService> getOnlineServices();
-    Collection<ICloudService> getOnlineServices(ServiceState serviceState);
+    FutureAction<Collection<IRBucketHolder<ICloudService>>> getOnlineServices();
+    FutureAction<Collection<IRBucketHolder<ICloudService>>> getOnlineServices(ServiceState serviceState);
 
     boolean isStatic();
     void setStatic(boolean staticGroup);

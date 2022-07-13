@@ -25,6 +25,7 @@ public class FileTransferReceiveProcess implements IFileTransferProcess {
     private String originalFilePath;
     private String destinationFilePath;
     private File zipFile;
+    private String targetFilePathToDelete;
 
     private AtomicLong lastAction = new AtomicLong(System.currentTimeMillis());
 
@@ -43,6 +44,22 @@ public class FileTransferReceiveProcess implements IFileTransferProcess {
                 this.receivedFileData.clear();
                 return;
             }
+
+            if(this.targetFilePathToDelete != null){
+                File file = new File(Files.CLOUD_FOLDER.getFile(), this.targetFilePathToDelete);
+                if(file.exists()) {
+                    if(file.isDirectory()){
+                        org.apache.commons.io.FileUtils.deleteDirectory(file);
+                        file.mkdirs();
+                    }else{
+                        file.delete();
+                    }
+                }
+            }
+
+            File destinationFile = new File(Files.CLOUD_FOLDER.getFile(), this.destinationFilePath);
+            if(!destinationFile.exists()) destinationFile.mkdirs();
+
             byte[] bytes = FileUtils.mergeByteArrays(this.receivedFileData.values());
 
             this.zipFile = new File(Files.TEMP_FOLDER.getFile(), this.transferId + ".zip");

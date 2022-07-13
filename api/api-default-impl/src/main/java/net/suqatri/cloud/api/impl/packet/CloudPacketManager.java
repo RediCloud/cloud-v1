@@ -84,12 +84,18 @@ public class CloudPacketManager implements ICloudPacketManager {
         }
         CloudAPI.getInstance().getConsole().debug("Publishing packet " + packet.getClass().getName() + " to [" + packet.getPacketData().getReceivers().parallelStream().map(INetworkComponentInfo::getKey).collect(Collectors.joining(", ")) + "]");
         this.topic.publish(packet);
+        if(!this.isRegisteredPacket(packet.getClass())){
+            CloudAPI.getInstance().getConsole().warn("The published packet " + packet.getClass().getSimpleName() + " is not registered.");
+        }
     }
 
     @Override
     public FutureAction<Long> publishAsync(ICloudPacket packet) {
         if(this.topic == null) return new FutureAction<>(new NullPointerException("Cannot publish packet " + packet.getClass().getSimpleName() + " because topic is not connected."));
         CloudAPI.getInstance().getConsole().debug("Publishing packet " + packet.getClass().getName() + " to [" + packet.getPacketData().getReceivers().parallelStream().map(INetworkComponentInfo::getKey).collect(Collectors.joining(", ")) + "]");
+        if(!this.isRegisteredPacket(packet.getClass())){
+            CloudAPI.getInstance().getConsole().warn("The published packet " + packet.getClass().getSimpleName() + " is not registered.");
+        }
         return new FutureAction<>(this.topic.publishAsync(packet));
     }
 }

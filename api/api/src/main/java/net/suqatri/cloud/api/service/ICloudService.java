@@ -2,11 +2,12 @@ package net.suqatri.cloud.api.service;
 
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.api.redis.bucket.IRBucketObject;
 
 import java.io.Serializable;
 import java.util.UUID;
 
-public interface ICloudService extends Serializable {
+public interface ICloudService extends IRBucketObject {
 
     IServiceStartConfiguration getConfiguration();
 

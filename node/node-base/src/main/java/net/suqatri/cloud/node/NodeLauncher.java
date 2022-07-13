@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.LogLevel;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
+import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.node.NodeCloudDefaultAPI;
 import net.suqatri.cloud.api.node.event.CloudNodeConnectedEvent;
 import net.suqatri.cloud.api.impl.node.CloudNode;
@@ -12,6 +13,7 @@ import net.suqatri.cloud.api.node.event.CloudNodeDisconnectEvent;
 import net.suqatri.cloud.api.player.ICloudPlayerManager;
 import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
+import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.cloud.commons.connection.IPUtils;
@@ -30,6 +32,7 @@ import net.suqatri.cloud.node.setup.node.NodeConnectionDataSetup;
 import net.suqatri.cloud.node.setup.redis.RedisSetup;
 import net.suqatri.cloud.commons.file.Files;
 import net.suqatri.cloud.node.template.NodeCloudServiceTemplateManager;
+import net.suqatri.cloud.node.template.SyncTemplateQuestion;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,6 +56,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private FileTransferManager fileTransferManager;
     private NodeCloudServiceTemplateManager serviceTemplateManager;
     private final NodeCloudServiceManager serviceManager;
+    private boolean skiptempaltesync = false;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -67,8 +71,62 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.serviceTemplateManager = new NodeCloudServiceTemplateManager();
             this.registerInternalListeners();
             this.registerListeners();
-            this.registerCommands();
+            this.scheduler.runTaskLater(() -> {
+                this.syncTemplates(() -> {
+
+                });
+            }, 2, TimeUnit.SECONDS);
         });
+    }
+
+    private void syncTemplates(Runnable runnable){
+       if(this.node.isFileNode()) {
+           runnable.run();
+           return;
+       }
+       if(this.skiptempaltesync){
+           this.console.info("Skipping template sync!");
+           runnable.run();
+           return;
+       }
+       this.console.info("Searching for node to sync pull templates from...");
+       IRBucketHolder<ICloudNode> nodeHolder = null;
+       for (IRBucketHolder<ICloudNode> holder : getNodeManager().getNodes()) {
+            if(!holder.get().isConnected()) continue;
+            if(holder.get().getUniqueId().equals(this.node.getUniqueId())) continue;
+            if(nodeHolder == null){
+                nodeHolder = holder;
+                continue;
+            }
+            if(holder.get().isFileNode()){
+                if(holder.get().getUpTime() > nodeHolder.get().getUpTime()){
+                    nodeHolder = holder;
+                    continue;
+                }
+                nodeHolder = holder;
+            }
+       }
+       if(nodeHolder == null){
+           this.console.warn("-----------------------------------------");
+           this.console.warn("No node found to sync templates from!");
+           this.console.warn("You can setup a node to pull templates from by set the node-property \"filenode\" to true!");
+           this.console.warn("You can also setup multiple nodes to pull templates from. The cluster will use the node with the highest uptime!");
+           this.console.warn("-----------------------------------------");
+           runnable.run();
+           return;
+       }
+       ICloudNode targetNode = nodeHolder.get();
+       this.console.info("Found node to sync templates from: %hc" + nodeHolder.get().getName());
+       this.serviceTemplateManager.pullTemplates(nodeHolder)
+               .onFailure(e -> {
+                   this.console.error("Failed to pull templates from node " + targetNode.getName(), e);
+                   runnable.run();
+               })
+               .onSuccess(s -> {
+                   this.console.info("Successfully pulled templates from node %hc" + targetNode.getName());
+                   runnable.run();
+               });
+
     }
 
     private void handleProgrammArguments(String[] args) {
@@ -97,6 +155,10 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     }
                     case "--loglevel=fatal": {
                         this.console.setLogLevel(LogLevel.FATAL);
+                        continue;
+                    }
+                    case "--skiptempaltesync": {
+                        this.skiptempaltesync = true;
                         continue;
                     }
                 }
@@ -189,13 +251,13 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     CloudNode cloudNode = new CloudNode();
                     connectionInformation.applyToNode(cloudNode);
                     cloudNode.setName(setup.getName());
+                    cloudNode.setFileNode(setup.isFileNode());
                     cloudNode.setHostname(publicIp);
                     cloudNode.setMaxParallelStartingServiceCount(setup.getMaxParallelServiceCount());
                     cloudNode.setMaxMemory(setup.getMaxMemory());
                     cloudNode.setMaxServiceCount(setup.getMaxServiceCount());
                     FileWriter.writeObject(connectionInformation, Files.NODE_JSON.getFile());
                     cloudNode = this.getNodeManager().createNode(cloudNode).getImpl(CloudNode.class);
-                    //TODO pull templates
                     consumer.accept(cloudNode);
                 }
             });

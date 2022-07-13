@@ -5,6 +5,7 @@ import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.commons.function.future.FutureAction;
+import net.suqatri.cloud.node.file.packet.FilePullPacket;
 import net.suqatri.cloud.node.file.packet.FileTransferBytesPacket;
 import net.suqatri.cloud.node.file.packet.FileTransferCompletedPacket;
 import net.suqatri.cloud.node.file.packet.FileTransferStartPacket;
@@ -14,6 +15,8 @@ import net.suqatri.cloud.node.file.process.FileTransferSentProcess;
 import java.io.File;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 @Getter
 public class FileTransferManager {
@@ -23,6 +26,7 @@ public class FileTransferManager {
 
     private FileTransferProcessThread thread;
     private final ConcurrentHashMap<UUID, FileTransferReceiveProcess> waitingReceiveProcesses;
+    private FutureAction<Boolean> pullingRequest;
 
     public FileTransferManager() {
         this.waitingReceiveProcesses = new ConcurrentHashMap<>();
@@ -36,6 +40,7 @@ public class FileTransferManager {
         CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferStartPacket.class);
         CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferBytesPacket.class);
         CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferCompletedPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(FilePullPacket.class);
     }
 
     public void addProcessQueue(UUID transferId) {
@@ -103,4 +108,23 @@ public class FileTransferManager {
         }
     }
 
+    public FutureAction<Boolean> pullFile(String originalFilePath, File destinationFile, File targetFileToDelete, IRBucketHolder<ICloudNode> holder){
+        FutureAction<Boolean> futureAction = new FutureAction<>();
+        if(this.pullingRequest != null){
+            futureAction.completeExceptionally(new IllegalStateException("Pulling request is already in progress!"));
+            return futureAction;
+        }
+        FilePullPacket packet = new FilePullPacket();
+        packet.setOriginalFilePath(originalFilePath);
+        packet.setDestinationFilePath(destinationFile.getPath());
+        packet.setTargetFilePathToDelete(targetFileToDelete.getPath());
+        packet.getPacketData().addReceiver(holder.get().getNetworkComponentInfo());
+        packet.publishAsync();
+
+        this.pullingRequest = futureAction;
+        this.pullingRequest.orTimeout(90, TimeUnit.SECONDS);
+        this.pullingRequest.whenComplete((r, e) -> this.pullingRequest = null);
+
+        return futureAction;
+    }
 }

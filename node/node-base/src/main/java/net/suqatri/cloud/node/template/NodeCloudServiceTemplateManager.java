@@ -16,6 +16,7 @@ import net.suqatri.cloud.node.file.packet.FileDeletePacket;
 
 import java.io.File;
 import java.util.UUID;
+import java.util.concurrent.Future;
 
 public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager {
 
@@ -109,6 +110,32 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
                 nodeHolder.get().getFilePath(Files.TEMPLATE_FOLDER),
                 nodeHolder)
                 .map(r -> nodeHolder);
+    }
+
+    public FutureAction<Boolean> pullTemplates(IRBucketHolder<ICloudNode> nodeHolder){
+        return NodeLauncher.getInstance().getFileTransferManager().pullFile(nodeHolder.get().getFilePath(Files.TEMPLATE_FOLDER), Files.CLOUD_FOLDER.getFile(), Files.TEMPLATE_FOLDER.getFile(), nodeHolder);
+    }
+
+    public FutureAction<Boolean> pullTemplatesFromCluster(){
+        FutureAction<Boolean> futureAction = new FutureAction<>();
+        CloudAPI.getInstance().getNodeManager().getNodesAsync()
+                .onFailure(futureAction)
+                .onSuccess(holders -> {
+                    if(holders.size() < 2) return;
+                    IRBucketHolder<ICloudNode> targetNodeHolder = null;
+                    for (IRBucketHolder<ICloudNode> holder : holders) {
+                        if(!holder.get().isConnected()) continue;
+                        if(holder.get().getNetworkComponentInfo().equals(CloudAPI.getInstance().getNetworkComponentInfo())) continue;
+                        if(targetNodeHolder == null) targetNodeHolder = holder;
+                        else if(targetNodeHolder.get().getUpTime() < holder.get().getUpTime()) targetNodeHolder = holder;
+                    }
+                    if(targetNodeHolder == null) return;
+                    pullTemplates(targetNodeHolder)
+                            .onFailure(futureAction)
+                            .onSuccess(r -> futureAction.complete(true));
+                });
+
+        return futureAction;
     }
 
 }

@@ -12,9 +12,11 @@ import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.utils.ApplicationType;
+import net.suqatri.cloud.commons.file.Files;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
@@ -36,6 +38,8 @@ public class CloudNode extends RBucketObject implements ICloudNode {
     private int maxServiceCount;
     private long lastConnection = 0L;
     private long lastStart = 0L;
+    private long lastDisconnect = 0L;
+    private String filePath;
 
     public long getUpTime(){
         return System.currentTimeMillis() - this.lastStart;
@@ -56,6 +60,11 @@ public class CloudNode extends RBucketObject implements ICloudNode {
     @Override
     public INetworkComponentInfo getNetworkComponentInfo() {
         return CloudAPI.getInstance().getNetworkComponentManager().getComponentInfo(this);
+    }
+
+    @Override
+    public String getFilePath(Files files) {
+        return new File(getFilePath(), files.getPath()).getAbsolutePath();
     }
 
     @Override

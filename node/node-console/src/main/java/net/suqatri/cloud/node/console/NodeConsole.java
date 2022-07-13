@@ -25,6 +25,8 @@ import java.util.function.Consumer;
 @Getter
 public class NodeConsole implements IConsole {
 
+    @Setter
+    private boolean cleanConsoleMode = true;
     private final CommandConsoleManager consoleManager;
     private LogLevel logLevel = LogLevel.DEBUG;
     private NodeConsoleThread thread;
@@ -54,6 +56,7 @@ public class NodeConsole implements IConsole {
         this.inputHandler = new ArrayList<>();
         this.mainPrefix = prefix;
         this.startThread();
+        if(canLog(LogLevel.DEBUG)) this.cleanConsoleMode = false;
     }
 
     public void printCloudHeader(){
@@ -183,6 +186,17 @@ public class NodeConsole implements IConsole {
     }
 
     @Override
+    public void error(String message, Throwable throwable) {
+        if(this.cleanConsoleMode) {
+            log(LogLevel.ERROR, message);
+        } else {
+            log(LogLevel.ERROR, message);
+            log(LogLevel.ERROR, throwable.getMessage());
+            log(LogLevel.ERROR, throwable.getStackTrace());
+        }
+    }
+
+    @Override
     public void print(String message) {
         this.log(LogLevel.INFO, message);
     }
@@ -209,6 +223,7 @@ public class NodeConsole implements IConsole {
     @Override
     public void setLogLevel(LogLevel level) {
         this.logLevel = level;
+        if(canLog(LogLevel.DEBUG)) this.cleanConsoleMode = false;
     }
 
     @Override

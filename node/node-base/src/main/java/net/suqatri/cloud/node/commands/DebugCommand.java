@@ -10,6 +10,7 @@ import net.suqatri.commands.ConsoleCommand;
 import net.suqatri.commands.ConsoleCommandExecutionContext;
 import net.suqatri.commands.InvalidCommandArgument;
 import net.suqatri.commands.annotation.CommandAlias;
+import net.suqatri.commands.annotation.Description;
 import net.suqatri.commands.annotation.Subcommand;
 import net.suqatri.commands.contexts.ContextResolver;
 
@@ -19,15 +20,15 @@ import java.lang.reflect.Method;
 public class DebugCommand extends ConsoleCommand {
 
     @Subcommand("file-transfer sent")
+    @Description("Show how many sent file transfers are currently queued")
     public void onFileTransferSent(CommandSender commandSender){
         commandSender.sendMessage("Sent process queue size: " + NodeLauncher.getInstance().getFileTransferManager().getThread().getSentProcesses().size());
     }
 
     @Subcommand("file-transfer received")
+    @Description("Show how many read file transfers are currently queued")
     public void onFileTransferReceived(CommandSender commandSender){
         commandSender.sendMessage("Received process queue size: " + NodeLauncher.getInstance().getFileTransferManager().getThread().getReceiveProcesses().size());
     }
-
-
 
 }

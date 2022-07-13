@@ -3,6 +3,7 @@ package net.suqatri.cloud.api.impl.packet;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.cloud.api.impl.event.packet.GlobalEventPacket;
+import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.packet.ICloudPacket;
 import net.suqatri.cloud.api.packet.ICloudPacketManager;
 import net.suqatri.cloud.api.packet.ICloudPacketReceiver;
@@ -14,6 +15,7 @@ import org.redisson.codec.JsonJacksonCodec;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CloudPacketManager implements ICloudPacketManager {
 
@@ -80,14 +82,14 @@ public class CloudPacketManager implements ICloudPacketManager {
             CloudAPI.getInstance().getConsole().warn("Cannot publish packet " + packet.getClass().getSimpleName() + " because topic is not connected.");
             return;
         }
-        CloudAPI.getInstance().getConsole().debug("Publishing packet: " + packet.getClass().getName());
+        CloudAPI.getInstance().getConsole().debug("Publishing packet " + packet.getClass().getName() + " to [" + packet.getPacketData().getReceivers().parallelStream().map(INetworkComponentInfo::getKey).collect(Collectors.joining(", ")) + "]");
         this.topic.publish(packet);
     }
 
     @Override
     public FutureAction<Long> publishAsync(ICloudPacket packet) {
         if(this.topic == null) return new FutureAction<>(new NullPointerException("Cannot publish packet " + packet.getClass().getSimpleName() + " because topic is not connected."));
-        CloudAPI.getInstance().getConsole().debug("Publishing packet: " + packet.getClass().getName());
+        CloudAPI.getInstance().getConsole().debug("Publishing packet " + packet.getClass().getName() + " to [" + packet.getPacketData().getReceivers().parallelStream().map(INetworkComponentInfo::getKey).collect(Collectors.joining(", ")) + "]");
         return new FutureAction<>(this.topic.publishAsync(packet));
     }
 }

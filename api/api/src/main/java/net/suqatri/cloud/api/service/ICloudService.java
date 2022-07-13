@@ -30,6 +30,9 @@ public interface ICloudService extends IRBucketObject {
     String getMotd();
     void setMotd(String motd);
 
+    ServiceState getServiceState();
+    void setServiceState(ServiceState serviceState);
+
     int getMaxPlayers();
     void setMaxPlayers(int maxPlayers);
 

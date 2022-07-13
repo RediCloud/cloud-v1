@@ -24,4 +24,10 @@ public interface ICloudGroupManager {
     Collection<IRBucketHolder<ICloudGroup>> getGroups();
     FutureAction<Collection<IRBucketHolder<ICloudGroup>>> getGroupsAsync();
 
+    IRBucketHolder<ICloudGroup> createGroup(ICloudGroup group);
+    FutureAction<IRBucketHolder<ICloudGroup>> createGroupAsync(ICloudGroup group);
+
+    FutureAction<Boolean> deleteGroupAsync(UUID uniqueId);
+    boolean deleteGroup(UUID uniqueId);
+
 }

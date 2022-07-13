@@ -64,6 +64,8 @@ public class GroupCommand extends ConsoleCommand {
                                 CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
                                         .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))
                                         .onSuccess(holder -> commandSender.sendMessage("Group %hc" + name + "%tc created"));
+                            }else if(setupControlState == SetupControlState.CANCELLED){
+                                commandSender.sendMessage("§cGroup creation cancelled");
                             }
                         });
                     }

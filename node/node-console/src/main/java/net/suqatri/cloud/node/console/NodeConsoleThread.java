@@ -78,5 +78,6 @@ public class NodeConsoleThread extends Thread {
                 return;
             }
         }
+        this.nodeConsole.commandResponse("%tcUnknown command: %hc" + raw);
     }
 }

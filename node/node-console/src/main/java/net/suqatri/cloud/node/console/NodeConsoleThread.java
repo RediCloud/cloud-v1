@@ -52,11 +52,13 @@ public class NodeConsoleThread extends Thread {
             line = line.substring(1);
         }
 
+        boolean isSetup = this.nodeConsole.getCurrentSetup() != null;
+
         for (Consumer<String> inputHandler : new ArrayList<>(this.nodeConsole.getInputHandler())) {
             inputHandler.accept(line);
         }
 
-        if(this.nodeConsole.getCurrentSetup() != null) return;
+        if(isSetup) return;
 
         String name = line.split(" ")[0];
         String[] args = line.split(" ");

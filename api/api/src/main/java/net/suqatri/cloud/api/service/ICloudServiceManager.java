@@ -17,4 +17,7 @@ public interface ICloudServiceManager {
     FutureAction<Collection<IRBucketHolder<ICloudService>>> getServicesAsync();
     Collection<IRBucketHolder<ICloudService>> getServices();
 
+    FutureAction<Boolean> stopServiceAsync(UUID uniqueId);
+    boolean stopService(UUID uniqueId);
+
 }

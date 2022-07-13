@@ -29,6 +29,7 @@ public class FileTransferSentProcess implements IFileTransferProcess {
 
     private FutureAction<File> futureAction;
     private File zipFile;
+    private String targetFilePathToDelete;
 
     private boolean startPacketSent = false;
 
@@ -56,6 +57,7 @@ public class FileTransferSentProcess implements IFileTransferProcess {
             }
             FileTransferStartPacket startPacket = new FileTransferStartPacket();
             startPacket.setOriginalFilePath(this.originalFile.getPath());
+            startPacket.setTargetFilePathToDelete(this.targetFilePathToDelete);
             startPacket.setDestinationFilePath(this.destinationFilePath);
             startPacket.setTransferId(this.transferId);
             startPacket.setIndexes(packetCount);

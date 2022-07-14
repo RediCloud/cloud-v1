@@ -1,5 +1,6 @@
 package net.suqatri.cloud.api.impl.packet;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
@@ -21,7 +22,7 @@ public class CloudPacketData implements ICloudPacketData {
     private INetworkComponentInfo sender;
     private boolean allowSenderAsReceiver = false;
     private final UUID packetId = UUID.randomUUID();
-    private UUID responseTargetId;
+    @JsonIgnore
     private FutureAction<ICloudPacket> responseAction;
     @Setter
     private ICloudPacketData responseTargetData;

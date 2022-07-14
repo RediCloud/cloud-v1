@@ -6,6 +6,7 @@ import net.suqatri.cloud.api.impl.node.CloudNodeManager;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.node.NodeLauncher;
+import net.suqatri.cloud.node.node.NodePingPacket;
 import net.suqatri.commands.CommandHelp;
 import net.suqatri.commands.CommandSender;
 import net.suqatri.commands.ConsoleCommand;
@@ -13,6 +14,7 @@ import net.suqatri.commands.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -42,6 +44,39 @@ public class ClusterCommand extends ConsoleCommand {
         commandSender.sendMessage("§8   » %tcLast-IP: %hc"+ node.getHostname());
         commandSender.sendMessage("§8   » %tcUp-Time: %hc" + node.getUpTime());
         commandSender.sendMessage("§8   » %tcServices: %hc" + node.getStartedServiceUniqueIds().size());
+    }
+
+    @Subcommand("ping")
+    @Description("Ping a node")
+    @Syntax("<Node>")
+    public void onPing(CommandSender commandSender, String nodeName){
+        CloudAPI.getInstance().getNodeManager().existsNodeAsync(nodeName)
+                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to check existence of node " + nodeName, e))
+                .onSuccess(exists -> {
+                    if(!exists){
+                        commandSender.sendMessage("Node not found!");
+                        return;
+                    }
+                    CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)
+                            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node " + nodeName, e))
+                            .onSuccess(nodeHolder -> {
+                                NodePingPacket packet = new NodePingPacket();
+                                packet.getPacketData().addReceiver(nodeHolder.get().getNetworkComponentInfo());
+                                packet.getPacketData().waitForResponse()
+                                        .onFailure(e -> {
+                                            if(e instanceof TimeoutException) {
+                                                CloudAPI.getInstance().getConsole().error("Ping timeout after 30 seconds for node " + nodeName, e);
+                                            }else{
+                                                CloudAPI.getInstance().getConsole().error("Ping timeout after 30 seconds for node " + nodeName);
+                                            }
+                                        })
+                                        .onSuccess(response -> {
+                                            commandSender.sendMessage("Ping successful!");
+                                            commandSender.sendMessage("Ping time: " + (System.currentTimeMillis()-packet.getTime()) + "ms");
+                                        });
+                                packet.publishAsync();
+                            });
+                });
     }
 
     @Subcommand("info")

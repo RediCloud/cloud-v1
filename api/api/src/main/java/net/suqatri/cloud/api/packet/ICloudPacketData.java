@@ -18,7 +18,6 @@ public interface ICloudPacketData extends Serializable{
 
     FutureAction<ICloudPacket> waitForResponse();
     UUID getPacketId();
-    UUID getResponseTargetId();
     ICloudPacketData getResponseTargetData();
     void setResponseTargetData(ICloudPacketData packetData);
     FutureAction<ICloudPacket> getResponseAction();

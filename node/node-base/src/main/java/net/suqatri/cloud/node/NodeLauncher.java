@@ -162,7 +162,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     private void registerCommands(){
         this.console.info("Registering cloud commands for the console...");
-        if(CloudAPI.getInstance().getConsole().canLog(LogLevel.DEBUG)) this.commandManager.registerCommand(new DebugCommand());
+        if(CloudAPI.getInstance().getConsole().getLogLevel().getId() <= LogLevel.DEBUG.getId()) this.commandManager.registerCommand(new DebugCommand());
         this.commandManager.registerCommand(new ClearCommand());
         this.commandManager.registerCommand(new StopCommand());
         this.commandManager.registerCommand(new ClusterCommand());
@@ -234,7 +234,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     if(getNodeManager().existsNode(connectionInformation.getUniqueId())){
                         this.console.error("A Node with the same name already exists!");
                         this.console.error("Please choose a different name!");
-                        this.console.log(LogLevel.INFO, "Restarting cluster connection setup in 5 seconds...", true, true);
+                        this.console.info("Restarting cluster connection setup in 5 seconds...");
                         this.scheduler.runTaskLater(() -> {
                             Files.NODE_JSON.getFile().delete();
                             this.initClusterConnection(consumer);

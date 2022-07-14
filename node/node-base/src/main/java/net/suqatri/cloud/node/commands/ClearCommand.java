@@ -10,6 +10,7 @@ public class ClearCommand extends ConsoleCommand {
 
     @Default
     public void onClear(){
+        NodeLauncher.getInstance().getConsole().getLineEntries().clear();
         NodeLauncher.getInstance().getConsole().clearScreen();
     }
 

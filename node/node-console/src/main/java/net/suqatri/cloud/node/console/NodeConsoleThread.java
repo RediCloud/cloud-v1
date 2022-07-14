@@ -46,8 +46,6 @@ public class NodeConsoleThread extends Thread {
         if(line == null) return;
         if(line.isEmpty()) return;
 
-
-
         while(line.startsWith(" ")){
             line = line.substring(1);
         }
@@ -59,6 +57,8 @@ public class NodeConsoleThread extends Thread {
         }
 
         if(isSetup) return;
+
+        this.nodeConsole.getLineEntries().add(new ConsoleInput(line, System.currentTimeMillis(), this.nodeConsole.getPrefix()));
 
         String name = line.split(" ")[0];
         String[] args = line.split(" ");
@@ -80,6 +80,6 @@ public class NodeConsoleThread extends Thread {
                 return;
             }
         }
-        this.nodeConsole.commandResponse("%tcUnknown command: %hc" + raw);
+        this.nodeConsole.log(new ConsoleLine("COMMAND", "%tcUnknown command: %hc" + raw));
     }
 }

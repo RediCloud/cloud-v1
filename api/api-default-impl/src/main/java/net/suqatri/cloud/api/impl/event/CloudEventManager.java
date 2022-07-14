@@ -52,7 +52,7 @@ public class CloudEventManager implements ICloudEventManager {
                 } catch (IllegalArgumentException ex) {
                     throw new Error("Method rejected target/argument: " + event, ex);
                 } catch (InvocationTargetException ex) {
-                    CloudAPI.getInstance().getConsole().warn("Error dispatching event " + event + " to listener " + method.getListener(), ex.getCause());
+                    CloudAPI.getInstance().getConsole().error("Error dispatching event " + event + " to listener " + method.getListener(), ex.getCause());
                 }
 
                 long elapsed = System.nanoTime() - start;
@@ -70,7 +70,7 @@ public class CloudEventManager implements ICloudEventManager {
                 try {
                     consumer.accept(event);
                 } catch (Throwable ex) {
-                    CloudAPI.getInstance().getConsole().warn("Error dispatching event " + event + " to consumer " + consumer, ex);
+                    CloudAPI.getInstance().getConsole().error("Error dispatching event " + event + " to consumer " + consumer, ex);
                 }
 
                 long elapsed = System.nanoTime() - start;
@@ -93,7 +93,7 @@ public class CloudEventManager implements ICloudEventManager {
     @Override
     public <T extends CloudGlobalEvent> void postGlobalAsync(T event) {
         postLocal(event);
-        GlobalEventPacket packet = new GlobalEventPacket();
+        GlobalEventPacket<T> packet = new GlobalEventPacket<>();
         packet.setEvent(event);
         packet.publishAllAsync();
     }

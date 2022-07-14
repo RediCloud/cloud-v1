@@ -1,63 +1,30 @@
 package net.suqatri.cloud.api.console;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface IConsole {
 
-    List<IConsoleLine> getStoredLines();
+    Collection<IConsoleLineEntry> getLineEntries();
 
-    default void log(LogLevel logLevel, String message) {
-        log(logLevel, message, true, true);
-    }
-    void log(LogLevel logLevel, String message, boolean translateColorCodes, boolean storeInHistory);
+    void log(IConsoleLine consoleLine);
 
-    void print(String message);
-    void printRaw(String message, boolean translateColorCodes, boolean storeInHistory);
+    void error(String message, Throwable throwable);
+    void error(String message);
 
-    default void error(String message, Throwable throwable) {
-        log(LogLevel.ERROR, message);
-        log(LogLevel.ERROR, throwable.getMessage());
-        log(LogLevel.ERROR, throwable.getClass().getSimpleName() + ": ");
-        log(LogLevel.ERROR, throwable.getStackTrace());
-    }
+    void warn(String message);
 
-    default void error(String message){
-        log(LogLevel.ERROR, message);
-    }
+    void info(String message);
 
-    default void warn(String message, Throwable throwable) {
-        log(LogLevel.FATAL, message);
-        log(LogLevel.FATAL, throwable.getMessage());
-        log(LogLevel.FATAL, throwable.getStackTrace());
-    }
+    void debug(String message);
 
-    default void warn(String message){
-        log(LogLevel.WARN, message);
-    }
-
-    default void info(String message) {
-        log(LogLevel.INFO, message);
-    }
-
-    default void debug(String message) {
-        log(LogLevel.DEBUG, message);
-    }
-
-    default void fatal(String message, Throwable throwable){
-        log(LogLevel.FATAL, message);
-        log(LogLevel.FATAL, throwable.getMessage());
-        log(LogLevel.FATAL, throwable.getStackTrace());
-    }
-
-    default void log(LogLevel level, Object[] messages){
-        for(Object message : messages) log(level, message.toString());
-    }
+    void fatal(String message, Throwable throwable);
 
     void setLogLevel(LogLevel level);
     LogLevel getLogLevel();
 
-    default boolean canLog(LogLevel logLevel) {
-        return  logLevel.getId() >= getLogLevel().getId();
+    default boolean canLog(IConsoleLine consoleLine) {
+        return consoleLine.getLogLevel().getId() >= getLogLevel().getId();
     }
 
     void clearScreen();

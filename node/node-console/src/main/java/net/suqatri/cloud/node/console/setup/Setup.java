@@ -2,7 +2,10 @@ package net.suqatri.cloud.node.console.setup;
 
 import com.google.common.primitives.Primitives;
 import lombok.Getter;
+import net.suqatri.cloud.api.console.IConsole;
+import net.suqatri.cloud.api.console.IConsoleInput;
 import net.suqatri.cloud.api.console.IConsoleLine;
+import net.suqatri.cloud.api.console.IConsoleLineEntry;
 import net.suqatri.cloud.commons.function.BiSupplier;
 import net.suqatri.cloud.commons.reflection.ReflectionUtils;
 import net.suqatri.cloud.node.console.ConsoleLine;
@@ -63,7 +66,7 @@ public abstract class Setup<T extends Setup<?>> {
     /**
      * All lines of the console
      */
-    private final List<ConsoleLine> restoredLines;
+    private final List<IConsoleLineEntry> restoredLines;
 
     /**
      * The current setup part
@@ -120,7 +123,7 @@ public abstract class Setup<T extends Setup<?>> {
         this.cancelled = false;
         this.exitAfterAnswer = false;
         this.map = new HashMap<>();
-        this.restoredLines = console.getStoredLines();
+        this.restoredLines = console.getLineEntries().size() < 40 ? console.getLineEntries() : console.getLineEntries().subList(console.getLineEntries().size()-40, console.getLineEntries().size());
         this.current = 1;
 
         this.loadSetupParts();
@@ -168,8 +171,12 @@ public abstract class Setup<T extends Setup<?>> {
 
         if (headerBehaviour() == SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES) {
             this.console.clearScreen();
-            for (IConsoleLine restoredLine : new ArrayList<>(this.restoredLines)) {
-                this.console.print(restoredLine);
+            for (IConsoleLineEntry restoredLine : new ArrayList<>(this.restoredLines)) {
+                if(restoredLine instanceof IConsoleLine){
+                    ((IConsoleLine) restoredLine).println();
+                }else if(restoredLine instanceof IConsoleInput){
+                    ((IConsoleInput) restoredLine).logAsFake();
+                }
             }
         }
 

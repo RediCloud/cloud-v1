@@ -16,11 +16,15 @@ import java.util.Map;
 @Getter
 public class CommandConsoleManager extends ConsoleCommandManager implements ICommandManager<ConsoleCommand> {
 
-    private CommandSender commandSender;
+    @Getter
+    private static CommandConsoleManager instance;
+
+    private final CommandSender commandSender;
     private final Map<MessageKeyProvider, String> messages;
     private NodeConsole nodeConsole;
 
     public CommandConsoleManager() throws Exception {
+        instance = this;
         this.messages = new HashMap<>();
         this.nodeConsole = createNodeConsole();
         this.loadDefaultLanguage();

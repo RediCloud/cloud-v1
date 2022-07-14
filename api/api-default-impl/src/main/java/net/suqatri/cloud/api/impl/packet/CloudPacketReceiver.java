@@ -17,10 +17,12 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
     @Getter
     private final RTopic topic;
     private final HashMap<Class, Integer> listeners;
+    private final CloudPacketManager packetManager;
 
-    public CloudPacketReceiver(RTopic topic) {
+    public CloudPacketReceiver(CloudPacketManager packetManager, RTopic topic) {
         this.listeners = new HashMap<>();
         this.topic = topic;
+        this.packetManager = packetManager;
     }
 
     @Override
@@ -32,7 +34,16 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
         if(!packet.getPacketData().getReceivers().contains(CloudAPI.getInstance().getNetworkComponentInfo()) && !packet.getPacketData().getReceivers().isEmpty()) return;
         if(packet.getPacketData().getSender().equals(CloudAPI.getInstance().getNetworkComponentInfo()) && !packet.getPacketData().isSenderAsReceiverAllowed()) return;
         CloudAPI.getInstance().getConsole().debug("Received packet: " + packet.getClass().getSimpleName());
+        if(packet.getPacketData().getResponseTargetId() != null){
+            if(this.packetManager.getWaitingForResponse().containsKey(packet.getPacketData().getResponseTargetId())){
+                this.packetManager.getWaitingForResponse().get(packet.getPacketData().getResponseTargetId()).getResponseAction().complete(packet);
+                this.packetManager.getWaitingForResponse().remove(packet.getPacketData().getResponseTargetId());
+            }else{
+                CloudAPI.getInstance().getConsole().warn("Received response packet for " + packet.getPacketData().getResponseTargetId() + " but no request is waiting for it!");
+            }
+        }
         packet.receive();
+
     }
 
     @Override

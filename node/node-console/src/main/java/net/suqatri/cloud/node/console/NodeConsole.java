@@ -177,7 +177,7 @@ public class NodeConsole implements IConsole {
         }
         String prefix = "";
         if(consoleLine.printPrefix()){
-            prefix = "§f" + consoleLine.getPrefix() + "§7: ";
+            prefix = "§f" + consoleLine.getPrefix() + "§7: " + (logLevel == LogLevel.INFO ? this.textColor : Ansi.ansi().a(Ansi.Attribute.RESET).fgRgb(consoleLine.getLogLevel().getColor().getRed(), consoleLine.getLogLevel().getColor().getGreen(), consoleLine.getLogLevel().getColor().getBlue()).toString());
         }
         prefix += this.textColor;
 

@@ -42,7 +42,7 @@ public class ConsoleLine implements IConsoleLine {
 
     @Override
     public void println() {
-        ((CommandConsoleManager)CommandConsoleManager.getCurrentCommandManager()).getNodeConsole().log(this);
+        CommandConsoleManager.getInstance().getNodeConsole().log(this);
     }
 
     @Override

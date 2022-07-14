@@ -171,7 +171,7 @@ public abstract class Setup<T extends Setup<?>> {
 
         if (headerBehaviour() == SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES) {
             this.console.clearScreen();
-            for (IConsoleLineEntry restoredLine : new ArrayList<>(this.restoredLines)) {
+            for (IConsoleLineEntry restoredLine : this.restoredLines) {
                 if(restoredLine instanceof IConsoleLine){
                     ((IConsoleLine) restoredLine).println();
                 }else if(restoredLine instanceof IConsoleInput){

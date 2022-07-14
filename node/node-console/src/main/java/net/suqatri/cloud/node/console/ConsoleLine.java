@@ -7,7 +7,7 @@ import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.api.console.LogLevel;
 
 @Getter
-public class ConsoleLine implements IConsoleLine {
+public class ConsoleLine implements IConsoleLine, Cloneable{
 
     private final long time = System.currentTimeMillis();
     private final LogLevel logLevel;
@@ -42,7 +42,7 @@ public class ConsoleLine implements IConsoleLine {
 
     @Override
     public void println() {
-        CommandConsoleManager.getInstance().getNodeConsole().log(this);
+        CommandConsoleManager.getInstance().getNodeConsole().log(clone().setStored(false));
     }
 
     @Override
@@ -60,5 +60,15 @@ public class ConsoleLine implements IConsoleLine {
     public IConsoleLine setStored(boolean stored) {
         this.stored = stored;
         return this;
+    }
+
+    @Override
+    public ConsoleLine clone() {
+        try {
+            ConsoleLine clone = (ConsoleLine) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

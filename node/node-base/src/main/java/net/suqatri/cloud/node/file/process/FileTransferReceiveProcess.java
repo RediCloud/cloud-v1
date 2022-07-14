@@ -3,6 +3,8 @@ package net.suqatri.cloud.node.file.process;
 import lombok.Data;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
+import net.suqatri.cloud.api.node.file.process.IFileTransferProcess;
+import net.suqatri.cloud.api.node.file.process.IFileTransferReceiveProcess;
 import net.suqatri.cloud.commons.file.FileUtils;
 import net.suqatri.cloud.commons.file.Files;
 import net.suqatri.cloud.commons.file.ZipUtils;
@@ -14,11 +16,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Data
-public class FileTransferReceiveProcess implements IFileTransferProcess {
+public class FileTransferReceiveProcess implements IFileTransferReceiveProcess {
 
     private INetworkComponentInfo senderNetworkComponentInfo;
     private final UUID transferId;

@@ -4,6 +4,8 @@ import lombok.Data;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.node.ICloudNode;
+import net.suqatri.cloud.api.node.file.process.IFileTransferProcess;
+import net.suqatri.cloud.api.node.file.process.IFileTransferSentProcess;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.commons.file.FileUtils;
 import net.suqatri.cloud.commons.file.Files;
@@ -19,7 +21,7 @@ import java.io.File;
 import java.util.UUID;
 
 @Data
-public class FileTransferSentProcess implements IFileTransferProcess {
+public class FileTransferSentProcess implements IFileTransferSentProcess {
 
     private final UUID transferId = UUID.randomUUID();
     private IRBucketHolder<ICloudNode> receiver;

@@ -12,6 +12,7 @@ import net.suqatri.commands.InvalidCommandArgument;
 import net.suqatri.commands.annotation.CommandAlias;
 import net.suqatri.commands.annotation.Description;
 import net.suqatri.commands.annotation.Subcommand;
+import net.suqatri.commands.annotation.Syntax;
 import net.suqatri.commands.contexts.ContextResolver;
 
 import java.lang.reflect.Method;
@@ -29,6 +30,28 @@ public class DebugCommand extends ConsoleCommand {
     @Description("Show how many read file transfers are currently queued")
     public void onFileTransferReceived(CommandSender commandSender){
         commandSender.sendMessage("Received process queue size: " + NodeLauncher.getInstance().getFileTransferManager().getThread().getReceiveProcesses().size());
+    }
+
+    @Subcommand("redis keys")
+    @Description("Show all redis keys")
+    public void onRedisKeys(CommandSender commandSender){
+        commandSender.sendMessage("Keys:");
+        for (String key : NodeLauncher.getInstance().getRedisConnection().getClient().getKeys().getKeys()) {
+            commandSender.sendMessage(key);
+        }
+        commandSender.sendMessage("------");
+    }
+
+    @Syntax("<Pattern>")
+    @Subcommand("redis keys pattern")
+    @Description("Show all redis keys matching a pattern")
+    public void onRedisKeysPattern(CommandSender commandSender, String pattern){
+        commandSender.sendMessage("Pattern: " + pattern);
+        commandSender.sendMessage("Keys:");
+        for (String key : NodeLauncher.getInstance().getRedisConnection().getClient().getKeys().getKeysByPattern(pattern)) {
+            commandSender.sendMessage(key);
+        }
+        commandSender.sendMessage("------");
     }
 
 }

@@ -73,7 +73,7 @@ public class FileTransferReceiveProcess implements IFileTransferProcess {
 
             zipFile.delete();
 
-            CloudAPI.getInstance().getConsole().info("File-read-transfer " + this.transferId + " completed");
+            CloudAPI.getInstance().getConsole().debug("File-read-transfer " + this.transferId + " completed");
 
             FutureAction<Boolean> futureAction = NodeLauncher.getInstance().getFileTransferManager().getPullingRequest();
             if(futureAction != null) futureAction.complete(true);

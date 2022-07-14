@@ -7,14 +7,20 @@ import net.suqatri.cloud.commons.function.BiSupplier;
 import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.cloud.node.console.NodeConsole;
 import net.suqatri.cloud.node.console.setup.Setup;
+import net.suqatri.cloud.node.console.setup.SetupHeaderBehaviour;
+import net.suqatri.cloud.node.console.setup.annotations.AnswerCompleter;
 import net.suqatri.cloud.node.console.setup.annotations.ConditionChecker;
 import net.suqatri.cloud.node.console.setup.annotations.Question;
+import net.suqatri.cloud.node.console.setup.annotations.RequiresEnum;
 import net.suqatri.cloud.node.console.setup.conditions.PositivIntegerCondition;
+import net.suqatri.cloud.node.setup.suggester.ServiceEnvironmentSuggester;
 
 @Getter
 public class GroupSetup extends Setup<GroupSetup> {
 
+    @RequiresEnum(ServiceEnvironment.class)
     @Question(id = 1, question = "Which type of group do you want to create?")
+    @AnswerCompleter(value = ServiceEnvironmentSuggester.class)
     private ServiceEnvironment environment;
 
     @Question(id = 2, question = "How many service of this group should be online all the time?")
@@ -46,5 +52,10 @@ public class GroupSetup extends Setup<GroupSetup> {
     @Override
     public boolean shouldPrintHeader() {
         return true;
+    }
+
+    @Override
+    public SetupHeaderBehaviour headerBehaviour() {
+        return SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES;
     }
 }

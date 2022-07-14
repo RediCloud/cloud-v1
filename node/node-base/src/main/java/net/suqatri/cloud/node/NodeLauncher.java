@@ -69,21 +69,15 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.init(() -> {
             this.fileTransferManager = new FileTransferManager();
             this.serviceTemplateManager = new NodeCloudServiceTemplateManager();
+            this.registerCommands();
             this.registerInternalListeners();
             this.registerListeners();
-            this.scheduler.runTaskLater(() -> {
-                this.syncTemplates(() -> {
-                    this.registerCommands();
-                });
-            }, 2, TimeUnit.SECONDS);
+            this.scheduler.runTaskLater(() -> this.syncTemplates(() -> {
+            }), 2, TimeUnit.SECONDS);
         });
     }
 
     private void syncTemplates(Runnable runnable){
-       if(this.node.isFileNode()) {
-           runnable.run();
-           return;
-       }
        if(this.skiptempaltesync){
            this.console.info("Skipping template sync!");
            runnable.run();
@@ -106,7 +100,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                 nodeHolder = holder;
             }
        }
-       if(nodeHolder == null){
+       if(nodeHolder == null && !this.node.isFileNode()){
            this.console.warn("-----------------------------------------");
            this.console.warn("No node found to sync templates from!");
            this.console.warn("You can setup a node to pull templates from by set the node-property \"filenode\" to true!");

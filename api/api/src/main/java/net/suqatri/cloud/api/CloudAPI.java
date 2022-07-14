@@ -20,6 +20,9 @@ import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.api.utils.ApplicationType;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Getter
 public abstract class CloudAPI {
 
@@ -38,6 +41,7 @@ public abstract class CloudAPI {
         this.applicationType = type;
     }
 
+    public abstract ExecutorService getExecutorService();
     public abstract IScheduler getScheduler();
     public abstract IConsole getConsole();
     public abstract ICommandManager<?> getCommandManager();

@@ -12,10 +12,12 @@ import net.suqatri.cloud.commons.function.Predicates;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 import org.redisson.api.RBucket;
+import org.redisson.codec.JsonJacksonCodec;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class RedissonBucketManager<T extends IRBucketObject , I> extends RedissonManager implements IRedissonBucketManager {
@@ -144,11 +146,19 @@ public abstract class RedissonBucketManager<T extends IRBucketObject , I> extend
     }
 
     public FutureAction<Collection<IRBucketHolder<I>>> getBucketHoldersAsync(){
-        FutureActionCollection<String, IRBucketHolder<I>> futureActionCollection = new FutureActionCollection<>();
-        for (String s : getClient().getKeys().getKeysByPattern(this.redisPrefix + "@*")) {
-            futureActionCollection.addToProcess(s.split("@")[1], getBucketHolderAsync(s.split("@")[1]));
-        }
-        return futureActionCollection.process().map(HashMap::values);
+        FutureAction<Collection<IRBucketHolder<I>>> futureAction = new FutureAction<>();
+        getKeys(this.redisPrefix + "@*")
+                .onFailure(futureAction)
+                .onSuccess(keys -> {
+                    FutureActionCollection<String, IRBucketHolder<I>> futureActionCollection = new FutureActionCollection<>();
+                    for (String s : keys) {
+                        futureActionCollection.addToProcess(s.split("@")[1], getBucketHolderAsync(s.split("@")[1]));
+                    }
+                    futureActionCollection.process()
+                            .onFailure(futureAction)
+                            .onSuccess(holders -> futureAction.complete(holders.values()));
+                });
+        return futureAction;
     }
 
     public Collection<IRBucketHolder<I>> getBucketHolders() {
@@ -185,6 +195,18 @@ public abstract class RedissonBucketManager<T extends IRBucketObject , I> extend
     @Override
     public Class<I> getImplClass() {
         return this.interfaceClass;
+    }
+
+    private FutureAction<Collection<String>> getKeys(String pattern) {
+        FutureAction<Collection<String>> futureAction = new FutureAction<>();
+        CloudAPI.getInstance().getExecutorService().submit(() -> {
+            Collection<String> keys = new ArrayList<>();
+            for (String s : getClient().getKeys().getKeysByPattern(pattern)) {
+                keys.add(s);
+            }
+            futureAction.complete(keys);
+        });
+        return futureAction;
     }
 
     public static RedissonBucketManager<?, ?> getManager(String prefix) {

@@ -2,8 +2,10 @@ package net.suqatri.cloud.node.console.setup;
 
 import com.google.common.primitives.Primitives;
 import lombok.Getter;
+import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.commons.function.BiSupplier;
 import net.suqatri.cloud.commons.reflection.ReflectionUtils;
+import net.suqatri.cloud.node.console.ConsoleLine;
 import net.suqatri.cloud.node.console.NodeConsole;
 import net.suqatri.cloud.node.console.setup.annotations.*;
 
@@ -61,7 +63,7 @@ public abstract class Setup<T extends Setup<?>> {
     /**
      * All lines of the console
      */
-    private final List<String> restoredLines;
+    private final List<ConsoleLine> restoredLines;
 
     /**
      * The current setup part
@@ -108,7 +110,7 @@ public abstract class Setup<T extends Setup<?>> {
     private Consumer<String> inputConsumer;
 
     public SetupHeaderBehaviour headerBehaviour() {
-        return SetupHeaderBehaviour.CLEAR_SCREEN_AFTER;
+        return SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES;
     }
 
     public Setup(NodeConsole console) {
@@ -118,7 +120,7 @@ public abstract class Setup<T extends Setup<?>> {
         this.cancelled = false;
         this.exitAfterAnswer = false;
         this.map = new HashMap<>();
-        this.restoredLines = console.getAllWroteLines();
+        this.restoredLines = console.getStoredLines();
         this.current = 1;
 
         this.loadSetupParts();
@@ -166,7 +168,7 @@ public abstract class Setup<T extends Setup<?>> {
 
         if (headerBehaviour() == SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES) {
             this.console.clearScreen();
-            for (String restoredLine : new ArrayList<>(this.restoredLines)) {
+            for (IConsoleLine restoredLine : new ArrayList<>(this.restoredLines)) {
                 this.console.print(restoredLine);
             }
         }

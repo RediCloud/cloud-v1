@@ -1,6 +1,10 @@
 package net.suqatri.cloud.api.console;
 
+import java.util.List;
+
 public interface IConsole {
+
+    List<IConsoleLine> getStoredLines();
 
     default void log(LogLevel logLevel, String message) {
         log(logLevel, message, true, true);
@@ -13,6 +17,7 @@ public interface IConsole {
     default void error(String message, Throwable throwable) {
         log(LogLevel.ERROR, message);
         log(LogLevel.ERROR, throwable.getMessage());
+        log(LogLevel.ERROR, throwable.getClass().getSimpleName() + ": ");
         log(LogLevel.ERROR, throwable.getStackTrace());
     }
 

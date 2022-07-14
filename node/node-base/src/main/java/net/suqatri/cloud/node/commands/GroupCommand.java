@@ -17,7 +17,7 @@ import net.suqatri.commands.annotation.HelpCommand;
 import java.util.Arrays;
 import java.util.UUID;
 
-@CommandAlias("group")
+@CommandAlias("group|groups")
 public class GroupCommand extends ConsoleCommand {
 
     /*
@@ -43,7 +43,7 @@ public class GroupCommand extends ConsoleCommand {
     @Description("Create a new group")
     public void onCreate(CommandSender commandSender, String name){
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(name)
-                .onFailure(e -> commandSender.sendMessage("§cFailed to create group " + name))
+                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to create group!", e))
                 .onSuccess(exists -> {
                     if(exists){
                         commandSender.sendMessage("§cGroup " + name + " already exists");
@@ -100,10 +100,14 @@ public class GroupCommand extends ConsoleCommand {
         CloudAPI.getInstance().getGroupManager().getGroupsAsync()
                 .onFailure(e -> commandSender.sendMessage("§cFailed to get groups"))
                 .onSuccess(holders -> {
+                    if(holders.isEmpty()){
+                        commandSender.sendMessage("No groups found!");
+                        return;
+                    }
                     commandSender.sendMessage("");
-                    commandSender.sendMessage("§aGroups:");
+                    commandSender.sendMessage("Groups §8(%hc" + holders.size() + "§8):");
                     for (IRBucketHolder<ICloudGroup> holder : holders) {
-                        commandSender.sendMessage("§8 » %tc" + holder.get().getName() + " | Services: " + holder.get().getOnlineServiceCount() + "/" + holder.get().getMaxServices());
+                        commandSender.sendMessage("§8 » %tc" + holder.get().getName() + " §8| %tcServices: %hc" + holder.get().getOnlineServiceCount() + "§8/%hc" + holder.get().getMaxServices());
                     }
                     commandSender.sendMessage("");
                 });

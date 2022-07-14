@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.IConsole;
+import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.api.console.LogLevel;
 import net.suqatri.cloud.node.console.setup.Setup;
 import org.fusesource.jansi.Ansi;
@@ -37,14 +38,14 @@ public class NodeConsole implements IConsole {
     private ConsoleCompleter consoleCompleter;
     @Setter
     private Setup currentSetup;
-    private List<String> allWroteLines;
+    private List<ConsoleLine> storedLines;
     @Getter
     private String prefix = translateColorCodes("§b" + System.getProperty("user.name") + "§a@§cUnknownNode §f=> ");
     private String mainPrefix;
     private Collection<Consumer<String>> inputHandler;
 
-    private String textColor = "§b";
-    private String highlightColor = "§f";
+    private final String textColor = "§b";
+    private final String highlightColor = "§f";
 
     public NodeConsole(CommandConsoleManager consoleManager) throws IOException {
         this.consoleManager = consoleManager;
@@ -52,7 +53,7 @@ public class NodeConsole implements IConsole {
         this.outputStream = System.out;
         this.lineReader = createLineReader();
         this.thread = new NodeConsoleThread(this, "node");
-        this.allWroteLines = new ArrayList<>();
+        this.storedLines = new ArrayList<>();
         this.inputHandler = new ArrayList<>();
         this.mainPrefix = prefix;
         this.startThread();
@@ -142,10 +143,10 @@ public class NodeConsole implements IConsole {
         if(!canLog(level)) return;
         if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
 
+        if(storeInHistory) saveLine(level, message);
+
         message = message.replaceAll("%tc", this.textColor)
                 .replaceAll("%hc", this.highlightColor);
-
-        if(storeInHistory) this.allWroteLines.add(message);
 
         if(this.currentSetup != null && level != LogLevel.FATAL) return;
 
@@ -160,13 +161,23 @@ public class NodeConsole implements IConsole {
         this.redisplay();
     }
 
+    //TODO save to files
+    private void saveLine(LogLevel logLevel, String rawMessage){
+        this.storedLines.add(new ConsoleLine(logLevel, rawMessage));
+    }
+
+    private void saveLine(String prefix, String rawMessage){
+        this.storedLines.add(new ConsoleLine(prefix, rawMessage));
+    }
+
     public void commandResponse(String message){
         if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+
+        saveLine("COMMAND", message);
 
         message = message.replaceAll("%tc", this.textColor)
                 .replaceAll("%hc", this.highlightColor);
 
-        this.allWroteLines.add(message);
 
         if(this.currentSetup != null) return;
 
@@ -230,12 +241,32 @@ public class NodeConsole implements IConsole {
         this.redisplay();
     }
 
+    public void print(IConsoleLine consoleLine){
+        String message = consoleLine.getMessage();
+        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+
+        message = message.replaceAll("%tc", this.textColor)
+                .replaceAll("%hc", this.highlightColor);
+
+        String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
+        String p = "§7[§f" + dateTime + "§7] §f" + prefix + "§7: " + this.textColor;
+
+        String line = translateColorCodes(p + message);
+        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
+        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
+        this.lineReader.getTerminal().writer().flush();
+
+        this.redisplay();
+    }
+
     @Override
     public void printRaw(String message, boolean translateColorCodes, boolean storeInHistory) {
         if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+
+        if(storeInHistory) saveLine(LogLevel.INFO, message);
+
         message = message.replaceAll("%tc", this.textColor)
                 .replaceAll("%hc", this.highlightColor);
-        if(storeInHistory) this.allWroteLines.add(message);
 
         if(this.currentSetup != null) return;
 
@@ -268,6 +299,7 @@ public class NodeConsole implements IConsole {
     public void clearScreen() {
         this.terminal.puts(InfoCmp.Capability.clear_screen);
         this.terminal.flush();
+        this.storedLines.clear();
     }
 
     public void setCommandInput(String input){

@@ -84,7 +84,7 @@ public class ClusterCommand extends ConsoleCommand {
                     commandSender.sendMessage("Offline nodes: %hc" + offlineNodes.size());
                     for(ICloudNode node : connectedNodes){
                         commandSender.sendMessage("%tc" + node.getName() + " §7[%hc" + node.getUniqueId() + "§7]: %hc" + node.getName());
-                        commandSender.sendMessage("§8   » %tcLast-IP: %gc" + node.getHostname());
+                        commandSender.sendMessage("§8   » %tcLast-IP: %hc" + node.getHostname());
                         commandSender.sendMessage("§8   » %tcUp-Time: %hc" + node.getUpTime());
                         commandSender.sendMessage("§8   » %tcServices: %hc" + node.getStartedServicesCount());
                     }

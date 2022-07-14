@@ -46,6 +46,10 @@ public class TemplateCommand extends ConsoleCommand {
         NodeLauncher.getInstance().getServiceTemplateManager().getAllTemplatesAsync()
                 .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while getting templates!", throwable))
                 .onSuccess(templateHolders -> {
+                    if(templateHolders.isEmpty()){
+                        commandSender.sendMessage("No templates found!");
+                        return;
+                    }
                     commandSender.sendMessage("");
                     commandSender.sendMessage("Templates: %hc" + templateHolders.size());
                     for (IRBucketHolder<ICloudServiceTemplate> templateHolder : templateHolders) {
@@ -63,9 +67,11 @@ public class TemplateCommand extends ConsoleCommand {
         NodeLauncher.getInstance().getServiceTemplateManager().existsTemplateAsync(name)
             .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while checking template existence!", throwable))
             .onSuccess(exists -> {
+                System.out.println("c1------");
                 if (exists) {
                     commandSender.sendMessage("Template already exists!");
                 } else {
+                    System.out.println("c2------");
                     NodeLauncher.getInstance().getServiceTemplateManager().createTemplateAsync(name)
                             .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while creating template!", throwable))
                             .onSuccess(templateHolder -> {

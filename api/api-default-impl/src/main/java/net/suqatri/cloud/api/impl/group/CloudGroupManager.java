@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
 public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudGroup> implements ICloudGroupManager {
 
     public CloudGroupManager() {
-        super("group", ICloudGroup.class);
+        super("servicegroup", ICloudGroup.class);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
                     if(optional.isPresent()) {
                         futureAction.complete(optional.get());
                     } else {
-                        futureAction.completeExceptionally(new IllegalArgumentException("Group not found"));
+                        futureAction.completeExceptionally(new NullPointerException("Group not found"));
                     }
                 });
 
@@ -126,6 +126,7 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
                                 });
                         });
                 });
+
         return futureAction;
     }
 

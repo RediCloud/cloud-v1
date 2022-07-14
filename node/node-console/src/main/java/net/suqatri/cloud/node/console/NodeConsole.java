@@ -3,9 +3,7 @@ package net.suqatri.cloud.node.console;
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
-import net.suqatri.cloud.api.console.IConsole;
-import net.suqatri.cloud.api.console.IConsoleLine;
-import net.suqatri.cloud.api.console.LogLevel;
+import net.suqatri.cloud.api.console.*;
 import net.suqatri.cloud.node.console.setup.Setup;
 import org.fusesource.jansi.Ansi;
 import org.jline.reader.LineReader;
@@ -30,7 +28,7 @@ public class NodeConsole implements IConsole {
     private boolean cleanConsoleMode = true;
     private final CommandConsoleManager consoleManager;
     private LogLevel logLevel = LogLevel.DEBUG;
-    private NodeConsoleThread thread;
+    private final NodeConsoleThread thread;
     private final InputStream inputStream;
     private final OutputStream outputStream;
     private Terminal terminal;
@@ -38,11 +36,11 @@ public class NodeConsole implements IConsole {
     private ConsoleCompleter consoleCompleter;
     @Setter
     private Setup currentSetup;
-    private List<ConsoleLine> storedLines;
+    private final List<IConsoleLineEntry> lineEntries;
     @Getter
     private String prefix = translateColorCodes("§b" + System.getProperty("user.name") + "§a@§cUnknownNode §f=> ");
     private String mainPrefix;
-    private Collection<Consumer<String>> inputHandler;
+    private final Collection<Consumer<String>> inputHandler;
 
     private final String textColor = "§b";
     private final String highlightColor = "§f";
@@ -53,33 +51,37 @@ public class NodeConsole implements IConsole {
         this.outputStream = System.out;
         this.lineReader = createLineReader();
         this.thread = new NodeConsoleThread(this, "node");
-        this.storedLines = new ArrayList<>();
+        this.lineEntries = new ArrayList<>();
         this.inputHandler = new ArrayList<>();
         this.mainPrefix = prefix;
         this.startThread();
-        if(canLog(LogLevel.DEBUG)) this.cleanConsoleMode = false;
+        if(this.logLevel.getId() <= LogLevel.DEBUG.getId()) this.cleanConsoleMode = false;
     }
 
     public void printCloudHeader(){
         clearScreen();
-        printRaw("    ", true, true);
-        printRaw("    ", true, true);
-        printRaw("§f     ▄████▄   ██▓     ▒█████   █    ██ ▓█████▄ ", true, true);
-        printRaw("§f    ▒██▀ ▀█  ▓██▒    ▒██▒  ██▒ ██  ▓██▒▒██▀ ██▌", true, true);
-        printRaw("§f    ▒▓█    ▄ ▒██░    ▒██░  ██▒▓██  ▒██░░██   █▌", true, true);
-        printRaw("§f    ▒▓▓▄ ▄██▒▒██░    ▒██   ██░▓▓█  ░██░░▓█▄   ▌", true, true);
-        printRaw("§f    ▒ ▓███▀ ░░██████▒░ ████▓▒░▒▒█████▓ ░▒████▓ ", true, true);
-        printRaw("§f    ░ ░▒ ▒  ░░ ▒░▓  ░░ ▒░▒░▒░ ░▒▓▒ ▒ ▒  ▒▒▓  ▒ ", true, true);
-        printRaw("§f      ░  ▒   ░ ░ ▒  ░  ░ ▒ ▒░ ░░▒░ ░ ░  ░ ▒  ▒ ", true, true);
-        printRaw("§f    ░          ░ ░   ░ ░ ░ ▒   ░░░ ░ ░  ░ ░  ░ ", true, true);
-        printRaw("§f    ░ ░          ░  ░    ░ ░     ░        ░    ", true, true);
-        printRaw("§f    ░                                   ░      ", true, true);
-        printRaw("    ", true, true);
-        printRaw("    ", true, true);
-        printRaw(this.textColor + "    A cluster based cloud system for Minecraft", true, true);
-        printRaw("    §8» " + this.textColor + "Version: " + this.highlightColor + CloudAPI.getVersion() + " §8| " + this.textColor + "Discord: " + this.highlightColor +"https://discord.gg/vPwUhbVu4Y", true, true);
-        printRaw("    §8» " + this.textColor + "System: " + this.highlightColor + System.getProperty("os.name") + " §8| " + this.textColor + "Java: " + this.highlightColor + System.getProperty("java.version"), true, true);
-        printRaw("    ", true, true);
+        log(new ConsoleLine("", "     ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f     ▄████▄   ██▓     ▒█████   █    ██ ▓█████▄ ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f    ▒██▀ ▀█  ▓██▒    ▒██▒  ██▒ ██  ▓██▒▒██▀ ██▌").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f    ▒▓█    ▄ ▒██░    ▒██░  ██▒▓██  ▒██░░██   █▌").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f    ▒▓█    ▄ ▒██░    ▒██░  ██▒▓██  ▒██░░██   █▌").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f    ▒▓▓▄ ▄██▒▒██░    ▒██   ██░▓▓█  ░██░░▓█▄   ▌").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f    ▒ ▓███▀ ░░██████▒░ ████▓▒░▒▒█████▓ ░▒████▓ ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f    ░ ░▒ ▒  ░░ ▒░▓  ░░ ▒░▒░▒░ ░▒▓▒ ▒ ▒  ▒▒▓  ▒ ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f      ░  ▒   ░ ░ ▒  ░  ░ ▒ ▒░ ░░▒░ ░ ░  ░ ▒  ▒ ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f    ░          ░ ░   ░ ░ ░ ▒   ░░░ ░ ░  ░ ░  ░ ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f    ░ ░          ░  ░    ░ ░     ░        ░    ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f    ░                                   ░      ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "     ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "     ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", this.textColor + "    A cluster based cloud system for Minecraft").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "    §8» " + this.textColor + "Version: " + this.highlightColor + CloudAPI.getVersion() + " §8| " + this.textColor + "Discord: " + this.highlightColor +"https://discord.gg/vPwUhbVu4Y").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "    §8» " + this.textColor + "System: " + this.highlightColor + System.getProperty("os.name") + " §8| " + this.textColor + "Java: " + this.highlightColor + System.getProperty("java.version")).setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "     ").setPrintPrefix(false).setPrintTimestamp(false));
+        if(this.cleanConsoleMode){
+            warn("§cClean console mode is enabled! Stacktraces will not be printed, only the message.");
+            warn("§cTo disable this mode, set the property 'cleanConsoleMode' to false.");
+        }
     }
 
     public void addInputHandler(Consumer<String> inputHandler) {
@@ -138,92 +140,6 @@ public class NodeConsole implements IConsole {
         }
     }
 
-    @Override
-    public void log(LogLevel level, String message, boolean translateColorCodes, boolean storeInHistory) {
-        if(!canLog(level)) return;
-        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
-
-        if(storeInHistory) saveLine(level, message);
-
-        message = message.replaceAll("%tc", this.textColor)
-                .replaceAll("%hc", this.highlightColor);
-
-        if(this.currentSetup != null && level != LogLevel.FATAL) return;
-
-        String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
-        String prefix = "§7[§f" + dateTime + "§7] §f" + level.name() + "§7: " + (logLevel == LogLevel.INFO ? this.textColor : Ansi.ansi().a(Ansi.Attribute.RESET).fgRgb(level.getColor().getRed(), level.getColor().getGreen(), level.getColor().getBlue()).toString());
-
-        String line = translateColorCodes ? translateColorCodes(prefix + message) : prefix + message;
-        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
-        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
-        this.lineReader.getTerminal().writer().flush();
-
-        this.redisplay();
-    }
-
-    //TODO save to files
-    private void saveLine(LogLevel logLevel, String rawMessage){
-        this.storedLines.add(new ConsoleLine(logLevel, rawMessage));
-    }
-
-    private void saveLine(String prefix, String rawMessage){
-        this.storedLines.add(new ConsoleLine(prefix, rawMessage));
-    }
-
-    public void commandResponse(String message){
-        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
-
-        saveLine("COMMAND", message);
-
-        message = message.replaceAll("%tc", this.textColor)
-                .replaceAll("%hc", this.highlightColor);
-
-
-        if(this.currentSetup != null) return;
-
-        String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
-        String prefix = "§7[§f" + dateTime + "§7] §fCOMMAND§7: " + this.textColor;
-
-        String s = translateColorCodes(prefix + message);
-        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
-        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + s + Ansi.ansi().reset());
-        this.lineReader.getTerminal().writer().flush();
-
-        this.redisplay();
-    }
-
-    @Override
-    public void error(String message, Throwable throwable) {
-        message = message.replaceAll("%tc", this.textColor)
-                .replaceAll("%hc", this.highlightColor);
-        if(this.cleanConsoleMode) {
-            log(LogLevel.ERROR, message);
-        } else {
-            log(LogLevel.ERROR, message);
-            log(LogLevel.ERROR, throwable.getMessage());
-            log(LogLevel.ERROR, throwable.getStackTrace());
-        }
-    }
-
-    @Override
-    public void log(LogLevel level, Object[] messages) {
-        if(this.currentSetup != null && logLevel != LogLevel.FATAL) return;
-        IConsole.super.log(level, messages);
-    }
-
-    @Override
-    public void log(LogLevel logLevel, String message) {
-        if(this.currentSetup != null && logLevel != LogLevel.FATAL) return;
-        IConsole.super.log(logLevel, message);
-    }
-
-    @Override
-    public void print(String message) {
-        message = message.replaceAll("%tc", this.textColor)
-                .replaceAll("%hc", this.highlightColor);
-        this.log(LogLevel.INFO, message);
-    }
-
     public void printForce(String prefix, String message){
         if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
 
@@ -241,17 +157,31 @@ public class NodeConsole implements IConsole {
         this.redisplay();
     }
 
-    public void print(IConsoleLine consoleLine){
+    @Override
+    public void log(IConsoleLine consoleLine){
         String message = consoleLine.getMessage();
         if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+
+        if(consoleLine.isStored()) this.lineEntries.add(consoleLine);
+
+        if(!canLog(consoleLine)) return;
 
         message = message.replaceAll("%tc", this.textColor)
                 .replaceAll("%hc", this.highlightColor);
 
-        String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
-        String p = "§7[§f" + dateTime + "§7] §f" + prefix + "§7: " + this.textColor;
+        String dateTime = "";
+        if(consoleLine.printTimestamp()) {
+            long time = consoleLine.getTime();
+            dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(time), java.time.ZoneId.systemDefault()));
+            dateTime = "§7[§f" + dateTime + "§7] ";
+        }
+        String prefix = "";
+        if(consoleLine.printPrefix()){
+            prefix = "§f" + consoleLine.getPrefix() + "§7: ";
+        }
+        prefix += this.textColor;
 
-        String line = translateColorCodes(p + message);
+        String line = translateColorCodes(dateTime + prefix + message);
         this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
         this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
         this.lineReader.getTerminal().writer().flush();
@@ -259,22 +189,8 @@ public class NodeConsole implements IConsole {
         this.redisplay();
     }
 
-    @Override
-    public void printRaw(String message, boolean translateColorCodes, boolean storeInHistory) {
-        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
-
-        if(storeInHistory) saveLine(LogLevel.INFO, message);
-
-        message = message.replaceAll("%tc", this.textColor)
-                .replaceAll("%hc", this.highlightColor);
-
-        if(this.currentSetup != null) return;
-
-        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
-        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + (translateColorCodes ? translateColorCodes(message) : message) + Ansi.ansi().reset());
-        this.lineReader.getTerminal().writer().flush();
-
-        this.redisplay();
+    public void log(LogLevel level, String message){
+        this.log(new ConsoleLine(level, message));
     }
 
     private void redisplay() {
@@ -285,9 +201,48 @@ public class NodeConsole implements IConsole {
     }
 
     @Override
+    public void error(String message, Throwable throwable) {
+        this.log(LogLevel.ERROR, message);
+        if(this.cleanConsoleMode) return;
+        this.log(LogLevel.ERROR, throwable.getClass().getSimpleName() + ": " + throwable.getMessage());
+        for (StackTraceElement element : throwable.getStackTrace()) {
+            this.log(LogLevel.ERROR, element.toString());
+        }
+    }
+
+    @Override
+    public void error(String message) {
+        this.log(LogLevel.ERROR, message);
+    }
+
+    @Override
+    public void warn(String message) {
+        this.log(LogLevel.WARN, message);
+    }
+
+    @Override
+    public void info(String message) {
+        this.log(LogLevel.INFO, message);
+    }
+
+    @Override
+    public void debug(String message) {
+        this.log(LogLevel.DEBUG, message);
+    }
+
+    @Override
+    public void fatal(String message, Throwable throwable) {
+        this.log(LogLevel.FATAL, message);
+        this.log(LogLevel.FATAL, throwable.getClass().getSimpleName() + ": " + throwable.getMessage());
+        for (StackTraceElement element : throwable.getStackTrace()) {
+            this.log(LogLevel.FATAL, element.toString());
+        }
+    }
+
+    @Override
     public void setLogLevel(LogLevel level) {
         this.logLevel = level;
-        if(canLog(LogLevel.DEBUG)) this.cleanConsoleMode = false;
+        if(level.getId() <= LogLevel.DEBUG.getId()) this.cleanConsoleMode = false;
     }
 
     @Override
@@ -296,10 +251,15 @@ public class NodeConsole implements IConsole {
     }
 
     @Override
+    public boolean canLog(IConsoleLine line) {
+        if(this.currentSetup != null && (line.getLogLevel() != LogLevel.ERROR || line.getLogLevel() != LogLevel.FATAL)) return false;
+        return IConsole.super.canLog(line);
+    }
+
+    @Override
     public void clearScreen() {
         this.terminal.puts(InfoCmp.Capability.clear_screen);
         this.terminal.flush();
-        this.storedLines.clear();
     }
 
     public void setCommandInput(String input){

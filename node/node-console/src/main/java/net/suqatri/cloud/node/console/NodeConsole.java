@@ -179,7 +179,6 @@ public class NodeConsole implements IConsole {
         if(consoleLine.printPrefix()){
             prefix = "§f" + consoleLine.getPrefix() + "§7: " + (logLevel == LogLevel.INFO ? this.textColor : Ansi.ansi().a(Ansi.Attribute.RESET).fgRgb(consoleLine.getLogLevel().getColor().getRed(), consoleLine.getLogLevel().getColor().getGreen(), consoleLine.getLogLevel().getColor().getBlue()).toString());
         }
-        prefix += this.textColor;
 
         String line = translateColorCodes(dateTime + prefix + message);
         this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);

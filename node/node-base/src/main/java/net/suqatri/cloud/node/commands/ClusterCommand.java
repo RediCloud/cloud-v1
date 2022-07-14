@@ -35,7 +35,7 @@ public class ClusterCommand extends ConsoleCommand {
     }
 
     @Subcommand("info")
-    @Description("Show information about the cluster")
+    @Description("Show information about this node")
     public void onInfo(CommandSender commandSender){
         CloudNode node = NodeLauncher.getInstance().getNode();
         commandSender.sendMessage("%tc" + node.getName() + " §7[%hc" + node.getUniqueId() + "§7]: %hc" + node.getName());

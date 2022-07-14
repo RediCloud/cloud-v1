@@ -13,6 +13,8 @@ import net.suqatri.cloud.node.console.setup.annotations.ConditionChecker;
 import net.suqatri.cloud.node.console.setup.annotations.Question;
 import net.suqatri.cloud.node.console.setup.annotations.RequiresEnum;
 import net.suqatri.cloud.node.console.setup.conditions.PositivIntegerCondition;
+import net.suqatri.cloud.node.console.setup.suggester.BooleanSuggester;
+import net.suqatri.cloud.node.setup.condition.GroupMemoryCondition;
 import net.suqatri.cloud.node.setup.suggester.ServiceEnvironmentSuggester;
 
 @Getter
@@ -31,12 +33,14 @@ public class GroupSetup extends Setup<GroupSetup> {
     private int maxServices;
 
     @Question(id = 4, question = "How much memory should be allocated to each service?")
+    @ConditionChecker(value = GroupMemoryCondition.class, message = "The memory must be hihger than 500")
     private int maxMemory;
 
     @Question(id = 5, question = "What is the start priority of the group?")
     private int startPriority;
 
     @Question(id = 6, question = "Should the group a static group?")
+    @AnswerCompleter(value = BooleanSuggester.class)
     private boolean staticGroup;
 
 

@@ -58,7 +58,7 @@ public class NodeConsoleThread extends Thread {
 
         if(isSetup) return;
 
-        this.nodeConsole.getStoredInputs().add(new ConsoleInput(line, System.currentTimeMillis(), this.nodeConsole.getPrefix()));
+        this.nodeConsole.getLineEntries().add(new ConsoleInput(line, System.currentTimeMillis(), this.nodeConsole.getPrefix()));
 
         String name = line.split(" ")[0];
         String[] args = line.split(" ");

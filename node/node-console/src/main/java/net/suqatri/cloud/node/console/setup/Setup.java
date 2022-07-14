@@ -66,7 +66,7 @@ public abstract class Setup<T extends Setup<?>> {
     /**
      * All lines of the console
      */
-    private final List<IConsoleLineEntry> restoredLines;
+    private List<IConsoleLineEntry> restoredLines;
 
     /**
      * The current setup part
@@ -123,7 +123,8 @@ public abstract class Setup<T extends Setup<?>> {
         this.cancelled = false;
         this.exitAfterAnswer = false;
         this.map = new HashMap<>();
-        this.restoredLines = console.getLineEntries().size() < 40 ? console.getLineEntries() : console.getLineEntries().subList(console.getLineEntries().size()-40, console.getLineEntries().size());
+        this.restoredLines = console.getLineEntries();
+        this.restoredLines = new ArrayList<>(this.restoredLines.size() < 80 ? this.restoredLines : this.restoredLines.subList(this.restoredLines.size()-80, this.restoredLines.size()));
         this.current = 1;
 
         this.loadSetupParts();

@@ -19,19 +19,25 @@ public abstract class CloudPacket implements ICloudPacket {
 
     @Override
     public void publish() {
-        if(getPacketData().getReceivers().isEmpty()) throw new IllegalStateException("No receivers specified!");
+        if(getPacketData().getReceivers().isEmpty() && getPacketData().getResponseTargetData() == null) throw new IllegalStateException("No receivers specified!");
         if(getPacketData().getReceivers().contains(CloudAPI.getInstance().getNetworkComponentInfo())
                 && getPacketData().isAllowSenderAsReceiver()) return;
         getPacketData().setSender(CloudAPI.getInstance().getNetworkComponentInfo());
+        if(!getPacketData().getReceivers().contains(getPacketData().getResponseTargetData().getSender())) {
+            getPacketData().getReceivers().add(getPacketData().getResponseTargetData().getSender());
+        }
         CloudAPI.getInstance().getPacketManager().publish(this);
     }
 
     @Override
     public void publishAsync() {
-        if(getPacketData().getReceivers().isEmpty()) throw new IllegalStateException("No receivers specified!");
+        if(getPacketData().getReceivers().isEmpty() && getPacketData().getResponseTargetData() == null) throw new IllegalStateException("No receivers specified!");
         if(getPacketData().getReceivers().contains(CloudAPI.getInstance().getNetworkComponentInfo())
          && getPacketData().isAllowSenderAsReceiver()) return;
         getPacketData().setSender(CloudAPI.getInstance().getNetworkComponentInfo());
+        if(!getPacketData().getReceivers().contains(getPacketData().getResponseTargetData().getSender())) {
+            getPacketData().getReceivers().add(getPacketData().getResponseTargetData().getSender());
+        }
         CloudAPI.getInstance().getPacketManager().publishAsync(this);
     }
 

@@ -3,6 +3,7 @@ package net.suqatri.cloud.node.file;
 import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.node.ICloudNode;
+import net.suqatri.cloud.api.node.file.IFileTransferManager;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.file.packet.*;
@@ -16,7 +17,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 @Getter
-public class FileTransferManager {
+public class FileTransferManager implements IFileTransferManager {
 
     public static final int BYTES_PER_PACKET = 10485760;
     public static final int SLEEP_TIME_PER_PACKET = 60;

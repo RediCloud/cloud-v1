@@ -13,7 +13,9 @@ public class ConsoleLine implements IConsoleLine {
     private final LogLevel logLevel;
     private final String prefix;
     private final String message;
-    private boolean timestamp = true;
+    private boolean stored = true;
+    private boolean printTimestamp = true;
+    private boolean printPrefix = true;
 
     public ConsoleLine(LogLevel logLevel, String message){
         this.logLevel = logLevel;
@@ -22,17 +24,41 @@ public class ConsoleLine implements IConsoleLine {
     }
 
     public ConsoleLine(String prefix, String message){
-        this.logLevel = null;
+        this.logLevel = LogLevel.INFO;
         this.prefix = prefix;
         this.message = message;
     }
 
-    public void disableTimestamp(){
-        this.timestamp = false;
+    @Override
+    public boolean printPrefix() {
+        return this.printPrefix;
+    }
+
+    @Override
+    public IConsoleLine setPrintPrefix(boolean printPrefix) {
+        this.printPrefix = printPrefix;
+        return this;
     }
 
     @Override
     public void println() {
-        //TODO rewrite NodeConsole to use this method
+        ((CommandConsoleManager)CommandConsoleManager.getCurrentCommandManager()).getNodeConsole().log(this);
+    }
+
+    @Override
+    public boolean printTimestamp() {
+        return this.printTimestamp;
+    }
+
+    @Override
+    public IConsoleLine setPrintTimestamp(boolean printTimestamp) {
+        this.printTimestamp = printTimestamp;
+        return this;
+    }
+
+    @Override
+    public IConsoleLine setStored(boolean stored) {
+        this.stored = stored;
+        return this;
     }
 }

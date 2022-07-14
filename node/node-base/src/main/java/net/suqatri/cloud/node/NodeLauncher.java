@@ -26,6 +26,8 @@ import net.suqatri.cloud.node.file.FileTransferManager;
 import net.suqatri.cloud.node.listener.CloudNodeConnectedListener;
 import net.suqatri.cloud.node.listener.CloudNodeDisconnectListener;
 import net.suqatri.cloud.node.node.ClusterConnectionInformation;
+import net.suqatri.cloud.node.node.NodePingPacket;
+import net.suqatri.cloud.node.node.NodePingResponsePacket;
 import net.suqatri.cloud.node.scheduler.Scheduler;
 import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 import net.suqatri.cloud.node.setup.node.NodeConnectionDataSetup;
@@ -72,6 +74,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.registerCommands();
             this.registerInternalListeners();
             this.registerListeners();
+            this.registerPackets();
             this.scheduler.runTaskLater(() -> this.syncTemplates(() -> {
             }), 2, TimeUnit.SECONDS);
         });
@@ -88,7 +91,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
        for (IRBucketHolder<ICloudNode> holder : getNodeManager().getNodes()) {
             if(!holder.get().isConnected()) continue;
             if(holder.get().getUniqueId().equals(this.node.getUniqueId())) continue;
-            if(nodeHolder == null){
+            if(nodeHolder == null && !this.node.isFileNode()){
                 nodeHolder = holder;
                 continue;
             }
@@ -171,6 +174,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.commandManager.registerCommand(new GroupCommand());
         this.commandManager.registerCommand(new CloudHelpCommand());
         this.commandManager.registerCommand(new ServiceVersionCommand());
+    }
+
+    private void registerPackets(){
+        this.getPacketManager().registerPacket(NodePingPacket.class);
+        this.getPacketManager().registerPacket(NodePingResponsePacket.class);
     }
 
     private void registerListeners(){

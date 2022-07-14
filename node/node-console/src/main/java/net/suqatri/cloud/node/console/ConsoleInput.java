@@ -13,6 +13,6 @@ public class ConsoleInput implements IConsoleInput {
 
     @Override
     public void logAsFake() {
-        ((CommandConsoleManager)CommandConsoleManager.getCurrentCommandManager()).getNodeConsole().log(new ConsoleLine("", prefix + input).setPrintTimestamp(false).setPrintPrefix(false));
+        CommandConsoleManager.getInstance().getNodeConsole().log(new ConsoleLine("", prefix + input).setPrintTimestamp(false).setPrintPrefix(false));
     }
 }

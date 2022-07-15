@@ -12,6 +12,7 @@ import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.ServiceState;
+import net.suqatri.cloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.commons.function.future.FutureActionCollection;
@@ -38,6 +39,17 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     private boolean maintenance = false;
     private int maxMemory;
     private int startPriority = 0;
+    private String serviceVersionName;
+
+    @Override
+    public FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion() {
+        return CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(this.serviceVersionName);
+    }
+
+    @Override
+    public void setServiceVersion(IRBucketHolder<ICloudServiceVersion> serviceVersion) {
+        this.serviceVersionName = serviceVersion.get().getName();
+    }
 
     @Override
     public FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> getTemplates() {

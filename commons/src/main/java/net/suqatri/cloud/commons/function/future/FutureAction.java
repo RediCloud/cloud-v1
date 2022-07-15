@@ -91,10 +91,10 @@ public class FutureAction<V> extends CompletableFuture<V> {
         return this;
     }
 
-    public FutureAction<V> onFailure(Consumer<Throwable> consumer){
+    public FutureAction<V> onFailure(Consumer<Exception> consumer){
         this.whenComplete((v, t) -> {
             if(t != null) {
-                consumer.accept(t);
+                consumer.accept((Exception) t);
             }
         });
         return this;

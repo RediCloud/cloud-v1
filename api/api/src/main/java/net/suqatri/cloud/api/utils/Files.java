@@ -13,6 +13,7 @@ public enum Files {
     STORAGE_FOLDER("storage"),
     TEMPLATE_FOLDER("templates"),
     TEMP_FOLDER("temp"),
+    TEMP_TRANSFER_FOLDER("temp/transfer"),
     TEMP_SERVICE_FOLDER("temp/services"),
     LIBS_FOLDER("storage/libs"),
     LIBS_BLACKLIST_FOLDER("storage/libs/blacklist"),

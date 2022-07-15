@@ -44,7 +44,7 @@ public class FileTransferSentProcess implements IFileTransferSentProcess {
                 return;
             }
 
-            this.zipFile = new File(Files.TEMP_FOLDER.getFile(), this.transferId + ".zip");
+            this.zipFile = new File(Files.TEMP_TRANSFER_FOLDER.getFile(), this.transferId + ".zip");
 
             ZipUtils.zipDir(this.originalFile, this.zipFile);
 

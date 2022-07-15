@@ -65,7 +65,7 @@ public class FileTransferReceiveProcess implements IFileTransferReceiveProcess {
 
             byte[] bytes = FileUtils.mergeByteArrays(this.receivedFileData.values());
 
-            this.zipFile = new File(Files.TEMP_FOLDER.getFile(), this.transferId + ".zip");
+            this.zipFile = new File(Files.TEMP_TRANSFER_FOLDER.getFile(), this.transferId + ".zip");
             FileUtils.bytesToFile(bytes, this.zipFile.getAbsolutePath());
             this.lastAction.set(System.currentTimeMillis());
             ZipUtils.unzipDir(zipFile, destinationFile.getAbsolutePath());

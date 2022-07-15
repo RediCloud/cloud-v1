@@ -366,6 +366,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         Files.LIBS_BLACKLIST_FOLDER.createIfNotExists();
         Files.LIBS_REPO_FOLDER.createIfNotExists();
         Files.TEMP_FOLDER.createIfNotExists();
+        Files.TEMP_TRANSFER_FOLDER.createIfNotExists();
         Files.TEMP_SERVICE_FOLDER.createIfNotExists();
         Files.TEMPLATE_FOLDER.createIfNotExists();
         Files.VERSIONS_FOLDER.createIfNotExists();

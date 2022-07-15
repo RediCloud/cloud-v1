@@ -5,7 +5,7 @@ import lombok.Setter;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
-import net.suqatri.cloud.commons.file.Files;
+import net.suqatri.cloud.api.utils.Files;
 
 import java.io.File;
 

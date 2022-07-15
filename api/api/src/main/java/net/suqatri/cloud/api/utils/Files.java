@@ -1,4 +1,4 @@
-package net.suqatri.cloud.commons.file;
+package net.suqatri.cloud.api.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

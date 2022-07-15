@@ -31,7 +31,7 @@ import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 import net.suqatri.cloud.node.service.factory.NodeCloudServiceFactory;
 import net.suqatri.cloud.node.setup.node.NodeConnectionDataSetup;
 import net.suqatri.cloud.node.setup.redis.RedisSetup;
-import net.suqatri.cloud.commons.file.Files;
+import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.node.template.NodeCloudServiceTemplateManager;
 
 import java.io.IOException;

@@ -8,7 +8,7 @@ import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
-import net.suqatri.cloud.commons.file.Files;
+import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 import net.suqatri.cloud.node.NodeLauncher;
@@ -18,7 +18,6 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.Future;
 
 public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager {
 

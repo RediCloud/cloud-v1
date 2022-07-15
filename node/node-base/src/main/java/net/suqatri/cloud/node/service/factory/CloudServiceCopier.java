@@ -6,6 +6,7 @@ import net.suqatri.cloud.api.node.service.factory.ICloudServiceCopier;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
+import net.suqatri.cloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.api.utils.Files;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Data
 public class CloudServiceCopier implements ICloudServiceCopier {
@@ -53,30 +55,49 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                 for (IRBucketHolder<ICloudServiceTemplate> templateHolder : templates.values()) {
                                     folders.add(templateHolder.get().getTemplateFolder());
                                 }
-                                CloudAPI.getInstance().getExecutorService().submit(() -> {
-                                    try {
-                                        for (File folder : folders) {
-                                            if(!folder.exists()) continue;
-                                            FileUtils.copyDirectory(folder, this.getServiceDirectory());
-                                        }
+                                this.process.getServiceHolder().get().getServiceVersion()
+                                        .onFailure(futureAction)
+                                        .onSuccess(serviceVersionHolder -> {
+                                            CloudAPI.getInstance().getExecutorService().submit(() -> {
+                                                try {
+                                                    for (File folder : folders) {
+                                                        if(!folder.exists()) continue;
+                                                        FileUtils.copyDirectory(folder, this.getServiceDirectory());
+                                                    }
 
-                                        File pluginFolder = new File(getServiceDirectory(), "plugins");
-                                        if(!pluginFolder.exists()) pluginFolder.mkdirs();
-                                        switch (this.process.getServiceHolder().get().getEnvironment()){
-                                            case MINECRAFT:
-                                                FileUtils.copyFileToDirectory(Files.MINECRAFT_PLUGIN_JAR.getFile(), pluginFolder);
-                                                break;
+                                                    List<File> configFiles = new ArrayList<>();
 
-                                            case PROXY:
-                                                FileUtils.copyFileToDirectory(Files.PROXY_PLUGIN_JAR.getFile(), pluginFolder);
-                                                break;
-                                        }
+                                                    File pluginFolder = new File(getServiceDirectory(), "plugins");
+                                                    if(!pluginFolder.exists()) pluginFolder.mkdirs();
+                                                    switch (this.process.getServiceHolder().get().getEnvironment()){
+                                                        case MINECRAFT:
+                                                            FileUtils.copyFileToDirectory(Files.MINECRAFT_PLUGIN_JAR.getFile(), pluginFolder);
+                                                            configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "bukkit.yml"));
+                                                            configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "spigot.yml"));
+                                                            configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "server.properties"));
+                                                            break;
 
-                                        futureAction.complete(this.getServiceDirectory());
-                                    } catch (IOException e) {
-                                        futureAction.completeExceptionally(e);
-                                    }
-                                });
+                                                        case PROXY:
+                                                            FileUtils.copyFileToDirectory(Files.PROXY_PLUGIN_JAR.getFile(), pluginFolder);
+                                                            configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "config.yml"));
+                                                            break;
+                                                    }
+
+                                                    //TODO set maxplayers, port, ip, servicename
+                                                    for (File configFile : configFiles) {
+                                                        File target = new File(this.getServiceDirectory(), configFile.getName());
+                                                        if(target.exists()) continue;
+                                                        FileUtils.copyFileToDirectory(configFile, this.getServiceDirectory());
+                                                    }
+
+                                                    FileUtils.copyFileToDirectory(serviceVersionHolder.get().getPatchedFile(), this.getServiceDirectory());
+
+                                                    futureAction.complete(this.getServiceDirectory());
+                                                } catch (IOException e) {
+                                                    futureAction.completeExceptionally(e);
+                                                }
+                                            });
+                                        });
                             });
                     });
             });
@@ -85,8 +106,11 @@ public class CloudServiceCopier implements ICloudServiceCopier {
     }
 
     @Override
-    public File copyFiles() throws IOException {
+    public File copyFiles() throws Exception {
         List<File> folders = new ArrayList<>();
+
+        IRBucketHolder<ICloudServiceVersion> serviceVersionHolder = this.process.getServiceHolder().get().getServiceVersion().get(5, TimeUnit.SECONDS);
+        if(serviceVersionHolder == null) throw new NullPointerException("Service version " + this.process.getServiceHolder().get().getConfiguration().getServiceVersionName() + "not found");
 
         if(this.templateManager.existsTemplate("global-all")){
             folders.add(this.templateManager.getTemplate("global-all").get().getTemplateFolder());
@@ -106,17 +130,32 @@ public class CloudServiceCopier implements ICloudServiceCopier {
             FileUtils.copyDirectoryToDirectory(folder, getServiceDirectory());
         }
 
+        List<File> configFiles = new ArrayList<>();
+
         File pluginFolder = new File(getServiceDirectory(), "plugins");
         if(!pluginFolder.exists()) pluginFolder.mkdirs();
         switch (this.process.getServiceHolder().get().getEnvironment()){
             case MINECRAFT:
                 FileUtils.copyFileToDirectory(Files.MINECRAFT_PLUGIN_JAR.getFile(), pluginFolder);
+                configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "bukkit.yml"));
+                configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "spigot.yml"));
+                configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "server.properties"));
                 break;
 
             case PROXY:
                 FileUtils.copyFileToDirectory(Files.PROXY_PLUGIN_JAR.getFile(), pluginFolder);
+                configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "config.yml"));
                 break;
         }
+
+        //TODO set maxplayers, port, ip, servicename
+        for (File configFile : configFiles) {
+            File target = new File(this.getServiceDirectory(), configFile.getName());
+            if(target.exists()) continue;
+            FileUtils.copyFileToDirectory(configFile, this.getServiceDirectory());
+        }
+
+        FileUtils.copyFileToDirectory(serviceVersionHolder.get().getPatchedFile(), this.getServiceDirectory());
 
         return this.getServiceDirectory();
     }

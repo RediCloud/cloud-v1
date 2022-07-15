@@ -2,6 +2,7 @@ package net.suqatri.cloud.node.service.factory;
 
 import lombok.Data;
 import net.suqatri.cloud.api.impl.service.CloudService;
+import net.suqatri.cloud.api.node.service.factory.ICloudNodeServiceFactory;
 import net.suqatri.cloud.api.node.service.factory.ICloudServiceProcess;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
@@ -16,9 +17,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Data
-public class NodeCloudServiceFactory implements ICloudServiceFactory {
+public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
 
     private final NodeCloudServiceManager serviceManager;
+    private final CloudNodePortManager portManager = new CloudNodePortManager();
 
     private final ConcurrentHashMap<UUID, CloudServiceServiceProcess> processes = new ConcurrentHashMap<>();
 

@@ -31,6 +31,7 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
     private List<String> jvmArguments;
     private String javaCommand;
     private int startPort;
+    private String serviceVersionName;
 
     @Override
     public boolean isStatic() {
@@ -52,5 +53,6 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
         this.jvmArguments = Arrays.asList(group.getJvmArguments());
         this.javaCommand = group.getJavaCommand();
         this.startPort = group.getStartPort();
+        this.serviceVersionName = group.getServiceVersionName();
     }
 }

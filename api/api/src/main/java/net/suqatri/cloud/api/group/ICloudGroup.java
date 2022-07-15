@@ -8,6 +8,7 @@ import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.ServiceState;
+import net.suqatri.cloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
@@ -34,6 +35,10 @@ public interface ICloudGroup extends IRBucketObject {
 
     int getMaxServices();
     void setMaxServices(int maxServices);
+
+    FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion();
+    void setServiceVersion(IRBucketHolder<ICloudServiceVersion> serviceVersion);
+    String getServiceVersionName();
 
     FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> getTemplates();
     Collection<String> getTemplateNames();

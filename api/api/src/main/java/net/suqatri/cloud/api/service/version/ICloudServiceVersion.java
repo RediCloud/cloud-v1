@@ -18,9 +18,7 @@ public interface ICloudServiceVersion extends Serializable {
     default File getFile() {
         return new File(Files.VERSIONS_FOLDER.getFile(), getName() + ".jar");
     }
-    default File getPatchedFile(){
-        return new File(Files.VERSIONS_FOLDER.getFile(), getName() + ".jar.patched");
-    }
+    File getPatchedFile();
     default boolean isPatched(){
         return this.getPatchedFile().exists();
     }

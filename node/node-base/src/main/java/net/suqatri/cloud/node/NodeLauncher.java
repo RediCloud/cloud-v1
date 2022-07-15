@@ -15,7 +15,6 @@ import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
-import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.cloud.commons.connection.IPUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
 import net.suqatri.cloud.node.commands.*;
@@ -26,17 +25,15 @@ import net.suqatri.cloud.node.file.FileTransferManager;
 import net.suqatri.cloud.node.listener.CloudNodeConnectedListener;
 import net.suqatri.cloud.node.listener.CloudNodeDisconnectListener;
 import net.suqatri.cloud.node.node.ClusterConnectionInformation;
-import net.suqatri.cloud.node.node.NodePingPacket;
-import net.suqatri.cloud.node.node.NodePingResponsePacket;
+import net.suqatri.cloud.node.node.packet.NodePingPacket;
 import net.suqatri.cloud.node.scheduler.Scheduler;
 import net.suqatri.cloud.node.service.NodeCloudServiceManager;
+import net.suqatri.cloud.node.service.factory.NodeCloudServiceFactory;
 import net.suqatri.cloud.node.setup.node.NodeConnectionDataSetup;
 import net.suqatri.cloud.node.setup.redis.RedisSetup;
 import net.suqatri.cloud.commons.file.Files;
 import net.suqatri.cloud.node.template.NodeCloudServiceTemplateManager;
-import net.suqatri.cloud.node.template.SyncTemplateQuestion;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -59,6 +56,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private NodeCloudServiceTemplateManager serviceTemplateManager;
     private final NodeCloudServiceManager serviceManager;
     private boolean skiptempaltesync = false;
+    private final NodeCloudServiceFactory serviceFactory;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -66,6 +64,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.commandManager = new CommandConsoleManager();
         this.console = this.commandManager.getNodeConsole();
         this.serviceManager = new NodeCloudServiceManager();
+        this.serviceFactory = new NodeCloudServiceFactory(this.serviceManager);
         this.handleProgrammArguments(args);
 
         this.init(() -> {
@@ -73,6 +72,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.serviceTemplateManager = new NodeCloudServiceTemplateManager();
             this.registerCommands();
             this.registerInternalListeners();
+            this.registerInternalPackets();
             this.registerListeners();
             this.registerPackets();
             this.scheduler.runTaskLater(() -> this.syncTemplates(() -> {
@@ -178,7 +178,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     private void registerPackets(){
         this.getPacketManager().registerPacket(NodePingPacket.class);
-        this.getPacketManager().registerPacket(NodePingResponsePacket.class);
     }
 
     private void registerListeners(){
@@ -367,6 +366,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         Files.LIBS_BLACKLIST_FOLDER.createIfNotExists();
         Files.LIBS_REPO_FOLDER.createIfNotExists();
         Files.TEMP_FOLDER.createIfNotExists();
+        Files.TEMP_SERVICE_FOLDER.createIfNotExists();
         Files.TEMPLATE_FOLDER.createIfNotExists();
         Files.VERSIONS_FOLDER.createIfNotExists();
     }
@@ -418,11 +418,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     @Override
     public ICloudPlayerManager getPlayerManager() {
-        return null;
-    }
-
-    @Override
-    public ICloudServiceFactory getServiceFactory() {
         return null;
     }
 

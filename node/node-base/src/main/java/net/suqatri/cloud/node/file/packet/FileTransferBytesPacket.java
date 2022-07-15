@@ -2,6 +2,7 @@ package net.suqatri.cloud.node.file.packet;
 
 import lombok.Data;
 import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.node.file.process.IFileTransferReceiveProcess;
 import net.suqatri.cloud.api.utils.ApplicationType;
 import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.cloud.node.file.process.FileTransferReceiveProcess;
@@ -15,7 +16,7 @@ public class FileTransferBytesPacket extends FileTransferPacket {
     @Override
     public void receive() {
         if(CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
-        FileTransferReceiveProcess process = NodeLauncher.getInstance().getFileTransferManager().getWaitingReceiveProcesses().get(this.getTransferId());
+        IFileTransferReceiveProcess process = NodeLauncher.getInstance().getFileTransferManager().getWaitingReceiveProcesses().get(this.getTransferId());
         if (process == null) {
             CloudAPI.getInstance().getConsole().error("File-read-transfer process not found for transferId " + this.getTransferId() + "! Received bytes can´t be processed! ByteIndex#" + this.getIndexId());
             return;

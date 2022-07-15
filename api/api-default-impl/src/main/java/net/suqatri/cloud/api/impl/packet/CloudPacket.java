@@ -1,12 +1,11 @@
 package net.suqatri.cloud.api.impl.packet;
 
 import net.suqatri.cloud.api.CloudAPI;
-import net.suqatri.cloud.api.impl.network.NetworkComponentInfo;
+import net.suqatri.cloud.api.impl.packet.response.CloudPacketResponse;
+import net.suqatri.cloud.api.impl.packet.response.SimpleCloudPacketResponse;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.packet.ICloudPacket;
-
-import java.util.List;
 
 public abstract class CloudPacket implements ICloudPacket {
 
@@ -15,6 +14,42 @@ public abstract class CloudPacket implements ICloudPacket {
     @Override
     public CloudPacketData getPacketData() {
         return this.packetData;
+    }
+
+    public void simplePacketResponseAsync(){
+        SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
+        packet.getPacketData().addReceiver(this.packetData.getSender());
+        packet.publishAsync();
+    }
+
+    public void simplePacketResponse(){
+        SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
+        packet.getPacketData().addReceiver(this.packetData.getSender());
+        packet.publish();
+    }
+
+    public void simplePacketResponseAsync(Throwable throwable){
+        SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
+        packet.setThrowable(throwable);
+        packet.getPacketData().addReceiver(this.packetData.getSender());
+        packet.publishAsync();
+    }
+
+    public void simplePacketResponse(Throwable throwable){
+        SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
+        packet.setThrowable(throwable);
+        packet.getPacketData().addReceiver(this.packetData.getSender());
+        packet.publish();
+    }
+
+    public <T extends CloudPacketResponse> void packetResponse(T response){
+        response.getPacketData().addReceiver(this.packetData.getSender());
+        response.publish();
+    }
+
+    public <T extends CloudPacketResponse> void packetResponseAsync(T response){
+        response.getPacketData().addReceiver(this.packetData.getSender());
+        response.publishAsync();
     }
 
     @Override

@@ -19,6 +19,9 @@ public interface IServiceStartConfiguration {
     String getName();
     UUID getUniqueId();
 
+    String getServiceVersionName();
+    void setServiceVersionName(String serviceVersionName);
+
     int getId();
 
     int getMaxMemory();

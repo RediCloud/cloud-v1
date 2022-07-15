@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.node.file.IFileTransferManager;
+import net.suqatri.cloud.api.node.file.process.IFileTransferReceiveProcess;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.file.packet.*;
@@ -23,7 +24,7 @@ public class FileTransferManager implements IFileTransferManager {
     public static final int SLEEP_TIME_PER_PACKET = 60;
 
     private FileTransferProcessThread thread;
-    private final ConcurrentHashMap<UUID, FileTransferReceiveProcess> waitingReceiveProcesses;
+    private final ConcurrentHashMap<UUID, IFileTransferReceiveProcess> waitingReceiveProcesses;
     private FutureAction<Boolean> pullingRequest;
 
     public FileTransferManager() {

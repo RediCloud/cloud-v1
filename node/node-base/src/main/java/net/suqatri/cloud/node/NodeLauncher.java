@@ -215,6 +215,12 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
             this.console.info(this.node.getName() + " is now connected to the cluster!");
             this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@" + this.console.getHighlightColor() + this.node.getName() + " §f=> "));
+
+            if(this.getNodeManager().getNodes().size() == 1){
+                this.serviceTemplateManager.createTemplate("global-minecraft");
+                this.serviceTemplateManager.createTemplate("global-proxy");
+                this.serviceTemplateManager.createTemplate("global-all");
+            }
         }));
     }
 

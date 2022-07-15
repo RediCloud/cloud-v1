@@ -89,12 +89,12 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
     }
 
     @Override
-    public IRBucketHolder<ICloudService> startService(IServiceStartConfiguration configuration) throws Throwable {
+    public IRBucketHolder<ICloudService> startService(IServiceStartConfiguration configuration) throws Exception {
         CloudFactoryServiceStartPacket packet = new CloudFactoryServiceStartPacket();
         packet.setConfiguration(DefaultServiceStartConfiguration.fromInterface(configuration));
         packet.setAsync(false);
         CloudFactoryServiceStartResponseCloud response = (CloudFactoryServiceStartResponseCloud) packet.getPacketData().waitForResponse().get(20, TimeUnit.SECONDS);
-        if(response.getThrowable() != null) throw response.getThrowable();
+        if(response.getException() != null) throw response.getException();
         return CloudAPI.getInstance().getServiceManager().getService(response.getServiceId());
     }
 
@@ -117,13 +117,13 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
     }
 
     @Override
-    public boolean stopService(UUID uniqueId, boolean force) throws Throwable {
+    public boolean stopService(UUID uniqueId, boolean force) throws Exception {
         CloudFactoryServiceStopPacket packet = new CloudFactoryServiceStopPacket();
         packet.setServiceId(uniqueId);
         packet.setForce(force);
         packet.setAsync(false);
         SimpleCloudPacketResponse response = (SimpleCloudPacketResponse) packet.getPacketData().waitForResponse().get(20, TimeUnit.SECONDS);
-        if(response.getThrowable() != null) throw response.getThrowable();
+        if(response.getException() != null) throw response.getException();
         return true;
     }
 

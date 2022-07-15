@@ -115,7 +115,7 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
                         .onSuccess(serviceHolders -> {
                             FutureActionCollection<UUID, Boolean> futureActionFutureAction = new FutureActionCollection<>();
                             for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                                futureActionFutureAction.addToProcess(serviceHolder.get().getUniqueId(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId()));
+                                futureActionFutureAction.addToProcess(serviceHolder.get().getUniqueId(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId(), true));
                             }
                             futureActionFutureAction.process()
                                 .onFailure(futureAction)
@@ -131,12 +131,12 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
     }
 
     @Override
-    public boolean deleteGroup(UUID uniqueId) {
+    public boolean deleteGroup(UUID uniqueId) throws Exception{
         IRBucketHolder<ICloudGroup> holder = getGroup(uniqueId);
         for (IRBucketHolder<ICloudService> service : CloudAPI.getInstance().getServiceManager().getServices()) {
             if(service.get().getGroup() == null) continue;
             if(service.get().getGroup().get().getUniqueId().equals(uniqueId)) {
-                CloudAPI.getInstance().getServiceManager().stopService(service.get().getUniqueId());
+                CloudAPI.getInstance().getServiceManager().stopService(service.get().getUniqueId(), true);
             }
         }
         this.deleteBucket(uniqueId.toString());

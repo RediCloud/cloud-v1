@@ -28,6 +28,6 @@ public interface ICloudGroupManager {
     FutureAction<IRBucketHolder<ICloudGroup>> createGroupAsync(ICloudGroup group);
 
     FutureAction<Boolean> deleteGroupAsync(UUID uniqueId);
-    boolean deleteGroup(UUID uniqueId);
+    boolean deleteGroup(UUID uniqueId) throws Exception;
 
 }

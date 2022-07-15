@@ -65,6 +65,10 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
         this.eventManager.register(new CloudServiceStoppedListener());
     }
 
+    public void registerInternalPackets(){
+
+    }
+
     @Override
     public void initShutdownHook(){
         if(this.isShutdownHookAdded()) return;

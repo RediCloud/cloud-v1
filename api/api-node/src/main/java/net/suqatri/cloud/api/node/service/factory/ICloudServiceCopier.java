@@ -10,7 +10,7 @@ import java.io.IOException;
 public interface ICloudServiceCopier {
 
     FutureAction<File> copyFilesAsync();
-    File copyFiles() throws IOException;
+    File copyFiles() throws IOException, Exception;
     IRBucketHolder<ICloudService> getServiceHolder();
     File getServiceDirectory();
 

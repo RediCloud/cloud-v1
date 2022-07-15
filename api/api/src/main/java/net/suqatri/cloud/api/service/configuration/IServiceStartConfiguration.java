@@ -23,13 +23,17 @@ public interface IServiceStartConfiguration {
 
     int getMaxMemory();
 
+    default int getStartPort(){
+        return -1;
+    }
+
     Collection<UUID> getPossibleNodeIds();
 
     int getStartPriority();
 
     boolean isStatic();
 
-    Collection<String> getTemplatesNames();
+    Collection<String> getTemplateNames();
 
     @Nullable
     IRBucketHolder<ICloudGroup> getGroup();

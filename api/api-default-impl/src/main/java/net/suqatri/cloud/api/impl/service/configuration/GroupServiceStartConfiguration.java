@@ -25,11 +25,12 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
     private Collection<UUID> possibleNodeIds;
     private int startPriority = 0;
     private boolean staticService = false;
-    private Collection<String> templatesNames;
+    private Collection<String> templateNames;
     private IRBucketHolder<ICloudGroup> group;
     private List<String> processParameters;
     private List<String> jvmArguments;
     private String javaCommand;
+    private int startPort;
 
     @Override
     public boolean isStatic() {
@@ -45,10 +46,11 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
         this.possibleNodeIds = group.getAssociatedNodeIds();
         this.startPriority = group.getStartPriority();
         this.staticService = group.isStatic();
-        this.templatesNames = group.getTemplateNames();
+        this.templateNames = group.getTemplateNames();
         this.group = holder;
         this.processParameters = Arrays.asList(group.getProcessParameters());
         this.jvmArguments = Arrays.asList(group.getJvmArguments());
         this.javaCommand = group.getJavaCommand();
+        this.startPort = group.getStartPort();
     }
 }

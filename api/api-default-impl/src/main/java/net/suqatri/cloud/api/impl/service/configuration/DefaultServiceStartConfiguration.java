@@ -9,6 +9,7 @@ import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -25,13 +26,14 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
     private Collection<UUID> possibleNodeIds;
     private int startPriority;
     private boolean isStatic;
-    private Collection<String> templatesNames;
+    private Collection<String> templateNames = new ArrayList<>();
     @JsonIgnore
     private IRBucketHolder<ICloudGroup> group;
     private String groupName;
     private List<String> processParameters;
     private List<String> jvmArguments;
     private boolean hasGroup;
+    private int startPort;
 
     public void setGroup(IRBucketHolder<ICloudGroup> group) {
         this.group = group;
@@ -55,15 +57,17 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
         configuration.setPossibleNodeIds(interfaceConfig.getPossibleNodeIds());
         configuration.setStartPriority(interfaceConfig.getStartPriority());
         configuration.setStatic(interfaceConfig.isStatic());
-        configuration.setTemplatesNames(interfaceConfig.getTemplatesNames());
+        configuration.setTemplateNames(interfaceConfig.getTemplateNames());
         configuration.setGroup(interfaceConfig.getGroup());
         configuration.setProcessParameters(interfaceConfig.getProcessParameters());
         configuration.setJvmArguments(interfaceConfig.getJvmArguments());
+        configuration.setTemplateNames(interfaceConfig.getTemplateNames());
 
         if(interfaceConfig.getGroup() != null){
             configuration.setHasGroup(true);
             configuration.setGroupName(interfaceConfig.getGroup().get().getName());
             configuration.setGroup(interfaceConfig.getGroup());
+            configuration.getTemplateNames().addAll(interfaceConfig.getGroup().get().getTemplateNames());
         }else{
             configuration.setHasGroup(false);
         }

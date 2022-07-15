@@ -28,16 +28,16 @@ public abstract class CloudPacket implements ICloudPacket {
         packet.publish();
     }
 
-    public void simplePacketResponseAsync(Throwable throwable){
+    public void simplePacketResponseAsync(Exception exception){
         SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
-        packet.setThrowable(throwable);
+        packet.setException(exception);
         packet.getPacketData().addReceiver(this.packetData.getSender());
         packet.publishAsync();
     }
 
-    public void simplePacketResponse(Throwable throwable){
+    public void simplePacketResponse(Exception exception){
         SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
-        packet.setThrowable(throwable);
+        packet.setException(exception);
         packet.getPacketData().addReceiver(this.packetData.getSender());
         packet.publish();
     }

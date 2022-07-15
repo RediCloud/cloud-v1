@@ -6,6 +6,7 @@ import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.cloud.api.packet.ICloudPacket;
 import net.suqatri.cloud.api.packet.ICloudPacketData;
 import net.suqatri.cloud.api.packet.ICloudPacketReceiver;
+import net.suqatri.cloud.api.packet.ICloudPacketResponse;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import org.redisson.api.RFuture;
 import org.redisson.api.RTopic;
@@ -37,11 +38,15 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
         if(packet.getPacketData().getSender().equals(CloudAPI.getInstance().getNetworkComponentInfo()) && !packet.getPacketData().isSenderAsReceiverAllowed()) return;
         if(packet.getPacketData().getResponseTargetData() != null){
             if(this.packetManager.getWaitingForResponse().containsKey(packet.getPacketData().getResponseTargetData().getPacketId())){
+                if(!(packet instanceof ICloudPacketResponse)){
+                    CloudAPI.getInstance().getConsole().error("Received packet: " + packet.getClass().getSimpleName() + " but it is not a response packet but was sent as a response packet!");
+                    return;
+                }
                 CloudAPI.getInstance().getConsole().debug("Received response packet: " + packet.getClass().getSimpleName() + " for packet: " + packet.getPacketData().getResponseTargetData().getPacketId());
                 packet.receive();
-                FutureAction<ICloudPacket> futureAction = this.packetManager.getWaitingForResponse().get(packet.getPacketData().getResponseTargetData().getPacketId()).getResponseAction();
+                FutureAction<ICloudPacketResponse> futureAction = this.packetManager.getWaitingForResponse().get(packet.getPacketData().getResponseTargetData().getPacketId()).getResponseAction();
                 if(!futureAction.isCompletedExceptionally() && !futureAction.isDone() && !futureAction.isCancelled()){
-                    futureAction.complete(packet);
+                    futureAction.complete((ICloudPacketResponse) packet);
                 }
                 this.packetManager.getWaitingForResponse().remove(packet.getPacketData().getResponseTargetData().getPacketId());
             }else{

@@ -20,7 +20,7 @@ public class CloudFactoryServiceStartPacket extends CloudPacket {
         if(this.async) {
             CloudAPI.getInstance().getServiceManager().startServiceAsync(this.configuration)
                     .onFailure(e -> {
-                        response.setThrowable(e);
+                        response.setException(e);
                         this.packetResponseAsync(response);
                     })
                     .onSuccess(holder -> {

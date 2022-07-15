@@ -5,11 +5,12 @@ import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
 import java.io.File;
+import java.io.IOException;
 
 public interface ICloudServiceCopier {
 
     FutureAction<File> copyFilesAsync();
-    File copyFiles();
+    File copyFiles() throws IOException;
     IRBucketHolder<ICloudService> getServiceHolder();
     File getServiceDirectory();
 

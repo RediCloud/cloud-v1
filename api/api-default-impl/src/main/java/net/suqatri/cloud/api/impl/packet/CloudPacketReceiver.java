@@ -4,7 +4,9 @@ import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.cloud.api.packet.ICloudPacket;
+import net.suqatri.cloud.api.packet.ICloudPacketData;
 import net.suqatri.cloud.api.packet.ICloudPacketReceiver;
+import net.suqatri.cloud.commons.function.future.FutureAction;
 import org.redisson.api.RFuture;
 import org.redisson.api.RTopic;
 import org.redisson.api.listener.MessageListener;
@@ -36,7 +38,11 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
         if(packet.getPacketData().getResponseTargetData() != null){
             if(this.packetManager.getWaitingForResponse().containsKey(packet.getPacketData().getResponseTargetData().getPacketId())){
                 CloudAPI.getInstance().getConsole().debug("Received response packet: " + packet.getClass().getSimpleName() + " for packet: " + packet.getPacketData().getResponseTargetData().getPacketId());
-                this.packetManager.getWaitingForResponse().get(packet.getPacketData().getResponseTargetData().getPacketId()).getResponseAction().complete(packet);
+                packet.receive();
+                FutureAction<ICloudPacket> futureAction = this.packetManager.getWaitingForResponse().get(packet.getPacketData().getResponseTargetData().getPacketId()).getResponseAction();
+                if(!futureAction.isCompletedExceptionally() && !futureAction.isDone() && !futureAction.isCancelled()){
+                    futureAction.complete(packet);
+                }
                 this.packetManager.getWaitingForResponse().remove(packet.getPacketData().getResponseTargetData().getPacketId());
             }else{
                 CloudAPI.getInstance().getConsole().warn("Received response packet for " + packet.getPacketData().getResponseTargetData().getPacketId() + " but no request is waiting for it!");
@@ -44,7 +50,6 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
         }else{
             CloudAPI.getInstance().getConsole().debug("Received packet: " + packet.getClass().getSimpleName());
         }
-        packet.receive();
 
     }
 

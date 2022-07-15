@@ -16,11 +16,11 @@ public interface ICloudPacketData extends Serializable{
     ICloudPacketData removeReceivers(INetworkComponentInfo... receivers);
     ICloudPacketData clearReceivers();
 
-    FutureAction<ICloudPacket> waitForResponse();
+    FutureAction<ICloudPacketResponse> waitForResponse();
     UUID getPacketId();
     ICloudPacketData getResponseTargetData();
     void setResponseTargetData(ICloudPacketData packetData);
-    FutureAction<ICloudPacket> getResponseAction();
+    FutureAction<ICloudPacketResponse> getResponseAction();
 
     ICloudPacketData allowSenderAsReceiver();
     boolean isSenderAsReceiverAllowed();

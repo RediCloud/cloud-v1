@@ -1,14 +1,23 @@
 package net.suqatri.cloud.api.impl.service;
 
+import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.impl.packet.response.SimpleCloudPacketResponse;
 import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
+import net.suqatri.cloud.api.impl.service.configuration.DefaultServiceStartConfiguration;
+import net.suqatri.cloud.api.impl.service.packet.start.CloudFactoryServiceStartPacket;
+import net.suqatri.cloud.api.impl.service.packet.start.CloudFactoryServiceStartResponseCloud;
+import net.suqatri.cloud.api.impl.service.packet.stop.CloudFactoryServiceStopPacket;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.ICloudServiceManager;
+import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
+import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class CloudServiceManager extends RedissonBucketManager<CloudService, ICloudService> implements ICloudServiceManager {
 
@@ -25,7 +34,7 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
                 .onSuccess(services -> {
                     Optional<IRBucketHolder<ICloudService>> optional = services
                             .parallelStream()
-                            .filter(service -> service.get().getName().equalsIgnoreCase(name))
+                            .filter(service -> service.get().getServiceName().equalsIgnoreCase(name))
                             .findFirst();
                     if(optional.isPresent()) {
                         futureAction.complete(optional.get());
@@ -44,7 +53,7 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
 
     @Override
     public IRBucketHolder<ICloudService> getService(String name) {
-        return getServices().parallelStream().filter(service -> service.get().getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+        return getServices().parallelStream().filter(service -> service.get().getServiceName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     @Override
@@ -62,16 +71,65 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
         return this.getBucketHolders();
     }
 
-    //TODO stop service per packet to node
     @Override
-    public boolean stopService(UUID uniqueId) {
-
-        return false;
+    public FutureAction<IRBucketHolder<ICloudService>> startServiceAsync(IServiceStartConfiguration configuration) {
+        FutureAction<IRBucketHolder<ICloudService>> futureAction = new FutureAction<>();
+        CloudFactoryServiceStartPacket packet = new CloudFactoryServiceStartPacket();
+        packet.setConfiguration(DefaultServiceStartConfiguration.fromInterface(configuration));
+        packet.setAsync(true);
+        packet.getPacketData().waitForResponse()
+            .onFailure(futureAction)
+            .onSuccess(response -> {
+               CloudAPI.getInstance().getServiceManager().getServiceAsync(((CloudFactoryServiceStartResponseCloud)response).getServiceId())
+                   .onFailure(futureAction)
+                   .onSuccess(futureAction::complete);
+            });
+        packet.publishAsync();
+        return futureAction;
     }
 
-    //TODO stop service per packet to node
     @Override
-    public FutureAction<Boolean> stopServiceAsync(UUID uniqueId) {
-        return null;
+    public IRBucketHolder<ICloudService> startService(IServiceStartConfiguration configuration) throws Throwable {
+        CloudFactoryServiceStartPacket packet = new CloudFactoryServiceStartPacket();
+        packet.setConfiguration(DefaultServiceStartConfiguration.fromInterface(configuration));
+        packet.setAsync(false);
+        CloudFactoryServiceStartResponseCloud response = (CloudFactoryServiceStartResponseCloud) packet.getPacketData().waitForResponse().get(20, TimeUnit.SECONDS);
+        if(response.getThrowable() != null) throw response.getThrowable();
+        return CloudAPI.getInstance().getServiceManager().getService(response.getServiceId());
+    }
+
+    @Override
+    public FutureAction<Boolean> stopServiceAsync(UUID uniqueId, boolean force) {
+        FutureAction<Boolean> futureAction = new FutureAction<>();
+
+        CloudFactoryServiceStopPacket packet = new CloudFactoryServiceStopPacket();
+        packet.setServiceId(uniqueId);
+        packet.setForce(force);
+        packet.setAsync(true);
+        packet.getPacketData().waitForResponse()
+                .onFailure(futureAction)
+                .onSuccess(response -> {
+                    futureAction.complete(true);
+                });
+        packet.publishAsync();
+
+        return futureAction;
+    }
+
+    @Override
+    public boolean stopService(UUID uniqueId, boolean force) throws Throwable {
+        CloudFactoryServiceStopPacket packet = new CloudFactoryServiceStopPacket();
+        packet.setServiceId(uniqueId);
+        packet.setForce(force);
+        packet.setAsync(false);
+        SimpleCloudPacketResponse response = (SimpleCloudPacketResponse) packet.getPacketData().waitForResponse().get(20, TimeUnit.SECONDS);
+        if(response.getThrowable() != null) throw response.getThrowable();
+        return true;
+    }
+
+
+    @Override
+    public ICloudServiceFactory getServiceFactory() {
+        return CloudAPI.getInstance().getServiceFactory();
     }
 }

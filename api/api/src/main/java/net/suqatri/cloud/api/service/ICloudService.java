@@ -3,8 +3,8 @@ package net.suqatri.cloud.api.service;
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.bucket.IRBucketObject;
+import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 public interface ICloudService extends IRBucketObject {
@@ -15,10 +15,16 @@ public interface ICloudService extends IRBucketObject {
         return getConfiguration().getEnvironment();
     }
 
-    default String getName(){
+    default String getServiceName() {
+        return getName() + "-" + getServiceName();
+    }
+
+    default String getName() {
         return getConfiguration().getName();
     }
+
     default UUID getUniqueId() { return getConfiguration().getUniqueId(); }
+
     default int getId(){
         return getConfiguration().getId();
     }
@@ -39,7 +45,5 @@ public interface ICloudService extends IRBucketObject {
     default boolean isStatic(){
         return getConfiguration().isStatic();
     }
-
-
 
 }

@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
-import net.suqatri.cloud.api.packet.ICloudPacket;
 import net.suqatri.cloud.api.packet.ICloudPacketData;
+import net.suqatri.cloud.api.packet.ICloudPacketResponse;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class CloudPacketData implements ICloudPacketData {
     private boolean allowSenderAsReceiver = false;
     private final UUID packetId = UUID.randomUUID();
     @JsonIgnore
-    private FutureAction<ICloudPacket> responseAction;
+    private FutureAction<ICloudPacketResponse> responseAction;
     @Setter
     private ICloudPacketData responseTargetData;
 
@@ -74,7 +74,7 @@ public class CloudPacketData implements ICloudPacketData {
     }
 
     @Override
-    public FutureAction<ICloudPacket> waitForResponse() {
+    public FutureAction<ICloudPacketResponse> waitForResponse() {
         this.responseAction = new FutureAction<>();
         CloudAPI.getInstance().getPacketManager().registerForResponse(this);
         this.responseAction.orTimeout(30, TimeUnit.SECONDS);

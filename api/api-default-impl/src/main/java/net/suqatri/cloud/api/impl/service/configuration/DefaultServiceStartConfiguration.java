@@ -34,6 +34,7 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
     private List<String> jvmArguments;
     private boolean hasGroup;
     private int startPort;
+    private String serviceVersionName;
 
     public void setGroup(IRBucketHolder<ICloudGroup> group) {
         this.group = group;
@@ -62,6 +63,7 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
         configuration.setProcessParameters(interfaceConfig.getProcessParameters());
         configuration.setJvmArguments(interfaceConfig.getJvmArguments());
         configuration.setTemplateNames(interfaceConfig.getTemplateNames());
+        configuration.setServiceVersionName(interfaceConfig.getServiceVersionName());
 
         if(interfaceConfig.getGroup() != null){
             configuration.setHasGroup(true);

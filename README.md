@@ -4,10 +4,10 @@ A redis based cluster cloud system for minecraft. **[[Discord](https://discord.g
 <br>
 
 ### Overview
-  - What is RediCloud?
-  - Features
-  - Minimal requirements
-  - Installation
+  - [What is RediCloud?](#what-is-redicloud)
+  - [Features](#features)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
 <br>
 
 ### What is RediCloud?
@@ -37,12 +37,13 @@ Let's imagine you have running your network like the following way:
         Node-2 (failed)    
 <br>
 
-### Features (❌ = not done yet, ✅ = done, 🚧 = done, no functional guarantee)
+### Features 
+(❌ = not done yet, ✅ = done, 🚧 = done, no functional guarantee)
   - Node-System ✅
   - More will be following
 <br>
 
-### Minimal requirements
+### Requirements 
   - Java 8 Runtime Environment
   - 256MB Java Virtual Machine Heap size
   - 1GB RAM

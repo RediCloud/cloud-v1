@@ -19,24 +19,24 @@ public class CloudServiceFactory implements ICloudServiceFactory {
     //TODO packets to node
     @Override
     public IRBucketHolder<ICloudService> createService(IServiceStartConfiguration configuration) throws Exception {
-        return null;
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     //TODO packets to node
     @Override
     public FutureAction<IRBucketHolder<ICloudService>> createServiceAsync(IServiceStartConfiguration configuration) {
-        return null;
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     //TODO packets to node
     @Override
     public boolean destroyService(UUID uniqueId, boolean force) throws IOException {
-        return false;
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     //TODO packets to node
     @Override
     public FutureAction<Boolean> destroyServiceAsync(UUID uniqueId, boolean force) {
-        return null;
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 }

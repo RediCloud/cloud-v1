@@ -8,6 +8,6 @@ public class ServiceVersionExistsCondition implements BiSupplier<String, Boolean
     public Boolean supply(String s) {
         return CloudAPI.getInstance().getServiceVersionManager().getServiceVersions()
                 .parallelStream()
-                .anyMatch(svh -> svh.get().getName().equalsIgnoreCase(s));
+                .noneMatch(svh -> svh.get().getName().equalsIgnoreCase(s));
     }
 }

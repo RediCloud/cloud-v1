@@ -5,7 +5,6 @@ import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -23,8 +22,7 @@ public interface ICloudServiceManager {
     FutureAction<Boolean> stopServiceAsync(UUID uniqueId, boolean force);
     boolean stopService(UUID uniqueId, boolean force) throws Exception;
 
-    FutureAction<IRBucketHolder<ICloudService>> startServiceAsync(IServiceStartConfiguration configuration);
-    IRBucketHolder<ICloudService> startService(IServiceStartConfiguration configuration) throws Exception;
+    FutureAction<IRBucketHolder<ICloudService>> startService(IServiceStartConfiguration configuration);
 
     ICloudServiceFactory getServiceFactory();
 

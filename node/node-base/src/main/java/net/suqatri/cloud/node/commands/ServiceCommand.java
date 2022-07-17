@@ -1,7 +1,6 @@
 package net.suqatri.cloud.node.commands;
 
 import net.suqatri.cloud.api.CloudAPI;
-import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.impl.service.configuration.GroupServiceStartConfiguration;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
@@ -15,7 +14,6 @@ import net.suqatri.commands.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -56,7 +54,7 @@ public class ServiceCommand extends ConsoleCommand {
                     FutureActionCollection<IServiceStartConfiguration, IRBucketHolder<ICloudService>> futureActionCollection = new FutureActionCollection();
                     for (int i = 0; i < amount.get(); i++) {
                         GroupServiceStartConfiguration configuration = new GroupServiceStartConfiguration().applyFromGroup(groupHolder);
-                        futureActionCollection.addToProcess(configuration, CloudAPI.getInstance().getServiceFactory().createServiceAsync(configuration));
+                        futureActionCollection.addToProcess(configuration, CloudAPI.getInstance().getServiceFactory().queueService(configuration));
                     }
                     futureActionCollection.process()
                             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to start services", t))

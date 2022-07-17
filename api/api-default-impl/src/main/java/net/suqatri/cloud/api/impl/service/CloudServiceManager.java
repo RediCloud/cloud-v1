@@ -73,7 +73,7 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudService>> startServiceAsync(IServiceStartConfiguration configuration) {
+    public FutureAction<IRBucketHolder<ICloudService>> startService(IServiceStartConfiguration configuration) {
         FutureAction<IRBucketHolder<ICloudService>> futureAction = new FutureAction<>();
         CloudFactoryServiceStartPacket packet = new CloudFactoryServiceStartPacket();
         DefaultServiceStartConfiguration.fromInterface(configuration)
@@ -91,16 +91,6 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
                     packet.publishAsync();
                 });
         return futureAction;
-    }
-
-    @Override
-    public IRBucketHolder<ICloudService> startService(IServiceStartConfiguration configuration) throws Exception {
-        CloudFactoryServiceStartPacket packet = new CloudFactoryServiceStartPacket();
-        packet.setConfiguration(DefaultServiceStartConfiguration.fromInterface(configuration).get(3, TimeUnit.SECONDS));
-        packet.setAsync(false);
-        CloudFactoryServiceStartResponseCloud response = (CloudFactoryServiceStartResponseCloud) packet.getPacketData().waitForResponse().get(20, TimeUnit.SECONDS);
-        if(response.getException() != null) throw response.getException();
-        return CloudAPI.getInstance().getServiceManager().getService(response.getServiceId());
     }
 
     @Override

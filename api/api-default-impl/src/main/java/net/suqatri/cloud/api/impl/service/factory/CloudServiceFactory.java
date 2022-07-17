@@ -18,13 +18,7 @@ public class CloudServiceFactory implements ICloudServiceFactory {
 
     //TODO packets to node
     @Override
-    public IRBucketHolder<ICloudService> createService(IServiceStartConfiguration configuration) throws Exception {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    //TODO packets to node
-    @Override
-    public FutureAction<IRBucketHolder<ICloudService>> createServiceAsync(IServiceStartConfiguration configuration) {
+    public FutureAction<IRBucketHolder<ICloudService>> queueService(IServiceStartConfiguration configuration) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

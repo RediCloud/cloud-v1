@@ -1,22 +1,18 @@
+import net.suqatri.cloud.commons.file.FileEditor;
 import sun.reflect.generics.tree.Tree;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class Test {
 
-    public static void main(String[] args) {
-        TreeMap<Integer, String> map = new TreeMap<>();
-        map.put(4, "4");
-        map.put(1, "1");
-        map.put(3, "3");
-        map.put(5, "5");
-        map.put(2, "2");
+    public static void main(String[] args) throws IOException {
+        FileEditor fileEditor = new FileEditor(FileEditor.Type.PROPERTIES);
+        fileEditor.read(new File("C:\\Users\\pkocz\\Desktop\\Neuer Ordner (3)\\c1\\storage\\server.properties"));
 
-        List<String> list = new ArrayList<>(map.values());
-
-        for (String s : list) {
-            System.out.println(s);
-        }
+        fileEditor.setValue("generator-settings", "-11");
+        fileEditor.setValue("gamemode", "1");
     }
 
 }

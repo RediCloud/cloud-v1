@@ -6,8 +6,10 @@ import lombok.Setter;
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.impl.group.CloudGroup;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
+import net.suqatri.cloud.commons.function.future.FutureAction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
@@ -35,6 +37,14 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
     private int startPort;
     private String serviceVersionName;
     private UUID nodeId;
+    @JsonIgnore
+    private FutureAction<IRBucketHolder<ICloudService>> startListener;
+
+    @Override
+    public void listenToStart() {
+        if(this.startListener != null) return;
+        this.startListener = new FutureAction<>();
+    }
 
     @Override
     public boolean isStatic() {

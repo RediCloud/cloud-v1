@@ -1,11 +1,9 @@
 package net.suqatri.cloud.api.service.configuration;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import net.suqatri.cloud.api.group.ICloudGroup;
-import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
-import net.suqatri.cloud.api.template.ICloudServiceTemplate;
+import net.suqatri.cloud.commons.function.future.FutureAction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
@@ -49,5 +47,8 @@ public interface IServiceStartConfiguration {
 
     List<String> getProcessParameters();
     List<String> getJvmArguments();
+
+    FutureAction<IRBucketHolder<ICloudService>> getStartListener();
+    void listenToStart();
 
 }

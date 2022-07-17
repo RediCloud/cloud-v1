@@ -9,19 +9,17 @@ import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.commons.function.future.FutureAction;
-import net.suqatri.cloud.node.NodeLauncher;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Data
-public class CloudServiceServiceProcess implements ICloudServiceProcess {
+public class CloudServiceProcess implements ICloudServiceProcess {
 
     private final NodeCloudServiceFactory factory;
     private final IRBucketHolder<ICloudService> serviceHolder;
@@ -63,7 +61,10 @@ public class CloudServiceServiceProcess implements ICloudServiceProcess {
         System.out.println("process called 1");
         FutureAction<Boolean> futureAction = new FutureAction<>();
         System.out.println("process called 1.2");
-        System.out.println(this.serviceHolder.get().getServiceName());
+        System.out.println("1: " + (this.serviceHolder != null)); // not null
+        System.out.println("2: " + (this.serviceHolder.get() != null)); // not null
+        System.out.println("3: " + (this.serviceHolder.get().getServiceName() != null));
+        System.out.println("4: " + this.serviceHolder.get().getServiceName());
         this.serviceDirectory = new File(Files.TEMP_SERVICE_FOLDER.getFile(), this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId().toString());
         System.out.println("process called 2 | " + this.serviceDirectory.getAbsolutePath());
         this.serviceDirectory.mkdirs();

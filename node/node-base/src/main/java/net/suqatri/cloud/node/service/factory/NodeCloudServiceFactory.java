@@ -32,7 +32,7 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
     private final CloudNodePortManager portManager;
     private RLock lock;
 
-    private final ConcurrentHashMap<UUID, CloudServiceServiceProcess> processes;
+    private final ConcurrentHashMap<UUID, CloudServiceProcess> processes;
 
     public NodeCloudServiceFactory(NodeCloudServiceManager serviceManager) {
         this.serviceManager = serviceManager;
@@ -73,7 +73,7 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
         cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
         IRBucketHolder<ICloudService> holder = this.serviceManager.createBucket(cloudService.getUniqueId().toString(), cloudService);
 
-        CloudServiceServiceProcess process = new CloudServiceServiceProcess(this, holder);
+        CloudServiceProcess process = new CloudServiceProcess(this, holder);
         process.start();
 
         return holder;
@@ -91,12 +91,12 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
 
                 System.out.println("sfc2");
 
-                if(configuration.getId() < 1) {
+                if (configuration.getId() < 1) {
                     configuration.setId(this.getNextId(configuration.getName(), serviceHolders));
                 }
 
                 for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                    if(serviceHolder.get().getServiceName().equalsIgnoreCase(configuration.getName() + "-" + configuration.getId())){
+                    if (serviceHolder.get().getServiceName().equalsIgnoreCase(configuration.getName() + "-" + configuration.getId())) {
                         futureAction.completeExceptionally(new IllegalArgumentException("Service " + configuration.getName() + "-" + configuration.getId() + " already exists"));
                         return;
                     }
@@ -117,31 +117,34 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
 
                             System.out.println("sfc5");
 
-                            IRBucketHolder<ICloudServiceVersion> versionHolder = CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(configuration.getServiceVersionName());
-                            versionHolder.get().getPatchedFileAsync(true)
-                                    .onFailure(futureAction)
-                                    .onSuccess(versionFile -> {
-                                        System.out.println("sfc6");
-                                        CloudService cloudService = new CloudService();
-                                        cloudService.setConfiguration(configuration);
-                                        cloudService.setServiceState(ServiceState.PREPARE);
-                                        cloudService.setMaxPlayers(50);
-                                        cloudService.setMotd("Welcome to RediCloud");
-                                        cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
-                                        this.serviceManager.createBucketAsync(cloudService.getUniqueId().toString(), cloudService)
-                                                .onFailure(futureAction)
-                                                .onSuccess(serviceHolder -> {
-                                                    System.out.println("sfc7");
+                            CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(configuration.getServiceVersionName())
+                                        .onFailure(futureAction)
+                                        .onSuccess(versionHolder -> {
+                                            versionHolder.get().getPatchedFileAsync(true)
+                                                    .onFailure(futureAction)
+                                                    .onSuccess(versionFile -> {
+                                                        System.out.println("sfc6");
+                                                        CloudService cloudService = new CloudService();
+                                                        cloudService.setConfiguration(configuration);
+                                                        cloudService.setServiceState(ServiceState.PREPARE);
+                                                        cloudService.setMaxPlayers(50);
+                                                        cloudService.setMotd("Welcome to RediCloud");
+                                                        cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
+                                                        this.serviceManager.createBucketAsync(cloudService.getUniqueId().toString(), cloudService)
+                                                                .onFailure(futureAction)
+                                                                .onSuccess(serviceHolder -> {
+                                                                    System.out.println("sfc7");
 
-                                                    CloudServiceServiceProcess process = new CloudServiceServiceProcess(this, serviceHolder);
-                                                    process.startAsync()
-                                                            .onFailure(futureAction)
-                                                            .onSuccess(s -> {
-                                                                System.out.println("sfc8");
-                                                                futureAction.complete(serviceHolder);
-                                                            });
-                                                });
-                                    });
+                                                                    CloudServiceProcess process = new CloudServiceProcess(this, serviceHolder);
+                                                                    process.startAsync()
+                                                                            .onFailure(futureAction)
+                                                                            .onSuccess(s -> {
+                                                                                System.out.println("sfc8");
+                                                                                futureAction.complete(serviceHolder);
+                                                                            });
+                                                                });
+                                                    });
+                                        });
                         });
             });
 

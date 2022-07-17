@@ -98,7 +98,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                         return;
                                                     }
 
-                                                    FileUtils.copyFileToDirectory(serviceVersionHolder.get().getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
+                                                    FileUtils.copyFile(serviceVersionHolder.get().getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
 
                                                     futureAction.complete(this.getServiceDirectory());
                                                 } catch (IOException e) {
@@ -164,7 +164,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
 
         editFiles();
 
-        FileUtils.copyFileToDirectory(serviceVersionHolder.get().getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
+        FileUtils.copyFile(serviceVersionHolder.get().getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
 
         return this.getServiceDirectory();
     }

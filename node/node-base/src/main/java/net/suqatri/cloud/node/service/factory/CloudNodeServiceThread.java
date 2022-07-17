@@ -2,15 +2,18 @@ package net.suqatri.cloud.node.service.factory;
 
 import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.impl.service.version.CloudServiceVersion;
 import net.suqatri.cloud.api.node.service.factory.ICloudNodeServiceFactory;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.api.redis.bucket.IRedissonBucketManager;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.cloud.node.NodeLauncher;
+import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,6 +27,8 @@ public class CloudNodeServiceThread extends Thread{
     private final NodeCloudServiceFactory factory;
     @Getter
     private final ConcurrentHashMap<UUID, CloudServiceProcess> processes;
+    @Getter
+    private final List<UUID> waitForRemove = new ArrayList<>();
 
     public CloudNodeServiceThread(NodeCloudServiceFactory factory) {
         super("redicloud-node-service-thread");
@@ -37,6 +42,15 @@ public class CloudNodeServiceThread extends Thread{
         while(!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
 
             if(!this.queue.isEmpty()){
+
+                this.queue.stream()
+                    .filter(config -> this.waitForRemove.contains(config.getUniqueId()))
+                    .forEach(config -> {
+                        this.queue.remove(config);
+                        if(!((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).existsService(config.getUniqueId().toString())) return;
+                        ((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).deleteBucket(config.getUniqueId().toString());
+                    });
+
                 int currentStartSize = 0;
                 while(currentStartSize <= this.maxStartSize && !this.queue.isEmpty()) {
                     currentStartSize++;
@@ -44,6 +58,7 @@ public class CloudNodeServiceThread extends Thread{
                     try {
                         start(configuration);
                     } catch (Exception e) {
+                        this.waitForRemove.add(configuration.getUniqueId());
                         if(configuration.getStartListener() != null) {
                             configuration.getStartListener().completeExceptionally(e);
                         }else{

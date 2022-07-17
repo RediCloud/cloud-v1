@@ -28,4 +28,9 @@ public interface ICloudServiceManager {
 
     ICloudServiceFactory getServiceFactory();
 
+    boolean existsService(String name);
+    boolean existsService(UUID uniqueId);
+    FutureAction<Boolean> existsServiceAsync(String name);
+    FutureAction<Boolean> existsServiceAsync(UUID uniqueId);
+
 }

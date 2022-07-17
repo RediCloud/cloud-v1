@@ -67,7 +67,7 @@ public class ServiceCommand extends ConsoleCommand {
     @Description("Stop a service")
     @Syntax("<Service> --force")
     @CommandCompletion("@service --force")
-    public void onStop(CommandSender commandSender, String serviceName, String arg){
+    public void onStop(CommandSender commandSender, String serviceName, @Optional String arg){
         boolean force = arg != null && arg.equalsIgnoreCase("--force");
         if(serviceName.endsWith("-*")) {
             CloudAPI.getInstance().getGroupManager().getGroupAsync(serviceName.split("-")[0])
@@ -116,11 +116,11 @@ public class ServiceCommand extends ConsoleCommand {
                     }
                     List<String> lines = new ArrayList<>();
                     for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                        lines.add("§8 » %tc" + serviceHolder.get().getName() + " §8| %hc" + serviceHolder.get().getOnlineCount() + "§8/&tc" + serviceHolder.get().getMaxPlayers());
+                        lines.add("§8 » %tc" + serviceHolder.get().getServiceName() + " §8| %hc" + serviceHolder.get().getOnlineCount() + "§8/%tc" + serviceHolder.get().getMaxPlayers());
                     }
 
                     commandSender.sendMessage("");
-                    commandSender.sendMessage("%tcServices §8(" + serviceHolders.size() + "§8)%tc:");
+                    commandSender.sendMessage("%tcServices §8(%hc" + serviceHolders.size() + "§8)%tc:");
                     for (String s : lines.parallelStream().sorted().collect(Collectors.toList())) {
                         commandSender.sendMessage(s);
                     }

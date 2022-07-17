@@ -9,10 +9,13 @@ import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.commons.function.future.FutureAction;
+import net.suqatri.cloud.node.console.ConsoleLine;
 import org.apache.commons.io.FileUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,11 +47,22 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
         this.port = this.factory.getPortManager().getUnusedPort(this).get(5, TimeUnit.SECONDS);
 
+        CloudAPI.getInstance().getConsole().debug("Starting cloud service process " + this.serviceHolder.get().getServiceName() + " on port " + this.port);
+
         ProcessBuilder builder = new ProcessBuilder();
         Map<String, String> environment = builder.environment();
         environment.put("serviceId", this.getServiceHolder().get().getUniqueId().toString());
         builder.command(getStartCommand());
         this.process = builder.start();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(this.process.getInputStream()));
+        while(this.process.isAlive()){
+            String line = reader.readLine();
+            if(line == null) continue;
+            if(line.isEmpty()) continue;
+            if(line.equals(" ")) continue;
+            CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN [" + this.serviceHolder.get().getServiceName() + "]", line));
+        }
 
         this.serviceHolder.get().setServiceState(ServiceState.STARTING);
         this.serviceHolder.get().update();
@@ -58,23 +72,14 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
     @Override
     public FutureAction<Boolean> startAsync() {
-        System.out.println("process called 1");
         FutureAction<Boolean> futureAction = new FutureAction<>();
-        System.out.println("process called 1.2");
-        System.out.println("1: " + (this.serviceHolder != null)); // not null
-        System.out.println("2: " + (this.serviceHolder.get() != null)); // not null
-        System.out.println("3: " + (this.serviceHolder.get().getServiceName() != null));
-        System.out.println("4: " + this.serviceHolder.get().getServiceName());
         this.serviceDirectory = new File(Files.TEMP_SERVICE_FOLDER.getFile(), this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId().toString());
-        System.out.println("process called 2 | " + this.serviceDirectory.getAbsolutePath());
         this.serviceDirectory.mkdirs();
-        System.out.println("process called 3");
 
         CloudServiceCopier copier = new CloudServiceCopier(this, CloudAPI.getInstance().getServiceTemplateManager());
         copier.copyFilesAsync()
                 .onFailure(futureAction)
                 .onSuccess(f -> {
-                    System.out.println("process called 4");
                     this.factory.getPortManager().getUnusedPort(this)
                         .onFailure(futureAction)
                         .onSuccess(port -> {

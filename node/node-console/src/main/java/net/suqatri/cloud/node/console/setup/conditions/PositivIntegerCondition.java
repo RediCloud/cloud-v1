@@ -8,7 +8,7 @@ public class PositivIntegerCondition implements BiSupplier<String, Boolean> {
     public Boolean supply(String s) {
         try {
             int i = Integer.parseInt(s);
-            return i < -1;
+            return i < 0;
         }catch (Exception e){
             return false;
         }

@@ -78,4 +78,16 @@ public class DebugCommand extends ConsoleCommand {
         commandSender.sendMessage("ServiceVersionManager: " + CloudAPI.getInstance().getServiceVersionManager().getClass().getName());
     }
 
+    @Subcommand("serviceversion patched")
+    @Description("Show if serviceversion is patched")
+    public void onServiceversionIspatched(CommandSender commandSender, String serviceVersionId){
+        commandSender.sendMessage("ServiceVersion: " + serviceVersionId + " is patched: " + CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(serviceVersionId).get().isPatched());
+    }
+
+    @Subcommand("serviceversion downloaded")
+    @Description("Show if serviceversion is downloaded")
+    public void onServiceversionIsdownloaded(CommandSender commandSender, String serviceVersionId){
+        commandSender.sendMessage("ServiceVersion: " + serviceVersionId + " is downloaded: " + CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(serviceVersionId).get().isDownloaded());
+    }
+
 }

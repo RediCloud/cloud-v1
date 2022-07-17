@@ -34,6 +34,7 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
     private boolean hasGroup;
     private int startPort;
     private String serviceVersionName;
+    private UUID nodeId;
 
     public static FutureAction<DefaultServiceStartConfiguration> fromInterface(IServiceStartConfiguration interfaceConfig){
         FutureAction<DefaultServiceStartConfiguration> futureAction = new FutureAction<>();

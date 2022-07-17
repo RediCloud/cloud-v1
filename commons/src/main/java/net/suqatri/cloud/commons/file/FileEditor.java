@@ -29,8 +29,13 @@ public class FileEditor {
             }
             fileReader.close();
             bufferedReader.close();
-            loadMap();
+            this.loadMap();
         }
+    }
+
+    public void read(List<String> list) throws IOException {
+        this.lines.addAll(list);
+        this.loadMap();
     }
 
     public void save(File file) throws IOException {
@@ -41,9 +46,19 @@ public class FileEditor {
 
     private void loadMap(){
         for(String line : this.lines){
-            String[] keyValue = line.split(this.splitter);
-            this.keyValues.put(keyValue[0], keyValue[1]);
+            if(line.startsWith("#")) continue;
+            if (!line.contains(this.splitter) || line.split(this.splitter).length < 2) {
+                this.keyValues.put(line, "");
+                continue;
+            }
+            try {
+                String[] keyValue = line.split(this.splitter);
+                this.keyValues.put(keyValue[0], keyValue[1]);
+            }catch (IndexOutOfBoundsException e){
+                throw new IndexOutOfBoundsException("Invalid line: " + line);
+            }
         }
+        this.keyValues.forEach((key, value) -> System.out.println(key + " | " + value));
     }
 
     public void setValue(String key, String value){

@@ -40,7 +40,9 @@ public class FileEditor {
 
     public void save(File file) throws IOException {
         FileWriter writer = new FileWriter(file);
-        writer.write(newLine() + "\n");
+        for (String s : newLine()) {
+            writer.write(s + "\n");
+        }
         writer.close();
     }
 

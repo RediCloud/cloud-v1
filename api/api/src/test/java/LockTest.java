@@ -12,8 +12,8 @@ public class LockTest {
     public static void main(String[] args) {
         Config config = new Config();
         config.useSingleServer()
-                .setAddress("redis://37.114.60.112:6379")
-                .setPassword("MV8kF7VEabLvmTwSx")
+                .setAddress("redis://" + System.getenv("hostname") + ":6379")
+                .setPassword(System.getenv("password"))
                 .setDatabase(2);
         RedissonClient client = Redisson.create(config);
 

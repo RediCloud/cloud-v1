@@ -37,7 +37,6 @@ public class CloudServiceServiceProcess implements ICloudServiceProcess {
 
     @Override
     public boolean start() throws Exception {
-        System.out.println("process called");
 
         this.serviceDirectory = new File(Files.TEMP_SERVICE_FOLDER.getFile(), this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId());
         this.serviceDirectory.mkdirs();
@@ -61,15 +60,19 @@ public class CloudServiceServiceProcess implements ICloudServiceProcess {
 
     @Override
     public FutureAction<Boolean> startAsync() {
+        System.out.println("process called 1");
         FutureAction<Boolean> futureAction = new FutureAction<>();
 
         this.serviceDirectory = new File(Files.TEMP_SERVICE_FOLDER.getFile(), this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId().toString());
+        System.out.println("process called 2 | " + this.serviceDirectory.getAbsolutePath());
         this.serviceDirectory.mkdirs();
+        System.out.println("process called 3");
 
         CloudServiceCopier copier = new CloudServiceCopier(this);
         copier.copyFilesAsync()
                 .onFailure(futureAction)
                 .onSuccess(f -> {
+                    System.out.println("process called 4");
                     this.factory.getPortManager().getUnusedPort(this)
                         .onFailure(futureAction)
                         .onSuccess(port -> {

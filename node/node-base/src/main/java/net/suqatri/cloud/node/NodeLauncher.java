@@ -15,6 +15,7 @@ import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
+import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.commons.connection.IPUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
 import net.suqatri.cloud.node.commands.*;
@@ -392,6 +393,18 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.shutdownInitialized = true;
         if (this.node != null) {
             if (this.console != null) this.console.info("Disconnecting from cluster...");
+
+            if(this.serviceManager != null){
+                for (IRBucketHolder<ICloudService> serviceHolders : this.serviceManager.getServices()) {
+                    if(!serviceHolders.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    try {
+                        this.serviceManager.stopService(serviceHolders.get().getUniqueId(), false);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             CloudNodeDisconnectEvent event = new CloudNodeDisconnectEvent();
             event.setNodeId(this.node.getUniqueId());
             getEventManager().postGlobal(event);

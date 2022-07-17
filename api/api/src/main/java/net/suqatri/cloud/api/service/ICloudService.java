@@ -14,6 +14,8 @@ public interface ICloudService extends IRBucketObject {
 
     IServiceStartConfiguration getConfiguration();
 
+    UUID getNodeId();
+
     default FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion(){
         return CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(getConfiguration().getServiceVersionName());
     }

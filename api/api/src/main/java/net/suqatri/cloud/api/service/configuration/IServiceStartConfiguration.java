@@ -17,6 +17,8 @@ public interface IServiceStartConfiguration {
     ServiceEnvironment getEnvironment();
     String getJavaCommand();
 
+    UUID getNodeId();
+
     String getName();
     UUID getUniqueId();
 

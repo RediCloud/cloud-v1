@@ -21,11 +21,11 @@ import java.util.UUID;
 public class GroupCommand extends ConsoleCommand {
 
     /*
-        * /group create <name>
-        * /group delete <name>
-        * /group list
-        * /group info <name>
-        * /group edit <name> <property> <value>
+     * /group create <name>
+     * /group delete <name>
+     * /group list
+     * /group info <name>
+     * /group edit <name> <property> <value>
      */
 
     @Subcommand("help")
@@ -33,7 +33,7 @@ public class GroupCommand extends ConsoleCommand {
     @Description("Show help for group command")
     @Syntax("[Page]")
     @HelpCommand
-    public void onHelp(CommandHelp commandHelp){
+    public void onHelp(CommandHelp commandHelp) {
         commandHelp.showHelp();
     }
 
@@ -41,15 +41,15 @@ public class GroupCommand extends ConsoleCommand {
     @Syntax("<Group>")
     @CommandCompletion("@groups")
     @Description("Create a new group")
-    public void onCreate(CommandSender commandSender, String name){
+    public void onCreate(CommandSender commandSender, String name) {
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(name)
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to create group!", e))
                 .onSuccess(exists -> {
-                    if(exists){
+                    if (exists) {
                         commandSender.sendMessage("§cGroup " + name + " already exists");
-                    }else{
+                    } else {
                         new GroupSetup().start((groupSetup, setupControlState) -> {
-                            if(setupControlState == SetupControlState.FINISHED){
+                            if (setupControlState == SetupControlState.FINISHED) {
 
                                 CloudGroup cloudGroup = new CloudGroup();
                                 cloudGroup.setUniqueId(UUID.randomUUID());
@@ -60,11 +60,12 @@ public class GroupCommand extends ConsoleCommand {
                                 cloudGroup.setMaintenance(true);
                                 cloudGroup.setMaxMemory(groupSetup.getMaxMemory());
                                 cloudGroup.setStartPriority(groupSetup.getStartPriority());
+                                cloudGroup.setServiceVersionName(groupSetup.getServiceVersionName());
 
                                 CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
                                         .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))
                                         .onSuccess(holder -> commandSender.sendMessage("Group %hc" + name + "%tc created"));
-                            }else if(setupControlState == SetupControlState.CANCELLED){
+                            } else if (setupControlState == SetupControlState.CANCELLED) {
                                 commandSender.sendMessage("§cGroup creation cancelled");
                             }
                         });
@@ -76,31 +77,31 @@ public class GroupCommand extends ConsoleCommand {
     @Syntax("<Group>")
     @CommandCompletion("@groups")
     @Description("Delete a group")
-    public void onDelete(CommandSender commandSender, String name){
+    public void onDelete(CommandSender commandSender, String name) {
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(name)
                 .onFailure(e -> commandSender.sendMessage("§cFailed to delete group " + name))
                 .onSuccess(exists -> {
-                    if(!exists){
+                    if (!exists) {
                         commandSender.sendMessage("Group %hc" + name + "%tc does not exist");
-                    }else{
+                    } else {
                         CloudAPI.getInstance().getGroupManager().getGroupAsync(name)
-                            .onFailure(e2 -> commandSender.sendMessage("§cFailed to delete group " + name))
-                            .onSuccess(holder -> {
-                                CloudAPI.getInstance().getGroupManager().deleteGroupAsync(holder.get().getUniqueId())
-                                    .onFailure(e3 -> commandSender.sendMessage("§cFailed to delete group " + name))
-                                    .onSuccess(t -> commandSender.sendMessage("Group %hc" + name + "%tc deleted!"));
-                            });
+                                .onFailure(e2 -> commandSender.sendMessage("§cFailed to delete group " + name))
+                                .onSuccess(holder -> {
+                                    CloudAPI.getInstance().getGroupManager().deleteGroupAsync(holder.get().getUniqueId())
+                                            .onFailure(e3 -> commandSender.sendMessage("§cFailed to delete group " + name))
+                                            .onSuccess(t -> commandSender.sendMessage("Group %hc" + name + "%tc deleted!"));
+                                });
                     }
                 });
     }
 
     @Subcommand("list")
     @Description("List all groups")
-    public void onList(CommandSender commandSender){
+    public void onList(CommandSender commandSender) {
         CloudAPI.getInstance().getGroupManager().getGroupsAsync()
                 .onFailure(e -> commandSender.sendMessage("§cFailed to get groups"))
                 .onSuccess(holders -> {
-                    if(holders.isEmpty()){
+                    if (holders.isEmpty()) {
                         commandSender.sendMessage("No groups found!");
                         return;
                     }
@@ -117,11 +118,11 @@ public class GroupCommand extends ConsoleCommand {
     @Syntax("<Group> <Key> <Value>")
     @CommandCompletion("@groups @group_keys @group_values")
     @Description("Edit a group property")
-    public void onEdit(CommandSender commandSender, String name, String key, String value){
+    public void onEdit(CommandSender commandSender, String name, String key, String value) {
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(name)
                 .onFailure(e -> commandSender.sendMessage("§cFailed to edit group " + name))
                 .onSuccess(exists -> {
-                    if(!exists){
+                    if (!exists) {
                         commandSender.sendMessage("Group %hc" + name + "%tc does not exist");
                         return;
                     }
@@ -130,14 +131,14 @@ public class GroupCommand extends ConsoleCommand {
                             .onSuccess(holder -> {
                                 try {
                                     GroupProperty property = GroupProperty.valueOf(key);
-                                    switch (property){
+                                    switch (property) {
                                         case MAX_MEMORY:
-                                            if(ConditionChecks.isInteger(value)){
+                                            if (ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
                                             }
                                             int intValue = Integer.parseInt(value);
-                                            if(intValue < 400){
+                                            if (intValue < 400) {
                                                 commandSender.sendMessage("Value must be greater than 400");
                                                 return;
                                             }
@@ -145,7 +146,7 @@ public class GroupCommand extends ConsoleCommand {
                                             commandSender.sendMessage("Group %hc" + name + "%tc max memory set to %hc" + intValue);
                                             break;
                                         case MAINTENANCE:
-                                            if(ConditionChecks.isBoolean(value)){
+                                            if (ConditionChecks.isBoolean(value)) {
                                                 commandSender.sendMessage("Value must be a boolean");
                                                 return;
                                             }
@@ -154,12 +155,12 @@ public class GroupCommand extends ConsoleCommand {
                                             commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
                                             break;
                                         case MAX_SERVICES:
-                                            if(ConditionChecks.isInteger(value)){
+                                            if (ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
                                             }
                                             intValue = Integer.parseInt(value);
-                                            if(intValue < -1){
+                                            if (intValue < -1) {
                                                 commandSender.sendMessage("Value must be greater than -1");
                                                 return;
                                             }
@@ -167,12 +168,12 @@ public class GroupCommand extends ConsoleCommand {
                                             commandSender.sendMessage("Group %hc" + name + "%tc max services set to %hc" + intValue);
                                             break;
                                         case MIN_SERVICES:
-                                            if(ConditionChecks.isInteger(value)){
+                                            if (ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
                                             }
                                             intValue = Integer.parseInt(value);
-                                            if(intValue <= 0){
+                                            if (intValue <= 0) {
                                                 commandSender.sendMessage("Value must be greater than 0 or 0");
                                                 return;
                                             }
@@ -180,7 +181,7 @@ public class GroupCommand extends ConsoleCommand {
                                             commandSender.sendMessage("Group %hc" + name + "%tc min services set to %hc" + intValue);
                                             break;
                                         case START_PRIORITY:
-                                            if(ConditionChecks.isInteger(value)){
+                                            if (ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
                                             }
@@ -190,7 +191,7 @@ public class GroupCommand extends ConsoleCommand {
                                             break;
                                     }
                                     holder.get().updateAsync();
-                                }catch (Exception e){
+                                } catch (Exception e) {
                                     commandSender.sendMessage("§cInvalid property! Properties: " + Arrays.stream(GroupProperty.values()).parallel().map(GroupProperty::name).reduce("", (a, b) -> a + ", " + b));
                                 }
                             });

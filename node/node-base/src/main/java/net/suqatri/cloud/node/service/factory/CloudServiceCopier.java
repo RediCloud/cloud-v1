@@ -10,8 +10,10 @@ import net.suqatri.cloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.api.utils.Files;
+import net.suqatri.cloud.commons.file.FileEditor;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.commons.function.future.FutureActionCollection;
+import net.suqatri.cloud.node.NodeLauncher;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -83,11 +85,17 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                             break;
                                                     }
 
-                                                    //TODO set maxplayers, port, ip, servicename
                                                     for (File configFile : configFiles) {
                                                         File target = new File(this.getServiceDirectory(), configFile.getName());
                                                         if(target.exists()) continue;
                                                         FileUtils.copyFileToDirectory(configFile, this.getServiceDirectory());
+                                                    }
+
+                                                    try {
+                                                        editFiles();
+                                                    }catch (IOException e) {
+                                                        futureAction.completeExceptionally(e);
+                                                        return;
                                                     }
 
                                                     FileUtils.copyFileToDirectory(serviceVersionHolder.get().getPatchedFile(), this.getServiceDirectory());
@@ -139,7 +147,9 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                 FileUtils.copyFileToDirectory(Files.MINECRAFT_PLUGIN_JAR.getFile(), pluginFolder);
                 configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "bukkit.yml"));
                 configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "spigot.yml"));
-                configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "server.properties"));
+                File properties = new File(Files.STORAGE_FOLDER.getFile(), "server.properties");
+                configFiles.add(properties);
+                editProperties(properties);
                 break;
 
             case PROXY:
@@ -148,16 +158,49 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                 break;
         }
 
-        //TODO set maxplayers, port, ip, servicename
         for (File configFile : configFiles) {
             File target = new File(this.getServiceDirectory(), configFile.getName());
             if(target.exists()) continue;
             FileUtils.copyFileToDirectory(configFile, this.getServiceDirectory());
         }
 
+        editFiles();
+
         FileUtils.copyFileToDirectory(serviceVersionHolder.get().getPatchedFile(), this.getServiceDirectory());
 
         return this.getServiceDirectory();
+    }
+
+    private void editFiles() throws IOException{
+        switch (this.process.getServiceHolder().get().getEnvironment()){
+            case MINECRAFT:
+                editProperties(new File(this.getServiceDirectory(), "server.properties"));
+                break;
+
+            case PROXY:
+                editConfig(new File(this.getServiceDirectory(), "config.yml"));
+                break;
+        }
+    }
+
+    private void editProperties(File properties) throws IOException{
+        FileEditor fileEditor = new FileEditor(FileEditor.Type.PROPERTIES);
+        fileEditor.read(properties);
+        fileEditor.setValue("server-ip", NodeLauncher.getInstance().getNode().getHostname());
+        fileEditor.setValue("server-port", String.valueOf(this.process.getPort()));
+        fileEditor.setValue("max-players", String.valueOf(this.process.getServiceHolder().get().getMaxPlayers()));
+        fileEditor.setValue("online-mode", "false");
+        fileEditor.setValue("motd", this.process.getServiceHolder().get().getMotd());
+        fileEditor.setValue("server-name", this.process.getServiceHolder().get().getServiceName());
+        fileEditor.save(properties);
+    }
+
+    private void editConfig(File config) throws IOException{
+        FileEditor fileEditor = new FileEditor(FileEditor.Type.YML);
+        fileEditor.read(config);
+        fileEditor.setValue("player_limit", String.valueOf(this.process.getServiceHolder().get().getMaxPlayers()));
+        fileEditor.setValue("host", NodeLauncher.getInstance().getNode().getHostname() + ":" + this.process.getPort());
+        fileEditor.save(config);
     }
 
     @Override

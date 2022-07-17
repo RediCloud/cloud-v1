@@ -1,8 +1,7 @@
 ![img](https://wakatime.com/badge/github/InkaruNET/cloud.svg)
 # RediCloud
-A redis based cluster cloud system for minecraft.
+A redis based cluster cloud system for minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://github.com/Suqatri)]**
 <br>
-[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://github.com/Suqatri)
 
 ### Overview
   - What is RediCloud?

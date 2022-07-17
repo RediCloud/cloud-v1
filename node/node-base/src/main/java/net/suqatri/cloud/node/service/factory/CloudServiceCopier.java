@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class CloudServiceCopier implements ICloudServiceCopier {
 
     private final CloudServiceProcess process;
-    private final ICloudServiceTemplateManager templateManager = this.templateManager;
+    private final ICloudServiceTemplateManager templateManager;
 
     @Override
     public FutureAction<File> copyFilesAsync() {

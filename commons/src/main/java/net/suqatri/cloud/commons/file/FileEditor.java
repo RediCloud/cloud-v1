@@ -48,7 +48,7 @@ public class FileEditor {
         for(String line : this.lines){
             if(line.startsWith("#")) continue;
             if (!line.contains(this.splitter) || line.split(this.splitter).length < 2) {
-                this.keyValues.put(line, "");
+                this.keyValues.put(line.replace(this.splitter, ""), "");
                 continue;
             }
             try {
@@ -102,7 +102,7 @@ public class FileEditor {
 
     private int getAmountOfStartSpacesInLine(String line){
         int amountOfSpaces = 0;
-        for(int i = 0; i < line.length(); i++){
+        for(int i = 1; i < line.length(); i++){
             if(line.charAt(i) == ' '){
                 amountOfSpaces++;
                 continue;

@@ -14,6 +14,7 @@ import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
+import java.sql.Time;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
@@ -75,23 +76,27 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
     public FutureAction<IRBucketHolder<ICloudService>> startServiceAsync(IServiceStartConfiguration configuration) {
         FutureAction<IRBucketHolder<ICloudService>> futureAction = new FutureAction<>();
         CloudFactoryServiceStartPacket packet = new CloudFactoryServiceStartPacket();
-        packet.setConfiguration(DefaultServiceStartConfiguration.fromInterface(configuration));
-        packet.setAsync(true);
-        packet.getPacketData().waitForResponse()
-            .onFailure(futureAction)
-            .onSuccess(response -> {
-               CloudAPI.getInstance().getServiceManager().getServiceAsync(((CloudFactoryServiceStartResponseCloud)response).getServiceId())
-                   .onFailure(futureAction)
-                   .onSuccess(futureAction::complete);
-            });
-        packet.publishAsync();
+        DefaultServiceStartConfiguration.fromInterface(configuration)
+                .onFailure(futureAction)
+                .onSuccess(configuration1 -> {
+                    packet.setConfiguration(configuration1);
+                    packet.setAsync(true);
+                    packet.getPacketData().waitForResponse()
+                            .onFailure(futureAction)
+                            .onSuccess(response -> {
+                                CloudAPI.getInstance().getServiceManager().getServiceAsync(((CloudFactoryServiceStartResponseCloud)response).getServiceId())
+                                        .onFailure(futureAction)
+                                        .onSuccess(futureAction::complete);
+                            });
+                    packet.publishAsync();
+                });
         return futureAction;
     }
 
     @Override
     public IRBucketHolder<ICloudService> startService(IServiceStartConfiguration configuration) throws Exception {
         CloudFactoryServiceStartPacket packet = new CloudFactoryServiceStartPacket();
-        packet.setConfiguration(DefaultServiceStartConfiguration.fromInterface(configuration));
+        packet.setConfiguration(DefaultServiceStartConfiguration.fromInterface(configuration).get(3, TimeUnit.SECONDS));
         packet.setAsync(false);
         CloudFactoryServiceStartResponseCloud response = (CloudFactoryServiceStartResponseCloud) packet.getPacketData().waitForResponse().get(20, TimeUnit.SECONDS);
         if(response.getException() != null) throw response.getException();
@@ -131,5 +136,25 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
     @Override
     public ICloudServiceFactory getServiceFactory() {
         return CloudAPI.getInstance().getServiceFactory();
+    }
+
+    @Override
+    public boolean existsService(String name) {
+        return getServices().parallelStream().anyMatch(service -> service.get().getServiceName().equalsIgnoreCase(name));
+    }
+
+    @Override
+    public boolean existsService(UUID uniqueId) {
+        return this.existsBucket(uniqueId.toString());
+    }
+
+    @Override
+    public FutureAction<Boolean> existsServiceAsync(String name) {
+        return getServicesAsync().map(services -> services.parallelStream().anyMatch(service -> service.get().getServiceName().equalsIgnoreCase(name)));
+    }
+
+    @Override
+    public FutureAction<Boolean> existsServiceAsync(UUID uniqueId) {
+        return this.existsBucketAsync(uniqueId.toString());
     }
 }

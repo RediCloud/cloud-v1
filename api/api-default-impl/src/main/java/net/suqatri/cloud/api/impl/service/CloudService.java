@@ -19,9 +19,12 @@ import net.suqatri.cloud.commons.function.future.FutureAction;
 public class CloudService extends RBucketObject implements ICloudService {
 
     private IServiceStartConfiguration configuration;
-    private String motd;
-    private int maxPlayers;
-    private ServiceState serviceState;
+    private String motd = "Unknown";
+    private int maxPlayers = -1;
+    private ServiceState serviceState = ServiceState.UNKNOWN;
+    private int onlineCount = -1;
+    private int maxRam = -1;
+    private int ramUsage = -1;
 
     @Override
     public void merged() {

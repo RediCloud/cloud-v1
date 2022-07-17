@@ -6,6 +6,7 @@ public enum ServiceState {
     STARTING,
     VISIBLE,
     INVISIBLE,
+    UNKNOWN,
     OFFLINE;
 
 }

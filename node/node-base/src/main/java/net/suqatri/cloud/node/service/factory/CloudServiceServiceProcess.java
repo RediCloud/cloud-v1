@@ -9,6 +9,7 @@ import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.commons.function.future.FutureAction;
+import net.suqatri.cloud.node.NodeLauncher;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Data
@@ -45,7 +47,7 @@ public class CloudServiceServiceProcess implements ICloudServiceProcess {
         this.port = this.factory.getPortManager().getUnusedPort(this).get(5, TimeUnit.SECONDS);
 
         ProcessBuilder builder = new ProcessBuilder();
-        HashMap<String, String> environment = builder.environment();
+        Map<String, String> environment = builder.environment();
         environment.put("serviceId", this.getServiceHolder().get().getUniqueId().toString());
         builder.command(getStartCommand());
         this.process = builder.start();
@@ -73,7 +75,7 @@ public class CloudServiceServiceProcess implements ICloudServiceProcess {
                             this.port = port;
                             try {
                                 ProcessBuilder builder = new ProcessBuilder();
-                                HashMap<String, String> environment = builder.environment();
+                                Map<String, String> environment = builder.environment();
                                 environment.put("serviceId", this.getServiceHolder().get().getUniqueId().toString());
                                 builder.command(getStartCommand());
                                 this.process = builder.start();
@@ -159,19 +161,26 @@ public class CloudServiceServiceProcess implements ICloudServiceProcess {
         List<String> command = new ArrayList<>();
 
         command.add(this.serviceHolder.get().getConfiguration().getJavaCommand());
+
         command.addAll(this.serviceHolder.get().getConfiguration().getJvmArguments());
+
+
         command.add("-Xms" + this.serviceHolder.get().getConfiguration().getMaxMemory() + "M");
         command.add("-Xmx" + this.serviceHolder.get().getConfiguration().getMaxMemory() + "M");
-        command.add("-Dcom.mojang.eula.agree=true");
-        command.add("-Djline.terminal=jline.UnsupportedTerminal");
+
+
+        if(this.serviceHolder.get().getEnvironment() == ServiceEnvironment.MINECRAFT){
+            command.add("-Dcom.mojang.eula.agree=true");
+            command.add("-Djline.terminal=jline.UnsupportedTerminal");
+        }
+
         command.add(this.serviceDirectory.getAbsolutePath() + File.separator + "service.jar");
-        command.addAll(this.serviceHolder.get().getConfiguration().getProcessParameters());
 
         if(this.serviceHolder.get().getEnvironment() == ServiceEnvironment.MINECRAFT){
             command.add("--nogui");
-            command.add("--port " + this.port);
-            command.add("--serverId " + this.serviceHolder.get().getServiceName());
         }
+
+        command.addAll(this.serviceHolder.get().getConfiguration().getProcessParameters());
 
         return command;
     }

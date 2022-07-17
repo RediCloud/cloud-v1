@@ -23,6 +23,7 @@ public class CloudServiceTemplate extends RBucketObject implements ICloudService
     @Override
     public void updateToNodes() {
         //TODO File Manager
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override

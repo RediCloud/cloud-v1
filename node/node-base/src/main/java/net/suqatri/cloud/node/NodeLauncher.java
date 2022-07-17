@@ -380,6 +380,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         Files.TEMP_FOLDER.createIfNotExists();
         Files.TEMP_TRANSFER_FOLDER.createIfNotExists();
         Files.TEMP_SERVICE_FOLDER.createIfNotExists();
+        Files.TEMP_VERSION_FOLDER.createIfNotExists();
         Files.TEMPLATE_FOLDER.createIfNotExists();
         Files.VERSIONS_FOLDER.createIfNotExists();
     }

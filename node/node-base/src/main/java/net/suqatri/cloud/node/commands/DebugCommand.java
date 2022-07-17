@@ -54,4 +54,28 @@ public class DebugCommand extends ConsoleCommand {
         commandSender.sendMessage("------");
     }
 
+    @Subcommand("impl servicefactory")
+    @Description("Show impl of servicefactory")
+    public void onImplServicefactory(CommandSender commandSender){
+        commandSender.sendMessage("ServiceFactory: " + CloudAPI.getInstance().getServiceFactory().getClass().getName());
+    }
+
+    @Subcommand("impl eventmanager")
+    @Description("Show impl of eventmanager")
+    public void onImplEventmanager(CommandSender commandSender){
+        commandSender.sendMessage("EventManager: " + CloudAPI.getInstance().getEventManager().getClass().getName());
+    }
+
+    @Subcommand("impl templatemanager")
+    @Description("Show impl of templatemanager")
+    public void onImplTemplatemanager(CommandSender commandSender){
+        commandSender.sendMessage("TemplateManager: " + CloudAPI.getInstance().getServiceTemplateManager().getClass().getName());
+    }
+
+    @Subcommand("impl serviceversionmanager")
+    @Description("Show impl of serviceversionmanager")
+    public void onImplServiceversionmanager(CommandSender commandSender){
+        commandSender.sendMessage("ServiceVersionManager: " + CloudAPI.getInstance().getServiceVersionManager().getClass().getName());
+    }
+
 }

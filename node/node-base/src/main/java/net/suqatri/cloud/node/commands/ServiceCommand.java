@@ -48,6 +48,7 @@ public class ServiceCommand extends ConsoleCommand {
                 amount.set(i);
             }
         }
+        commandSender.sendMessage("Starting " + amount.get() + " services...");
         CloudAPI.getInstance().getGroupManager().getGroupAsync(name)
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get groups", t))
                 .onSuccess(groupHolder -> {

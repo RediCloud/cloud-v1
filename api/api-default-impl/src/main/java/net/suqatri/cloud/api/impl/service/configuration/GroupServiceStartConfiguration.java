@@ -34,6 +34,7 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
     private String javaCommand;
     private int startPort;
     private String serviceVersionName;
+    private UUID nodeId;
 
     @Override
     public boolean isStatic() {

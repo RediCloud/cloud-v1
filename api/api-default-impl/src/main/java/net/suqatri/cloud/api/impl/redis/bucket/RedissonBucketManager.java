@@ -91,6 +91,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject , I> extend
 
     public IRBucketHolder<I> createBucket(String identifier, I object) {
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
+        if(existsBucket(identifier)) throw new IllegalArgumentException("Bucket[" + identifier + "] already exists");
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).set(object);
         RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
         IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, bucket.get());
@@ -101,17 +102,26 @@ public abstract class RedissonBucketManager<T extends IRBucketObject , I> extend
     public FutureAction<IRBucketHolder<I>> createBucketAsync(String identifier, I object) {
         FutureAction<IRBucketHolder<I>> futureAction = new FutureAction<>();
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'", futureAction);
-        getClient().getBucket(getRedisKey(identifier), getObjectCodec()).setAsync(object)
-                .whenComplete((object1, throwable) -> {
-                    if(throwable != null) {
-                        futureAction.completeExceptionally(throwable);
+        existsBucketAsync(identifier)
+                .onFailure(futureAction)
+                .onSuccess(exists -> {
+                    if(exists){
+                        futureAction.completeExceptionally(new IllegalArgumentException("Bucket[" + identifier + "] already exists"));
                         return;
                     }
-                    RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
-                    IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, (RBucketObject) object);
-                    this.bucketHolders.put(identifier, bucketHolder);
-                    futureAction.complete(bucketHolder);
+                    getClient().getBucket(getRedisKey(identifier), getObjectCodec()).setAsync(object)
+                            .whenComplete((object1, throwable) -> {
+                                if(throwable != null) {
+                                    futureAction.completeExceptionally(throwable);
+                                    return;
+                                }
+                                RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
+                                IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, (RBucketObject) object);
+                                this.bucketHolders.put(identifier, bucketHolder);
+                                futureAction.complete(bucketHolder);
+                            });
                 });
+
         return futureAction;
     }
 

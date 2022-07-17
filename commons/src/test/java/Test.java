@@ -8,13 +8,7 @@ import java.util.*;
 public class Test {
 
     public static void main(String[] args) throws IOException {
-        FileEditor fileEditor = new FileEditor(FileEditor.Type.PROPERTIES);
-        fileEditor.read(new File("C:\\Users\\pkocz\\Desktop\\Neuer Ordner (3)\\c1\\storage\\server.properties"));
 
-        fileEditor.setValue("generator-settings", "-11");
-        fileEditor.setValue("gamemode", "1");
-
-        fileEditor.save(new File("C:\\Users\\pkocz\\Desktop\\Neuer Ordner (3)\\c1\\storage\\server.properties"));
     }
 
 }

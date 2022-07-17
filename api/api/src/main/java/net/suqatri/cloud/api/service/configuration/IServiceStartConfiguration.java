@@ -18,6 +18,7 @@ public interface IServiceStartConfiguration {
     String getJavaCommand();
 
     UUID getNodeId();
+    void setNodeId(UUID nodeId);
 
     String getName();
     UUID getUniqueId();

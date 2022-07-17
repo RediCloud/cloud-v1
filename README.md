@@ -1,3 +1,4 @@
+![img](https://wakatime.com/badge/github/InkaruNET/cloud.svg)
 # RediCloud
 A redis based cluster cloud system for minecraft.
 

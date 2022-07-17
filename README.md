@@ -1,5 +1,5 @@
 ![img](https://wakatime.com/badge/github/InkaruNET/cloud.svg)
-# RediCloud
+# RediCloud (WIP⚒️)
 A redis based cluster cloud system for minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://github.com/Suqatri)]**
 <br>
 

@@ -64,7 +64,7 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
         cloudService.setConfiguration(configuration);
         cloudService.setServiceState(ServiceState.STARTING);
         cloudService.setMaxPlayers(50);
-        cloudService.setMotd("Welcome to Suqatri Cloud");
+        cloudService.setMotd("Welcome to RediCloud");
         IRBucketHolder<ICloudService> holder = this.serviceManager.createBucket(cloudService.getUniqueId().toString(), cloudService);
 
         CloudServiceServiceProcess process = new CloudServiceServiceProcess(this, holder);
@@ -109,7 +109,7 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
                                         cloudService.setConfiguration(configuration);
                                         cloudService.setServiceState(ServiceState.PREPARE);
                                         cloudService.setMaxPlayers(50);
-                                        cloudService.setMotd("Welcome to Suqatri Cloud");
+                                        cloudService.setMotd("Welcome to RediCloud");
                                         this.serviceManager.createBucketAsync(cloudService.getUniqueId().toString(), cloudService)
                                                 .onFailure(futureAction)
                                                 .onSuccess(serviceHolder -> {

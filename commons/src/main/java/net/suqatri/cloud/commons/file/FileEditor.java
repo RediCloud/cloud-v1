@@ -60,7 +60,6 @@ public class FileEditor {
                 throw new IndexOutOfBoundsException("Invalid line: " + line);
             }
         }
-        this.keyValues.forEach((key, value) -> System.out.println(key + " | " + value));
     }
 
     public void setValue(String key, String value){

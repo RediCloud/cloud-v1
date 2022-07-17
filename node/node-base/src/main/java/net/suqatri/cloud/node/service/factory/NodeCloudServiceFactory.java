@@ -161,7 +161,6 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
         process.getServiceHolder().get().update();
 
         this.serviceManager.deleteBucket(process.getServiceHolder().get().getUniqueId().toString());
-
         return true;
     }
 

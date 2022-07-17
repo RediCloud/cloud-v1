@@ -1,5 +1,6 @@
 package net.suqatri.cloud.node.service.factory;
 
+import jdk.nashorn.internal.runtime.options.Option;
 import lombok.Data;
 import net.suqatri.cloud.api.node.service.factory.ICloudNodeServiceFactory;
 import net.suqatri.cloud.api.node.service.factory.ICloudServiceProcess;
@@ -11,6 +12,7 @@ import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,7 +42,10 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
     public boolean destroyService(UUID uniqueId, boolean force) throws IOException {
 
         ICloudServiceProcess process = this.thread.getProcesses().get(uniqueId);
-        if(process == null) throw new NullPointerException("Process not found");
+        if(process == null) {
+            this.thread.getWaitForRemove().add(uniqueId);
+            return true;
+        }
 
         process.stop(force);
 
@@ -58,7 +63,8 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
 
         ICloudServiceProcess process = this.thread.getProcesses().get(uniqueId);
         if(process == null) {
-            futureAction.completeExceptionally(new NullPointerException("Process not found"));
+            this.thread.getWaitForRemove().add(uniqueId);
+            futureAction.complete(true);
             return futureAction;
         }
 

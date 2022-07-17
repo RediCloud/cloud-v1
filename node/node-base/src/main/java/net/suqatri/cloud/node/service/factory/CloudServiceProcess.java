@@ -39,7 +39,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         this.serviceDirectory = new File(Files.TEMP_SERVICE_FOLDER.getFile(), this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId());
         this.serviceDirectory.mkdirs();
 
-        CloudServiceCopier copier = new CloudServiceCopier(this);
+        CloudServiceCopier copier = new CloudServiceCopier(this, CloudAPI.getInstance().getServiceTemplateManager());
         copier.copyFiles();
 
         this.port = this.factory.getPortManager().getUnusedPort(this).get(5, TimeUnit.SECONDS);
@@ -70,7 +70,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         this.serviceDirectory.mkdirs();
         System.out.println("process called 3");
 
-        CloudServiceCopier copier = new CloudServiceCopier(this);
+        CloudServiceCopier copier = new CloudServiceCopier(this, CloudAPI.getInstance().getServiceTemplateManager());
         copier.copyFilesAsync()
                 .onFailure(futureAction)
                 .onSuccess(f -> {
@@ -108,7 +108,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         deleteTempFilesAsync(force)
             .onFailure(futureAction)
             .onSuccess(b -> {
-                this.factory.getProcesses().remove(this.serviceHolder.get().getUniqueId());
+                this.factory.getThread().getProcesses().remove(this.serviceHolder.get().getUniqueId());
                 futureAction.complete(true);
             });
 
@@ -120,7 +120,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         if(isActive()) this.stopProcess(force);
 
         deleteTempFiles(force);
-        this.factory.getProcesses().remove(this.serviceHolder.get().getUniqueId());
+        this.factory.getThread().getProcesses().remove(this.serviceHolder.get().getUniqueId());
 
         return true;
     }

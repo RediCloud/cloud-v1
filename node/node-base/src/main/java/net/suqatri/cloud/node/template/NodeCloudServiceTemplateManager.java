@@ -39,15 +39,12 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
         if(!file.exists()){
             file.mkdirs();
         }
-        System.out.println("c4------");
         this.createBucketAsync(name, template)
                 .onFailure(futureAction)
                 .onSuccess(holder -> {
-                    System.out.println("c5------");
                     pushTemplate(holder)
                             .onFailure(futureAction)
                             .onSuccess(r -> {
-                                System.out.println("c6------");
                                 futureAction.complete(holder);
                             });
                 });
@@ -55,37 +52,29 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
     }
 
     public FutureAction<Boolean> deleteTemplateAsync(String name) {
-        System.out.println("d1----");
         FutureAction<Boolean> futureAction = new FutureAction<>();
         getTemplateAsync(name)
                 .onFailure(futureAction)
                 .onSuccess(template -> {
-                    System.out.println("d2----");
                     CloudAPI.getInstance().getGroupManager().getGroupsAsync()
                             .onFailure(futureAction)
                             .onSuccess(groupHolders -> {
-                                System.out.println("d3----");
                                 for (IRBucketHolder<ICloudGroup> groupHolder : groupHolders) {
                                     groupHolder.get().getTemplateNames().remove(template.get().getName());
                                     groupHolder.get().updateAsync();
                                 }
-                                System.out.println("d4----");
                                 File file = template.get().getTemplateFolder();
                                 if(file.exists()) {
                                     try {
                                         FileUtils.deleteDirectory(file);
-                                        System.out.println("d5----");
                                     } catch (IOException e) {
                                         futureAction.completeExceptionally(e);
-                                        System.out.println("d6----");
                                         return;
                                     }
                                 }
-                                System.out.println("d7----");
                                 FileDeletePacket packet = new FileDeletePacket();
                                 packet.setPath(file.getPath());
                                 packet.publishAllAsync(NetworkComponentType.NODE);
-                                System.out.println("d8----");
                                 this.deleteBucketAsync(name)
                                         .onFailure(futureAction)
                                         .onSuccess(r -> futureAction.complete(true));
@@ -96,12 +85,10 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
 
     public FutureAction<IRBucketHolder<ICloudServiceTemplate>> pushTemplate(IRBucketHolder<ICloudServiceTemplate> template, IRBucketHolder<ICloudNode> nodeHolder){
         FutureAction<IRBucketHolder<ICloudServiceTemplate>> futureAction = new FutureAction<>();
-        System.out.println("c15------");
         if(!nodeHolder.get().isConnected()){
             futureAction.completeExceptionally(new NullPointerException("Cloud node not connected!"));
             return futureAction;
         }
-        System.out.println("c16------");
         return NodeLauncher.getInstance().getFileTransferManager().transferFolderToNode(
                 template.get().getTemplateFolder(),
                 Files.TEMPLATE_FOLDER.getFile(),
@@ -112,22 +99,18 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
 
     public FutureAction<IRBucketHolder<ICloudServiceTemplate>> pushTemplate(IRBucketHolder<ICloudServiceTemplate> template){
         FutureAction<IRBucketHolder<ICloudServiceTemplate>> futureAction = new FutureAction<>();
-        System.out.println("c10------");
         CloudAPI.getInstance().getNodeManager().getNodesAsync()
                 .onFailure(futureAction)
                 .onSuccess(holders -> {
-                    System.out.println("c11------");
                     FutureActionCollection<UUID, IRBucketHolder<ICloudServiceTemplate>> collection = new FutureActionCollection<>();
                     for(IRBucketHolder<ICloudNode> holder : holders){
                         if(!holder.get().isConnected()) continue;
                         if(holder.get().getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) continue;
                         collection.addToProcess(holder.get().getUniqueId(), pushTemplate(template, holder));
                     }
-                    System.out.println("c12------");
                     collection.process()
                             .onFailure(futureAction)
                             .onSuccess(r -> {
-                                System.out.println("c13------");
                                     futureAction.complete(template);
                             });
                 });

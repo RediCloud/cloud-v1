@@ -104,7 +104,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
                 .map(holders -> holders
                         .parallelStream()
                         .filter(holder -> holder.get().getGroup() != null)
-                        .filter(holder -> holder.get().getGroup().get().getUniqueId().equals(this.uniqueId))
+                        .filter(holder -> holder.get().getGroupName().equals(this.name))
                         .collect(Collectors.toList())
                 );
     }

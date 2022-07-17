@@ -3,6 +3,7 @@ package net.suqatri.cloud.api.impl.service.configuration;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
@@ -27,8 +28,6 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
     private int startPriority;
     private boolean isStatic;
     private Collection<String> templateNames = new ArrayList<>();
-    @JsonIgnore
-    private IRBucketHolder<ICloudGroup> group;
     private String groupName;
     private List<String> processParameters;
     private List<String> jvmArguments;
@@ -36,17 +35,7 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
     private int startPort;
     private String serviceVersionName;
 
-    public void setGroup(IRBucketHolder<ICloudGroup> group) {
-        this.group = group;
-        if(this.group == null){
-            this.hasGroup = false;
-            return;
-        }
-        this.hasGroup = true;
-        this.groupName = group.get().getName();
-    }
-
-    public static DefaultServiceStartConfiguration fromInterface(IServiceStartConfiguration interfaceConfig){
+    public static FutureAction<DefaultServiceStartConfiguration> fromInterface(IServiceStartConfiguration interfaceConfig){
         FutureAction<DefaultServiceStartConfiguration> futureAction = new FutureAction<>();
         DefaultServiceStartConfiguration configuration = new DefaultServiceStartConfiguration();
         configuration.setEnvironment(interfaceConfig.getEnvironment());
@@ -59,24 +48,31 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
         configuration.setStartPriority(interfaceConfig.getStartPriority());
         configuration.setStatic(interfaceConfig.isStatic());
         configuration.setTemplateNames(interfaceConfig.getTemplateNames());
-        configuration.setGroup(interfaceConfig.getGroup());
         configuration.setProcessParameters(interfaceConfig.getProcessParameters());
         configuration.setJvmArguments(interfaceConfig.getJvmArguments());
         configuration.setTemplateNames(interfaceConfig.getTemplateNames());
         configuration.setServiceVersionName(interfaceConfig.getServiceVersionName());
 
-        if(interfaceConfig.getGroup() != null){
+        if(interfaceConfig.getGroupName() != null){
             configuration.setHasGroup(true);
-            configuration.setGroupName(interfaceConfig.getGroup().get().getName());
-            configuration.setGroup(interfaceConfig.getGroup());
-            configuration.getTemplateNames().addAll(interfaceConfig.getGroup().get().getTemplateNames());
+            configuration.setGroupName(interfaceConfig.getGroupName());
+            CloudAPI.getInstance().getGroupManager().getGroupAsync(interfaceConfig.getGroupName())
+                        .onFailure(futureAction)
+                        .onSuccess(groupHolder -> {
+                            configuration.getTemplateNames().addAll(groupHolder.get().getTemplateNames());
+                            futureAction.complete(configuration);
+                        });
         }else{
             configuration.setHasGroup(false);
+            futureAction.complete(configuration);
         }
 
-        return configuration;
+        return futureAction;
     }
 
 
-
+    @Override
+    public boolean isGroupBased() {
+        return this.hasGroup;
+    }
 }

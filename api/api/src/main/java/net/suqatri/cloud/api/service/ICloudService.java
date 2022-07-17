@@ -36,9 +36,18 @@ public interface ICloudService extends IRBucketObject {
         return getConfiguration().getId();
     }
 
-    default IRBucketHolder<ICloudGroup> getGroup(){
-        return getConfiguration().getGroup();
+    default String getGroupName(){
+        return getConfiguration().isGroupBased() ? getConfiguration().getGroupName() : getConfiguration().getName();
     }
+    default boolean isGroupBased() {
+        return this.getConfiguration().isGroupBased();
+    }
+
+    default FutureAction<IRBucketHolder<ICloudGroup>> getGroup(){
+        return CloudAPI.getInstance().getGroupManager().getGroupAsync(getGroupName());
+    }
+
+    int getOnlineCount();
 
     String getMotd();
     void setMotd(String motd);
@@ -52,5 +61,8 @@ public interface ICloudService extends IRBucketObject {
     default boolean isStatic(){
         return getConfiguration().isStatic();
     }
+
+    int getMaxRam();
+    int getRamUsage();
 
 }

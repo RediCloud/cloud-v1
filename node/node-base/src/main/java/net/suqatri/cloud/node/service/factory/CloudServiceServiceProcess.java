@@ -62,7 +62,8 @@ public class CloudServiceServiceProcess implements ICloudServiceProcess {
     public FutureAction<Boolean> startAsync() {
         System.out.println("process called 1");
         FutureAction<Boolean> futureAction = new FutureAction<>();
-
+        System.out.println("process called 1.2");
+        System.out.println(this.serviceHolder.get().getServiceName());
         this.serviceDirectory = new File(Files.TEMP_SERVICE_FOLDER.getFile(), this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId().toString());
         System.out.println("process called 2 | " + this.serviceDirectory.getAbsolutePath());
         this.serviceDirectory.mkdirs();

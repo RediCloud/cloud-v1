@@ -15,6 +15,7 @@ public enum Files {
     TEMP_FOLDER("temp"),
     TEMP_TRANSFER_FOLDER("temp/transfer"),
     TEMP_SERVICE_FOLDER("temp/services"),
+    TEMP_VERSION_FOLDER("temp/versions"),
     LIBS_FOLDER("storage/libs"),
     LIBS_BLACKLIST_FOLDER("storage/libs/blacklist"),
     LIBS_REPO_FOLDER("storage/libs/repo"),

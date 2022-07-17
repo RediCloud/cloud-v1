@@ -37,8 +37,9 @@ public class CloudServiceServiceProcess implements ICloudServiceProcess {
 
     @Override
     public boolean start() throws Exception {
+        System.out.println("process called");
 
-        this.serviceDirectory = new File(Files.TEMP_SERVICE_FOLDER.getFile(), this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId().toString());
+        this.serviceDirectory = new File(Files.TEMP_SERVICE_FOLDER.getFile(), this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId());
         this.serviceDirectory.mkdirs();
 
         CloudServiceCopier copier = new CloudServiceCopier(this);

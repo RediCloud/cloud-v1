@@ -14,6 +14,7 @@ import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.cloud.commons.function.future.FutureAction;
+import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 import org.redisson.api.RLock;
 
@@ -44,6 +45,10 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
     public IRBucketHolder<ICloudService> createService(IServiceStartConfiguration configuration) throws Exception{
 
         if(!CloudAPI.getInstance().getServiceVersionManager().existsServiceVersion(configuration.getServiceVersionName())) throw new Exception("Service version " + configuration.getServiceVersionName() + " not found");
+
+        //TODO check for empty node
+        configuration.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
+
         IRBucketHolder<ICloudServiceVersion> versionHolder = CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(configuration.getServiceVersionName());
         if(!versionHolder.get().isDownloaded()) versionHolder.getImpl(CloudServiceVersion.class).download();
         if(versionHolder.get().needPatch()) versionHolder.getImpl(CloudServiceVersion.class).patch();
@@ -65,6 +70,7 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
         cloudService.setServiceState(ServiceState.STARTING);
         cloudService.setMaxPlayers(50);
         cloudService.setMotd("Welcome to RediCloud");
+        cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
         IRBucketHolder<ICloudService> holder = this.serviceManager.createBucket(cloudService.getUniqueId().toString(), cloudService);
 
         CloudServiceServiceProcess process = new CloudServiceServiceProcess(this, holder);
@@ -77,9 +83,13 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
     public FutureAction<IRBucketHolder<ICloudService>> createServiceAsync(IServiceStartConfiguration configuration) {
         FutureAction<IRBucketHolder<ICloudService>> futureAction= new FutureAction<>();
 
+        System.out.println("sfc1");
+
         this.serviceManager.getServicesAsync()
             .onFailure(futureAction)
             .onSuccess(serviceHolders -> {
+
+                System.out.println("sfc2");
 
                 if(configuration.getId() < 1) {
                     configuration.setId(this.getNextId(configuration.getName(), serviceHolders));
@@ -92,32 +102,42 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
                     }
                 }
 
+                System.out.println("sfc3");
+
                 CloudAPI.getInstance().getServiceVersionManager().existsServiceVersionAsync(configuration.getServiceVersionName())
                         .onFailure(futureAction)
                         .onSuccess(existVersion -> {
+
+                            System.out.println("sfc4");
 
                             if(!existVersion){
                                 futureAction.completeExceptionally(new IllegalStateException("Service version " + configuration.getServiceVersionName() + " not found"));
                                 return;
                             }
 
+                            System.out.println("sfc5");
+
                             IRBucketHolder<ICloudServiceVersion> versionHolder = CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(configuration.getServiceVersionName());
                             versionHolder.get().getPatchedFileAsync(true)
                                     .onFailure(futureAction)
                                     .onSuccess(versionFile -> {
+                                        System.out.println("sfc6");
                                         CloudService cloudService = new CloudService();
                                         cloudService.setConfiguration(configuration);
                                         cloudService.setServiceState(ServiceState.PREPARE);
                                         cloudService.setMaxPlayers(50);
                                         cloudService.setMotd("Welcome to RediCloud");
+                                        cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
                                         this.serviceManager.createBucketAsync(cloudService.getUniqueId().toString(), cloudService)
                                                 .onFailure(futureAction)
                                                 .onSuccess(serviceHolder -> {
+                                                    System.out.println("sfc7");
 
                                                     CloudServiceServiceProcess process = new CloudServiceServiceProcess(this, serviceHolder);
                                                     process.startAsync()
                                                             .onFailure(futureAction)
                                                             .onSuccess(s -> {
+                                                                System.out.println("sfc8");
                                                                 futureAction.complete(serviceHolder);
                                                             });
                                                 });

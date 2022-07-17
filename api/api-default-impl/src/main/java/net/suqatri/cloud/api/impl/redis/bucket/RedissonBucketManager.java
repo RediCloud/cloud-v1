@@ -169,13 +169,14 @@ public abstract class RedissonBucketManager<T extends IRBucketObject , I> extend
         return bucketHolders;
     }
 
-    public void deleteBucket(String identifier){
+    public boolean deleteBucket(String identifier){
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
         if(this.bucketHolders.containsKey(identifier)) {
             this.bucketHolders.remove(identifier);
         }
         CloudAPI.getInstance().getConsole().debug("Deleting bucket: " + getRedisKey(identifier));
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).delete();
+        return true;
     }
 
     public FutureAction<Boolean> deleteBucketAsync(String identifier){

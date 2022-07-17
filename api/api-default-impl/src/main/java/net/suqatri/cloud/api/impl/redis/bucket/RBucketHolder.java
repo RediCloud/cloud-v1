@@ -44,7 +44,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public IRBucketHolder<T> update(T object) {
-        CloudAPI.getInstance().getConsole().debug("Updating bucket " + identifier + "!");
+        CloudAPI.getInstance().getConsole().debug("Updating bucket " + getRedisKey() + "!");
         this.bucket.set(object);
         try {
             BucketUpdatePacket packet = new BucketUpdatePacket();
@@ -60,7 +60,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public FutureAction<IRBucketHolder<T>> updateAsync(T object) {
-        CloudAPI.getInstance().getConsole().debug("Updating bucket " + identifier + "!");
+        CloudAPI.getInstance().getConsole().debug("Updating bucket " + getRedisKey() + "!");
         FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
 
         new FutureAction<>(this.bucket.setAsync(object))

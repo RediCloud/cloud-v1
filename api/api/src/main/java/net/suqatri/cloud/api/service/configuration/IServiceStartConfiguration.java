@@ -1,5 +1,6 @@
 package net.suqatri.cloud.api.service.configuration;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
@@ -23,6 +24,7 @@ public interface IServiceStartConfiguration {
     void setServiceVersionName(String serviceVersionName);
 
     int getId();
+    void setId(int id);
 
     int getMaxMemory();
 
@@ -39,7 +41,8 @@ public interface IServiceStartConfiguration {
     Collection<String> getTemplateNames();
 
     @Nullable
-    IRBucketHolder<ICloudGroup> getGroup();
+    String getGroupName();
+    boolean isGroupBased();
 
     List<String> getProcessParameters();
     List<String> getJvmArguments();

@@ -135,7 +135,7 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
         IRBucketHolder<ICloudGroup> holder = getGroup(uniqueId);
         for (IRBucketHolder<ICloudService> service : CloudAPI.getInstance().getServiceManager().getServices()) {
             if(service.get().getGroup() == null) continue;
-            if(service.get().getGroup().get().getUniqueId().equals(uniqueId)) {
+            if(service.get().getGroupName().equalsIgnoreCase(holder.get().getName())) {
                 CloudAPI.getInstance().getServiceManager().stopService(service.get().getUniqueId(), true);
             }
         }

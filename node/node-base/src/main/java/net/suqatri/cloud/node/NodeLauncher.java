@@ -30,16 +30,19 @@ import net.suqatri.cloud.node.node.packet.NodePingPacket;
 import net.suqatri.cloud.node.scheduler.Scheduler;
 import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 import net.suqatri.cloud.node.service.factory.NodeCloudServiceFactory;
+import net.suqatri.cloud.node.service.screen.ServiceScreenManager;
 import net.suqatri.cloud.node.service.version.NodeCloudServiceVersionManager;
 import net.suqatri.cloud.node.setup.node.NodeConnectionDataSetup;
 import net.suqatri.cloud.node.setup.redis.RedisSetup;
 import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.node.template.NodeCloudServiceTemplateManager;
+import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 @Getter
@@ -61,6 +64,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private boolean skiptempaltesync = false;
     private final NodeCloudServiceFactory serviceFactory;
     private final NodeCloudServiceVersionManager serviceVersionManager;
+    private final ServiceScreenManager screenManager;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -70,6 +74,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.serviceManager = new NodeCloudServiceManager();
         this.serviceFactory = new NodeCloudServiceFactory(this.serviceManager);
         this.serviceVersionManager = new NodeCloudServiceVersionManager();
+        this.screenManager = new ServiceScreenManager();
         this.handleProgrammArguments(args);
 
         this.init(() -> {
@@ -180,6 +185,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.commandManager.registerCommand(new CloudHelpCommand());
         this.commandManager.registerCommand(new ServiceVersionCommand());
         this.commandManager.registerCommand(new VersionCommand());
+        this.commandManager.registerCommand(new ScreenCommand());
     }
 
     private void registerPackets(){
@@ -191,7 +197,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.getEventManager().register(new CloudNodeDisconnectListener());
     }
 
-    private void init(Runnable runnable){
+    private void init(Runnable runnable) throws IOException {
         this.console.clearScreen();
         this.console.printCloudHeader(true);
         this.createDefaultFiles();
@@ -365,8 +371,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         }
     }
 
-    private void createDefaultFiles(){
+    private void createDefaultFiles() throws IOException {
         this.console.info("Creating default folders...");
+
+        if(Files.TEMP_FOLDER.exists()) FileUtils.deleteDirectory(Files.TEMP_FOLDER.getFile());
+
         Files.MODULES_FOLDER.createIfNotExists();
         Files.STORAGE_FOLDER.createIfNotExists();
         if(!Files.MINECRAFT_PLUGIN_JAR.exists()){
@@ -395,11 +404,31 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             if (this.console != null) this.console.info("Disconnecting from cluster...");
 
             if(this.serviceManager != null){
+                int stopCount = 0;
+                if(this.console != null) this.console.info("Stopping services...");
                 for (IRBucketHolder<ICloudService> serviceHolders : this.serviceManager.getServices()) {
                     if(!serviceHolders.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    stopCount++;
                     try {
-                        this.serviceManager.stopService(serviceHolders.get().getUniqueId(), false);
-                    } catch (Exception e) {
+                        this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), false).get(5, TimeUnit.SECONDS);
+                        if(this.console != null) this.console.info("Stopped service " + serviceHolders.get().getServiceName());
+                    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                        try {
+                            if(this.console != null) this.console.warn("Failed to stop service " + serviceHolders.get().getServiceName() + "! Try to force stop...");
+                            this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), true).get(5, TimeUnit.SECONDS);
+                        }catch (InterruptedException | ExecutionException | TimeoutException e1) {
+                            if(this.console != null) {
+                                this.console.error("Failed to stop service " + serviceHolders.get().getServiceName(), e1);
+                            }else{
+                                e1.printStackTrace();
+                            }
+                        }
+                    }
+                }
+                if(stopCount != 0) {
+                    try {
+                        Thread.sleep(3000 + (stopCount * 200L));
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }

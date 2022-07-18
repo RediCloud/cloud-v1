@@ -4,6 +4,8 @@ import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.event.CloudEventInvoker;
 import net.suqatri.cloud.api.impl.event.CloudEventManager;
 import net.suqatri.cloud.api.node.ICloudNode;
+import net.suqatri.cloud.api.node.service.screen.IScreenLine;
+import net.suqatri.cloud.api.node.service.screen.IServiceScreen;
 import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.commands.CommandSender;
 import net.suqatri.commands.ConsoleCommand;
@@ -94,6 +96,22 @@ public class DebugCommand extends ConsoleCommand {
     @Description("Show if serviceversion is downloaded")
     public void onServiceversionIsdownloaded(CommandSender commandSender, String serviceVersionId){
         commandSender.sendMessage("ServiceVersion: " + serviceVersionId + " is downloaded: " + CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(serviceVersionId).get().isDownloaded());
+    }
+
+    @Subcommand("screen removelines")
+    @Description("Remove useless lines from screen")
+    @Syntax("<Service>")
+    public void onScreenRemovelines(CommandSender commandSender, String serviceName){
+        IServiceScreen screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(CloudAPI.getInstance().getServiceManager().getService(serviceName));
+        if(screen.getLines().size() <= 50) {
+            commandSender.sendMessage("Screen is already small enough: " + screen.getLines().size());
+            return;
+        }
+        for(IScreenLine line : screen.getLines().readAll()){
+            if(screen.getLines().size() <= 50) break;
+            screen.getLines().remove(line);
+            commandSender.sendMessage("Removed line: " + line.getLine());
+        }
     }
 
 }

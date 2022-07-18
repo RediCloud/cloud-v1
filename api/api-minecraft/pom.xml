@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>net.suqatri.cloud</groupId>
-            <artifactId>api-shared-impl</artifactId>
+            <artifactId>api-default-impl</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>

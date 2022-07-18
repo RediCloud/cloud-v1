@@ -2,18 +2,13 @@ package net.suqatri.cloud.node.setup.node;
 
 import lombok.Getter;
 import net.suqatri.cloud.node.NodeLauncher;
-import net.suqatri.cloud.node.console.NodeConsole;
 import net.suqatri.cloud.node.console.setup.Setup;
 import net.suqatri.cloud.node.console.setup.SetupHeaderBehaviour;
-import net.suqatri.cloud.node.console.setup.SetupSuggester;
 import net.suqatri.cloud.node.console.setup.annotations.AnswerCompleter;
-import net.suqatri.cloud.node.console.setup.annotations.Answers;
 import net.suqatri.cloud.node.console.setup.annotations.Question;
-import net.suqatri.cloud.node.console.setup.annotations.QuestionTip;
 import net.suqatri.cloud.node.console.setup.suggester.HostNameSuggester;
 import net.suqatri.cloud.node.console.setup.suggester.MemorySuggester;
 
-import java.util.Collections;
 import java.util.UUID;
 
 @Getter

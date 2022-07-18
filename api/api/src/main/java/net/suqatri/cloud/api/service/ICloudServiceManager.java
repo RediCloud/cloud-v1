@@ -20,7 +20,6 @@ public interface ICloudServiceManager {
     Collection<IRBucketHolder<ICloudService>> getServices();
 
     FutureAction<Boolean> stopServiceAsync(UUID uniqueId, boolean force);
-    boolean stopService(UUID uniqueId, boolean force) throws Exception;
 
     FutureAction<IRBucketHolder<ICloudService>> startService(IServiceStartConfiguration configuration);
 

@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudGroup> implements ICloudGroupManager {
 
@@ -136,7 +137,7 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
         for (IRBucketHolder<ICloudService> service : CloudAPI.getInstance().getServiceManager().getServices()) {
             if(service.get().getGroup() == null) continue;
             if(service.get().getGroupName().equalsIgnoreCase(holder.get().getName())) {
-                CloudAPI.getInstance().getServiceManager().stopService(service.get().getUniqueId(), true);
+                CloudAPI.getInstance().getServiceManager().stopServiceAsync(service.get().getUniqueId(), true).get(5, TimeUnit.SECONDS);
             }
         }
         this.deleteBucket(uniqueId.toString());

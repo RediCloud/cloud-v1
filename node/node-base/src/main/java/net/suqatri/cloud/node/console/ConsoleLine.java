@@ -1,15 +1,18 @@
 package net.suqatri.cloud.node.console;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.api.console.LogLevel;
 
-@Getter
-public class ConsoleLine implements IConsoleLine, Cloneable{
+import java.io.Serializable;
 
-    private final long time = System.currentTimeMillis();
+@Getter
+public class ConsoleLine implements IConsoleLine, Cloneable, Serializable {
+
+    @Setter
+    private long time = System.currentTimeMillis();
     private final LogLevel logLevel;
     private final String prefix;
     private final String message;
@@ -42,7 +45,7 @@ public class ConsoleLine implements IConsoleLine, Cloneable{
 
     @Override
     public void println() {
-        CommandConsoleManager.getInstance().getNodeConsole().log(clone().setStored(false));
+        CloudAPI.getInstance().getConsole().log(this);
     }
 
     @Override

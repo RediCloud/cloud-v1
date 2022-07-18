@@ -12,7 +12,6 @@ public interface ICloudServiceProcess {
     IRBucketHolder<ICloudService> getServiceHolder();
     void executeCommand(String command);
     boolean start() throws Exception;
-    FutureAction<Boolean> startAsync();
     FutureAction<Boolean> stopAsync(boolean force);
     boolean stop(boolean force) throws IOException;
     boolean isActive();

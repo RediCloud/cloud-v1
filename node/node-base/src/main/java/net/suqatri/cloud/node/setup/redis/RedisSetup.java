@@ -2,7 +2,6 @@ package net.suqatri.cloud.node.setup.redis;
 
 import lombok.Getter;
 import net.suqatri.cloud.node.NodeLauncher;
-import net.suqatri.cloud.node.console.NodeConsole;
 import net.suqatri.cloud.node.console.setup.Setup;
 import net.suqatri.cloud.node.console.setup.SetupHeaderBehaviour;
 import net.suqatri.cloud.node.console.setup.annotations.AnswerCompleter;

@@ -12,7 +12,6 @@ public interface ICloudServiceFactory {
 
     FutureAction<IRBucketHolder<ICloudService>> queueService(IServiceStartConfiguration configuration);
 
-    boolean destroyService(UUID uniqueId, boolean force) throws IOException;
     FutureAction<Boolean> destroyServiceAsync(UUID uniqueId, boolean force);
 
 }

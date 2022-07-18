@@ -8,6 +8,7 @@ import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public interface ICloudService extends IRBucketObject {
@@ -66,5 +67,7 @@ public interface ICloudService extends IRBucketObject {
 
     int getMaxRam();
     int getRamUsage();
+
+    Collection<UUID> getConsoleNodeListenerIds();
 
 }

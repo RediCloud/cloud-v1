@@ -21,7 +21,6 @@
         <module>commands/command-console</module>
 
         <module>node/node-base</module>
-        <module>node/node-console</module>
         <module>node/node-runner</module>
 
         <module>plugin/plugin-proxy</module>

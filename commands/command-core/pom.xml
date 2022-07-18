@@ -32,11 +32,10 @@
             <version>0.5.10</version>
             <scope>compile</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.google.common/google-collect -->
         <dependency>
-            <groupId>com.google.collections</groupId>
-            <artifactId>google-collections</artifactId>
-            <version>1.0</version>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>31.1-jre</version>
             <scope>compile</scope>
         </dependency>
 

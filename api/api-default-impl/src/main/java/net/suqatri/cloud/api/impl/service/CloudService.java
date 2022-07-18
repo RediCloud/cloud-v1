@@ -13,6 +13,8 @@ import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 
 
@@ -28,6 +30,7 @@ public class CloudService extends RBucketObject implements ICloudService {
     private int maxRam = -1;
     private int ramUsage = -1;
     private UUID nodeId;
+    private Collection<UUID> consoleNodeListenerIds = new ArrayList<>();
 
     @Override
     public void merged() {

@@ -1,6 +1,5 @@
 package net.suqatri.cloud.node.console;
 
-import net.suqatri.cloud.api.console.LogLevel;
 import net.suqatri.commands.CommandSender;
 
 public class NodeConsoleSender extends CommandSender {

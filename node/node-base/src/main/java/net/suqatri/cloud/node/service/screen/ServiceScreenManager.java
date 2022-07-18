@@ -8,13 +8,14 @@ import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.NodeLauncher;
+import net.suqatri.cloud.node.service.screen.packet.ScreenDestroyPacket;
+import net.suqatri.cloud.node.service.screen.packet.ScreenLinePacket;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class ServiceScreenManager implements IServiceScreenManager {
 
@@ -24,7 +25,9 @@ public class ServiceScreenManager implements IServiceScreenManager {
     public ServiceScreenManager(){
         this.activeScreens = new ArrayList<>();
         this.screens = new ConcurrentHashMap<>();
+
         CloudAPI.getInstance().getPacketManager().registerPacket(ScreenLinePacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(ScreenDestroyPacket.class);
     }
 
     @Override

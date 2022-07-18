@@ -6,23 +6,23 @@ import net.suqatri.cloud.api.impl.node.CloudNodeManager;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.node.NodeLauncher;
+import net.suqatri.cloud.node.node.packet.NodePingPacket;
 import net.suqatri.commands.CommandHelp;
 import net.suqatri.commands.CommandSender;
 import net.suqatri.commands.ConsoleCommand;
 import net.suqatri.commands.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 @CommandAlias("cluster")
 public class ClusterCommand extends ConsoleCommand {
 
     /*
-        * /cluster nodes
-        * /cluster info [Node]
-        * /cluster shutdown
+     * /cluster nodes
+     * /cluster info [Node]
+     * /cluster shutdown
      */
 
     @HelpCommand
@@ -30,49 +30,82 @@ public class ClusterCommand extends ConsoleCommand {
     @Syntax("[Page]")
     @Subcommand("help")
     @Description("Show help for cluster commands")
-    public void onHelp(CommandHelp commandHelp){
+    public void onHelp(CommandHelp commandHelp) {
         commandHelp.showHelp();
     }
 
     @Subcommand("info")
     @Description("Show information about this node")
-    public void onInfo(CommandSender commandSender){
+    public void onInfo(CommandSender commandSender) {
         CloudNode node = NodeLauncher.getInstance().getNode();
         commandSender.sendMessage("%tc" + node.getName() + " §7[%hc" + node.getUniqueId() + "§7]: %hc" + node.getName());
-        commandSender.sendMessage("§8   » %tcLast-IP: %hc"+ node.getHostname());
+        commandSender.sendMessage("§8   » %tcLast-IP: %hc" + node.getHostname());
         commandSender.sendMessage("§8   » %tcUp-Time: %hc" + node.getUpTime());
         commandSender.sendMessage("§8   » %tcServices: %hc" + node.getStartedServiceUniqueIds().size());
+    }
+
+    @Subcommand("ping")
+    @Description("Ping a node")
+    @Syntax("<Node>")
+    public void onPing(CommandSender commandSender, String nodeName) {
+        CloudAPI.getInstance().getNodeManager().existsNodeAsync(nodeName)
+                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to check existence of node " + nodeName, e))
+                .onSuccess(exists -> {
+                    if (!exists) {
+                        commandSender.sendMessage("Node not found!");
+                        return;
+                    }
+                    CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)
+                            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node " + nodeName, e))
+                            .onSuccess(nodeHolder -> {
+                                NodePingPacket packet = new NodePingPacket();
+                                packet.getPacketData().addReceiver(nodeHolder.get().getNetworkComponentInfo());
+                                packet.getPacketData().waitForResponse()
+                                        .onFailure(e -> {
+                                            if (e instanceof TimeoutException) {
+                                                CloudAPI.getInstance().getConsole().error("Ping timeout after 30 seconds for node " + nodeName, e);
+                                            } else {
+                                                CloudAPI.getInstance().getConsole().error("Ping timeout after 30 seconds for node " + nodeName);
+                                            }
+                                        })
+                                        .onSuccess(response -> {
+                                            commandSender.sendMessage("Ping successful!");
+                                            commandSender.sendMessage("Ping time: " + (System.currentTimeMillis() - packet.getTime()) + "ms");
+                                        });
+                                packet.publishAsync();
+                            });
+                });
     }
 
     @Subcommand("info")
     @Syntax("<Node>")
     @Description("Show information about a specific node")
-    public void onInfoNode(CommandSender commandSender, String nodeName){
+    public void onInfoNode(CommandSender commandSender, String nodeName) {
         commandSender.sendMessage("Loading node...");
         CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)
-            .onFailure(e -> commandSender.sendMessage("Can't find node " + nodeName))
-            .onSuccess(nodeHolder -> {
-                CloudNode node = nodeHolder.getImpl(CloudNode.class);
-                if(node.isConnected()){
-                    commandSender.sendMessage("%tc" + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getName());
-                    commandSender.sendMessage("§8   » %tcLast-IP: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getHostname());
-                    commandSender.sendMessage("§8   » %tcUp-Time: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getUpTime());
-                    commandSender.sendMessage("§8   » %tcServices: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getStartedServiceUniqueIds().size());
-                }else{
-                    commandSender.sendMessage("§8➤ %tc" + node.getName() + " §7[%hc" + node.getUniqueId() + "§7]: %hcOffline");
-                }
-            });
+                .onFailure(e -> commandSender.sendMessage("Can't find node " + nodeName))
+                .onSuccess(nodeHolder -> {
+                    CloudNode node = nodeHolder.getImpl(CloudNode.class);
+                    if (node.isConnected()) {
+                        commandSender.sendMessage("%tc" + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getName());
+                        commandSender.sendMessage("§8   » %tcLast-IP: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getHostname());
+                        commandSender.sendMessage("§8   » %tcUp-Time: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getUpTime());
+                        commandSender.sendMessage("§8   » %tcServices: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getStartedServiceUniqueIds().size());
+                    } else {
+                        commandSender.sendMessage("§8➤ %tc" + node.getName() + " §7[%hc" + node.getUniqueId() + "§7]: %hcOffline");
+                    }
+                });
     }
 
     @Subcommand("shutdown")
     @Description("Shutdown the cluster")
-    public void onShutdown(CommandSender commandSender){
-        ((CloudNodeManager)NodeLauncher.getInstance().getNodeManager()).shutdownClusterAsync();
+    public void onShutdown(CommandSender commandSender) {
+        ((CloudNodeManager) NodeLauncher.getInstance().getNodeManager()).shutdownClusterAsync();
     }
 
     @Subcommand("nodes")
     @Description("Show all nodes in the cluster")
-    public void onNodes(CommandSender commandSender){
+    public void onNodes(CommandSender commandSender) {
         commandSender.sendMessage("Loading nodes...");
         CloudAPI.getInstance().getNodeManager().getNodesAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("§cFailed to get nodes", (Throwable) e))
@@ -82,7 +115,7 @@ public class ClusterCommand extends ConsoleCommand {
                     commandSender.sendMessage("");
                     commandSender.sendMessage("Connected nodes: %hc" + connectedNodes.size());
                     commandSender.sendMessage("Offline nodes: %hc" + offlineNodes.size());
-                    for(ICloudNode node : connectedNodes){
+                    for (ICloudNode node : connectedNodes) {
                         commandSender.sendMessage("%tc" + node.getName() + " §7[%hc" + node.getUniqueId() + "§7]: %hc" + node.getName());
                         commandSender.sendMessage("§8   » %tcLast-IP: %hc" + node.getHostname());
                         commandSender.sendMessage("§8   » %tcUp-Time: %hc" + node.getUpTime());

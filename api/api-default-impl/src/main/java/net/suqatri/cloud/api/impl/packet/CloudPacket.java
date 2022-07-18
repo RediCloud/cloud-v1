@@ -1,12 +1,11 @@
 package net.suqatri.cloud.api.impl.packet;
 
 import net.suqatri.cloud.api.CloudAPI;
-import net.suqatri.cloud.api.impl.network.NetworkComponentInfo;
+import net.suqatri.cloud.api.impl.packet.response.CloudPacketResponse;
+import net.suqatri.cloud.api.impl.packet.response.SimpleCloudPacketResponse;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.packet.ICloudPacket;
-
-import java.util.List;
 
 public abstract class CloudPacket implements ICloudPacket {
 
@@ -17,21 +16,67 @@ public abstract class CloudPacket implements ICloudPacket {
         return this.packetData;
     }
 
+    public void simplePacketResponseAsync(){
+        SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
+        packet.getPacketData().addReceiver(this.packetData.getSender());
+        packet.publishAsync();
+    }
+
+    public void simplePacketResponse(){
+        SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
+        packet.getPacketData().addReceiver(this.packetData.getSender());
+        packet.publish();
+    }
+
+    public void simplePacketResponseAsync(Exception exception){
+        SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
+        packet.setException(exception);
+        packet.getPacketData().addReceiver(this.packetData.getSender());
+        packet.publishAsync();
+    }
+
+    public void simplePacketResponse(Exception exception){
+        SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
+        packet.setException(exception);
+        packet.getPacketData().addReceiver(this.packetData.getSender());
+        packet.publish();
+    }
+
+    public <T extends CloudPacketResponse> void packetResponse(T response){
+        response.getPacketData().addReceiver(this.packetData.getSender());
+        response.publish();
+    }
+
+    public <T extends CloudPacketResponse> void packetResponseAsync(T response){
+        response.getPacketData().addReceiver(this.packetData.getSender());
+        response.publishAsync();
+    }
+
     @Override
     public void publish() {
-        if(getPacketData().getReceivers().isEmpty()) throw new IllegalStateException("No receivers specified!");
+        if(getPacketData().getReceivers().isEmpty() && getPacketData().getResponseTargetData() == null) throw new IllegalStateException("No receivers specified!");
         if(getPacketData().getReceivers().contains(CloudAPI.getInstance().getNetworkComponentInfo())
                 && getPacketData().isAllowSenderAsReceiver()) return;
         getPacketData().setSender(CloudAPI.getInstance().getNetworkComponentInfo());
+        if(getPacketData().getResponseTargetData() != null){
+            if(!getPacketData().getReceivers().contains(getPacketData().getResponseTargetData().getSender())) {
+                getPacketData().getReceivers().add(getPacketData().getResponseTargetData().getSender());
+            }
+        }
         CloudAPI.getInstance().getPacketManager().publish(this);
     }
 
     @Override
     public void publishAsync() {
-        if(getPacketData().getReceivers().isEmpty()) throw new IllegalStateException("No receivers specified!");
+        if(getPacketData().getReceivers().isEmpty() && getPacketData().getResponseTargetData() == null) throw new IllegalStateException("No receivers specified!");
         if(getPacketData().getReceivers().contains(CloudAPI.getInstance().getNetworkComponentInfo())
          && getPacketData().isAllowSenderAsReceiver()) return;
         getPacketData().setSender(CloudAPI.getInstance().getNetworkComponentInfo());
+        if(getPacketData().getResponseTargetData() != null){
+            if(!getPacketData().getReceivers().contains(getPacketData().getResponseTargetData().getSender())) {
+                getPacketData().getReceivers().add(getPacketData().getResponseTargetData().getSender());
+            }
+        }
         CloudAPI.getInstance().getPacketManager().publishAsync(this);
     }
 
@@ -48,6 +93,11 @@ public abstract class CloudPacket implements ICloudPacket {
 
     @Override
     public void publishAllAsync(NetworkComponentType type) {
+        if(getPacketData().getResponseTargetData() != null){
+            if(!getPacketData().getReceivers().contains(getPacketData().getResponseTargetData().getSender())) {
+                getPacketData().getReceivers().add(getPacketData().getResponseTargetData().getSender());
+            }
+        }
         CloudAPI.getInstance().getNetworkComponentManager().getAllComponentInfoAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get all component info of type " + type + ". Unable to send " + this.getClass().getName(), e))
                 .onSuccess(componentInfos -> {
@@ -81,6 +131,11 @@ public abstract class CloudPacket implements ICloudPacket {
 
     @Override
     public void publishAll(NetworkComponentType type) {
+        if(getPacketData().getResponseTargetData() != null){
+            if(!getPacketData().getReceivers().contains(getPacketData().getResponseTargetData().getSender())) {
+                getPacketData().getReceivers().add(getPacketData().getResponseTargetData().getSender());
+            }
+        }
         for (INetworkComponentInfo componentInfo : CloudAPI.getInstance().getNetworkComponentManager().getAllComponentInfo()) {
             if(componentInfo.getType() != type) continue;
             if(componentInfo.equals(CloudAPI.getInstance().getNetworkComponentInfo())

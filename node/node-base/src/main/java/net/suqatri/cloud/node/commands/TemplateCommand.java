@@ -67,11 +67,9 @@ public class TemplateCommand extends ConsoleCommand {
         NodeLauncher.getInstance().getServiceTemplateManager().existsTemplateAsync(name)
             .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while checking template existence!", throwable))
             .onSuccess(exists -> {
-                System.out.println("c1------");
                 if (exists) {
                     commandSender.sendMessage("Template already exists!");
                 } else {
-                    System.out.println("c2------");
                     NodeLauncher.getInstance().getServiceTemplateManager().createTemplateAsync(name)
                             .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while creating template!", throwable))
                             .onSuccess(templateHolder -> {

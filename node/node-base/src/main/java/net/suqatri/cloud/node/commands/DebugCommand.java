@@ -20,6 +20,12 @@ import java.lang.reflect.Method;
 @CommandAlias("debug")
 public class DebugCommand extends ConsoleCommand {
 
+    @Subcommand("facatory queue")
+    @Description("Prints the factory queue")
+    public void onFactoryQueue(CommandSender commandSender){
+        commandSender.sendMessage("Factory queue: " + NodeLauncher.getInstance().getServiceFactory().getThread().getQueue());
+    }
+
     @Subcommand("file-transfer sent")
     @Description("Show how many sent file transfers are currently queued")
     public void onFileTransferSent(CommandSender commandSender){
@@ -52,6 +58,42 @@ public class DebugCommand extends ConsoleCommand {
             commandSender.sendMessage(key);
         }
         commandSender.sendMessage("------");
+    }
+
+    @Subcommand("impl servicefactory")
+    @Description("Show impl of servicefactory")
+    public void onImplServicefactory(CommandSender commandSender){
+        commandSender.sendMessage("ServiceFactory: " + CloudAPI.getInstance().getServiceFactory().getClass().getName());
+    }
+
+    @Subcommand("impl eventmanager")
+    @Description("Show impl of eventmanager")
+    public void onImplEventmanager(CommandSender commandSender){
+        commandSender.sendMessage("EventManager: " + CloudAPI.getInstance().getEventManager().getClass().getName());
+    }
+
+    @Subcommand("impl templatemanager")
+    @Description("Show impl of templatemanager")
+    public void onImplTemplatemanager(CommandSender commandSender){
+        commandSender.sendMessage("TemplateManager: " + CloudAPI.getInstance().getServiceTemplateManager().getClass().getName());
+    }
+
+    @Subcommand("impl serviceversionmanager")
+    @Description("Show impl of serviceversionmanager")
+    public void onImplServiceversionmanager(CommandSender commandSender){
+        commandSender.sendMessage("ServiceVersionManager: " + CloudAPI.getInstance().getServiceVersionManager().getClass().getName());
+    }
+
+    @Subcommand("serviceversion patched")
+    @Description("Show if serviceversion is patched")
+    public void onServiceversionIspatched(CommandSender commandSender, String serviceVersionId){
+        commandSender.sendMessage("ServiceVersion: " + serviceVersionId + " is patched: " + CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(serviceVersionId).get().isPatched());
+    }
+
+    @Subcommand("serviceversion downloaded")
+    @Description("Show if serviceversion is downloaded")
+    public void onServiceversionIsdownloaded(CommandSender commandSender, String serviceVersionId){
+        commandSender.sendMessage("ServiceVersion: " + serviceVersionId + " is downloaded: " + CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(serviceVersionId).get().isDownloaded());
     }
 
 }

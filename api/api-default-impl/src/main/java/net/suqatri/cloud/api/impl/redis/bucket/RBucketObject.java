@@ -13,7 +13,7 @@ public abstract class RBucketObject implements IRBucketObject {
     private RBucketHolder holder;
 
     @Override
-    public IRBucketHolder<IRBucketObject> getHolder() {
+    public IRBucketHolder getHolder() {
         return this.holder;
     }
 

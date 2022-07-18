@@ -1,9 +1,11 @@
 package net.suqatri.cloud.api.packet;
 
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
+import net.suqatri.cloud.commons.function.future.FutureAction;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.UUID;
 
 public interface ICloudPacketData extends Serializable{
 
@@ -13,6 +15,12 @@ public interface ICloudPacketData extends Serializable{
     ICloudPacketData removeReceiver(INetworkComponentInfo receiver);
     ICloudPacketData removeReceivers(INetworkComponentInfo... receivers);
     ICloudPacketData clearReceivers();
+
+    FutureAction<ICloudPacketResponse> waitForResponse();
+    UUID getPacketId();
+    ICloudPacketData getResponseTargetData();
+    void setResponseTargetData(ICloudPacketData packetData);
+    FutureAction<ICloudPacketResponse> getResponseAction();
 
     ICloudPacketData allowSenderAsReceiver();
     boolean isSenderAsReceiverAllowed();

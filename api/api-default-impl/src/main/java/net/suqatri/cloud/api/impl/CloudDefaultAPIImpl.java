@@ -43,7 +43,6 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     private final INetworkComponentManager networkComponentManager;
     private final ICloudNodeManager nodeManager;
     private final ICloudGroupManager groupManager;
-    private final ICloudServiceVersionManager serviceVersionManager;
     private final ExecutorService executorService;
 
     public CloudDefaultAPIImpl(ApplicationType type) {
@@ -55,7 +54,6 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
         this.networkComponentManager = new NetworkComponentManager();
         this.nodeManager = new CloudNodeManager();
         this.groupManager = new CloudGroupManager();
-        this.serviceVersionManager = new CloudServiceVersionManager();
     }
 
     public void registerInternalListeners(){
@@ -63,6 +61,10 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
         this.eventManager.register(new CloudNodeDisconnectListener());
         this.eventManager.register(new CloudServiceStartedListener());
         this.eventManager.register(new CloudServiceStoppedListener());
+    }
+
+    public void registerInternalPackets(){
+
     }
 
     @Override

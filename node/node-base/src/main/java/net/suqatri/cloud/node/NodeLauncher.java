@@ -15,7 +15,7 @@ import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
-import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
+import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.commons.connection.IPUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
 import net.suqatri.cloud.node.commands.*;
@@ -26,17 +26,19 @@ import net.suqatri.cloud.node.file.FileTransferManager;
 import net.suqatri.cloud.node.listener.CloudNodeConnectedListener;
 import net.suqatri.cloud.node.listener.CloudNodeDisconnectListener;
 import net.suqatri.cloud.node.node.ClusterConnectionInformation;
+import net.suqatri.cloud.node.node.packet.NodePingPacket;
 import net.suqatri.cloud.node.scheduler.Scheduler;
 import net.suqatri.cloud.node.service.NodeCloudServiceManager;
+import net.suqatri.cloud.node.service.factory.NodeCloudServiceFactory;
+import net.suqatri.cloud.node.service.version.NodeCloudServiceVersionManager;
 import net.suqatri.cloud.node.setup.node.NodeConnectionDataSetup;
 import net.suqatri.cloud.node.setup.redis.RedisSetup;
-import net.suqatri.cloud.commons.file.Files;
+import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.node.template.NodeCloudServiceTemplateManager;
-import net.suqatri.cloud.node.template.SyncTemplateQuestion;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -57,6 +59,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private NodeCloudServiceTemplateManager serviceTemplateManager;
     private final NodeCloudServiceManager serviceManager;
     private boolean skiptempaltesync = false;
+    private final NodeCloudServiceFactory serviceFactory;
+    private final NodeCloudServiceVersionManager serviceVersionManager;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -64,6 +68,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.commandManager = new CommandConsoleManager();
         this.console = this.commandManager.getNodeConsole();
         this.serviceManager = new NodeCloudServiceManager();
+        this.serviceFactory = new NodeCloudServiceFactory(this.serviceManager);
+        this.serviceVersionManager = new NodeCloudServiceVersionManager();
         this.handleProgrammArguments(args);
 
         this.init(() -> {
@@ -71,7 +77,9 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.serviceTemplateManager = new NodeCloudServiceTemplateManager();
             this.registerCommands();
             this.registerInternalListeners();
+            this.registerInternalPackets();
             this.registerListeners();
+            this.registerPackets();
             this.scheduler.runTaskLater(() -> this.syncTemplates(() -> {
             }), 2, TimeUnit.SECONDS);
         });
@@ -88,7 +96,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
        for (IRBucketHolder<ICloudNode> holder : getNodeManager().getNodes()) {
             if(!holder.get().isConnected()) continue;
             if(holder.get().getUniqueId().equals(this.node.getUniqueId())) continue;
-            if(nodeHolder == null){
+            if(nodeHolder == null && !this.node.isFileNode()){
                 nodeHolder = holder;
                 continue;
             }
@@ -171,6 +179,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.commandManager.registerCommand(new GroupCommand());
         this.commandManager.registerCommand(new CloudHelpCommand());
         this.commandManager.registerCommand(new ServiceVersionCommand());
+        this.commandManager.registerCommand(new VersionCommand());
+    }
+
+    private void registerPackets(){
+        this.getPacketManager().registerPacket(NodePingPacket.class);
     }
 
     private void registerListeners(){
@@ -179,7 +192,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     }
 
     private void init(Runnable runnable){
-        this.console.printCloudHeader();
+        this.console.clearScreen();
+        this.console.printCloudHeader(true);
         this.createDefaultFiles();
         this.initRedis(redisConnection -> this.initClusterConnection(node -> {
             this.networkComponentInfo = node.getNetworkComponentInfo();
@@ -208,6 +222,12 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
             this.console.info(this.node.getName() + " is now connected to the cluster!");
             this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@" + this.console.getHighlightColor() + this.node.getName() + " §f=> "));
+
+            if(this.getNodeManager().getNodes().size() == 1){
+                this.serviceTemplateManager.createTemplate("global-minecraft");
+                this.serviceTemplateManager.createTemplate("global-proxy");
+                this.serviceTemplateManager.createTemplate("global-all");
+            }
         }));
     }
 
@@ -359,6 +379,9 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         Files.LIBS_BLACKLIST_FOLDER.createIfNotExists();
         Files.LIBS_REPO_FOLDER.createIfNotExists();
         Files.TEMP_FOLDER.createIfNotExists();
+        Files.TEMP_TRANSFER_FOLDER.createIfNotExists();
+        Files.TEMP_SERVICE_FOLDER.createIfNotExists();
+        Files.TEMP_VERSION_FOLDER.createIfNotExists();
         Files.TEMPLATE_FOLDER.createIfNotExists();
         Files.VERSIONS_FOLDER.createIfNotExists();
     }
@@ -370,6 +393,18 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.shutdownInitialized = true;
         if (this.node != null) {
             if (this.console != null) this.console.info("Disconnecting from cluster...");
+
+            if(this.serviceManager != null){
+                for (IRBucketHolder<ICloudService> serviceHolders : this.serviceManager.getServices()) {
+                    if(!serviceHolders.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    try {
+                        this.serviceManager.stopService(serviceHolders.get().getUniqueId(), false);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
             CloudNodeDisconnectEvent event = new CloudNodeDisconnectEvent();
             event.setNodeId(this.node.getUniqueId());
             getEventManager().postGlobal(event);
@@ -410,11 +445,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     @Override
     public ICloudPlayerManager getPlayerManager() {
-        return null;
-    }
-
-    @Override
-    public ICloudServiceFactory getServiceFactory() {
         return null;
     }
 

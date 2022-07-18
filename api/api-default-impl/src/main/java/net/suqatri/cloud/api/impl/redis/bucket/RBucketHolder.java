@@ -8,6 +8,9 @@ import net.suqatri.cloud.api.redis.bucket.IRedissonBucketManager;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import org.redisson.api.RBucket;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T> {
 
     private final String identifier;
@@ -32,13 +35,16 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public T get(boolean force) {
-        if(this.publishedObject != null && !force) return this.publishedObject;
+        if(this.publishedObject != null && !force) {
+            return this.publishedObject;
+        }
         setPublishedObject(this.bucket.get());
         return this.publishedObject;
     }
 
     @Override
     public IRBucketHolder<T> update(T object) {
+        CloudAPI.getInstance().getConsole().debug("Updating bucket " + getRedisKey() + "!");
         this.bucket.set(object);
         try {
             BucketUpdatePacket packet = new BucketUpdatePacket();
@@ -54,6 +60,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public FutureAction<IRBucketHolder<T>> updateAsync(T object) {
+        CloudAPI.getInstance().getConsole().debug("Updating bucket " + getRedisKey() + "!");
         FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
 
         new FutureAction<>(this.bucket.setAsync(object))

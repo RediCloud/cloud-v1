@@ -15,6 +15,7 @@ import net.suqatri.cloud.node.console.setup.annotations.RequiresEnum;
 import net.suqatri.cloud.node.console.setup.conditions.PositivIntegerCondition;
 import net.suqatri.cloud.node.console.setup.suggester.BooleanSuggester;
 import net.suqatri.cloud.node.setup.condition.GroupMemoryCondition;
+import net.suqatri.cloud.node.setup.condition.ServiceVersionExistsCondition;
 import net.suqatri.cloud.node.setup.suggester.ServiceEnvironmentSuggester;
 
 @Getter
@@ -33,7 +34,7 @@ public class GroupSetup extends Setup<GroupSetup> {
     private int maxServices;
 
     @Question(id = 4, question = "How much memory should be allocated to each service?")
-    @ConditionChecker(value = GroupMemoryCondition.class, message = "The memory must be hihger than 500")
+    @ConditionChecker(value = GroupMemoryCondition.class, message = "The memory must be higher than 500")
     private int maxMemory;
 
     @Question(id = 5, question = "What is the start priority of the group?")
@@ -43,6 +44,9 @@ public class GroupSetup extends Setup<GroupSetup> {
     @AnswerCompleter(value = BooleanSuggester.class)
     private boolean staticGroup;
 
+    @Question(id = 7, question = "What service version should be used for the group?")
+    @ConditionChecker(value = ServiceVersionExistsCondition.class, message = "Service version does not exist.")
+    private String serviceVersionName;
 
     public GroupSetup() {
         super(NodeLauncher.getInstance().getConsole());

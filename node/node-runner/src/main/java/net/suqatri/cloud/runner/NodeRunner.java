@@ -2,12 +2,8 @@ package net.suqatri.cloud.runner;
 
 import net.suqatri.cloud.runner.dependency.DependencyLoader;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import net.suqatri.cloud.commons.file.Files;
-import net.suqatri.cloud.runner.dependency.DependencyLoader;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,7 +15,9 @@ public class NodeRunner {
 
     public static void main(String[] args) {
 
-        DependencyLoader dependencyLoader = new DependencyLoader(Files.LIBS_FOLDER.getFile(), Files.LIBS_REPO_FOLDER.getFile(), Files.LIBS_INFO_FOLDER.getFile(), Files.LIBS_BLACKLIST_FOLDER.getFile());
+        //TODO fix Files class
+        //DependencyLoader dependencyLoader = new DependencyLoader(Files.LIBS_FOLDER.getFile(), Files.LIBS_REPO_FOLDER.getFile(), Files.LIBS_INFO_FOLDER.getFile(), Files.LIBS_BLACKLIST_FOLDER.getFile());
+        DependencyLoader dependencyLoader = null;
 
         List<URL> urls = dependencyLoader.getInstalledDependencies().parallelStream().map(advancedDependency -> {
             try {

@@ -4,11 +4,10 @@ import lombok.Data;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.node.ICloudNode;
-import net.suqatri.cloud.api.node.file.process.IFileTransferProcess;
 import net.suqatri.cloud.api.node.file.process.IFileTransferSentProcess;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.commons.file.FileUtils;
-import net.suqatri.cloud.commons.file.Files;
+import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.commons.file.ZipUtils;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.file.FileTransferManager;
@@ -45,7 +44,7 @@ public class FileTransferSentProcess implements IFileTransferSentProcess {
                 return;
             }
 
-            this.zipFile = new File(Files.TEMP_FOLDER.getFile(), this.transferId + ".zip");
+            this.zipFile = new File(Files.TEMP_TRANSFER_FOLDER.getFile(), this.transferId + ".zip");
 
             ZipUtils.zipDir(this.originalFile, this.zipFile);
 

@@ -10,4 +10,5 @@ public interface IServiceScreen {
     RList<IScreenLine> getLines();
     void addLine(String line);
     void removeUselessLines();
+    void delete();
 }

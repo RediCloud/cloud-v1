@@ -10,6 +10,7 @@ import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.console.ConsoleLine;
+import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
@@ -45,7 +46,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         CloudServiceCopier copier = new CloudServiceCopier(this, CloudAPI.getInstance().getServiceTemplateManager());
         copier.copyFiles();
 
-        this.port = this.factory.getPortManager().getUnusedPort(this).get(5, TimeUnit.SECONDS);
+        this.factory.getPortManager().getUnusedPort(this).get(5, TimeUnit.SECONDS);
 
         CloudAPI.getInstance().getConsole().debug("Starting cloud service process " + this.serviceHolder.get().getServiceName() + " on port " + this.port);
 
@@ -55,14 +56,28 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         builder.command(getStartCommand());
         this.process = builder.start();
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(this.process.getInputStream()));
-        while(this.process.isAlive()){
-            String line = reader.readLine();
-            if(line == null) continue;
-            if(line.isEmpty()) continue;
-            if(line.equals(" ")) continue;
-            CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN [" + this.serviceHolder.get().getServiceName() + "]", line));
-        }
+        new Thread(() -> {
+            try {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(this.process.getInputStream()));
+                while(this.process.isAlive()){
+                    String line = reader.readLine();
+                    if(line == null) continue;
+                    if(line.isEmpty() || line.equals(" ") || line.contains("InitialHandler has pinged")) continue; //"InitialHandler has pinged" for ping flood protection
+                    //TODO: REMOVE THIS LINE FOR SCREENS AND ADD REMOTE SCREEN PER PACKET
+                    CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN [" + this.serviceHolder.get().getServiceName() + "]", line));
+                }
+                ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
+                reader.close();
+                FileUtils.deleteDirectory(this.serviceDirectory);
+                CloudAPI.getInstance().getConsole().debug("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped");
+            } catch (IOException e) {
+                ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
+                CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped exceptionally!", e);
+                if(this.serviceDirectory.exists()){
+                    CloudAPI.getInstance().getConsole().warn("Temp service directory of " + this.serviceHolder.get().getServiceName() + "cannot be deleted (" + this.serviceDirectory.getAbsolutePath() + ")");
+                }
+            }
+        }, "redicloud-service-console-" + this.serviceHolder.get().getServiceName()).start();
 
         this.serviceHolder.get().setServiceState(ServiceState.STARTING);
         this.serviceHolder.get().update();

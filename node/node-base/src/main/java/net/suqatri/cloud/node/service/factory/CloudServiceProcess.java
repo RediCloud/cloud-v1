@@ -69,7 +69,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                 ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
                 reader.close();
                 reader = new BufferedReader(new InputStreamReader(this.process.getErrorStream()));
-                while(reader.ready()){
+                while(reader.ready()){ //TODO: print error remotely to all nodes
                     String line = reader.readLine();
                     CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN-ERROR [" + this.serviceHolder.get().getServiceName() + "]", line));
                 }
@@ -206,6 +206,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
             command.add("-Djline.terminal=jline.UnsupportedTerminal");
         }
 
+        command.add("-jar");
         command.add(this.serviceDirectory.getAbsolutePath() + File.separator + "service.jar");
 
         if(this.serviceHolder.get().getEnvironment() == ServiceEnvironment.MINECRAFT){

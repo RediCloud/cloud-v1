@@ -54,6 +54,7 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
             }
         }else{
             CloudAPI.getInstance().getConsole().debug("Received packet: " + packet.getClass().getSimpleName());
+            packet.receive();
         }
 
     }

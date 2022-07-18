@@ -19,7 +19,7 @@ import java.util.UUID;
 @Getter
 public class ServiceScreen implements IServiceScreen {
 
-    private static final int MAX_LINES = 80;
+    private static final int MAX_LINES = 60;
     private static final int CHECK_INTERVAL = 25;
 
     private static final int MAX_LINES_PER_SECOND = 15;

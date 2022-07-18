@@ -40,7 +40,9 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
 @Getter
@@ -403,14 +405,24 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
             if(this.serviceManager != null){
                 int stopCount = 0;
+                if(this.console != null) this.console.info("Stopping services...");
                 for (IRBucketHolder<ICloudService> serviceHolders : this.serviceManager.getServices()) {
                     if(!serviceHolders.get().getNodeId().equals(this.node.getUniqueId())) continue;
                     stopCount++;
                     try {
-                        this.serviceManager.stopService(serviceHolders.get().getUniqueId(), false);
-                        Thread.sleep(100);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                        this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), false).get(5, TimeUnit.SECONDS);
+                        if(this.console != null) this.console.info("Stopped service " + serviceHolders.get().getServiceName());
+                    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                        try {
+                            if(this.console != null) this.console.warn("Failed to stop service " + serviceHolders.get().getServiceName() + "! Try to force stop...");
+                            this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), true).get(5, TimeUnit.SECONDS);
+                        }catch (InterruptedException | ExecutionException | TimeoutException e1) {
+                            if(this.console != null) {
+                                this.console.error("Failed to stop service " + serviceHolders.get().getServiceName(), e1);
+                            }else{
+                                e1.printStackTrace();
+                            }
+                        }
                     }
                 }
                 if(stopCount != 0) {

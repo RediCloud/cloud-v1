@@ -1,5 +1,6 @@
 package net.suqatri.cloud.node.service.factory;
 
+import com.google.common.util.concurrent.RateLimiter;
 import lombok.Data;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.node.service.factory.ICloudServiceProcess;
@@ -33,6 +34,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
     private Process process;
     private int port;
     private Thread thread;
+    private FutureAction<Boolean> stopFuture;
 
     //TODO create packet for service
     @Override
@@ -61,13 +63,15 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         this.process = builder.start();
 
         this.thread = new Thread(() -> {
-            IServiceScreen screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(this.serviceHolder);
             try {
+                RateLimiter rate = RateLimiter.create(15, 5, TimeUnit.SECONDS);
+                IServiceScreen screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(this.serviceHolder);
                 BufferedReader reader = new BufferedReader(new InputStreamReader(this.process.getInputStream()));
                 while(this.process.isAlive() && Thread.currentThread().isAlive() && !Thread.currentThread().isInterrupted()) {
                     String line = reader.readLine();
                     if(line == null) continue;
                     if(line.isEmpty() || line.equals(" ") || line.contains("InitialHandler has pinged")) continue; //"InitialHandler has pinged" for ping flood protection
+                    rate.acquire();
                     screen.addLine(line);
                 }
                 ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
@@ -81,7 +85,9 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                 reader.close();
                 if(this.serviceDirectory.exists()) FileUtils.deleteDirectory(this.serviceDirectory);
                 CloudAPI.getInstance().getConsole().debug("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped");
+                if(this.stopFuture != null) this.stopFuture.complete(true);
             } catch (IOException e) {
+                if(this.stopFuture != null) this.stopFuture.completeExceptionally(e);
                 ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
                 CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped exceptionally!", e);
                 if(this.serviceDirectory.exists()){
@@ -99,16 +105,11 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
     @Override
     public FutureAction<Boolean> stopAsync(boolean force) {
-        FutureAction<Boolean> futureAction = new FutureAction<>();
+        FutureAction<Boolean> futureAction = this.stopFuture != null ? this.stopFuture : new FutureAction<>();
+
+        this.stopFuture = futureAction;
 
         if(isActive()) this.stopProcess(force);
-
-        deleteTempFilesAsync(force)
-            .onFailure(futureAction)
-            .onSuccess(b -> {
-                this.factory.getThread().getProcesses().remove(this.serviceHolder.get().getUniqueId());
-                futureAction.complete(true);
-            });
 
         return futureAction;
     }

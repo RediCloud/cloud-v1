@@ -18,7 +18,7 @@ public enum ColorTranslator {
     ORANGE('6', Ansi.ansi().reset().fg(Ansi.Color.YELLOW).boldOff().toString()),
     GRAY('7', Ansi.ansi().reset().fg(Ansi.Color.WHITE).boldOff().toString()),
     DARK_RED('4', Ansi.ansi().reset().fg(Ansi.Color.RED).boldOff().toString()),
-    DARK_GRAY('8', Ansi.ansi().reset().a(Ansi.Color.BLACK).bold().toString()),
+    DARK_GRAY('8', Ansi.ansi().reset().fg(Ansi.Color.BLACK).bold().toString()),
     DARK_BLUE('1', Ansi.ansi().reset().fg(Ansi.Color.BLUE).boldOff().toString()),
     DARK_GREEN('2', Ansi.ansi().reset().fg(Ansi.Color.GREEN).boldOff().toString()),
     LIGHT_BLUE('b', Ansi.ansi().reset().fg(Ansi.Color.CYAN).bold().toString()),

@@ -2,11 +2,14 @@ package net.suqatri.cloud.node.console.setup;
 
 import com.google.common.primitives.Primitives;
 import lombok.Getter;
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.IConsoleInput;
 import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.api.console.IConsoleLineEntry;
+import net.suqatri.cloud.api.node.service.screen.IServiceScreen;
 import net.suqatri.cloud.commons.function.BiSupplier;
 import net.suqatri.cloud.commons.reflection.ReflectionUtils;
+import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.cloud.node.console.NodeConsole;
 import net.suqatri.cloud.node.console.setup.annotations.*;
 
@@ -109,6 +112,7 @@ public abstract class Setup<T extends Setup<?>> {
     }
 
     private Consumer<String> inputConsumer;
+    private final List<IServiceScreen> pausedScreens;
 
     public SetupHeaderBehaviour headerBehaviour() {
         return SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES;
@@ -119,6 +123,7 @@ public abstract class Setup<T extends Setup<?>> {
         this.console = console;
 
         this.cancelled = false;
+        this.pausedScreens = new ArrayList<>();
         this.exitAfterAnswer = false;
         this.map = new HashMap<>();
         this.restoredLines = console.getLineEntries();
@@ -128,7 +133,10 @@ public abstract class Setup<T extends Setup<?>> {
         this.loadSetupParts();
 
         this.console.setCurrentSetup(this);
-
+        for (IServiceScreen activeScreen : NodeLauncher.getInstance().getScreenManager().getActiveScreens()) {
+            NodeLauncher.getInstance().getScreenManager().leave(activeScreen);
+            this.pausedScreens.add(activeScreen);
+        }
     }
 
     public void start(SetupListener<T> finishHandler) {
@@ -155,10 +163,10 @@ public abstract class Setup<T extends Setup<?>> {
             this.console.removeInputHandler(this.inputConsumer);
         }
 
+        //Setup done and accepting consumer
+        this.console.setCurrentSetup(null);
         //If already exited by another code line
         if (this.setupListener != null) {
-            //Setup done and accepting consumer
-            this.console.setCurrentSetup(null);
             if (success) {
                 this.setupListener.accept((T) this, SetupControlState.FINISHED);
             } else {
@@ -177,6 +185,10 @@ public abstract class Setup<T extends Setup<?>> {
                     ((IConsoleInput) restoredLine).logAsFake();
                 }
             }
+        }
+
+        for (IServiceScreen pausedScreen : this.pausedScreens) {
+            NodeLauncher.getInstance().getScreenManager().join(pausedScreen);
         }
 
     }

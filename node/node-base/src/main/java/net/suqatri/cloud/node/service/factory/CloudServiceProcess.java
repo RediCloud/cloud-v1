@@ -210,7 +210,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         command.add(this.serviceDirectory.getAbsolutePath() + File.separator + "service.jar");
 
         if(this.serviceHolder.get().getEnvironment() == ServiceEnvironment.MINECRAFT){
-            command.add("--nogui");
+            command.add("nogui");
         }
 
         command.addAll(this.serviceHolder.get().getConfiguration().getProcessParameters());

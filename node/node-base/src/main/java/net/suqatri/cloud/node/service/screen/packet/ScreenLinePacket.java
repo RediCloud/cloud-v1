@@ -1,8 +1,9 @@
-package net.suqatri.cloud.node.service.screen;
+package net.suqatri.cloud.node.service.screen.packet;
 
 import lombok.Data;
 import net.suqatri.cloud.api.impl.packet.CloudPacket;
 import net.suqatri.cloud.node.NodeLauncher;
+import net.suqatri.cloud.node.service.screen.ScreenLine;
 
 import java.util.UUID;
 

@@ -12,7 +12,7 @@ A redis based cluster cloud system for minecraft. **[[Discord](https://discord.g
   <br>
 
 ### What is RediCloud?
-  - RediCloud is a cluster cloud system for minecraft which is based on [redis](https://redis.io). The best thing is there are no head-nodes and sub-nodes. That means you can connect to the cluster very easily. Every thing you have to do is to setup the redis connection. It is automatically detected whether a cluster already exists and the node is connected to it. 
+  - RediCloud is a cluster cloud system for minecraft which is based on [redis](https://redis.io). The best thing is there are no head-nodes and sub-nodes. That means you can easily connect to the cluster. Everything you have to do is to setup the redis connection. It is automatically detected wether a cluster already exists or the node is connected to it. 
   - Let's imagine you have running your network like the following way:
   
         Node-1

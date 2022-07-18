@@ -13,7 +13,6 @@ public interface ICloudServiceProcess {
     void executeCommand(String command);
     boolean start() throws Exception;
     FutureAction<Boolean> stopAsync(boolean force);
-    boolean stop(boolean force) throws IOException;
     boolean isActive();
     File getServiceDirectory();
     int getPort();

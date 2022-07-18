@@ -115,16 +115,6 @@ public class CloudServiceProcess implements ICloudServiceProcess {
     }
 
     @Override
-    public boolean stop(boolean force) throws IOException {
-        if(isActive()) this.stopProcess(force);
-
-        deleteTempFiles(force);
-        this.factory.getThread().getProcesses().remove(this.serviceHolder.get().getUniqueId());
-
-        return true;
-    }
-
-    @Override
     public boolean isActive() {
         return this.process != null && this.process.isAlive();
     }

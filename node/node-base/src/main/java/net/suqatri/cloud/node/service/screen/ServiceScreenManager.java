@@ -6,6 +6,7 @@ import net.suqatri.cloud.api.node.service.screen.IServiceScreen;
 import net.suqatri.cloud.api.node.service.screen.IServiceScreenManager;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
+import net.suqatri.cloud.commons.function.future.FutureAction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,9 +34,23 @@ public class ServiceScreenManager implements IServiceScreenManager {
     }
 
     @Override
-    public void join(IServiceScreen serviceScreen) {
+    public FutureAction<IServiceScreen> join(IServiceScreen serviceScreen) {
+        FutureAction<IServiceScreen> futureAction = new FutureAction<>();
+        if(this.activeScreens.contains(serviceScreen)) {
+            futureAction.complete(serviceScreen);
+            return futureAction;
+        }
         this.activeScreens.add(serviceScreen);
-        for (IScreenLine screenLine : serviceScreen.getLines().readAll()) screenLine.print();
+        serviceScreen.getLines().readAllAsync().whenComplete((lines, e) -> {
+            System.out.println(lines.size());
+            for (IScreenLine screenLine : lines) {
+                System.out.println(screenLine.getLine());
+                CloudAPI.getInstance().getConsole().log(screenLine.createConsoleLine());
+            }
+
+            futureAction.complete(serviceScreen);
+        });
+        return futureAction;
     }
 
     @Override

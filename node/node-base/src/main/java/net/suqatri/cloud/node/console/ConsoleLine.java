@@ -1,8 +1,6 @@
 package net.suqatri.cloud.node.console;
 
-import lombok.Data;
 import lombok.Getter;
-import lombok.Setter;
 import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.api.console.LogLevel;
 

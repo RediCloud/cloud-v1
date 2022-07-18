@@ -4,7 +4,6 @@ import net.suqatri.cloud.node.console.setup.Setup;
 import net.suqatri.cloud.node.console.setup.SetupEntry;
 import net.suqatri.cloud.node.console.setup.SetupSuggester;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

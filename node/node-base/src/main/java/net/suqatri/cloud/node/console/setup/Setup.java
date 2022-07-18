@@ -2,13 +2,11 @@ package net.suqatri.cloud.node.console.setup;
 
 import com.google.common.primitives.Primitives;
 import lombok.Getter;
-import net.suqatri.cloud.api.console.IConsole;
 import net.suqatri.cloud.api.console.IConsoleInput;
 import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.api.console.IConsoleLineEntry;
 import net.suqatri.cloud.commons.function.BiSupplier;
 import net.suqatri.cloud.commons.reflection.ReflectionUtils;
-import net.suqatri.cloud.node.console.ConsoleLine;
 import net.suqatri.cloud.node.console.NodeConsole;
 import net.suqatri.cloud.node.console.setup.annotations.*;
 

@@ -2,6 +2,7 @@ package net.suqatri.cloud.node.console;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.api.console.LogLevel;
 
@@ -44,7 +45,7 @@ public class ConsoleLine implements IConsoleLine, Cloneable, Serializable {
 
     @Override
     public void println() {
-        CommandConsoleManager.getInstance().getNodeConsole().log(clone().setStored(false));
+        CloudAPI.getInstance().getConsole().log(this);
     }
 
     @Override

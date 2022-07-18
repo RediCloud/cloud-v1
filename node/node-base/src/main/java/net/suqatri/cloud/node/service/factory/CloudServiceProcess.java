@@ -3,12 +3,14 @@ package net.suqatri.cloud.node.service.factory;
 import lombok.Data;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.node.service.factory.ICloudServiceProcess;
+import net.suqatri.cloud.api.node.service.screen.IServiceScreen;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.commons.function.future.FutureAction;
+import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.cloud.node.console.ConsoleLine;
 import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 import org.apache.commons.io.FileUtils;
@@ -58,14 +60,14 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         this.process = builder.start();
 
         new Thread(() -> {
+            IServiceScreen screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(this.serviceHolder);
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(this.process.getInputStream()));
                 while(this.process.isAlive()){
                     String line = reader.readLine();
                     if(line == null) continue;
                     if(line.isEmpty() || line.equals(" ") || line.contains("InitialHandler has pinged")) continue; //"InitialHandler has pinged" for ping flood protection
-                    //TODO: REMOVE THIS LINE FOR SCREENS AND ADD REMOTE SCREEN PER PACKET
-                    CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN [" + this.serviceHolder.get().getServiceName() + "]", line));
+                    screen.addLine(line);
                 }
                 ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
                 reader.close();
@@ -84,7 +86,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                     CloudAPI.getInstance().getConsole().warn("Temp service directory of " + this.serviceHolder.get().getServiceName() + "cannot be deleted (" + this.serviceDirectory.getAbsolutePath() + ")");
                 }
             }
-        }, "redicloud-service-console-" + this.serviceHolder.get().getServiceName()).start();
+        }, "redicloud-service-" + this.serviceHolder.get().getServiceName()).start();
 
         this.serviceHolder.get().setServiceState(ServiceState.STARTING);
         this.serviceHolder.get().update();

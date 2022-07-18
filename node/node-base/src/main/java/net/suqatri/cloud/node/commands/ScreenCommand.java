@@ -47,8 +47,9 @@ public class ScreenCommand extends ConsoleCommand {
                                 commandSender.sendMessage("Screen " + serviceName + " is already active!");
                                 return;
                             }
-                            NodeLauncher.getInstance().getScreenManager().join(serviceScreen);
-                            commandSender.sendMessage("Screen " + serviceName + " joined!");
+                            NodeLauncher.getInstance().getScreenManager().join(serviceScreen)
+                                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to join screen " + serviceName + "!", e))
+                                .onSuccess(s -> commandSender.sendMessage("Screen " + serviceName + " joined!"));
                         });
                 });
     }
@@ -72,7 +73,7 @@ public class ScreenCommand extends ConsoleCommand {
                                     commandSender.sendMessage("Screen " + serviceName + " is not active!");
                                     return;
                                 }
-                                NodeLauncher.getInstance().getScreenManager().join(serviceScreen);
+                                NodeLauncher.getInstance().getScreenManager().leave(serviceScreen);
                                 commandSender.sendMessage("Screen " + serviceName + " left!");
                             });
                 });

@@ -30,6 +30,7 @@ import net.suqatri.cloud.node.node.packet.NodePingPacket;
 import net.suqatri.cloud.node.scheduler.Scheduler;
 import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 import net.suqatri.cloud.node.service.factory.NodeCloudServiceFactory;
+import net.suqatri.cloud.node.service.screen.ServiceScreenManager;
 import net.suqatri.cloud.node.service.version.NodeCloudServiceVersionManager;
 import net.suqatri.cloud.node.setup.node.NodeConnectionDataSetup;
 import net.suqatri.cloud.node.setup.redis.RedisSetup;
@@ -38,7 +39,6 @@ import net.suqatri.cloud.node.template.NodeCloudServiceTemplateManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -61,6 +61,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private boolean skiptempaltesync = false;
     private final NodeCloudServiceFactory serviceFactory;
     private final NodeCloudServiceVersionManager serviceVersionManager;
+    private final ServiceScreenManager screenManager;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -70,6 +71,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.serviceManager = new NodeCloudServiceManager();
         this.serviceFactory = new NodeCloudServiceFactory(this.serviceManager);
         this.serviceVersionManager = new NodeCloudServiceVersionManager();
+        this.screenManager = new ServiceScreenManager();
         this.handleProgrammArguments(args);
 
         this.init(() -> {
@@ -180,6 +182,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.commandManager.registerCommand(new CloudHelpCommand());
         this.commandManager.registerCommand(new ServiceVersionCommand());
         this.commandManager.registerCommand(new VersionCommand());
+        this.commandManager.registerCommand(new ScreenCommand());
     }
 
     private void registerPackets(){

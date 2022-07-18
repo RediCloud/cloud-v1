@@ -180,6 +180,7 @@ public abstract class Setup<T extends Setup<?>> {
             this.console.clearScreen();
             for (IConsoleLineEntry restoredLine : this.restoredLines) {
                 if(restoredLine instanceof IConsoleLine){
+                    ((IConsoleLine)restoredLine).setStored(false);
                     ((IConsoleLine) restoredLine).println();
                 }else if(restoredLine instanceof IConsoleInput){
                     ((IConsoleInput) restoredLine).logAsFake();

@@ -18,7 +18,7 @@ public class SimpleCloudPacketResponse extends CloudPacketResponse {
         ICloudPacketData packetData = ((CloudPacketManager)CloudAPI.getInstance().getPacketManager()).getWaitingForResponse().get(this.getPacketData().getResponseTargetData().getPacketId());
         FutureAction<ICloudPacketResponse> futureAction = packetData.getResponseAction();
         if(!futureAction.isCompletedExceptionally() && !futureAction.isDone() && !futureAction.isCancelled()){
-            futureAction.completeExceptionally(this.getException());
+            futureAction.completeExceptionally(new Exception("[" + this.getException() + "]: " + this.getErrorMessage()));
         }
     }
 }

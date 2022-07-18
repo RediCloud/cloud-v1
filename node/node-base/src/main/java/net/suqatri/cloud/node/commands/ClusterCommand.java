@@ -58,6 +58,10 @@ public class ClusterCommand extends ConsoleCommand {
                     CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node " + nodeName, e))
                             .onSuccess(nodeHolder -> {
+                                if(!nodeHolder.get().isConnected()){
+                                    commandSender.sendMessage("Node not connected!");
+                                    return;
+                                }
                                 NodePingPacket packet = new NodePingPacket();
                                 packet.getPacketData().addReceiver(nodeHolder.get().getNetworkComponentInfo());
                                 packet.getPacketData().waitForResponse()

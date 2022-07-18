@@ -53,6 +53,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         ProcessBuilder builder = new ProcessBuilder();
         Map<String, String> environment = builder.environment();
         environment.put("serviceId", this.getServiceHolder().get().getUniqueId().toString());
+        builder.directory(this.serviceDirectory);
         builder.command(getStartCommand());
         this.process = builder.start();
 

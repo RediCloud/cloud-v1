@@ -108,6 +108,7 @@ public class CloudNodeServiceThread extends Thread{
 
         CloudServiceProcess process = new CloudServiceProcess(this.factory, holder);
         process.start();
+        this.processes.put(cloudService.getUniqueId(), process);
     }
 
     private int getNextId(String groupName, Collection<IRBucketHolder<ICloudService>> servicesHolders){

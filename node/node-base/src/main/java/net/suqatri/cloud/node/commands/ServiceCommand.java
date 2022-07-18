@@ -76,6 +76,7 @@ public class ServiceCommand extends ConsoleCommand {
                             commandSender.sendMessage("Group not found");
                             return;
                         }
+                        commandSender.sendMessage((force ? "Force stopping" : "Stopping") + " all service of group " + groupHolder.get().getName() + "...");
                         groupHolder.get().getOnlineServices()
                             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get services", t))
                             .onSuccess(serviceHolders -> {
@@ -96,6 +97,7 @@ public class ServiceCommand extends ConsoleCommand {
                             commandSender.sendMessage("Service not found");
                             return;
                         }
+                        commandSender.sendMessage((force ? "Force stopping" : "Stopping") + " service " + serviceHolder.get().getName() + "...");
                         CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId(), force)
                                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to stop service", t))
                                 .onSuccess(b -> commandSender.sendMessage("Stopped service " + serviceHolder.get().getName()));

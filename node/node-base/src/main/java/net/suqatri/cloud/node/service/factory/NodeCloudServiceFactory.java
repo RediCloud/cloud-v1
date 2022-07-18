@@ -56,7 +56,6 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
         return true;
     }
 
-    //TODO fix when service is not correctly started (!this.processes.containsKey(serviceId) | because process is not started but service exists)
     @Override
     public FutureAction<Boolean> destroyServiceAsync(UUID uniqueId, boolean force) {
         FutureAction<Boolean> futureAction = new FutureAction<>();

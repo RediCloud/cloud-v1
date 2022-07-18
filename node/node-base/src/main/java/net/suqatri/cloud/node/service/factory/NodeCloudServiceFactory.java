@@ -37,25 +37,6 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
         return configuration.getStartListener();
     }
 
-    //TODO fix when service is not correctly started (!this.processes.containsKey(serviceId) | because process is not started but service exists)
-    @Override
-    public boolean destroyService(UUID uniqueId, boolean force) throws IOException {
-
-        ICloudServiceProcess process = this.thread.getProcesses().get(uniqueId);
-        if(process == null) {
-            this.thread.getWaitForRemove().add(uniqueId);
-            return true;
-        }
-
-        process.stop(force);
-
-        process.getServiceHolder().get().setServiceState(ServiceState.OFFLINE);
-        process.getServiceHolder().get().update();
-
-        this.serviceManager.deleteBucket(process.getServiceHolder().get().getUniqueId().toString());
-        return true;
-    }
-
     @Override
     public FutureAction<Boolean> destroyServiceAsync(UUID uniqueId, boolean force) {
         FutureAction<Boolean> futureAction = new FutureAction<>();

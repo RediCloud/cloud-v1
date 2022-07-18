@@ -100,7 +100,6 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
         CloudFactoryServiceStopPacket packet = new CloudFactoryServiceStopPacket();
         packet.setServiceId(uniqueId);
         packet.setForce(force);
-        packet.setAsync(true);
         packet.getPacketData().waitForResponse()
                 .onFailure(futureAction)
                 .onSuccess(response -> {
@@ -109,17 +108,6 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
         packet.publishAsync();
 
         return futureAction;
-    }
-
-    @Override
-    public boolean stopService(UUID uniqueId, boolean force) throws Exception {
-        CloudFactoryServiceStopPacket packet = new CloudFactoryServiceStopPacket();
-        packet.setServiceId(uniqueId);
-        packet.setForce(force);
-        packet.setAsync(false);
-        SimpleCloudPacketResponse response = (SimpleCloudPacketResponse) packet.getPacketData().waitForResponse().get(20, TimeUnit.SECONDS);
-        if(response.getException() != null) throw response.getException();
-        return true;
     }
 
 

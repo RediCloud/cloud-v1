@@ -17,11 +17,6 @@ public class NodeCloudServiceManager extends CloudServiceManager {
     }
 
     @Override
-    public boolean stopService(UUID uniqueId, boolean force) throws Exception {
-        return NodeLauncher.getInstance().getServiceFactory().destroyService(uniqueId, force);
-    }
-
-    @Override
     public FutureAction<IRBucketHolder<ICloudService>> startService(IServiceStartConfiguration configuration) {
         return NodeLauncher.getInstance().getServiceFactory().queueService(configuration);
     }

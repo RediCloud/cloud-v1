@@ -5,6 +5,7 @@ import net.suqatri.cloud.api.group.GroupProperty;
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.impl.group.CloudGroup;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.commons.ConditionChecks;
 import net.suqatri.cloud.node.console.setup.SetupControlState;
 import net.suqatri.cloud.node.setup.group.GroupSetup;
@@ -54,6 +55,7 @@ public class GroupCommand extends ConsoleCommand {
                                 CloudGroup cloudGroup = new CloudGroup();
                                 cloudGroup.setUniqueId(UUID.randomUUID());
                                 cloudGroup.setName(name);
+                                cloudGroup.setStartPort(groupSetup.getEnvironment() == ServiceEnvironment.MINECRAFT ? 49152 : 25565);
                                 cloudGroup.setMinServices(groupSetup.getMinServices());
                                 cloudGroup.setMaxServices(groupSetup.getMaxServices());
                                 cloudGroup.setStaticGroup(groupSetup.isStaticGroup());
@@ -61,6 +63,7 @@ public class GroupCommand extends ConsoleCommand {
                                 cloudGroup.setMaxMemory(groupSetup.getMaxMemory());
                                 cloudGroup.setStartPriority(groupSetup.getStartPriority());
                                 cloudGroup.setServiceVersionName(groupSetup.getServiceVersionName());
+                                cloudGroup.setServiceEnvironment(groupSetup.getEnvironment());
 
                                 CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
                                         .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))

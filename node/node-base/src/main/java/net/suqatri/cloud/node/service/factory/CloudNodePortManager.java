@@ -21,9 +21,19 @@ public class CloudNodePortManager implements ICloudPortManager {
         FutureAction<Integer> futureAction = new FutureAction<>();
 
         CloudAPI.getInstance().getExecutorService().submit(() -> {
-            int startPort = process.getServiceHolder().get().getConfiguration().getStartPort() == -1 ? 5200 : process.getServiceHolder().get().getConfiguration().getStartPort();
-            int currentPort = startPort;
-            while(isInUse(currentPort) || isPortBlocked(currentPort)) currentPort++;
+            boolean inRange = (process.getServiceHolder().get().getConfiguration().getStartPort() > 49152
+                    && process.getServiceHolder().get().getConfiguration().getStartPort() < 65535);
+            int currentPort = !inRange ? 49152 : process.getServiceHolder().get().getConfiguration().getStartPort();
+            if(!inRange){
+                CloudAPI.getInstance().getConsole().warn("Service " + process.getServiceHolder().get().getServiceName() + " has invalid start port " + process.getServiceHolder().get().getConfiguration().getStartPort() + " (must be in range 49152-65535)");
+                CloudAPI.getInstance().getConsole().warn("Using default start port 49152");
+            }
+            while(isInUse(currentPort) || isPortBlocked(currentPort)) {
+                currentPort++;
+                if(currentPort > 65535) currentPort = 49152;
+            }
+            this.addBlockedPort(currentPort);
+            process.setPort(currentPort);
             this.usedPort.put(process, currentPort);
             futureAction.complete(currentPort);
         });
@@ -33,7 +43,7 @@ public class CloudNodePortManager implements ICloudPortManager {
 
     public boolean isPortBlocked(int port) {
         if(this.blockedPorts.contains(port)) return true;
-        return isPortAvailable(port);
+        return !isPortAvailable(port);
     }
 
     public boolean isPortAvailable(int port){
@@ -41,7 +51,6 @@ public class CloudNodePortManager implements ICloudPortManager {
         try {
             socket = new Socket("127.0.0.1", port);
             socket.close();
-            this.blockedPorts.add(port);
             return false;
         } catch (IOException e) {
             return true;

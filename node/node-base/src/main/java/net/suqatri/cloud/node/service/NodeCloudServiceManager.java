@@ -7,7 +7,6 @@ import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.NodeLauncher;
 
-import java.io.IOException;
 import java.util.UUID;
 
 public class NodeCloudServiceManager extends CloudServiceManager {
@@ -23,12 +22,7 @@ public class NodeCloudServiceManager extends CloudServiceManager {
     }
 
     @Override
-    public IRBucketHolder<ICloudService> startService(IServiceStartConfiguration configuration) throws Exception {
-        return NodeLauncher.getInstance().getServiceFactory().createService(configuration);
-    }
-
-    @Override
-    public FutureAction<IRBucketHolder<ICloudService>> startServiceAsync(IServiceStartConfiguration configuration) {
-        return NodeLauncher.getInstance().getServiceFactory().createServiceAsync(configuration);
+    public FutureAction<IRBucketHolder<ICloudService>> startService(IServiceStartConfiguration configuration) {
+        return NodeLauncher.getInstance().getServiceFactory().queueService(configuration);
     }
 }

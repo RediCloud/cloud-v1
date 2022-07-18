@@ -29,20 +29,36 @@ public class FileEditor {
             }
             fileReader.close();
             bufferedReader.close();
-            loadMap();
+            this.loadMap();
         }
+    }
+
+    public void read(List<String> list) throws IOException {
+        this.lines.addAll(list);
+        this.loadMap();
     }
 
     public void save(File file) throws IOException {
         FileWriter writer = new FileWriter(file);
-        writer.write(newLine() + "\n");
+        for (String s : newLine()) {
+            writer.write(s + "\n");
+        }
         writer.close();
     }
 
     private void loadMap(){
         for(String line : this.lines){
-            String[] keyValue = line.split(this.splitter);
-            this.keyValues.put(keyValue[0], keyValue[1]);
+            if(line.startsWith("#")) continue;
+            if (!line.contains(this.splitter) || line.split(this.splitter).length < 2) {
+                this.keyValues.put(line.replace(this.splitter, ""), "");
+                continue;
+            }
+            try {
+                String[] keyValue = line.split(this.splitter);
+                this.keyValues.put(keyValue[0], keyValue[1]);
+            }catch (IndexOutOfBoundsException e){
+                throw new IndexOutOfBoundsException("Invalid line: " + line);
+            }
         }
     }
 
@@ -87,7 +103,7 @@ public class FileEditor {
 
     private int getAmountOfStartSpacesInLine(String line){
         int amountOfSpaces = 0;
-        for(int i = 0; i < line.length(); i++){
+        for(int i = 1; i < line.length(); i++){
             if(line.charAt(i) == ' '){
                 amountOfSpaces++;
                 continue;

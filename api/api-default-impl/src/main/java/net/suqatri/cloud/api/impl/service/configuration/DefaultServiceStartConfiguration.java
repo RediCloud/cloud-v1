@@ -6,6 +6,7 @@ import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.commons.function.future.FutureAction;
@@ -35,6 +36,14 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
     private int startPort;
     private String serviceVersionName;
     private UUID nodeId;
+    @JsonIgnore
+    private FutureAction<IRBucketHolder<ICloudService>> startListener;
+
+    @Override
+    public void listenToStart() {
+        if(this.startListener != null) return;
+        this.startListener = new FutureAction<>();
+    }
 
     public static FutureAction<DefaultServiceStartConfiguration> fromInterface(IServiceStartConfiguration interfaceConfig){
         FutureAction<DefaultServiceStartConfiguration> futureAction = new FutureAction<>();

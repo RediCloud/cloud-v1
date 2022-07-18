@@ -25,7 +25,7 @@ public interface ICloudService extends IRBucketObject {
     }
 
     default String getServiceName() {
-        return getName() + "-" + getServiceName();
+        return getName() + "-" + getId();
     }
 
     default String getName() {

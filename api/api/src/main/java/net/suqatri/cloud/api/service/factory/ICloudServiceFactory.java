@@ -10,8 +10,7 @@ import java.util.UUID;
 
 public interface ICloudServiceFactory {
 
-    IRBucketHolder<ICloudService> createService(IServiceStartConfiguration configuration) throws Exception;
-    FutureAction<IRBucketHolder<ICloudService>> createServiceAsync(IServiceStartConfiguration configuration);
+    FutureAction<IRBucketHolder<ICloudService>> queueService(IServiceStartConfiguration configuration);
 
     boolean destroyService(UUID uniqueId, boolean force) throws IOException;
     FutureAction<Boolean> destroyServiceAsync(UUID uniqueId, boolean force);

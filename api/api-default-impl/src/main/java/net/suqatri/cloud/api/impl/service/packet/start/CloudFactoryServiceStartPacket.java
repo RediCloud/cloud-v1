@@ -18,7 +18,7 @@ public class CloudFactoryServiceStartPacket extends CloudPacket {
     public void receive() {
         CloudFactoryServiceStartResponseCloud response = new CloudFactoryServiceStartResponseCloud();
         if(this.async) {
-            CloudAPI.getInstance().getServiceManager().startServiceAsync(this.configuration)
+            CloudAPI.getInstance().getServiceManager().startService(this.configuration)
                     .onFailure(e -> {
                         response.setException(e);
                         this.packetResponseAsync(response);
@@ -29,9 +29,15 @@ public class CloudFactoryServiceStartPacket extends CloudPacket {
                     });
         } else {
             try {
-                IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().startService(this.configuration);
-                response.setServiceId(holder.get().getUniqueId());
-                this.packetResponseAsync(response);
+                CloudAPI.getInstance().getServiceManager().startService(this.configuration)
+                    .onFailure(e -> {
+                        response.setException(e);
+                        this.packetResponse(response);
+                    })
+                    .onSuccess(holder -> {
+                        response.setServiceId(holder.get().getUniqueId());
+                        this.packetResponseAsync(response);
+                    });
             }catch (Exception e){
                 response.setException(e);
                 this.packetResponseAsync(response);

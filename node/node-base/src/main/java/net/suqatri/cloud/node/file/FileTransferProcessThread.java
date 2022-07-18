@@ -27,6 +27,10 @@ public class FileTransferProcessThread extends Thread {
     @Setter @Getter
     private static IFileTransferReceiveProcess currentReceiveProcess;
 
+    public FileTransferProcessThread(){
+        super("redicloud-filetransfer-thread");
+    }
+
     @Override
     public void run() {
 

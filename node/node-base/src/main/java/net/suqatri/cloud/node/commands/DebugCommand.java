@@ -20,6 +20,12 @@ import java.lang.reflect.Method;
 @CommandAlias("debug")
 public class DebugCommand extends ConsoleCommand {
 
+    @Subcommand("facatory queue")
+    @Description("Prints the factory queue")
+    public void onFactoryQueue(CommandSender commandSender){
+        commandSender.sendMessage("Factory queue: " + NodeLauncher.getInstance().getServiceFactory().getThread().getQueue());
+    }
+
     @Subcommand("file-transfer sent")
     @Description("Show how many sent file transfers are currently queued")
     public void onFileTransferSent(CommandSender commandSender){

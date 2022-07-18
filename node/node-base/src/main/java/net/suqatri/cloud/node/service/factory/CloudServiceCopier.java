@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class CloudServiceCopier implements ICloudServiceCopier {
 
     private final CloudServiceProcess process;
-    private final ICloudServiceTemplateManager templateManager = this.templateManager;
+    private final ICloudServiceTemplateManager templateManager;
 
     @Override
     public FutureAction<File> copyFilesAsync() {
@@ -98,7 +98,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                         return;
                                                     }
 
-                                                    FileUtils.copyFileToDirectory(serviceVersionHolder.get().getPatchedFile(), this.getServiceDirectory());
+                                                    FileUtils.copyFile(serviceVersionHolder.get().getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
 
                                                     futureAction.complete(this.getServiceDirectory());
                                                 } catch (IOException e) {
@@ -147,9 +147,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                 FileUtils.copyFileToDirectory(Files.MINECRAFT_PLUGIN_JAR.getFile(), pluginFolder);
                 configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "bukkit.yml"));
                 configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "spigot.yml"));
-                File properties = new File(Files.STORAGE_FOLDER.getFile(), "server.properties");
-                configFiles.add(properties);
-                editProperties(properties);
+                configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "server.properties"));
                 break;
 
             case PROXY:
@@ -166,7 +164,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
 
         editFiles();
 
-        FileUtils.copyFileToDirectory(serviceVersionHolder.get().getPatchedFile(), this.getServiceDirectory());
+        FileUtils.copyFile(serviceVersionHolder.get().getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
 
         return this.getServiceDirectory();
     }

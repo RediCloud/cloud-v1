@@ -32,6 +32,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
     private File serviceDirectory;
     private Process process;
     private int port;
+    private Thread thread;
 
     //TODO create packet for service
     @Override
@@ -59,17 +60,18 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         builder.command(getStartCommand());
         this.process = builder.start();
 
-        new Thread(() -> {
+        this.thread = new Thread(() -> {
             IServiceScreen screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(this.serviceHolder);
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(this.process.getInputStream()));
-                while(this.process.isAlive()){
+                while(this.process.isAlive() && Thread.currentThread().isAlive() && !Thread.currentThread().isInterrupted()) {
                     String line = reader.readLine();
                     if(line == null) continue;
                     if(line.isEmpty() || line.equals(" ") || line.contains("InitialHandler has pinged")) continue; //"InitialHandler has pinged" for ping flood protection
                     screen.addLine(line);
                 }
                 ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
+                screen.delete();
                 reader.close();
                 reader = new BufferedReader(new InputStreamReader(this.process.getErrorStream()));
                 while(reader.ready()){ //TODO: print error remotely to all nodes
@@ -77,7 +79,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                     CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN-ERROR [" + this.serviceHolder.get().getServiceName() + "]", line));
                 }
                 reader.close();
-                FileUtils.deleteDirectory(this.serviceDirectory);
+                if(this.serviceDirectory.exists()) FileUtils.deleteDirectory(this.serviceDirectory);
                 CloudAPI.getInstance().getConsole().debug("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped");
             } catch (IOException e) {
                 ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
@@ -86,46 +88,13 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                     CloudAPI.getInstance().getConsole().warn("Temp service directory of " + this.serviceHolder.get().getServiceName() + "cannot be deleted (" + this.serviceDirectory.getAbsolutePath() + ")");
                 }
             }
-        }, "redicloud-service-" + this.serviceHolder.get().getServiceName()).start();
+        }, "redicloud-service-" + this.serviceHolder.get().getServiceName());
+        this.thread.start();
 
         this.serviceHolder.get().setServiceState(ServiceState.STARTING);
         this.serviceHolder.get().update();
 
         return true;
-    }
-
-    @Override
-    public FutureAction<Boolean> startAsync() {
-        FutureAction<Boolean> futureAction = new FutureAction<>();
-        this.serviceDirectory = new File(Files.TEMP_SERVICE_FOLDER.getFile(), this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId().toString());
-        this.serviceDirectory.mkdirs();
-
-        CloudServiceCopier copier = new CloudServiceCopier(this, CloudAPI.getInstance().getServiceTemplateManager());
-        copier.copyFilesAsync()
-                .onFailure(futureAction)
-                .onSuccess(f -> {
-                    this.factory.getPortManager().getUnusedPort(this)
-                        .onFailure(futureAction)
-                        .onSuccess(port -> {
-                            this.port = port;
-                            try {
-                                ProcessBuilder builder = new ProcessBuilder();
-                                Map<String, String> environment = builder.environment();
-                                environment.put("serviceId", this.getServiceHolder().get().getUniqueId().toString());
-                                builder.command(getStartCommand());
-                                this.process = builder.start();
-
-                                this.serviceHolder.get().setServiceState(ServiceState.STARTING);
-                                this.serviceHolder.get().updateAsync();
-
-                                futureAction.complete(true);
-                            }catch (Exception e){
-                                futureAction.completeExceptionally(e);
-                            }
-                        });
-                });
-
-        return futureAction;
     }
 
     @Override

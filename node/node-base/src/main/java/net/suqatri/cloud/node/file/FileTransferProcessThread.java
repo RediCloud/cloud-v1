@@ -4,10 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.node.file.process.IFileTransferReceiveProcess;
-import net.suqatri.cloud.api.node.file.process.IFileTransferSentProcess;
+import net.suqatri.cloud.api.node.file.process.IFileTransferSendProcess;
 import net.suqatri.cloud.node.NodeLauncher;
-import net.suqatri.cloud.node.file.process.FileTransferReceiveProcess;
-import net.suqatri.cloud.node.file.process.FileTransferSentProcess;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +17,11 @@ import java.util.concurrent.TimeUnit;
 public class FileTransferProcessThread extends Thread {
 
     @Getter
-    private static final ConcurrentHashMap<UUID, IFileTransferSentProcess> sentProcesses = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<UUID, IFileTransferSendProcess> sentProcesses = new ConcurrentHashMap<>();
     @Getter
     private static final ConcurrentHashMap<UUID, IFileTransferReceiveProcess> receiveProcesses = new ConcurrentHashMap<>();
     @Setter @Getter
-    private static IFileTransferSentProcess currentSentProcess;
+    private static IFileTransferSendProcess currentSentProcess;
     @Setter @Getter
     private static IFileTransferReceiveProcess currentReceiveProcess;
 
@@ -38,7 +36,7 @@ public class FileTransferProcessThread extends Thread {
 
                 try {
 
-                    Optional<IFileTransferSentProcess> sentProcess = sentProcesses.values().stream().findFirst();
+                    Optional<IFileTransferSendProcess> sentProcess = sentProcesses.values().stream().findFirst();
                     if(sentProcess.isPresent()){
                         currentSentProcess = sentProcess.get();
                         sentProcesses.remove(currentSentProcess.getTransferId());

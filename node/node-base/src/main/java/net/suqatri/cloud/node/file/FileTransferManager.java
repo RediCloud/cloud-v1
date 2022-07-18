@@ -8,13 +8,11 @@ import net.suqatri.cloud.api.node.file.process.IFileTransferReceiveProcess;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.file.packet.*;
-import net.suqatri.cloud.node.file.process.FileTransferReceiveProcess;
-import net.suqatri.cloud.node.file.process.FileTransferSentProcess;
+import net.suqatri.cloud.node.file.process.FileTransferSendProcess;
 
 import java.io.File;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 @Getter
@@ -55,7 +53,7 @@ public class FileTransferManager implements IFileTransferManager {
     public FutureAction<File> transferFolderToNode(File folder, File targetFile, String targetFilePathToDelete, IRBucketHolder<ICloudNode> holder){
         FutureAction<File> futureAction = new FutureAction<>();
 
-        FileTransferSentProcess process = new FileTransferSentProcess();
+        FileTransferSendProcess process = new FileTransferSendProcess();
         process.setOriginalFile(folder);
         process.setDestinationFilePath(targetFile.getPath());
         process.setTargetFilePathToDelete(targetFilePathToDelete);

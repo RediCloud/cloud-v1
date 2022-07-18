@@ -7,7 +7,7 @@ import net.suqatri.cloud.commons.function.future.FutureAction;
 import java.io.File;
 import java.util.UUID;
 
-public interface IFileTransferSentProcess extends IFileTransferProcess{
+public interface IFileTransferSendProcess extends IFileTransferProcess{
 
     UUID getTransferId();
     IRBucketHolder<ICloudNode> getReceiver();

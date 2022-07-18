@@ -6,13 +6,14 @@ A redis based cluster cloud system for minecraft. **[[Discord](https://discord.g
 ### Overview
   - [What is RediCloud?](#what-is-redicloud)
   - [Features](#features)
+  - [Commands](#commands)
   - [Requirements](#requirements)
   - [Installation](#installation)
-<br>
+  <br>
 
 ### What is RediCloud?
-  - RediCloud is a cluster cloud system for minecraft which is based on redis db. The best thing is that it's made up of nodes. That means that your servers don't connect to a wrapper or something.
-Let's imagine you have running your network like the following way:
+  - RediCloud is a cluster cloud system for minecraft which is based on [redis](https://redis.io). The best thing is there are no head-nodes and sub-nodes. That means you can connect to the cluster very easily. Every thing you have to do is to setup the redis connection. It is automatically detected whether a cluster already exists and the node is connected to it. 
+  - Let's imagine you have running your network like the following way:
   
         Node-1
           ├ Proxy
@@ -38,16 +39,30 @@ Let's imagine you have running your network like the following way:
 <br>
 
 ### Features 
-(❌ = not done yet, ✅ = done, 🚧 = done, no functional guarantee)
-  - Node-System ✅
-  - More will be following
+(✅ = done | ⚙️ = in progress | ❌ = not started | 🚧 = done, but not tested enough)
+  - node clustering ✅
+  - redis for communication and storage ✅
+  - start minecraft services ([spigot](https://getbukkit.org/download/spigot), [bukkit](https://getbukkit.org/download/craftbukkit), [paper](https://papermc.io) based forks) ⚙️
+  - start proxy services ([bungeecord](https://www.spigotmc.org/wiki/bungeecord/), [waterfall](https://github.com/PaperMC/Waterfall)) ⚙️
+  - remote screens ✅
+  - console + commands ✅
+  - web interface ❌
+  - dynamic and static services 🚧
+  - templates (sync via file-nodes) ✅
+  - print fatal service errors directly to node console ✅ 
+  - api (sync / async) ✅
+  - module system ❌
+  - default modules: perms, cloudflare ❌
+<br>
+
+## Commands
 <br>
 
 ### Requirements 
-  - Java 8 Runtime Environment
-  - 256MB Java Virtual Machine Heap size
-  - 1GB RAM
-  - 2 vCores
+  - Java 8+ Runtime Environment
+  - min. 256MB Java Virtual Machine Heap size
+  - min. 1GB RAM
+  - min. 2 vCores
 <br>
 
 ### Installation

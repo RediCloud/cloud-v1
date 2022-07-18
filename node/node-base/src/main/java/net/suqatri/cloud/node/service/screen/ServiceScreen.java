@@ -10,8 +10,8 @@ import net.suqatri.cloud.api.node.service.screen.IServiceScreen;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.node.NodeLauncher;
+import net.suqatri.cloud.node.service.screen.packet.ScreenLinePacket;
 import org.redisson.api.RList;
-import org.redisson.api.RRateLimiter;
 import org.redisson.codec.JsonJacksonCodec;
 
 import java.util.UUID;
@@ -81,7 +81,7 @@ public class ServiceScreen implements IServiceScreen {
     }
 
     @Override
-    public void delete() {
+    public void deleteLines() {
         this.lines.deleteAsync();
     }
 }

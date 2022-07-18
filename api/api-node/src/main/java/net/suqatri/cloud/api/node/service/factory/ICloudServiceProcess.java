@@ -17,5 +17,7 @@ public interface ICloudServiceProcess {
     boolean stop(boolean force) throws IOException;
     boolean isActive();
     File getServiceDirectory();
+    int getPort();
+    void setPort(int port);
 
 }

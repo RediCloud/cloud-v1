@@ -3,6 +3,7 @@ package net.suqatri.cloud.node.commands;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.event.CloudEventInvoker;
 import net.suqatri.cloud.api.impl.event.CloudEventManager;
+import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.node.service.screen.IScreenLine;
 import net.suqatri.cloud.api.node.service.screen.IServiceScreen;
@@ -112,6 +113,16 @@ public class DebugCommand extends ConsoleCommand {
             screen.getLines().remove(line);
             commandSender.sendMessage("Removed line: " + line.getLine());
         }
+    }
+
+    @Subcommand("networkcommponents")
+    @Description("Show network components")
+    public void onNetworkcomponents(CommandSender commandSender){
+        commandSender.sendMessage("Network components:");
+        for(INetworkComponentInfo componentInfo : CloudAPI.getInstance().getNetworkComponentManager().getAllComponentInfo()){
+            commandSender.sendMessage(componentInfo.getType() + ": " + componentInfo.getIdentifier());
+        }
+        commandSender.sendMessage("------");
     }
 
 }

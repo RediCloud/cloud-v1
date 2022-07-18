@@ -94,7 +94,7 @@ public abstract class CloudPacket implements ICloudPacket {
     @Override
     public void publishAll() {
 
-        for (INetworkComponentInfo receiver : getPacketData().getReceivers()) {
+        for (INetworkComponentInfo receiver : CloudAPI.getInstance().getNetworkComponentManager().getAllComponentInfo()) {
             if(receiver.equals(CloudAPI.getInstance().getNetworkComponentInfo())
                     && !this.getPacketData().isAllowSenderAsReceiver()) continue;
             getPacketData().addReceiver(receiver);

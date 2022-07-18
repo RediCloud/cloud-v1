@@ -214,7 +214,9 @@ public class TemplateCommand extends ConsoleCommand {
                                 }
                                 commandSender.sendMessage("Pulling templates from node %hc" + nodeHolder.get().getName() + "...");
                                 commandSender.sendMessage("This may take a while...");
-                                NodeLauncher.getInstance().getServiceTemplateManager().pullTemplates(nodeHolder);
+                                NodeLauncher.getInstance().getServiceTemplateManager().pullTemplates(nodeHolder)
+                                        .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while pulling templates!", throwable))
+                                        .onSuccess(s -> commandSender.sendMessage("Templates pulled from node %hc" + nodeHolder.get().getName()));
                             });
                 });
     }

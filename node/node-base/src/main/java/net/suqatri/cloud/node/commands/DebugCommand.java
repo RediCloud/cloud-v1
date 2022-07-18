@@ -35,6 +35,12 @@ public class DebugCommand extends ConsoleCommand {
         commandSender.sendMessage("Sent process queue size: " + NodeLauncher.getInstance().getFileTransferManager().getThread().getSentProcesses().size());
     }
 
+    @Subcommand("file-transfer pull")
+    @Description("Show the pull complete listeners")
+    public void onFilePull(CommandSender commandSender){
+        commandSender.sendMessage((NodeLauncher.getInstance().getFileTransferManager().getPullingRequest() != null) + " future action");
+    }
+
     @Subcommand("file-transfer received")
     @Description("Show how many read file transfers are currently queued")
     public void onFileTransferReceived(CommandSender commandSender){
@@ -117,9 +123,9 @@ public class DebugCommand extends ConsoleCommand {
 
     @Subcommand("networkcommponents")
     @Description("Show network components")
-    public void onNetworkcomponents(CommandSender commandSender){
+    public void onNetworkcomponents(CommandSender commandSender) {
         commandSender.sendMessage("Network components:");
-        for(INetworkComponentInfo componentInfo : CloudAPI.getInstance().getNetworkComponentManager().getAllComponentInfo()){
+        for (INetworkComponentInfo componentInfo : CloudAPI.getInstance().getNetworkComponentManager().getAllComponentInfo()) {
             commandSender.sendMessage(componentInfo.getType() + ": " + componentInfo.getIdentifier());
         }
         commandSender.sendMessage("------");

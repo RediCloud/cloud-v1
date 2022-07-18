@@ -30,7 +30,7 @@ public interface IServiceStartConfiguration {
     int getMaxMemory();
 
     default int getStartPort(){
-        return -1;
+        return getEnvironment() == ServiceEnvironment.MINECRAFT ? 49152 : 25565;
     }
 
     Collection<UUID> getPossibleNodeIds();

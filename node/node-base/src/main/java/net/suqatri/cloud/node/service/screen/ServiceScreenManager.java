@@ -7,12 +7,14 @@ import net.suqatri.cloud.api.node.service.screen.IServiceScreenManager;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.commons.function.future.FutureAction;
+import net.suqatri.cloud.node.NodeLauncher;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class ServiceScreenManager implements IServiceScreenManager {
 
@@ -36,25 +38,38 @@ public class ServiceScreenManager implements IServiceScreenManager {
     @Override
     public FutureAction<IServiceScreen> join(IServiceScreen serviceScreen) {
         FutureAction<IServiceScreen> futureAction = new FutureAction<>();
+
+        serviceScreen.getService().get().getConsoleNodeListenerIds().add(NodeLauncher.getInstance().getNode().getUniqueId());
+        serviceScreen.getService().get().updateAsync();
+
         if(this.activeScreens.contains(serviceScreen)) {
             futureAction.complete(serviceScreen);
             return futureAction;
         }
         this.activeScreens.add(serviceScreen);
+
         serviceScreen.getLines().readAllAsync().whenComplete((lines, e) -> {
-            System.out.println(lines.size());
+            if(e != null){
+                futureAction.completeExceptionally(e);
+                return;
+            }
+
             for (IScreenLine screenLine : lines) {
-                System.out.println(screenLine.getLine());
                 CloudAPI.getInstance().getConsole().log(screenLine.createConsoleLine());
             }
 
             futureAction.complete(serviceScreen);
         });
+
         return futureAction;
     }
 
     @Override
     public void leave(IServiceScreen serviceScreen) {
+
+        serviceScreen.getService().get().getConsoleNodeListenerIds().remove(NodeLauncher.getInstance().getNode().getUniqueId());
+        serviceScreen.getService().get().updateAsync();
+
         this.activeScreens.remove(serviceScreen);
     }
 

@@ -10,24 +10,23 @@ import net.suqatri.cloud.node.console.ConsoleLine;
 @Data
 public class ScreenLine implements IScreenLine {
 
-    @JsonIgnore
-    private final ServiceScreen screen;
+    private final String serviceName;
     private final long time = System.currentTimeMillis();
     private final String line;
 
     public ScreenLine(){
         this.line = null;
-        this.screen = null;
+        this.serviceName = null;
     }
 
-    public ScreenLine(ServiceScreen screen, String line){
-        this.screen = screen;
+    public ScreenLine(String serviceName, String line){
+        this.serviceName = serviceName;
         this.line = line;
     }
 
     @Override
     public IConsoleLine createConsoleLine() {
-        ConsoleLine consoleLine = new ConsoleLine("SCREEN [" + screen.getService().get().getServiceName() + "]", line);
+        ConsoleLine consoleLine = new ConsoleLine("SCREEN [" + serviceName + "]", line);
         consoleLine.setTime(time);
         consoleLine.setStored(false);
         return consoleLine;

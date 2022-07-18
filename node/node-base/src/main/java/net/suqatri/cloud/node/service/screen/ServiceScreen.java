@@ -1,5 +1,6 @@
 package net.suqatri.cloud.node.service.screen;
 
+import com.google.common.util.concurrent.RateLimiter;
 import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
@@ -10,6 +11,7 @@ import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.node.NodeLauncher;
 import org.redisson.api.RList;
+import org.redisson.api.RRateLimiter;
 import org.redisson.codec.JsonJacksonCodec;
 
 import java.util.UUID;
@@ -20,13 +22,18 @@ public class ServiceScreen implements IServiceScreen {
     private static final int MAX_LINES = 80;
     private static final int CHECK_INTERVAL = 25;
 
+    private static final int MAX_LINES_PER_SECOND = 15;
+    private static final int MAX_LINES_FAIL_UNTIL_BLOCK = 3;
+
     private final IRBucketHolder<ICloudService> service;
     private final RList<IScreenLine> lines;
     private int current = 0;
+    private RateLimiter limiter;
 
     public ServiceScreen(IRBucketHolder<ICloudService> service) {
         this.service = service;
-        this.lines = CloudDefaultAPIImpl.getInstance().getRedisConnection().getClient().getList("screen@" + this.service.get().getUniqueId(), new JsonJacksonCodec());
+        this.lines = CloudDefaultAPIImpl.getInstance().getRedisConnection().getClient().getList("screen-log@" + this.service.get().getUniqueId(), new JsonJacksonCodec());
+        this.limiter = RateLimiter.create(MAX_LINES_PER_SECOND);
     }
 
     @Override
@@ -61,13 +68,16 @@ public class ServiceScreen implements IServiceScreen {
 
     @Override
     public void removeUselessLines(){
-        CloudAPI.getInstance().getExecutorService().submit(() -> {
-            if(this.lines.size() <= MAX_LINES) return;
-            for(IScreenLine line : this.lines.readAll()){
-                if(this.lines.size() <= MAX_LINES) break;
-                this.lines.remove(line);
-            }
-        });
+        this.lines.sizeAsync()
+                .thenAccept(size -> {
+                   if(size <= MAX_LINES) return;
+                   this.lines.readAllAsync().thenAccept(lines -> {
+                       for(IScreenLine line : lines){
+                           if(this.lines.size() <= MAX_LINES) break;
+                           this.lines.removeAsync(line);
+                       }
+                   });
+                });
     }
 
     @Override

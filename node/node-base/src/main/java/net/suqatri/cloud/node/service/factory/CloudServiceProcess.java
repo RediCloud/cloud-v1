@@ -43,10 +43,10 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         this.serviceDirectory = new File(Files.TEMP_SERVICE_FOLDER.getFile(), this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId());
         this.serviceDirectory.mkdirs();
 
+        this.factory.getPortManager().getUnusedPort(this).get(5, TimeUnit.SECONDS);
+
         CloudServiceCopier copier = new CloudServiceCopier(this, CloudAPI.getInstance().getServiceTemplateManager());
         copier.copyFiles();
-
-        this.factory.getPortManager().getUnusedPort(this).get(5, TimeUnit.SECONDS);
 
         CloudAPI.getInstance().getConsole().debug("Starting cloud service process " + this.serviceHolder.get().getServiceName() + " on port " + this.port);
 

@@ -12,10 +12,12 @@ import net.suqatri.cloud.node.NodeLauncher;
 import org.redisson.api.RList;
 import org.redisson.codec.JsonJacksonCodec;
 
+import java.util.UUID;
+
 @Getter
 public class ServiceScreen implements IServiceScreen {
 
-    private static final int MAX_LINES = 50;
+    private static final int MAX_LINES = 80;
     private static final int CHECK_INTERVAL = 25;
 
     private final IRBucketHolder<ICloudService> service;
@@ -29,7 +31,7 @@ public class ServiceScreen implements IServiceScreen {
 
     @Override
     public void addLine(String line) {
-        ScreenLine screenLine = new ScreenLine(this, line);
+        ScreenLine screenLine = new ScreenLine(this.getService().get().getServiceName(), line);
         this.lines.add(screenLine);
 
         this.current++;
@@ -38,10 +40,19 @@ public class ServiceScreen implements IServiceScreen {
             this.current = 0;
         }
 
-        ScreenLinePacket packet = new ScreenLinePacket();
-        packet.setServiceId(this.service.get().getUniqueId());
-        packet.setScreenLine(screenLine);
-        packet.publishAllAsync(NetworkComponentType.NODE);
+        if(this.getService().get().getConsoleNodeListenerIds().isEmpty()) return;
+
+        ScreenLinePacket packet = null;
+        for (UUID nodeId : this.getService().get().getConsoleNodeListenerIds()) {
+            if(nodeId.equals(NodeLauncher.getInstance().getNode().getUniqueId())) continue;
+            if(packet == null){
+                packet = new ScreenLinePacket();
+                packet.setServiceId(this.service.get().getUniqueId());
+                packet.setScreenLine(screenLine);
+            }
+            packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager().getComponentInfo(NetworkComponentType.NODE, nodeId.toString()));
+        }
+        if(packet != null) packet.publishAsync();
 
         if(NodeLauncher.getInstance().getConsole().getCurrentSetup() != null) return;
         if(!NodeLauncher.getInstance().getScreenManager().isActive(this)) return;

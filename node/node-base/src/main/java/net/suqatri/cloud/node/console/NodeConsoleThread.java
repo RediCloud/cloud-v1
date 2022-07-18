@@ -2,6 +2,8 @@ package net.suqatri.cloud.node.console;
 
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.LogLevel;
+import net.suqatri.cloud.api.node.service.screen.IServiceScreen;
+import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.commands.RootCommand;
 import org.jline.reader.UserInterruptException;
 
@@ -57,6 +59,15 @@ public class NodeConsoleThread extends Thread {
         }
 
         if(isSetup) return;
+
+        if(NodeLauncher.getInstance().getScreenManager().isAnyScreenActive()) {
+            if(raw.equalsIgnoreCase("exit") || raw.equalsIgnoreCase("leave")){
+                for (IServiceScreen activeScreen : NodeLauncher.getInstance().getScreenManager().getActiveScreens()) {
+                    NodeLauncher.getInstance().getScreenManager().leave(activeScreen);
+                }
+                return;
+            }
+        }
 
         this.nodeConsole.getLineEntries().add(new ConsoleInput(line, System.currentTimeMillis(), this.nodeConsole.getPrefix()));
 

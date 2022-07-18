@@ -35,7 +35,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     private Collection<String> templateNames = new ArrayList<>();
     private boolean staticGroup = false;
     private Collection<UUID> associatedNodeIds = new ArrayList<>();
-    private int startPort = 5200;
+    private int startPort = 49152;
     private boolean maintenance = false;
     private int maxMemory;
     private int startPriority = 0;

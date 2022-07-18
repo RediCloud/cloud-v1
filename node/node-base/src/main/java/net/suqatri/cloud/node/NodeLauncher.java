@@ -36,6 +36,7 @@ import net.suqatri.cloud.node.setup.node.NodeConnectionDataSetup;
 import net.suqatri.cloud.node.setup.redis.RedisSetup;
 import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.node.template.NodeCloudServiceTemplateManager;
+import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -194,7 +195,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.getEventManager().register(new CloudNodeDisconnectListener());
     }
 
-    private void init(Runnable runnable){
+    private void init(Runnable runnable) throws IOException {
         this.console.clearScreen();
         this.console.printCloudHeader(true);
         this.createDefaultFiles();
@@ -368,8 +369,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         }
     }
 
-    private void createDefaultFiles(){
+    private void createDefaultFiles() throws IOException {
         this.console.info("Creating default folders...");
+
+        if(Files.TEMP_FOLDER.exists()) FileUtils.deleteDirectory(Files.TEMP_FOLDER.getFile());
+
         Files.MODULES_FOLDER.createIfNotExists();
         Files.STORAGE_FOLDER.createIfNotExists();
         if(!Files.MINECRAFT_PLUGIN_JAR.exists()){
@@ -398,11 +402,21 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             if (this.console != null) this.console.info("Disconnecting from cluster...");
 
             if(this.serviceManager != null){
+                int stopCount = 0;
                 for (IRBucketHolder<ICloudService> serviceHolders : this.serviceManager.getServices()) {
                     if(!serviceHolders.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    stopCount++;
                     try {
                         this.serviceManager.stopService(serviceHolders.get().getUniqueId(), false);
+                        Thread.sleep(100);
                     } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if(stopCount != 0) {
+                    try {
+                        Thread.sleep(stopCount * 200L);
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }

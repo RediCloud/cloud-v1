@@ -61,22 +61,15 @@ public class NodeConsole implements IConsole {
     public void printCloudHeader(){
         clearScreen();
         log(new ConsoleLine("", "     ").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "§f     ▄████▄   ██▓     ▒█████   █    ██ ▓█████▄ ").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "§f    ▒██▀ ▀█  ▓██▒    ▒██▒  ██▒ ██  ▓██▒▒██▀ ██▌").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "§f    ▒▓█    ▄ ▒██░    ▒██░  ██▒▓██  ▒██░░██   █▌").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "§f    ▒▓█    ▄ ▒██░    ▒██░  ██▒▓██  ▒██░░██   █▌").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "§f    ▒▓▓▄ ▄██▒▒██░    ▒██   ██░▓▓█  ░██░░▓█▄   ▌").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "§f    ▒ ▓███▀ ░░██████▒░ ████▓▒░▒▒█████▓ ░▒████▓ ").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "§f    ░ ░▒ ▒  ░░ ▒░▓  ░░ ▒░▒░▒░ ░▒▓▒ ▒ ▒  ▒▒▓  ▒ ").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "§f      ░  ▒   ░ ░ ▒  ░  ░ ▒ ▒░ ░░▒░ ░ ░  ░ ▒  ▒ ").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "§f    ░          ░ ░   ░ ░ ░ ▒   ░░░ ░ ░  ░ ░  ░ ").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "§f    ░ ░          ░  ░    ░ ░     ░        ░    ").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "§f    ░                                   ░      ").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "     ").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "     ").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", this.textColor + "    A cluster based cloud system for Minecraft").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "    §8» " + this.textColor + "Version: " + this.highlightColor + CloudAPI.getVersion() + " §8| " + this.textColor + "Discord: " + this.highlightColor +"https://discord.gg/vPwUhbVu4Y").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "    §8» " + this.textColor + "System: " + this.highlightColor + System.getProperty("os.name") + " §8| " + this.textColor + "Java: " + this.highlightColor + System.getProperty("java.version")).setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f     _______                 __   _      ______  __                         __  ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f    |_   __ \\               |  ] (_)   .' ___  |[  |                       |  ] ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f      | |__) |  .---.   .--.| |  __   / .'   \\_| | |  .--.   __   _    .--.| |  ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f      |  __ /  / /__\\\\/ /'`\\' | [  |  | |        | |/ .'`\\ \\[  | | | / /'`\\' |  ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f     _| |  \\ \\_| \\__.,| \\__/  |  | |  \\ `.___.'\\ | || \\__. | | \\_/ |,| \\__/  |  ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "§f    |____| |___|'.__.' '.__.;__][___]  `.____ .'[___]'.__.'  '.__.'_/ '.__.;__] ").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", this.textColor + "    A redis based cluster cloud system for Minecraft").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "    §8» " + this.textColor + "Version: " + this.highlightColor + CloudAPI.getVersion() + " §8| " + this.textColor + "Discord: " + this.highlightColor +"https://discord.gg/g2HV52VV4G").setPrintPrefix(false).setPrintTimestamp(false));
         log(new ConsoleLine("", "     ").setPrintPrefix(false).setPrintTimestamp(false));
         if(this.cleanConsoleMode){
             warn("§cClean console mode is enabled! Stacktraces will not be printed, only the message.");

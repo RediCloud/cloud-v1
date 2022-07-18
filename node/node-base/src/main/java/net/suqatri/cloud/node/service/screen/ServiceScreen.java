@@ -54,8 +54,13 @@ public class ServiceScreen implements IServiceScreen {
             if(this.lines.size() <= MAX_LINES) return;
             for(IScreenLine line : this.lines.readAll()){
                 if(this.lines.size() <= MAX_LINES) break;
+                this.lines.remove(line);
             }
         });
     }
 
+    @Override
+    public void delete() {
+        this.lines.deleteAsync();
+    }
 }

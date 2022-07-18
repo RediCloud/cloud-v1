@@ -17,6 +17,7 @@ public class ScreenCommand extends ConsoleCommand {
     /screen leave <Service>
     /screen actives
     /screen leaveall
+    /screen toggle <service>
      */
 
     @Default
@@ -26,6 +27,34 @@ public class ScreenCommand extends ConsoleCommand {
     @Syntax("[Page]")
     public void onHelp(CommandHelp commandHelp){
         commandHelp.showHelp();
+    }
+
+    @Subcommand("toggle")
+    @Description("Toggle the screen of a service")
+    @Syntax("<Service>")
+    public void onToggle(CommandSender commandSender, String serviceName){
+        CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)
+                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking if service exists", e))
+                .onSuccess(exists -> {
+                   if(!exists){
+                       commandSender.sendMessage("Service " + serviceName + " does not exist");
+                       return;
+                   }
+                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
+                            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting service", e))
+                            .onSuccess(service -> {
+                                IServiceScreen serviceScreen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(service);
+                                if(NodeLauncher.getInstance().getScreenManager().isActive(serviceScreen)){
+                                    NodeLauncher.getInstance().getScreenManager().leave(serviceScreen);
+                                    commandSender.sendMessage("Screen " + serviceName + " left!");
+                                }else{
+                                    commandSender.sendMessage("Joining screen " + serviceName + "...");
+                                    NodeLauncher.getInstance().getScreenManager().join(serviceScreen)
+                                            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to join screen " + serviceName + "!", e))
+                                            .onSuccess(s -> commandSender.sendMessage("Screen " + serviceName + " joined!"));
+                                }
+                            });
+                });
     }
 
     @Subcommand("join")
@@ -47,6 +76,7 @@ public class ScreenCommand extends ConsoleCommand {
                                 commandSender.sendMessage("Screen " + serviceName + " is already active!");
                                 return;
                             }
+                            commandSender.sendMessage("Joining screen " + serviceName + "...");
                             NodeLauncher.getInstance().getScreenManager().join(serviceScreen)
                                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to join screen " + serviceName + "!", e))
                                 .onSuccess(s -> commandSender.sendMessage("Screen " + serviceName + " joined!"));

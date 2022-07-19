@@ -134,7 +134,6 @@ public class FileEditor {
     private int getLineIndexByKey(String key){
         String match = key + this.splitter;
         for(int i = 0; i < this.lines.size(); i++){
-            System.out.println(this.lines.get(i));
             if(this.lines.get(i).contains(match)){
                 return i;
             }

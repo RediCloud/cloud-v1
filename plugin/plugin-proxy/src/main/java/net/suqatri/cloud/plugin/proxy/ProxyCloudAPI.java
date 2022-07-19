@@ -29,7 +29,9 @@ import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.api.utils.ApplicationType;
 import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.commons.file.FileWriter;
+import net.suqatri.cloud.plugin.proxy.command.BungeeCloudCommandManager;
 import net.suqatri.cloud.plugin.proxy.console.ProxyConsole;
+import net.suqatri.cloud.plugin.proxy.scheduler.BungeeScheduler;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -46,15 +48,19 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private final CloudServiceTemplateManager serviceTemplateManager;
     private ScheduledTask updaterTask;
     private final ProxyConsole console;
+    private final BungeeCloudCommandManager commandManager;
+    private final BungeeScheduler scheduler;
 
     public ProxyCloudAPI(Plugin plugin) {
         super(ApplicationType.SERVICE_PROXY);
         this.plugin = plugin;
+        this.scheduler = new BungeeScheduler(this.plugin);
         this.console = new ProxyConsole(this.plugin.getLogger());
         this.serviceManager = new CloudServiceManager();
         this.serviceFactory = new CloudServiceFactory(this.serviceManager);
         this.serviceVersionManager = new CloudServiceVersionManager();
         this.serviceTemplateManager = new CloudServiceTemplateManager();
+        this.commandManager = new BungeeCloudCommandManager(this.plugin);
 
         init();
         initListeners();
@@ -111,16 +117,6 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     @Override
     public IScheduler getScheduler() {
-        return null;
-    }
-
-    @Override
-    public IConsole getConsole() {
-        return null;
-    }
-
-    @Override
-    public ICommandManager<?> getCommandManager() {
         return null;
     }
 

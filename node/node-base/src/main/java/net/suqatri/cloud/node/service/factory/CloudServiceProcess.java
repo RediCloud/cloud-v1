@@ -3,6 +3,7 @@ package net.suqatri.cloud.node.service.factory;
 import com.google.common.util.concurrent.RateLimiter;
 import lombok.Data;
 import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.node.service.factory.ICloudServiceProcess;
 import net.suqatri.cloud.api.node.service.screen.IServiceScreen;
@@ -64,6 +65,10 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         builder.directory(this.serviceDirectory);
         builder.command(getStartCommand());
         this.process = builder.start();
+
+        this.serviceHolder.get().setServiceState(ServiceState.STARTING);
+        this.serviceHolder.getImpl(CloudService.class).setMaxRam(this.serviceHolder.get().getConfiguration().getMaxMemory());
+        this.serviceHolder.get().update();
 
         this.thread = new Thread(() -> {
             try {

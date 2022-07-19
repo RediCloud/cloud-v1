@@ -26,6 +26,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.io.File;
 import java.util.UUID;
 
 @Getter
@@ -82,7 +83,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     }
 
     private void initThisService(){
-        this.service = this.serviceManager.getService(UUID.fromString(System.getenv("serviceId"))).getImpl(CloudService.class);
+        this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_serviceId"))).getImpl(CloudService.class);
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.service.update();
     }
@@ -90,8 +91,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private void initRedis() {
         RedisCredentials redisCredentials;
         try {
-            System.out.println(Files.REDIS_CONFIG.getFile().getAbsolutePath());
-            redisCredentials = FileWriter.readObject(Files.REDIS_CONFIG.getFile(), RedisCredentials.class);
+            redisCredentials = FileWriter.readObject(new File(System.getenv("redicloud_redis_path")), RedisCredentials.class);
         } catch (Exception e) {
             this.console.error("Failed to read redis.json file! Please check your credentials.");
             Bukkit.getPluginManager().disablePlugin(this.javaPlugin);

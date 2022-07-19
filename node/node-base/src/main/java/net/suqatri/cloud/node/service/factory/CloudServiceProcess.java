@@ -61,7 +61,8 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
         ProcessBuilder builder = new ProcessBuilder();
         Map<String, String> environment = builder.environment();
-        environment.put("serviceId", this.getServiceHolder().get().getUniqueId().toString());
+        environment.put("redicloud_serviceId", this.getServiceHolder().get().getUniqueId().toString());
+        environment.put("redicloud_redis_path", Files.REDIS_CONFIG.getFile().getAbsolutePath());
         builder.directory(this.serviceDirectory);
         builder.command(getStartCommand());
         this.process = builder.start();

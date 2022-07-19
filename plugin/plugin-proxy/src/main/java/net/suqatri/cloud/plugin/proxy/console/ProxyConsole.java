@@ -1,6 +1,7 @@
-package net.suqatri.cloud.plugin.minecraft.console;
+package net.suqatri.cloud.plugin.proxy.console;
 
 import lombok.Data;
+import lombok.Getter;
 import net.suqatri.cloud.api.console.IConsole;
 import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.api.console.IConsoleLineEntry;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Data
-public class BukkitConsole implements IConsole {
+public class ProxyConsole implements IConsole {
 
     //TODO: REWRITE THIS CLASS AND USE LOGGER
     private final Logger logger;

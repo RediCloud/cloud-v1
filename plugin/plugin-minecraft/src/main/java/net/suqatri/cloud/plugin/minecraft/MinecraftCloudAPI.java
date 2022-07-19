@@ -8,6 +8,7 @@ import net.suqatri.cloud.api.impl.service.CloudServiceManager;
 import net.suqatri.cloud.api.impl.service.factory.CloudServiceFactory;
 import net.suqatri.cloud.api.impl.service.version.CloudServiceVersionManager;
 import net.suqatri.cloud.api.impl.template.CloudServiceTemplateManager;
+import net.suqatri.cloud.commons.ByteUtils;
 import net.suqatri.cloud.plugin.minecraft.command.BukkitCloudCommandManager;
 import net.suqatri.cloud.plugin.minecraft.console.BukkitConsole;
 import net.suqatri.cloud.plugin.minecraft.listener.ServerListPingListener;
@@ -77,7 +78,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.updaterTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.javaPlugin, () -> {
             this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
             long usedRam = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
-            this.service.setRamUsage(usedRam);
+            this.service.setRamUsage(ByteUtils.bytesToMb(usedRam));
             this.service.update();
         }, 0, 20);
     }

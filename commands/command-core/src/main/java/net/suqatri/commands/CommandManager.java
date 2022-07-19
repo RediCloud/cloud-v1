@@ -80,7 +80,7 @@ public abstract class CommandManager<
     protected MF defaultFormatter;
     protected int defaultHelpPerPage = 10;
 
-    protected Map<UUID, Locale> issuersLocale = new ConcurrentHashMap<>();
+    public Map<UUID, Locale> issuersLocale = new ConcurrentHashMap<>();
 
     private Set<String> unstableAPIs = new HashSet<>();
 

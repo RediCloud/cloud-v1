@@ -85,7 +85,7 @@ public abstract class BaseCommand {
     /**
      * A map of all the registered commands for this base command, keyed to each potential subcommand to access it.
      */
-    final SetMultimap<String, RegisteredCommand> subCommands = HashMultimap.create();
+    public final SetMultimap<String, RegisteredCommand> subCommands = HashMultimap.create();
     final Set<BaseCommand> subScopes = new HashSet<>();
 
     /**
@@ -124,7 +124,7 @@ public abstract class BaseCommand {
      * The command which owns this. This may be null if there are no owners.
      */
     BaseCommand parentCommand;
-    Map<String, RootCommand> registeredCommands = new HashMap<>();
+    public Map<String, RootCommand> registeredCommands = new HashMap<>();
     /**
      * The description of the command. This may be null if no description has been provided.
      * Used for help documentation

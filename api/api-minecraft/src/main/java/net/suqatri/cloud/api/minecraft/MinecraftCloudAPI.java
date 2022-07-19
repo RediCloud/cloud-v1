@@ -10,6 +10,8 @@ import net.suqatri.cloud.api.impl.node.CloudNode;
 import net.suqatri.cloud.api.impl.redis.RedisConnection;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.cloud.api.impl.service.CloudService;
+import net.suqatri.cloud.api.impl.service.CloudServiceManager;
+import net.suqatri.cloud.api.impl.service.factory.CloudServiceFactory;
 import net.suqatri.cloud.api.minecraft.console.BukkitConsole;
 import net.suqatri.cloud.api.minecraft.scheduler.BukkitScheduler;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
@@ -40,6 +42,8 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private RedisConnection redisConnection;
     private final JavaPlugin javaPlugin;
     private final BukkitScheduler scheduler;
+    private final ICloudServiceManager serviceManager;
+    private final ICloudServiceFactory serviceFactory;
 
     public MinecraftCloudAPI(JavaPlugin javaPlugin) {
         super(ApplicationType.SERVICE_MINECRAFT);
@@ -47,6 +51,9 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.javaPlugin = javaPlugin;
         this.console = new BukkitConsole(this.javaPlugin.getLogger());
         this.scheduler = new BukkitScheduler(this.javaPlugin);
+        this.serviceManager = new CloudServiceManager();
+        this.serviceFactory = new CloudServiceFactory(this.serviceManager);
+
         init();
     }
 
@@ -86,16 +93,6 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     @Override
     public ICloudPlayerManager getPlayerManager() {
-        return null;
-    }
-
-    @Override
-    public ICloudServiceFactory getServiceFactory() {
-        return null;
-    }
-
-    @Override
-    public ICloudServiceManager getServiceManager() {
         return null;
     }
 

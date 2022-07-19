@@ -131,7 +131,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject , I> extend
             CloudAPI.getInstance().getConsole().debug("Cant update Bucket[" + identifier + "]! Its not created or not linked yet");
             return;
         }
-        CloudAPI.getInstance().getConsole().debug("Updating bucket: " + getRedisKey(identifier));
+        CloudAPI.getInstance().getConsole().trace("Updating bucket: " + getRedisKey(identifier));
         IRBucketHolder<T> bucketHolder = this.bucketHolders.get(identifier);
         bucketHolder.mergeChanges(json);
     }
@@ -184,7 +184,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject , I> extend
         if(this.bucketHolders.containsKey(identifier)) {
             this.bucketHolders.remove(identifier);
         }
-        CloudAPI.getInstance().getConsole().debug("Deleting bucket: " + getRedisKey(identifier));
+        CloudAPI.getInstance().getConsole().trace("Deleting bucket: " + getRedisKey(identifier));
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).delete();
         return true;
     }
@@ -194,7 +194,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject , I> extend
         if(this.bucketHolders.containsKey(identifier)) {
            this.bucketHolders.remove(identifier);
         }
-        CloudAPI.getInstance().getConsole().debug("Deleting bucket: " + getRedisKey(identifier));
+        CloudAPI.getInstance().getConsole().trace("Deleting bucket: " + getRedisKey(identifier));
         return new FutureAction<>(getClient().getBucket(getRedisKey(identifier), getObjectCodec()).deleteAsync());
     }
 

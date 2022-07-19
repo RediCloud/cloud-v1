@@ -18,6 +18,8 @@ public interface IConsole {
 
     void debug(String message);
 
+    void trace(String message);
+
     void fatal(String message, Throwable throwable);
 
     void setLogLevel(LogLevel level);

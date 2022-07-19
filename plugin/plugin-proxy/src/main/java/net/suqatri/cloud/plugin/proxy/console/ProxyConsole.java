@@ -59,6 +59,12 @@ public class ProxyConsole implements IConsole {
     }
 
     @Override
+    public void trace(String message) {
+        if(!canLog(LogLevel.TRACE)) return;
+        System.out.println("[TRACE] " + message);
+    }
+
+    @Override
     public void fatal(String message, Throwable throwable) {
         if(!canLog(LogLevel.FATAL)) return;
         System.out.println("[FATAL] " + message);

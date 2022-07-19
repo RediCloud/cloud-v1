@@ -10,6 +10,7 @@ import java.util.logging.Level;
 @AllArgsConstructor
 public enum LogLevel {
 
+    TRACE(0, Color.GREEN),
     DEBUG(1, Color.ORANGE),
     INFO(2, Color.CYAN),
     WARN(3, Color.RED.brighter()),

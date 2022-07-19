@@ -28,7 +28,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
     }
 
     public void setPublishedObject(T object) {
-        CloudAPI.getInstance().getConsole().debug("Setting published object for bucket " + identifier + " to " + object);
+        CloudAPI.getInstance().getConsole().trace("Setting published object for bucket " + identifier + " to " + object);
         this.publishedObject = object;
         this.publishedObject.setHolder(this);
     }
@@ -44,7 +44,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public IRBucketHolder<T> update(T object) {
-        CloudAPI.getInstance().getConsole().debug("Updating bucket " + getRedisKey() + "!");
+        CloudAPI.getInstance().getConsole().trace("Updating bucket " + getRedisKey() + "!");
         this.bucket.set(object);
         try {
             BucketUpdatePacket packet = new BucketUpdatePacket();
@@ -60,7 +60,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public FutureAction<IRBucketHolder<T>> updateAsync(T object) {
-        CloudAPI.getInstance().getConsole().debug("Updating bucket " + getRedisKey() + "!");
+        CloudAPI.getInstance().getConsole().trace("Updating bucket " + getRedisKey() + "!");
         FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
 
         new FutureAction<>(this.bucket.setAsync(object))
@@ -91,7 +91,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
     public void mergeChanges(String json) {
         try {
             if(this.publishedObject != null) {
-                CloudAPI.getInstance().getConsole().debug("Merging changes for bucket " + this.identifier);
+                CloudAPI.getInstance().getConsole().trace("Merging changes for bucket " + this.identifier);
                 this.bucketManager.getObjectCodec().getObjectMapper().readerForUpdating(this.publishedObject).readValue(json);
                 this.publishedObject.setHolder(this);
                 this.publishedObject.merged();

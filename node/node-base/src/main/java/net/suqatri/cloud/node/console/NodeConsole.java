@@ -224,6 +224,11 @@ public class NodeConsole implements IConsole {
     }
 
     @Override
+    public void trace(String message) {
+        this.log(LogLevel.TRACE, message);
+    }
+
+    @Override
     public void fatal(String message, Throwable throwable) {
         this.log(LogLevel.FATAL, message);
         this.log(LogLevel.FATAL, throwable.getClass().getSimpleName() + ": " + throwable.getMessage());

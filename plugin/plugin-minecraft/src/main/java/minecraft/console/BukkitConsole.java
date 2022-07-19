@@ -1,17 +1,13 @@
 package minecraft.console;
 
 import lombok.Data;
-import lombok.Getter;
 import net.suqatri.cloud.api.console.IConsole;
 import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.api.console.IConsoleLineEntry;
 import net.suqatri.cloud.api.console.LogLevel;
-import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 @Data

@@ -1,6 +1,6 @@
-package minecraft.listener;
+package net.suqatri.cloud.plugin.minecraft.listener;
 
-import minecraft.MinecraftCloudAPI;
+import net.suqatri.cloud.plugin.minecraft.MinecraftCloudAPI;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.ServerListPingEvent;

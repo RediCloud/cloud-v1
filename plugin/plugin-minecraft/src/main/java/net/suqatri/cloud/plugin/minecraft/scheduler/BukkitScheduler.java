@@ -1,4 +1,4 @@
-package minecraft.scheduler;
+package net.suqatri.cloud.plugin.minecraft.scheduler;
 
 import lombok.AllArgsConstructor;
 import net.suqatri.cloud.api.scheduler.IRepeatScheduler;

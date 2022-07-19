@@ -1,4 +1,4 @@
-package minecraft.command;
+package net.suqatri.cloud.plugin.minecraft.command;
 
 import net.suqatri.cloud.api.console.ICommandManager;
 import net.suqatri.commands.BaseCommand;

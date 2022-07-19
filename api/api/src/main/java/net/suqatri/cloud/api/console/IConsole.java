@@ -27,6 +27,10 @@ public interface IConsole {
         return consoleLine.getLogLevel().getId() >= getLogLevel().getId();
     }
 
+    default boolean canLog(LogLevel level) {
+        return level.getId() >= getLogLevel().getId();
+    }
+
     void clearScreen();
 
     String translateColorCodes(String message);

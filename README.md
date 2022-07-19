@@ -39,20 +39,25 @@ A redis based cluster cloud system for minecraft. **[[Discord](https://discord.g
 <br>
 
 ### Features 
+Please note that this project is still work in progress and not stable yet
+
 (✅ = done | ⚙️ = in progress | ❌ = not started | 🚧 = done, but not tested enough)
   - node clustering ✅
   - redis for communication and storage ✅
   - start minecraft services ([spigot](https://getbukkit.org/download/spigot), [bukkit](https://getbukkit.org/download/craftbukkit), [paper](https://papermc.io) based forks) 🚧
-  - start proxy services ([bungeecord](https://www.spigotmc.org/wiki/bungeecord/), [waterfall](https://github.com/PaperMC/Waterfall)) ⚙️
+  - start proxy services ([bungeecord](https://www.spigotmc.org/wiki/bungeecord/), [waterfall](https://github.com/PaperMC/Waterfall)) 🚧
   - remote screens ✅
-  - console + commands ✅
   - web interface ❌
+  - console + commands ✅
   - dynamic and static services 🚧
   - templates (sync via file-nodes) ✅
   - print fatal service errors directly to node console ✅ 
   - api (sync / async) ✅
   - module system ❌
   - default modules: perms, cloudflare ❌
+  - redis cluster support ❌
+  - smart clustering ❌
+  - automatic service start ❌
 <br>
 
 ## Commands

@@ -217,9 +217,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
             runnable.run();
 
-            RedisConnectedEvent redisConnectedEvent = new RedisConnectedEvent(this.redisConnection);
-            getEventManager().postLocal(redisConnectedEvent);
-
             this.node.update();
 
             CloudNodeConnectedEvent event = new CloudNodeConnectedEvent();

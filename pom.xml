@@ -20,6 +20,7 @@
         <module>commands/command-locales</module>
         <module>commands/command-console</module>
         <module>commands/command-bukkit</module>
+        <module>commands/command-bungeecord</module>
 
         <module>node/node-base</module>
         <module>node/node-runner</module>

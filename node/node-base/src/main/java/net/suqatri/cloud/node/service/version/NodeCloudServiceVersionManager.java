@@ -23,9 +23,9 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager  
 
     @Override
     public FutureAction<IRBucketHolder<ICloudServiceVersion>> createServiceVersionAsync(ICloudServiceVersion version) {
-        FutureAction<IRBucketHolder<ICloudServiceVersion>> futureAction = super.createServiceVersionAsync(version);
+        FutureAction<IRBucketHolder<ICloudServiceVersion>> futureAction = new FutureAction<>();
 
-        createServiceVersionAsync(version)
+        createBucketAsync(version.getName(), version)
                 .onFailure(futureAction)
                 .onSuccess(holder ->
                         downloadAsync(holder, true)

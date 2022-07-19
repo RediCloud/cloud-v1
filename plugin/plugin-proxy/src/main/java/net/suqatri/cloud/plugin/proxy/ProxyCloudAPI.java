@@ -28,6 +28,7 @@ import net.suqatri.cloud.api.service.version.ICloudServiceVersionManager;
 import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.api.utils.ApplicationType;
 import net.suqatri.cloud.api.utils.Files;
+import net.suqatri.cloud.commons.ByteUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
 import net.suqatri.cloud.plugin.proxy.command.BungeeCloudCommandManager;
 import net.suqatri.cloud.plugin.proxy.console.ProxyConsole;
@@ -105,8 +106,8 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.updaterTask = ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
             this.service.setOnlineCount(ProxyServer.getInstance().getOnlineCount());
             long usedRam = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
-            this.service.setRamUsage(usedRam);
-            this.service.updateAsync();
+            this.service.setRamUsage(ByteUtils.bytesToMb(usedRam));
+            this.service.update();
         }, 0, 1, TimeUnit.SECONDS);
     }
 
@@ -114,11 +115,6 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     public void updateApplicationProperties(CloudService object) {
         if(!object.getUniqueId().equals(service.getUniqueId())) return;
 
-    }
-
-    @Override
-    public IScheduler getScheduler() {
-        return null;
     }
 
     @Override

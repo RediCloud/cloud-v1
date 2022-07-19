@@ -78,7 +78,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
             this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
             long usedRam = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
             this.service.setRamUsage(usedRam);
-            this.service.updateAsync();
+            this.service.update();
         }, 0, 20);
     }
 

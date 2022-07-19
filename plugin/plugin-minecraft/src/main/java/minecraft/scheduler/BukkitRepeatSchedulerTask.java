@@ -1,4 +1,4 @@
-package net.suqatri.cloud.api.minecraft.scheduler;
+package minecraft.scheduler;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +9,6 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ScheduledFuture;
 
 @Getter
 @Setter

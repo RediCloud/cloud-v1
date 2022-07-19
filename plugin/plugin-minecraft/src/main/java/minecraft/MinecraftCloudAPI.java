@@ -1,4 +1,4 @@
-package net.suqatri.cloud.api.minecraft;
+package minecraft;
 
 import lombok.Getter;
 import net.suqatri.cloud.api.console.ICommandManager;
@@ -14,10 +14,10 @@ import net.suqatri.cloud.api.impl.service.CloudServiceManager;
 import net.suqatri.cloud.api.impl.service.factory.CloudServiceFactory;
 import net.suqatri.cloud.api.impl.service.version.CloudServiceVersionManager;
 import net.suqatri.cloud.api.impl.template.CloudServiceTemplateManager;
-import net.suqatri.cloud.api.minecraft.command.BukkitCloudCommandManager;
-import net.suqatri.cloud.api.minecraft.console.BukkitConsole;
-import net.suqatri.cloud.api.minecraft.listener.ServerListPingListener;
-import net.suqatri.cloud.api.minecraft.scheduler.BukkitScheduler;
+import minecraft.command.BukkitCloudCommandManager;
+import minecraft.console.BukkitConsole;
+import minecraft.listener.ServerListPingListener;
+import minecraft.scheduler.BukkitScheduler;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.node.ICloudNodeManager;
 import net.suqatri.cloud.api.packet.ICloudPacketManager;
@@ -33,6 +33,7 @@ import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.api.utils.ApplicationType;
 import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.commons.file.FileWriter;
+import net.suqatri.commands.CommandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;

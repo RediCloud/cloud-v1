@@ -1,4 +1,4 @@
-package net.suqatri.cloud.api.minecraft.console;
+package minecraft.console;
 
 import lombok.Data;
 import lombok.Getter;

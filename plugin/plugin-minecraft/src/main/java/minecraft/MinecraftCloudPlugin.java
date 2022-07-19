@@ -1,9 +1,7 @@
-package net.suqatri.cloud.api.minecraft;
+package minecraft;
 
 import net.suqatri.cloud.api.service.ServiceState;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.concurrent.TimeUnit;
 
 public class MinecraftCloudPlugin extends JavaPlugin {
 

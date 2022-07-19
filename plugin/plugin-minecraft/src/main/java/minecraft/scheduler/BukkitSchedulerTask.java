@@ -1,4 +1,4 @@
-package net.suqatri.cloud.api.minecraft.scheduler;
+package minecraft.scheduler;
 
 import lombok.Data;
 import net.suqatri.cloud.api.scheduler.IScheduler;

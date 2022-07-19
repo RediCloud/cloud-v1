@@ -1,5 +1,7 @@
-package net.suqatri.cloud.api.minecraft.command;
+package minecraft.command;
 
+import net.suqatri.cloud.api.console.ICommandManager;
+import net.suqatri.commands.BaseCommand;
 import net.suqatri.commands.BukkitCommandManager;
 import net.suqatri.commands.Locales;
 import net.suqatri.commands.MessageKeys;
@@ -10,7 +12,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class BukkitCloudCommandManager extends BukkitCommandManager {
+public class BukkitCloudCommandManager extends BukkitCommandManager implements ICommandManager<BaseCommand> {
 
     private final Map<MessageKeyProvider, String> messages;
 

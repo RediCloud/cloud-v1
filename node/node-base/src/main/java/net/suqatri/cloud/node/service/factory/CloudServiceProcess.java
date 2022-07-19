@@ -110,14 +110,15 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                 CloudAPI.getInstance().getConsole().debug("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped");
                 if(this.stopFuture != null) this.stopFuture.complete(true);
             } catch (Exception e) {
-                if(this.stopFuture != null) this.stopFuture.completeExceptionally(e);
-                ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
+                if (this.stopFuture != null) this.stopFuture.completeExceptionally(e);
+                ((NodeCloudServiceManager) this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
                 CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped exceptionally!", e);
-                if(this.serviceDirectory.exists()){
-                try {
-                    FileUtils.deleteDirectory(this.serviceDirectory);
-                }catch (IOException e){
-                    CloudAPI.getInstance().getConsole().warn("Temp service directory of " + this.serviceHolder.get().getServiceName() + " cannot be deleted (" + this.serviceDirectory.getAbsolutePath() + ")");
+                if (this.serviceDirectory.exists()) {
+                    try {
+                        FileUtils.deleteDirectory(this.serviceDirectory);
+                    } catch (IOException e1) {
+                        CloudAPI.getInstance().getConsole().error("Temp service directory of " + this.serviceHolder.get().getServiceName() + " cannot be deleted (" + this.serviceDirectory.getAbsolutePath() + ")", e1);
+                    }
                 }
             }
         }, "redicloud-service-" + this.serviceHolder.get().getServiceName());

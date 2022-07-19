@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+@Getter
 public class FileEditor {
 
     private final List<String> lines;
@@ -48,14 +49,31 @@ public class FileEditor {
 
     private void loadMap(){
         for(String line : this.lines){
+            if(line.contains(" - ")) continue;
+            if(line.endsWith(":")) continue;
             if(line.startsWith("#")) continue;
+            String key = "";
             if (!line.contains(this.splitter) || line.split(this.splitter).length < 2) {
-                this.keyValues.put(line.replace(this.splitter, ""), "");
+                if(line.startsWith(" ")){
+                    int count = getAmountOfStartSpacesInLine(key);
+                    key = key.substring(count);
+                }
+                key = line.replace(this.splitter, "");
+                for (String s : this.splitter.split("")) {
+                    key = key.replace(s, "");
+                }
+                this.keyValues.put(key, "");
                 continue;
             }
             try {
                 String[] keyValue = line.split(this.splitter);
-                this.keyValues.put(keyValue[0], keyValue[1]);
+                if(keyValue[0].startsWith(" ")){
+                    int count = getAmountOfStartSpacesInLine(keyValue[0]);
+                    key = keyValue[0].substring(count);
+                }else{
+                    key = keyValue[0];
+                }
+                this.keyValues.put(key, keyValue[1]);
             }catch (IndexOutOfBoundsException e){
                 throw new IndexOutOfBoundsException("Invalid line: " + line);
             }
@@ -103,7 +121,7 @@ public class FileEditor {
 
     private int getAmountOfStartSpacesInLine(String line){
         int amountOfSpaces = 0;
-        for(int i = 1; i < line.length(); i++){
+        for(int i = 0; i < line.length(); i++){
             if(line.charAt(i) == ' '){
                 amountOfSpaces++;
                 continue;
@@ -116,7 +134,8 @@ public class FileEditor {
     private int getLineIndexByKey(String key){
         String match = key + this.splitter;
         for(int i = 0; i < this.lines.size(); i++){
-            if(this.lines.get(i).startsWith(match)){
+            System.out.println(this.lines.get(i));
+            if(this.lines.get(i).contains(match)){
                 return i;
             }
         }

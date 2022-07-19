@@ -197,6 +197,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
         FileEditor fileEditor = new FileEditor(FileEditor.Type.YML);
         fileEditor.read(config);
         fileEditor.setValue("player_limit", String.valueOf(this.process.getServiceHolder().get().getMaxPlayers()));
+        fileEditor.setValue("max_players", String.valueOf(this.process.getServiceHolder().get().getMaxPlayers()));
         fileEditor.setValue("host", NodeLauncher.getInstance().getNode().getHostname() + ":" + this.process.getPort());
         fileEditor.save(config);
     }

@@ -11,6 +11,7 @@ import net.suqatri.cloud.api.impl.redis.RedisConnection;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.minecraft.console.BukkitConsole;
+import net.suqatri.cloud.api.minecraft.scheduler.BukkitScheduler;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.node.ICloudNodeManager;
 import net.suqatri.cloud.api.packet.ICloudPacketManager;
@@ -38,12 +39,14 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private BukkitConsole console;
     private RedisConnection redisConnection;
     private final JavaPlugin javaPlugin;
+    private final BukkitScheduler scheduler;
 
     public MinecraftCloudAPI(JavaPlugin javaPlugin) {
         super(ApplicationType.SERVICE_MINECRAFT);
         instance = this;
         this.javaPlugin = javaPlugin;
         this.console = new BukkitConsole(this.javaPlugin.getLogger());
+        this.scheduler = new BukkitScheduler(this.javaPlugin);
         init();
     }
 
@@ -51,12 +54,12 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         initRedis();
     }
 
-    private void initRedis(){
+    private void initRedis() {
         RedisCredentials redisCredentials;
         try {
             System.out.println(Files.REDIS_CONFIG.getFile().getAbsolutePath());
             redisCredentials = FileWriter.readObject(Files.REDIS_CONFIG.getFile(), RedisCredentials.class);
-        }catch (Exception e){
+        } catch (Exception e) {
             this.console.error("Failed to read redis.json file! Please check your credentials.");
             Bukkit.getPluginManager().disablePlugin(this.javaPlugin);
             return;
@@ -65,30 +68,15 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         try {
             this.redisConnection.connect();
             this.console.info("Redis connection established!");
-        }catch (Exception e){
+        } catch (Exception e) {
             this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
             Bukkit.getPluginManager().disablePlugin(this.javaPlugin);
         }
     }
 
     @Override
-    public IRedisConnection getRedisConnection() {
-        return null;
-    }
-
-    @Override
     public void updateApplicationProperties(CloudService object) {
 
-    }
-
-    @Override
-    public IScheduler getScheduler() {
-        return null;
-    }
-
-    @Override
-    public IConsole getConsole() {
-        return null;
     }
 
     @Override

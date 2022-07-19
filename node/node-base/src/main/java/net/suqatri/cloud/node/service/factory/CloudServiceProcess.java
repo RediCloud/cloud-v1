@@ -84,11 +84,16 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                         && !Thread.currentThread().isInterrupted()
                         && StreamUtils.isOpen(this.process.getInputStream())
                 ) {
-                    String line = reader.readLine();
-                    if(line == null) continue;
-                    if(line.isEmpty() || line.equals(" ") || line.contains("InitialHandler has pinged")) continue; //"InitialHandler has pinged" for ping flood protection
-                    rate.acquire();
-                    screen.addLine(line);
+                    try {
+                        String line = reader.readLine();
+                        if (line == null) continue;
+                        if (line.isEmpty() || line.equals(" ") || line.contains("InitialHandler has pinged"))
+                            continue; //"InitialHandler has pinged" for ping flood protection
+                        rate.acquire();
+                        screen.addLine(line);
+                    }catch (IOException e) {
+                        //stream closed...
+                    }
                 }
 
                 ScreenDestroyPacket screenDestroyPacket = null;
@@ -128,11 +133,14 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
             } catch (Exception e) {
 
-                if (this.stopFuture != null) this.stopFuture.completeExceptionally(e);
+                if (this.stopFuture != null) {
+                    this.stopFuture.completeExceptionally(e);
+                }else{
+                    CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped exceptionally!", e);
+                }
 
                 ((NodeCloudServiceManager) this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
 
-                CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped exceptionally!", e);
                 if (this.serviceDirectory.exists()) {
                     try {
                         FileUtils.deleteDirectory(this.serviceDirectory);

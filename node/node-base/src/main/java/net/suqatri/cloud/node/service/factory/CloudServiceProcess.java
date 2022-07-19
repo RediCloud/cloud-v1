@@ -40,6 +40,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
     private int port;
     private Thread thread;
     private FutureAction<Boolean> stopFuture;
+    private IServiceScreen screen;
 
     //TODO create packet for service
     @Override
@@ -75,7 +76,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         this.thread = new Thread(() -> {
             try {
                 RateLimiter rate = RateLimiter.create(15, 5, TimeUnit.SECONDS);
-                IServiceScreen screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(this.serviceHolder);
+                screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(this.serviceHolder);
                 InputStreamReader inputStreamReader = new InputStreamReader(this.process.getInputStream());
                 BufferedReader reader = new BufferedReader(inputStreamReader);
                 while(
@@ -96,25 +97,12 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                     }
                 }
 
-                ScreenDestroyPacket screenDestroyPacket = null;
-                for (UUID nodeId : this.serviceHolder.get().getConsoleNodeListenerIds()) {
-                    if(nodeId.equals(NodeLauncher.getInstance().getNode().getUniqueId())) continue;
-                    IRBucketHolder<ICloudNode> node = CloudAPI.getInstance().getNodeManager().getNode(nodeId);
-                    if(screenDestroyPacket == null) {
-                        screenDestroyPacket = new ScreenDestroyPacket();
-                        screenDestroyPacket.setServiceId(this.serviceHolder.get().getUniqueId());
-                    }
-                    screenDestroyPacket.getPacketData().addReceiver(node.get().getNetworkComponentInfo());
-                }
-                if(screenDestroyPacket != null){
-                    screenDestroyPacket.publishAsync();
-                }
-                screen.deleteLines();
+                reader.close();
 
+                this.destroyScreen();
                 ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
 
 
-                reader.close();
 
                 if(StreamUtils.isOpen(this.process.getErrorStream())) {
                     reader = new BufferedReader(new InputStreamReader(this.process.getErrorStream()));
@@ -139,6 +127,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                     CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped exceptionally!", e);
                 }
 
+                this.destroyScreen();
                 ((NodeCloudServiceManager) this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
 
                 if (this.serviceDirectory.exists()) {
@@ -154,6 +143,25 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         this.thread.start();
 
         return true;
+    }
+
+    private void destroyScreen(){
+        if(this.screen == null) return;
+        ScreenDestroyPacket screenDestroyPacket = null;
+        for (UUID nodeId : this.serviceHolder.get().getConsoleNodeListenerIds()) {
+            if(nodeId.equals(NodeLauncher.getInstance().getNode().getUniqueId())) continue;
+            IRBucketHolder<ICloudNode> node = CloudAPI.getInstance().getNodeManager().getNode(nodeId);
+            if(screenDestroyPacket == null) {
+                screenDestroyPacket = new ScreenDestroyPacket();
+                screenDestroyPacket.setServiceId(this.serviceHolder.get().getUniqueId());
+            }
+            screenDestroyPacket.getPacketData().addReceiver(node.get().getNetworkComponentInfo());
+        }
+        if(screenDestroyPacket != null){
+            screenDestroyPacket.publishAsync();
+        }
+        this.screen.deleteLines();
+        this.screen = null;
     }
 
     @Override

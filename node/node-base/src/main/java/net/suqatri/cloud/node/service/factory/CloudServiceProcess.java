@@ -113,9 +113,6 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         }, "redicloud-service-" + this.serviceHolder.get().getServiceName());
         this.thread.start();
 
-        this.serviceHolder.get().setServiceState(ServiceState.STARTING);
-        this.serviceHolder.get().update();
-
         return true;
     }
 

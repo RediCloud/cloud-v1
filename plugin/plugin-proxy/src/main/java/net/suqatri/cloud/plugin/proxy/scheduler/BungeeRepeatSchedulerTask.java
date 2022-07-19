@@ -28,7 +28,7 @@ public class BungeeRepeatSchedulerTask implements IRepeatScheduler<ScheduledTask
     @Override
     public void setTask(ScheduledTask task) {
         this.task = task;
-        this.id = task.getId()
+        this.id = task.getId();
     }
 
     @Override

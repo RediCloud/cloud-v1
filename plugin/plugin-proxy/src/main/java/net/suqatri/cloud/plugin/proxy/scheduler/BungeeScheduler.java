@@ -30,7 +30,8 @@ public class BungeeScheduler implements IScheduler<BungeeSchedulerTask, BungeeRe
     public BungeeRepeatSchedulerTask scheduleTaskAsync(Runnable runnable, long period, long interval, TimeUnit timeUnit) {
         BungeeRepeatSchedulerTask task = new BungeeRepeatSchedulerTask(this);
         ScheduledTask scheduledFuture = ProxyServer.getInstance().getScheduler().schedule(this.plugin, createRepeatTask(task, runnable), period, interval, timeUnit);
-        return scheduledFuture;
+        task.setTask(scheduledFuture);
+        return task;
     }
 
     @Override

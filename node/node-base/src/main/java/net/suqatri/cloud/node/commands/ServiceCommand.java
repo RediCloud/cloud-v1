@@ -97,10 +97,10 @@ public class ServiceCommand extends ConsoleCommand {
                             commandSender.sendMessage("Service not found");
                             return;
                         }
-                        commandSender.sendMessage((force ? "Force stopping" : "Stopping") + " service " + serviceHolder.get().getName() + "...");
+                        commandSender.sendMessage((force ? "Force stopping" : "Stopping") + " service " + serviceHolder.get().getServiceName() + "...");
                         CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId(), force)
                                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to stop service", t))
-                                .onSuccess(b -> commandSender.sendMessage("Stopped service " + serviceHolder.get().getName()));
+                                .onSuccess(b -> commandSender.sendMessage("Stopped service " + serviceHolder.get().getServiceName()));
                     });
         }
     }

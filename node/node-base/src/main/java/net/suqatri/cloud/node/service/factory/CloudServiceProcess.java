@@ -3,6 +3,7 @@ package net.suqatri.cloud.node.service.factory;
 import com.google.common.util.concurrent.RateLimiter;
 import lombok.Data;
 import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.node.service.factory.ICloudServiceProcess;
 import net.suqatri.cloud.api.node.service.screen.IServiceScreen;
@@ -65,6 +66,10 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         builder.command(getStartCommand());
         this.process = builder.start();
 
+        this.serviceHolder.get().setServiceState(ServiceState.STARTING);
+        this.serviceHolder.getImpl(CloudService.class).setMaxRam(this.serviceHolder.get().getConfiguration().getMaxMemory());
+        this.serviceHolder.get().update();
+
         this.thread = new Thread(() -> {
             try {
                 RateLimiter rate = RateLimiter.create(15, 5, TimeUnit.SECONDS);
@@ -112,9 +117,6 @@ public class CloudServiceProcess implements ICloudServiceProcess {
             }
         }, "redicloud-service-" + this.serviceHolder.get().getServiceName());
         this.thread.start();
-
-        this.serviceHolder.get().setServiceState(ServiceState.STARTING);
-        this.serviceHolder.get().update();
 
         return true;
     }

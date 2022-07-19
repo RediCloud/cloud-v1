@@ -1,0 +1,5 @@
+name: RediCloud-Plugin
+author: Suqatri
+version: 1.0-SNAPSHOT
+description: RediCloud-Plugin
+main: net.suqatri.cloud.api.minecraft.MinecraftCloudPlugin

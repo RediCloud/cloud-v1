@@ -5,6 +5,7 @@ import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
+import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
@@ -28,7 +29,7 @@ public class CloudService extends RBucketObject implements ICloudService {
     private ServiceState serviceState = ServiceState.UNKNOWN;
     private int onlineCount = -1;
     private int maxRam = -1;
-    private int ramUsage = -1;
+    private double ramUsage = -1;
     private UUID nodeId;
     private Collection<UUID> consoleNodeListenerIds = new ArrayList<>();
 
@@ -36,6 +37,11 @@ public class CloudService extends RBucketObject implements ICloudService {
     public void merged() {
         if(CloudAPI.getInstance().getApplicationType().getNetworkComponentType() != NetworkComponentType.SERVICE) return;
         CloudDefaultAPIImpl.getInstance().updateApplicationProperties(this);
+    }
+
+    @Override
+    public INetworkComponentInfo getNetworkComponentInfo() {
+        return CloudAPI.getInstance().getNetworkComponentManager().getComponentInfo(NetworkComponentType.SERVICE, this.getUniqueId().toString());
     }
 
     @Override

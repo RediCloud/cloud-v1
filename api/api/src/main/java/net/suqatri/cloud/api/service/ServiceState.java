@@ -4,8 +4,8 @@ public enum ServiceState {
 
     PREPARE,
     STARTING,
-    VISIBLE,
-    INVISIBLE,
+    RUNNING_UNDEFINED,
+    RUNNING_DEFINED,
     UNKNOWN,
     OFFLINE;
 

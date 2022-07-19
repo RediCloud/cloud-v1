@@ -2,6 +2,7 @@ package net.suqatri.cloud.api.service;
 
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.group.ICloudGroup;
+import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.bucket.IRBucketObject;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
@@ -16,6 +17,8 @@ public interface ICloudService extends IRBucketObject {
     IServiceStartConfiguration getConfiguration();
 
     UUID getNodeId();
+
+    INetworkComponentInfo getNetworkComponentInfo();
 
     default FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion(){
         return CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(getConfiguration().getServiceVersionName());

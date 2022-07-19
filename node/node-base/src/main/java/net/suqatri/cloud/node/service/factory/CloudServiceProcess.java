@@ -75,7 +75,8 @@ public class CloudServiceProcess implements ICloudServiceProcess {
             try {
                 RateLimiter rate = RateLimiter.create(15, 5, TimeUnit.SECONDS);
                 IServiceScreen screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(this.serviceHolder);
-                BufferedReader reader = new BufferedReader(new InputStreamReader(this.process.getInputStream()));
+                InputStreamReader inputStreamReader = new InputStreamReader(this.process.getInputStream());
+                BufferedReader reader = new BufferedReader(inputStreamReader);
                 while(this.process.isAlive() && Thread.currentThread().isAlive() && !Thread.currentThread().isInterrupted()) {
                     String line = reader.readLine();
                     if(line == null) continue;
@@ -108,12 +109,15 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                 if(this.serviceDirectory.exists()) FileUtils.deleteDirectory(this.serviceDirectory);
                 CloudAPI.getInstance().getConsole().debug("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped");
                 if(this.stopFuture != null) this.stopFuture.complete(true);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 if(this.stopFuture != null) this.stopFuture.completeExceptionally(e);
                 ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
                 CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped exceptionally!", e);
                 if(this.serviceDirectory.exists()){
-                    CloudAPI.getInstance().getConsole().warn("Temp service directory of " + this.serviceHolder.get().getServiceName() + "cannot be deleted (" + this.serviceDirectory.getAbsolutePath() + ")");
+                try {
+                    FileUtils.deleteDirectory(this.serviceDirectory);
+                }catch (IOException e){
+                    CloudAPI.getInstance().getConsole().warn("Temp service directory of " + this.serviceHolder.get().getServiceName() + " cannot be deleted (" + this.serviceDirectory.getAbsolutePath() + ")");
                 }
             }
         }, "redicloud-service-" + this.serviceHolder.get().getServiceName());

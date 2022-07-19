@@ -1,4 +1,4 @@
-package minecraft;
+package net.suqatri.cloud.plugin.minecraft;
 
 import net.suqatri.cloud.api.service.ServiceState;
 import org.bukkit.plugin.java.JavaPlugin;

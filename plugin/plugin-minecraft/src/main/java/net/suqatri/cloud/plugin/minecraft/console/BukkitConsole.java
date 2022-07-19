@@ -1,4 +1,4 @@
-package minecraft.console;
+package net.suqatri.cloud.plugin.minecraft.console;
 
 import lombok.Data;
 import net.suqatri.cloud.api.console.IConsole;

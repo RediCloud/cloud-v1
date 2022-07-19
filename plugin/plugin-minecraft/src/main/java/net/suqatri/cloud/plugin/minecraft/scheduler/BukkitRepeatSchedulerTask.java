@@ -1,9 +1,8 @@
-package minecraft.scheduler;
+package net.suqatri.cloud.plugin.minecraft.scheduler;
 
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.cloud.api.scheduler.IRepeatScheduler;
-import net.suqatri.cloud.api.scheduler.IScheduler;
 import net.suqatri.cloud.api.scheduler.ITaskFilter;
 import org.bukkit.scheduler.BukkitTask;
 

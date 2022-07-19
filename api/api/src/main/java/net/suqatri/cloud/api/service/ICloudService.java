@@ -68,8 +68,8 @@ public interface ICloudService extends IRBucketObject {
         return getConfiguration().isStatic();
     }
 
-    int getMaxRam();
-    int getRamUsage();
+    long getMaxRam();
+    long getRamUsage();
 
     Collection<UUID> getConsoleNodeListenerIds();
 

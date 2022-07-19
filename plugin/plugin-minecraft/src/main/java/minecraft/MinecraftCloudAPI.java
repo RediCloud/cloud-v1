@@ -88,7 +88,8 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private void startUpdater(){
         this.updaterTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.javaPlugin, () -> {
             this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
-            this.service.setRamUsage(Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
+            long usedRam = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
+            this.service.setRamUsage(usedRam);
             this.service.updateAsync();
         }, 0, 20);
     }

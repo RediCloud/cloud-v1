@@ -92,7 +92,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
 
     @Override
     public FutureAction<Integer> getOnlineServiceCount() {
-        return new FutureAction<>(CloudAPI.getInstance().getServiceManager().getServiceIdFetcherMap().readAllKeySet())
+        return CloudAPI.getInstance().getServiceManager().readAllFetcherKeysAsync()
                 .map(names -> (int) names
                         .parallelStream()
                         .filter(name -> name.startsWith(this.getName().toLowerCase() + "-"))

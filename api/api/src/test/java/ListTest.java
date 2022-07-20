@@ -1,3 +1,4 @@
+import net.suqatri.cloud.api.CloudAPI;
 import org.redisson.Redisson;
 import org.redisson.api.RList;
 import org.redisson.api.RMap;
@@ -14,24 +15,29 @@ import java.util.UUID;
 
 public class ListTest {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         Config config = new Config();
         config.useSingleServer()
                 .setAddress("redis://" + System.getenv("host") + ":6379")
                 .setPassword(System.getenv("password"))
-                .setDatabase(2);
+                .setDatabase(1);
         RedissonClient client = Redisson.create(config);
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             if(client.isShutdown()) return;
             client.shutdown();
         }));
 
-        RMap<String, UUID> map = client.getMap("map", new JsonJacksonCodec());
-
-        map.putAsync("test", UUID.randomUUID());
-        System.out.println(map.get("test").toString());
-
+        RMap<String, String> map = client.getMap("service@idFetcher", new JsonJacksonCodec());
+        map.readAllKeySetAsync().whenComplete((s, s1) -> {
+            if(s1 != null) {
+                System.out.println("Error: " + s1.getMessage());
+                return;
+            }
+            for (String s2 : s) {
+                System.out.println(s2);
+            }
+        });
     }
 
 }

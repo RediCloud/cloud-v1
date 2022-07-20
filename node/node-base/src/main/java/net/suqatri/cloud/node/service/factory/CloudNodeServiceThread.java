@@ -87,11 +87,9 @@ public class CloudNodeServiceThread extends Thread{
                     .forEach(config -> {
                         this.queue.remove(config);
                         if(config.isStatic()) return;
-                        if(!((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).existsService(config.getUniqueId().toString())) return;
-                        CloudAPI.getInstance().getServiceManager().getServiceIdFetcherMap()
-                                .removeAsync(config.getGroupName().toLowerCase() + "-" + config.getId(), config.getUniqueId().toString());
+                        if(!((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).existsService(config.getUniqueId())) return;
+                        ((NodeCloudServiceManager) CloudAPI.getInstance().getServiceManager()).removeFromFetcher(config.getName());
                         NodeLauncher.getInstance().getServiceManager().deleteBucket(config.getUniqueId().toString());
-                        NodeLauncher.getInstance().getServiceManager().getServiceIdFetcherMap().removeAsync(config.getName().toLowerCase() + "-" + config.getId());
                     });
 
                 if(!this.queue.isEmpty()){
@@ -176,7 +174,7 @@ public class CloudNodeServiceThread extends Thread{
         Collection<IRBucketHolder<ICloudService>> serviceHolders = this.factory.getServiceManager().getServices();
 
         if(configuration.getId() < 1) {
-            configuration.setId(this.getNextId(configuration.getName(), this.factory.getServiceManager().getServices()));
+            configuration.setId(this.getNextId(configuration.getName(), serviceHolders));
         }
 
         for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
@@ -197,7 +195,7 @@ public class CloudNodeServiceThread extends Thread{
         }
         cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
         IRBucketHolder<ICloudService> holder = this.factory.getServiceManager().createBucket(cloudService.getUniqueId().toString(), cloudService);
-        this.factory.getServiceManager().getServiceIdFetcherMap().putAsync(cloudService.getServiceName().toLowerCase(), cloudService.getUniqueId().toString());
+        this.factory.getServiceManager().putInFetcher(cloudService.getServiceName(), cloudService.getUniqueId());
 
         CloudServiceProcess process = new CloudServiceProcess(this.factory, holder);
         process.start();

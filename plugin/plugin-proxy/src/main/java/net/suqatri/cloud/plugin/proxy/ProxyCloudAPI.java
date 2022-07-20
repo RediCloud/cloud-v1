@@ -10,6 +10,8 @@ import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.suqatri.cloud.api.console.ICommandManager;
 import net.suqatri.cloud.api.console.IConsole;
 import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
+import net.suqatri.cloud.api.impl.listener.service.CloudServiceStartedListener;
+import net.suqatri.cloud.api.impl.listener.service.CloudServiceStoppedListener;
 import net.suqatri.cloud.api.impl.redis.RedisConnection;
 import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.impl.service.CloudServiceManager;
@@ -81,6 +83,9 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ProxyPingListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerSwitchListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PlayerDisconnectListener());
+
+        getEventManager().register(new CloudServiceStoppedListener());
+        getEventManager().register(new CloudServiceStartedListener());
     }
 
     private void init(){

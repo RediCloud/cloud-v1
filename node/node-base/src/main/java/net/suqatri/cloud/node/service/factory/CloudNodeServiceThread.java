@@ -7,6 +7,7 @@ import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.impl.service.version.CloudServiceVersion;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
+import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.version.ICloudServiceVersion;
@@ -158,7 +159,11 @@ public class CloudNodeServiceThread extends Thread{
         cloudService.setFallback(configuration.isFallback());
         cloudService.setServiceState(ServiceState.PREPARE);
         cloudService.setMaxPlayers(50);
-        cloudService.setMotd("&7•&8● &bRedi&3Cloud &8» &fA &bredis &fbased &bcluster &fcloud system &8[&3✓&8]&r\n     &b&l&8× &fDiscord &8➜ &3https://discord.gg/g2HV52VV4G");
+        if(configuration.getEnvironment() == ServiceEnvironment.PROXY) {
+            cloudService.setMotd("&7•&8● &bRedi&3Cloud &8» &fA &bredis &fbased &bcluster &fcloud system &8[&3✓&8]&r\n     &b&l&8× &fDiscord &8➜ &3https://discord.gg/g2HV52VV4G");
+        }else{
+            cloudService.setMotd("§bRedi§3Cloud§7-§fService");
+        }
         cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
         IRBucketHolder<ICloudService> holder = this.factory.getServiceManager().createBucket(cloudService.getUniqueId().toString(), cloudService);
 

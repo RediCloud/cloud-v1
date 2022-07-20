@@ -6,7 +6,6 @@ import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
-import java.io.File;
 import java.util.Collection;
 
 public class CloudServiceTemplateManager extends RedissonBucketManager<CloudServiceTemplate, ICloudServiceTemplate> implements ICloudServiceTemplateManager {

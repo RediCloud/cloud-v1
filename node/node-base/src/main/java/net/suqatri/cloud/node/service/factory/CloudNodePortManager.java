@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CloudNodePortManager implements ICloudPortManager {
 
-    //TODO remove on service stop
     private final ConcurrentHashMap<ICloudServiceProcess, Integer> usedPort = new ConcurrentHashMap<>();
     private final List<Integer> blockedPorts = new ArrayList<>();
 

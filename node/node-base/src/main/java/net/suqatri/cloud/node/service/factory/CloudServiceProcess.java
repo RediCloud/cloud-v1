@@ -98,7 +98,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                         //stream closed...
                     }
                 }
-
+                this.factory.getPortManager().unusePort(this.port);
                 reader.close();
 
                 this.destroyScreen();
@@ -207,6 +207,9 @@ public class CloudServiceProcess implements ICloudServiceProcess {
     }
 
     public void stopProcess(boolean force) {
+
+        this.factory.getPortManager().unusePort(this.port);
+
         if(!isActive()) return;
         if(force){
             this.process.destroyForcibly();

@@ -77,6 +77,7 @@ public class CloudNodeServiceThread extends Thread{
                     .filter(config -> this.waitForRemove.contains(config.getUniqueId()))
                     .forEach(config -> {
                         this.queue.remove(config);
+                        if(config.isStatic()) return;
                         if(!((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).existsService(config.getUniqueId().toString())) return;
                         CloudAPI.getInstance().getServiceManager().getServiceIdFetcherMap()
                                 .removeAsync(config.getGroupName() + "-" + config.getId(), config.getUniqueId());
@@ -137,8 +138,19 @@ public class CloudNodeServiceThread extends Thread{
     private void start(IServiceStartConfiguration configuration) throws Exception {
         if(!CloudAPI.getInstance().getServiceVersionManager().existsServiceVersion(configuration.getServiceVersionName())) throw new Exception("Service version " + configuration.getServiceVersionName() + " not found");
 
-        //TODO check for empty node
-        configuration.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
+        CloudService cloudService = null;
+        if(CloudAPI.getInstance().getServiceManager().existsService(configuration.getUniqueId()) || configuration.isStatic()){
+            cloudService = CloudAPI.getInstance().getServiceManager().getService(configuration.getUniqueId())
+                    .getImpl(CloudService.class);
+            if(!cloudService.isStatic() && cloudService.getNodeId().equals(NodeLauncher.getInstance().getNode().getUniqueId())){
+                configuration.getStartListener().completeExceptionally(
+                        new IllegalArgumentException("Can´t start static service how is stored on node "
+                        + CloudAPI.getInstance().getNodeManager().getNode(cloudService.getNodeId()).get().getName()));
+                return;
+            }
+        }else{
+            configuration.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
+        }
 
         IRBucketHolder<ICloudServiceVersion> versionHolder = CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(configuration.getServiceVersionName());
         if(!versionHolder.get().isDownloaded()) versionHolder.getImpl(CloudServiceVersion.class).download();
@@ -156,7 +168,7 @@ public class CloudNodeServiceThread extends Thread{
             }
         }
 
-        CloudService cloudService = new CloudService();
+        cloudService = new CloudService();
         cloudService.setConfiguration(configuration);
         cloudService.setFallback(configuration.isFallback());
         cloudService.setServiceState(ServiceState.PREPARE);

@@ -52,8 +52,11 @@ public class CloudServiceProcess implements ICloudServiceProcess {
     @Override
     public boolean start() throws Exception {
 
-        this.serviceDirectory = new File(Files.TEMP_SERVICE_FOLDER.getFile(), this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId());
-        this.serviceDirectory.mkdirs();
+        this.serviceDirectory = new File(this.serviceHolder.get().isStatic()
+                ? Files.STATIC_SERVICE_FOLDER.getFile()
+                : Files.TEMP_SERVICE_FOLDER.getFile(),
+                this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId());
+        if(!this.serviceDirectory.exists()) this.serviceDirectory.mkdirs();
 
         this.factory.getPortManager().getUnusedPort(this).get(5, TimeUnit.SECONDS);
 
@@ -110,7 +113,9 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
                 CloudAPI.getInstance().getEventManager().postLocal(new CloudServiceStoppedEvent(this.serviceHolder));
 
-                ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
+                if(!this.serviceHolder.get().isStatic())
+                    ((NodeCloudServiceManager)this.factory.getServiceManager())
+                            .deleteBucket(this.serviceHolder.get().getUniqueId().toString());
 
                 if(StreamUtils.isOpen(this.process.getErrorStream())) {
                     reader = new BufferedReader(new InputStreamReader(this.process.getErrorStream()));
@@ -121,7 +126,8 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                     reader.close();
                 }
 
-                if(this.serviceDirectory.exists()) FileUtils.deleteDirectory(this.serviceDirectory);
+                if(this.serviceDirectory.exists() && !this.serviceHolder.get().isStatic())
+                    FileUtils.deleteDirectory(this.serviceDirectory);
 
                 CloudAPI.getInstance().getConsole().debug("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped");
 
@@ -136,9 +142,10 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                 }
 
                 this.destroyScreen();
-                ((NodeCloudServiceManager) this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
+                if(!this.serviceHolder.get().isStatic())
+                    ((NodeCloudServiceManager) this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
 
-                if (this.serviceDirectory.exists()) {
+                if (this.serviceDirectory.exists() && !this.serviceHolder.get().isStatic()) {
                     try {
                         FileUtils.deleteDirectory(this.serviceDirectory);
                     } catch (IOException e1) {
@@ -190,6 +197,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
     public void deleteTempFiles(boolean force) throws IOException {
         if(isActive()) stopProcess(force);
+        if(this.serviceHolder.get().isStatic() || !this.serviceDirectory.exists()) return;
         FileUtils.deleteDirectory(this.serviceDirectory);
     }
 
@@ -198,6 +206,11 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
         if(isActive()){
             stopProcess(force);
+        }
+
+        if(this.serviceHolder.get().isStatic() || !this.serviceDirectory.exists()){
+            futureAction.complete(true);
+            return futureAction;
         }
 
         CloudAPI.getInstance().getExecutorService().submit(() -> {

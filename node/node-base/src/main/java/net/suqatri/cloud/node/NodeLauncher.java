@@ -14,7 +14,6 @@ import net.suqatri.cloud.api.player.ICloudPlayerManager;
 import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
-import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.commons.connection.IPUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
@@ -65,6 +64,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private final NodeCloudServiceFactory serviceFactory;
     private final NodeCloudServiceVersionManager serviceVersionManager;
     private final ServiceScreenManager screenManager;
+    private boolean firstTemplatePulled = false;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -119,6 +119,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
            this.console.warn("You can setup a node to pull templates from by set the node-property \"filenode\" to true!");
            this.console.warn("You can also setup multiple nodes to pull templates from. The cluster will use the node with the highest uptime!");
            this.console.warn("-----------------------------------------");
+           this.firstTemplatePulled = true;
            runnable.run();
            return;
        }
@@ -127,10 +128,12 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
        this.serviceTemplateManager.pullTemplates(nodeHolder)
                .onFailure(e -> {
                    this.console.error("Failed to pull templates from node " + targetNode.getName(), e);
+                   this.firstTemplatePulled = true;
                    runnable.run();
                })
                .onSuccess(s -> {
                    this.console.info("Successfully pulled templates from node %hc" + targetNode.getName());
+                   this.firstTemplatePulled = true;
                    runnable.run();
                });
 

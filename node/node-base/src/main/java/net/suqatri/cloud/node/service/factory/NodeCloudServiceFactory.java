@@ -1,7 +1,8 @@
 package net.suqatri.cloud.node.service.factory;
 
-import jdk.nashorn.internal.runtime.options.Option;
 import lombok.Data;
+import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.node.file.event.FilePullTemplatesEvent;
 import net.suqatri.cloud.api.node.service.factory.ICloudNodeServiceFactory;
 import net.suqatri.cloud.api.node.service.factory.ICloudServiceProcess;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
@@ -9,12 +10,10 @@ import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.commons.function.future.FutureAction;
+import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 
-import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
@@ -27,8 +26,11 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
         this.serviceManager = serviceManager;
         this.portManager = new CloudNodePortManager();
         this.thread = new CloudNodeServiceThread(this);
-        //TODO start after template is ready
-        this.thread.start();
+        if(NodeLauncher.getInstance().isFirstTemplatePulled()){
+            this.thread.start();
+        }else{
+            CloudAPI.getInstance().getEventManager().register(FilePullTemplatesEvent.class, event -> this.thread.start());
+        }
     }
 
     public FutureAction<IRBucketHolder<ICloudService>> queueService(IServiceStartConfiguration configuration) {

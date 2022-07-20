@@ -2,8 +2,10 @@ package net.suqatri.cloud.node.service.factory;
 
 import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
+import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.cloud.api.impl.service.CloudService;
+import net.suqatri.cloud.api.impl.service.configuration.GroupServiceStartConfiguration;
 import net.suqatri.cloud.api.impl.service.version.CloudServiceVersion;
 import net.suqatri.cloud.api.node.service.factory.ICloudNodeServiceFactory;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
@@ -17,10 +19,11 @@ import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class CloudNodeServiceThread extends Thread{
 
-    private final int maxStartSize = 4;
+    private static final int checkServiceInterval = 4;
 
     @Getter
     private final PriorityQueue<IServiceStartConfiguration> queue;
@@ -29,6 +32,7 @@ public class CloudNodeServiceThread extends Thread{
     private final ConcurrentHashMap<UUID, CloudServiceProcess> processes;
     @Getter
     private final List<UUID> waitForRemove = new ArrayList<>();
+    private int checkServiceCount = 0;
 
     public CloudNodeServiceThread(NodeCloudServiceFactory factory) {
         super("redicloud-node-service-thread");
@@ -40,6 +44,33 @@ public class CloudNodeServiceThread extends Thread{
     @Override
     public void run() {
         while(!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
+
+            long freeSpace = getFreeMemory();
+            long preCalculatedFreeSpace = freeSpace;
+            int maxStartSize = NodeLauncher.getInstance().getNode().getMaxParallelStartingServiceCount();
+
+            this.checkServiceCount++;
+            if(this.checkServiceCount >= checkServiceInterval) {
+                this.checkServiceCount = 0;
+                for (IRBucketHolder<ICloudGroup> groupHolder : CloudAPI.getInstance().getGroupManager().getGroups()) {
+                    int count = groupHolder.get().getOnlineServiceCount();
+                    int min = groupHolder.get().getMinServices();
+                    int max = groupHolder.get().getMaxServices();
+                    if (count < min) {
+                        int added = 0;
+                        for (int i = count; i <= min && added <= maxStartSize; i++) {
+                            IServiceStartConfiguration configuration = new GroupServiceStartConfiguration().applyFromGroup(groupHolder);
+                            preCalculatedFreeSpace -= configuration.getMaxMemory();
+                            if (preCalculatedFreeSpace < 0) {
+                                CloudAPI.getInstance().getConsole().warn("Not enough memory to start a required service of group" + groupHolder.get().getName());
+                                break;
+                            }
+                            this.queue.add(configuration);
+                            added++;
+                        }
+                    }
+                }
+            }
 
             if(!this.queue.isEmpty()){
 
@@ -53,19 +84,24 @@ public class CloudNodeServiceThread extends Thread{
                         ((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).deleteBucket(config.getUniqueId().toString());
                     });
 
-                int currentStartSize = 0;
-                while(currentStartSize <= this.maxStartSize && !this.queue.isEmpty()) {
-                    currentStartSize++;
+                if(!this.queue.isEmpty()){
+
                     IServiceStartConfiguration configuration = this.queue.poll();
-                    try {
-                        start(configuration);
-                    } catch (Exception e) {
-                        this.waitForRemove.add(configuration.getUniqueId());
-                        if(configuration.getStartListener() != null) {
-                            configuration.getStartListener().completeExceptionally(e);
-                        }else{
-                            CloudAPI.getInstance().getConsole().error("Error starting service " + configuration.getName() + configuration.getName(), e);
+                    while(getCurrentStartingCount() <= maxStartSize
+                            && !this.queue.isEmpty()
+                            && freeSpace - configuration.getMaxMemory() > 0){
+                        try {
+                            start(configuration);
+                            freeSpace -= configuration.getMaxMemory();
+                        } catch (Exception e) {
+                            this.waitForRemove.add(configuration.getUniqueId());
+                            if(configuration.getStartListener() != null) {
+                                configuration.getStartListener().completeExceptionally(e);
+                            }else{
+                                CloudAPI.getInstance().getConsole().error("Error starting service " + configuration.getName() + configuration.getName(), e);
+                            }
                         }
+                        if(!this.queue.isEmpty()) configuration = this.queue.poll();
                     }
                 }
             }
@@ -75,6 +111,27 @@ public class CloudNodeServiceThread extends Thread{
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private long getCurrentStartingCount(){
+        return this.processes
+                .values()
+                .parallelStream()
+                .filter(process -> process.getServiceHolder().get().getServiceState() == ServiceState.STARTING || process.getServiceHolder().get().getServiceState() == ServiceState.STARTING)
+                .count();
+    }
+
+    private long getFreeMemory(){
+        try {
+            int currentRam = 0;
+            for (IRBucketHolder<ICloudService> holder : NodeLauncher.getInstance().getNode().getStartedServices().get(5, TimeUnit.SECONDS)) {
+                currentRam += holder.get().getMaxRam();
+            }
+            return NodeLauncher.getInstance().getNode().getMaxMemory() - currentRam;
+        }catch (Exception e){
+            e.printStackTrace();
+            return 0;
         }
     }
 

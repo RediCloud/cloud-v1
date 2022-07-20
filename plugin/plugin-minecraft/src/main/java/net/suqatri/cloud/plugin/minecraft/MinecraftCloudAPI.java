@@ -90,6 +90,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private void initThisService(){
         this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_service_id"))).getImpl(CloudService.class);
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
+        this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
         this.service.update();
 
         getEventManager().postLocal(new CloudServiceStartedEvent(this.service.getHolder()));

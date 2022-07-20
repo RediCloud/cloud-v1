@@ -109,7 +109,7 @@ public class CloudNodeServiceThread extends Thread{
                             && this.node.getFreeMemory() - configuration.getMaxMemory() > 0){
                         if(configuration.isGroupBased()){
                             IRBucketHolder<ICloudGroup> groupHolder = CloudAPI.getInstance().getGroupManager().getGroup(configuration.getGroupName());
-                            if(groupHolder.get().getOnlineServiceCount().getBlockOrNull() >= groupHolder.get().getMaxServices()){
+                            if(groupHolder.get().getOnlineServiceCount().getBlockOrNull() >= groupHolder.get().getMaxServices() && groupHolder.get().getMaxServices() != -1){
                                 if(configuration.getStartListener() != null){
                                     configuration.getStartListener().completeExceptionally(new IllegalStateException("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!"));
                                 }else{

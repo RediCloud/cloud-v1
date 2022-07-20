@@ -18,6 +18,7 @@ import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -68,16 +69,13 @@ public class CloudNode extends RBucketObject implements ICloudNode {
     }
 
     @Override
-    public FutureAction<Collection<ICloudService>> getStartedServices() {
+    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getStartedServices() {
         FutureActionCollection<UUID, IRBucketHolder<ICloudService>> futureActionCollection = new FutureActionCollection<>();
         for (UUID startedServiceUniqueId : this.startedServiceUniqueIds) {
             futureActionCollection.addToProcess(startedServiceUniqueId, CloudAPI.getInstance().getServiceManager().getServiceAsync(startedServiceUniqueId));
         }
         return futureActionCollection.process()
-                .map(c -> c.values())
-                .map(v -> v.stream()
-                        .map(IRBucketHolder::get)
-                .collect(Collectors.toList()));
+                .map(HashMap::values);
     }
 
     @Override

@@ -76,7 +76,9 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
 
     @Override
     public IRBucketHolder<ICloudService> getService(UUID uniqueId) {
-        return this.getBucketHolder(uniqueId.toString());
+        IRBucketHolder<ICloudService> holder = getBucketHolder(uniqueId.toString());
+        this.serviceIdFetcherMap.put(holder.get().getServiceName(), holder.get().getUniqueId());
+        return holder;
     }
 
     @Override
@@ -92,10 +94,10 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
     @Override
     public FutureAction<IRBucketHolder<ICloudService>> startService(IServiceStartConfiguration configuration) {
         FutureAction<IRBucketHolder<ICloudService>> futureAction = new FutureAction<>();
-        CloudFactoryServiceStartPacket packet = new CloudFactoryServiceStartPacket();
         DefaultServiceStartConfiguration.fromInterface(configuration)
                 .onFailure(futureAction)
                 .onSuccess(configuration1 -> {
+                    CloudFactoryServiceStartPacket packet = new CloudFactoryServiceStartPacket();
                     packet.setConfiguration(configuration1);
                     packet.setAsync(true);
                     packet.getPacketData().waitForResponse()

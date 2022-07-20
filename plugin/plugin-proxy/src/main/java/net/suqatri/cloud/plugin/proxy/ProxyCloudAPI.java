@@ -4,9 +4,11 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.ICommandManager;
 import net.suqatri.cloud.api.console.IConsole;
 import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
@@ -23,7 +25,9 @@ import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.player.ICloudPlayerManager;
 import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
+import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.scheduler.IScheduler;
+import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.ICloudServiceManager;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.service.event.CloudServiceStartedEvent;
@@ -40,6 +44,7 @@ import net.suqatri.cloud.plugin.proxy.listener.*;
 import net.suqatri.cloud.plugin.proxy.scheduler.BungeeScheduler;
 
 import java.io.File;
+import java.net.InetSocketAddress;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -97,7 +102,25 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private void init(){
         initRedis();
         initThisService();
+        registerStartedService();
         startUpdater();
+    }
+
+    private void registerStartedService(){
+        this.serviceManager.getServicesAsync()
+            .onFailure(e -> this.console.error("Failed to register started service", e))
+            .onSuccess(serviceHolders -> {
+                for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
+                    ServerInfo serverInfo = ProxyServer.getInstance().constructServerInfo(
+                            serviceHolder.get().getServiceName(),
+                            InetSocketAddress.createUnresolved(serviceHolder.get().getHostName(), serviceHolder.get().getPort()),
+                            serviceHolder.get().getMotd(),
+                            false);
+
+                    ProxyServer.getInstance().getServers().put(serverInfo.getName(), serverInfo);
+                    CloudAPI.getInstance().getConsole().debug("Registered service: " + serviceHolder.get().getServiceName());
+                }
+            });
     }
 
     private void initThisService(){

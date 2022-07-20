@@ -25,9 +25,10 @@ public interface ICloudNode extends IRBucketObject {
     void setMaxParallelStartingServiceCount(int maxStartingServiceCount);
 
     double getCpuUsage();
-    int getMemoryUsage();
-    int getMaxMemory();
-    void setMaxMemory(int maxMemory);
+    long getMemoryUsage();
+    long getFreeMemory();
+    long getMaxMemory();
+    void setMaxMemory(long maxMemory);
     long getLastConnection();
     long getUpTime();
     void shutdown();
@@ -37,5 +38,4 @@ public interface ICloudNode extends IRBucketObject {
     long getLastDisconnect();
     boolean isFileNode();
     void setFileNode(boolean fileNode);
-
 }

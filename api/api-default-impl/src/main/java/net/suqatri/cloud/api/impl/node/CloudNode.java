@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Getter
@@ -32,8 +33,8 @@ public class CloudNode extends RBucketObject implements ICloudNode {
     private boolean connected;
     private Collection<UUID> startedServiceUniqueIds = new ArrayList<>();
     private double cpuUsage = 0;
-    private int memoryUsage = 0;
-    private int maxMemory;
+    private long maxMemory;
+    private long memoryUsage;
     private int maxParallelStartingServiceCount;
     private int maxServiceCount;
     private long lastConnection = 0L;
@@ -41,6 +42,11 @@ public class CloudNode extends RBucketObject implements ICloudNode {
     private long lastDisconnect = 0L;
     private String filePath;
     private boolean fileNode = false;
+
+    @Override
+    public long getFreeMemory() {
+        return getMaxMemory() - getMemoryUsage();
+    }
 
     public long getUpTime(){
         return System.currentTimeMillis() - this.lastStart;

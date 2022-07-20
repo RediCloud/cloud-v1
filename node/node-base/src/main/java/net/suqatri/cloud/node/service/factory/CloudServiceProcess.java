@@ -82,6 +82,10 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         this.serviceHolder.getImpl(CloudService.class).setPort(this.port);
         this.serviceHolder.get().update();
 
+        NodeLauncher.getInstance().getNode().setMemoryUsage(NodeLauncher.getInstance().getNode().getMemoryUsage()
+                + this.serviceHolder.get().getConfiguration().getMaxMemory());
+        NodeLauncher.getInstance().getNode().update();
+
         this.thread = new Thread(() -> {
             try {
                 RateLimiter rate = RateLimiter.create(15, 5, TimeUnit.SECONDS);
@@ -105,6 +109,11 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                         //stream closed...
                     }
                 }
+
+                NodeLauncher.getInstance().getNode().setMemoryUsage(NodeLauncher.getInstance().getNode().getMemoryUsage()
+                        - this.serviceHolder.get().getConfiguration().getMaxMemory());
+                NodeLauncher.getInstance().getNode().update();
+
                 reader.close();
 
                 this.destroyScreen();

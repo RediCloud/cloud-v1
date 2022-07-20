@@ -46,6 +46,8 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
     public FutureAction<Boolean> destroyServiceAsync(UUID uniqueId, boolean force) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
 
+        //TODO check other nodes if this service is running
+
         ICloudServiceProcess process = this.thread.getProcesses().get(uniqueId);
         if(process == null) {
             this.thread.getWaitForRemove().add(uniqueId);

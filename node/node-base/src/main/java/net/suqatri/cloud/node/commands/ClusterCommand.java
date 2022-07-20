@@ -42,6 +42,7 @@ public class ClusterCommand extends ConsoleCommand {
         commandSender.sendMessage("§8   » %tcLast-IP: %hc" + node.getHostname());
         commandSender.sendMessage("§8   » %tcUp-Time: %hc" + node.getUpTime());
         commandSender.sendMessage("§8   » %tcServices: %hc" + node.getStartedServiceUniqueIds().size());
+        commandSender.sendMessage("§8   » %tcRAM: %hc" + node.getMemoryUsage() + "/" + node.getMaxMemory() + "MB");
     }
 
     @Subcommand("ping")
@@ -95,6 +96,7 @@ public class ClusterCommand extends ConsoleCommand {
                         commandSender.sendMessage("§8   » %tcLast-IP: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getHostname());
                         commandSender.sendMessage("§8   » %tcUp-Time: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getUpTime());
                         commandSender.sendMessage("§8   » %tcServices: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getStartedServiceUniqueIds().size());
+                        commandSender.sendMessage("§8   » %tcRAM: %hc" + node.getMemoryUsage() + "/" + node.getMaxMemory() + "MB");
                     } else {
                         commandSender.sendMessage("§8➤ %tc" + node.getName() + " §7[%hc" + node.getUniqueId() + "§7]: %hcOffline");
                     }

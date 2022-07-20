@@ -33,7 +33,7 @@ public interface ICloudPlayer extends IRBucketObject{
     void sendTab(String header, String footer);
 
     void connect(String server);
-    void connect(ICloudService cloudService);
+    void connect(IRBucketHolder<ICloudService> cloudService);
     void disconnect(String reason);
 
 }

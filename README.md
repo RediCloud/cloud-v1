@@ -57,7 +57,7 @@ Please note that this project is still work in progress and not stable yet
   - default modules: perms, cloudflare ❌
   - redis cluster support ❌
   - smart clustering ❌
-  - automatic service start ❌
+  - automatic service start 🚧
 <br>
 
 ## Commands

@@ -102,6 +102,7 @@ public class CloudNodeServiceThread extends Thread{
 
         CloudService cloudService = new CloudService();
         cloudService.setConfiguration(configuration);
+        cloudService.setFallback(configuration.isFallback());
         cloudService.setServiceState(ServiceState.PREPARE);
         cloudService.setMaxPlayers(50);
         cloudService.setMotd("Welcome to RediCloud");

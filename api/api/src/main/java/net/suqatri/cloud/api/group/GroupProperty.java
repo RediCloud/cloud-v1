@@ -6,6 +6,7 @@ public enum GroupProperty {
     MIN_SERVICES,
     MAX_MEMORY,
     START_PRIORITY,
+    FALLBACK,
     MAINTENANCE;
 
 }

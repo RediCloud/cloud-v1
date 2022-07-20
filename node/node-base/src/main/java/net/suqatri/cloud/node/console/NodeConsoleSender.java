@@ -13,6 +13,6 @@ public class NodeConsoleSender extends CommandSender {
 
     @Override
     public void sendMessage(String message) {
-        this.consoleManager.getNodeConsole().log(new ConsoleLine("COMMAND", message));
+        this.consoleManager.getNodeConsole().log(new ConsoleLine("COMMAND", "%tc" + message));
     }
 }

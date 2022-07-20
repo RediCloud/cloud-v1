@@ -1,6 +1,6 @@
 package net.suqatri.cloud.api.service.event;
 
-import lombok.Data;
+import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.event.CloudGlobalEvent;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
@@ -9,11 +9,21 @@ import net.suqatri.cloud.commons.function.future.FutureAction;
 
 import java.util.UUID;
 
-@Data
+@Getter
 public class CloudServiceEvent extends CloudGlobalEvent {
 
-    private UUID serverId;
-    private String serviceName;
+    private final UUID serverId;
+    private final String serviceName;
+
+    public CloudServiceEvent(IRBucketHolder<ICloudService> holder){
+        this.serverId = holder.get().getUniqueId();
+        this.serviceName = holder.get().getServiceName();
+    }
+
+    public CloudServiceEvent(){
+        this.serverId = null;
+        this.serviceName = null;
+    }
 
     public IRBucketHolder<ICloudService> getService() {
         return CloudAPI.getInstance().getServiceManager().getService(this.serverId);

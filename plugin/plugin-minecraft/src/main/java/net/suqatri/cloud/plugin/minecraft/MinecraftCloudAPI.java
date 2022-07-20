@@ -10,6 +10,7 @@ import net.suqatri.cloud.api.impl.service.version.CloudServiceVersionManager;
 import net.suqatri.cloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.cloud.api.player.ICloudPlayer;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.api.service.event.CloudServiceStartedEvent;
 import net.suqatri.cloud.commons.ByteUtils;
 import net.suqatri.cloud.plugin.minecraft.command.BukkitCloudCommandManager;
 import net.suqatri.cloud.plugin.minecraft.console.BukkitConsole;
@@ -91,6 +92,8 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_serviceId"))).getImpl(CloudService.class);
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.service.update();
+
+        CloudServiceStartedEvent event = new CloudServiceStartedEvent();
     }
 
     private void initRedis() {

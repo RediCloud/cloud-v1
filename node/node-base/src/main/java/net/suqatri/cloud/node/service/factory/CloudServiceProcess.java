@@ -11,6 +11,7 @@ import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.api.service.ServiceState;
+import net.suqatri.cloud.api.service.event.CloudServiceStoppedEvent;
 import net.suqatri.cloud.api.utils.Files;
 import net.suqatri.cloud.commons.StreamUtils;
 import net.suqatri.cloud.commons.function.future.FutureAction;
@@ -98,13 +99,15 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                         //stream closed...
                     }
                 }
-                this.factory.getPortManager().unusePort(this.port);
                 reader.close();
 
                 this.destroyScreen();
+
+                this.factory.getPortManager().unusePort(this.port);
+
+                CloudAPI.getInstance().getEventManager().postLocal(new CloudServiceStoppedEvent(this.serviceHolder));
+
                 ((NodeCloudServiceManager)this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
-
-
 
                 if(StreamUtils.isOpen(this.process.getErrorStream())) {
                     reader = new BufferedReader(new InputStreamReader(this.process.getErrorStream()));

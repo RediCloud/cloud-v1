@@ -7,6 +7,7 @@ import net.suqatri.cloud.api.player.ICloudPlayerManager;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.cloud.commons.function.future.FutureAction;
+import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 import org.redisson.api.RList;
 import org.redisson.api.RMap;
 
@@ -97,6 +98,26 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     @Override
     public FutureAction<Integer> getOnlineCount() {
         return new FutureAction<>(this.connectedList.sizeAsync());
+    }
+
+    @Override
+    public FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> getConnectedPlayers() {
+        FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> futureAction = new FutureAction<>();
+        this.nameFetcherMap.readAllValuesAsync()
+            .whenComplete((values, throwable) -> {
+                if(throwable != null) {
+                    futureAction.completeExceptionally(throwable);
+                    return;
+                }
+                FutureActionCollection<UUID, IRBucketHolder<ICloudPlayer>> futureActionCollection = new FutureActionCollection<>();
+                for(UUID value : values) {
+                    futureActionCollection.addToProcess(value, this.getPlayerAsync(value));
+                }
+                futureActionCollection.process()
+                    .onFailure(futureAction)
+                    .onSuccess(r -> futureAction.complete(r.values()));
+            });
+        return futureAction;
     }
 
     @Override

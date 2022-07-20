@@ -10,6 +10,7 @@ import net.suqatri.cloud.api.node.event.CloudNodeConnectedEvent;
 import net.suqatri.cloud.api.impl.node.CloudNode;
 import net.suqatri.cloud.api.impl.redis.RedisConnection;
 import net.suqatri.cloud.api.node.event.CloudNodeDisconnectEvent;
+import net.suqatri.cloud.api.node.file.event.FilePulledTemplatesEvent;
 import net.suqatri.cloud.api.player.ICloudPlayerManager;
 import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
@@ -122,6 +123,15 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
            this.console.warn("You can also setup multiple nodes to pull templates from. The cluster will use the node with the highest uptime!");
            this.console.warn("-----------------------------------------");
            this.firstTemplatePulled = true;
+           getEventManager().postLocal(new FilePulledTemplatesEvent(null, false));
+           runnable.run();
+           return;
+       }
+       if(nodeHolder == null){
+           this.console.info("No node found to sync templates from!");
+           this.console.info("Skipping template sync!");
+           this.firstTemplatePulled = true;
+           getEventManager().postLocal(new FilePulledTemplatesEvent(null, false));
            runnable.run();
            return;
        }

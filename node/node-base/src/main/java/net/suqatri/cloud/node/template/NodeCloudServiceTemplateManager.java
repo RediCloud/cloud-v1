@@ -6,7 +6,7 @@ import net.suqatri.cloud.api.impl.template.CloudServiceTemplate;
 import net.suqatri.cloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.node.ICloudNode;
-import net.suqatri.cloud.api.node.file.event.FilePullTemplatesEvent;
+import net.suqatri.cloud.api.node.file.event.FilePulledTemplatesEvent;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
 import net.suqatri.cloud.api.utils.Files;
@@ -128,9 +128,18 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
     }
 
     public FutureAction<Boolean> pullTemplates(IRBucketHolder<ICloudNode> nodeHolder){
-        CloudAPI.getInstance().getEventManager().postLocal(new FilePullTemplatesEvent(nodeHolder.get().getUniqueId()));
+        FutureAction<Boolean> futureAction =
+                new FutureAction<>(NodeLauncher.getInstance().getFileTransferManager()
+                        .pullFile(nodeHolder.get().getFilePath(Files.TEMPLATE_FOLDER)
+                                , Files.CLOUD_FOLDER.getFile()
+                                , Files.TEMPLATE_FOLDER.getFile(), nodeHolder));
 
-        return NodeLauncher.getInstance().getFileTransferManager().pullFile(nodeHolder.get().getFilePath(Files.TEMPLATE_FOLDER), Files.CLOUD_FOLDER.getFile(), Files.TEMPLATE_FOLDER.getFile(), nodeHolder);
+        futureAction.onFailure(t ->
+                        CloudAPI.getInstance().getEventManager().postLocal(new FilePulledTemplatesEvent(nodeHolder.get().getUniqueId(), false)))
+                    .onSuccess(b ->
+                            CloudAPI.getInstance().getEventManager().postLocal(new FilePulledTemplatesEvent(nodeHolder.get().getUniqueId(), true)));
+
+        return futureAction;
     }
 
     public FutureAction<Boolean> pullTemplatesFromCluster(){

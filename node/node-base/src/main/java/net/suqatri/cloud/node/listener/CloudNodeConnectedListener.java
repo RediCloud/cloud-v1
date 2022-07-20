@@ -16,7 +16,7 @@ public class CloudNodeConnectedListener {
                    return;
                }
                if(nodeHolder.get().getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) return;
-               CloudAPI.getInstance().getConsole().info("Node " + NodeLauncher.getInstance().getConsole().getHighlightColor() + nodeHolder.get().getName() + NodeLauncher.getInstance().getConsole().getTextColor() + " has been connected to the cluster!");
+               CloudAPI.getInstance().getConsole().info("Node %hc" + nodeHolder.get().getName() + "%tc has been connected to the cluster!");
             });
     }
 

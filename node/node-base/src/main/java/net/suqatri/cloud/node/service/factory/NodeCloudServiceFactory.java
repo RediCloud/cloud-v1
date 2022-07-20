@@ -2,7 +2,7 @@ package net.suqatri.cloud.node.service.factory;
 
 import lombok.Data;
 import net.suqatri.cloud.api.CloudAPI;
-import net.suqatri.cloud.api.node.file.event.FilePullTemplatesEvent;
+import net.suqatri.cloud.api.node.file.event.FilePulledTemplatesEvent;
 import net.suqatri.cloud.api.node.service.factory.ICloudNodeServiceFactory;
 import net.suqatri.cloud.api.node.service.factory.ICloudServiceProcess;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
@@ -29,7 +29,7 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
         if(NodeLauncher.getInstance().isFirstTemplatePulled()){
             this.thread.start();
         }else{
-            CloudAPI.getInstance().getEventManager().register(FilePullTemplatesEvent.class, event -> this.thread.start());
+            CloudAPI.getInstance().getEventManager().register(FilePulledTemplatesEvent.class, event -> this.thread.start());
         }
     }
 

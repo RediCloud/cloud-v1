@@ -6,8 +6,9 @@ import net.suqatri.cloud.api.event.CloudEvent;
 import java.util.UUID;
 
 @Data
-public class FilePullTemplatesEvent extends CloudEvent {
+public class FilePulledTemplatesEvent extends CloudEvent {
 
     private final UUID targetNodeId;
+    private final boolean successfull;
 
 }

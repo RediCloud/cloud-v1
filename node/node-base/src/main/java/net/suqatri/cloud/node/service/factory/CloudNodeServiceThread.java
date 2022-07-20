@@ -58,7 +58,6 @@ public class CloudNodeServiceThread extends Thread{
                 for (IRBucketHolder<ICloudGroup> groupHolder : CloudAPI.getInstance().getGroupManager().getGroups()) {
                     int count = groupHolder.get().getOnlineServiceCount().getBlockOrNull();
                     int min = groupHolder.get().getMinServices();
-                    int max = groupHolder.get().getMaxServices();
                     if (count < min) {
                         int added = 0;
                         for (int i = count; i <= min && added <= maxStartSize; i++) {
@@ -68,8 +67,8 @@ public class CloudNodeServiceThread extends Thread{
                                 if(memoryWarningCount < memoryWarningInterval) break;
                                 memoryWarningCount = 0;
                                 long maxRam = NodeLauncher.getInstance().getNode().getMaxMemory();
-                                CloudAPI.getInstance().getConsole().warn("Not enough memory to start a required service of group"
-                                        + groupHolder.get().getName() + "(" + (this.node.getMemoryUsage()) + "/" + max + "MB)");
+                                CloudAPI.getInstance().getConsole().warn("Not enough memory to start a required service of group "
+                                        + groupHolder.get().getName() + " (" + (this.node.getMemoryUsage()) + "/" + this.node.getMaxMemory() + "MB)");
                                 break;
                             }
                             this.queue.add(configuration);
@@ -98,6 +97,17 @@ public class CloudNodeServiceThread extends Thread{
                     while(getCurrentStartingCount() <= maxStartSize
                             && !this.queue.isEmpty()
                             && this.node.getFreeMemory() - configuration.getMaxMemory() > 0){
+                        if(configuration.isGroupBased()){
+                            IRBucketHolder<ICloudGroup> groupHolder = CloudAPI.getInstance().getGroupManager().getGroup(configuration.getGroupName());
+                            if(groupHolder.get().getOnlineServiceCount().getBlockOrNull() >= groupHolder.get().getMaxServices()){
+                                if(configuration.getStartListener() != null){
+                                    configuration.getStartListener().completeExceptionally(new IllegalStateException("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!"));
+                                }else{
+                                    CloudAPI.getInstance().getConsole().warn("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!");
+                                }
+                                return;
+                            }
+                        }
                         try {
                             start(configuration);
                         } catch (Exception e) {

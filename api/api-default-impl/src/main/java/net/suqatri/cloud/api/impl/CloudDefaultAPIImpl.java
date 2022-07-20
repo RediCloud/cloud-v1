@@ -15,6 +15,7 @@ import net.suqatri.cloud.api.impl.network.NetworkComponentInfo;
 import net.suqatri.cloud.api.impl.network.NetworkComponentManager;
 import net.suqatri.cloud.api.impl.node.CloudNodeManager;
 import net.suqatri.cloud.api.impl.packet.CloudPacketManager;
+import net.suqatri.cloud.api.impl.player.CloudPlayerManager;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.cloud.api.impl.redis.bucket.packet.BucketDeletePacket;
 import net.suqatri.cloud.api.impl.redis.bucket.packet.BucketUpdatePacket;
@@ -25,6 +26,7 @@ import net.suqatri.cloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.cloud.api.network.INetworkComponentManager;
 import net.suqatri.cloud.api.node.ICloudNodeManager;
 import net.suqatri.cloud.api.packet.ICloudPacketManager;
+import net.suqatri.cloud.api.player.ICloudPlayerManager;
 import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.service.ICloudServiceManager;
 import net.suqatri.cloud.api.service.version.ICloudServiceVersionManager;
@@ -46,6 +48,7 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     private final ICloudNodeManager nodeManager;
     private final ICloudGroupManager groupManager;
     private final ExecutorService executorService;
+    private final ICloudPlayerManager playerManager;
 
     public CloudDefaultAPIImpl(ApplicationType type) {
         super(type);
@@ -56,6 +59,7 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
         this.networkComponentManager = new NetworkComponentManager();
         this.nodeManager = new CloudNodeManager();
         this.groupManager = new CloudGroupManager();
+        this.playerManager = new CloudPlayerManager();
     }
 
     public void registerInternalListeners(){

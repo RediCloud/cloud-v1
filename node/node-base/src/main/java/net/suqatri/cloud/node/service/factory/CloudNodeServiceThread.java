@@ -24,6 +24,8 @@ public class CloudNodeServiceThread extends Thread{
 
     private static final int checkServiceInterval = 4;
     private static final int memoryWarningInterval = 15;
+    private static final int maxServiceOnNodeInterval = 20;
+    private static final int maxServiceOfGroupInterval = 15;
 
     @Getter
     private final PriorityQueue<IServiceStartConfiguration> queue;
@@ -34,6 +36,8 @@ public class CloudNodeServiceThread extends Thread{
     private final List<UUID> waitForRemove = new ArrayList<>();
     private int checkServiceCount = 0;
     private int memoryWarningCount = 0;
+    private int maxServiceOnNodeCount = 0;
+    private int maxServiceOfGroupCount = 0;
     private CloudNode node;
 
     public CloudNodeServiceThread(NodeCloudServiceFactory factory) {
@@ -93,6 +97,15 @@ public class CloudNodeServiceThread extends Thread{
 
                 if(!this.queue.isEmpty()){
 
+                    if(this.node.getStartedServicesCount() >= this.node.getMaxServiceCount()
+                            && this.node.getMaxServiceCount() != -1){
+                        this.maxServiceOnNodeCount++;
+                        if(this.maxServiceOnNodeCount < maxServiceOnNodeInterval) return;
+                        this.maxServiceOnNodeCount = 0;
+                        CloudAPI.getInstance().getConsole().warn("Max node service count reached, cannot start more services!");
+                        return;
+                    }
+
                     IServiceStartConfiguration configuration = this.queue.poll();
                     while(getCurrentStartingCount() <= maxStartSize
                             && !this.queue.isEmpty()
@@ -103,6 +116,9 @@ public class CloudNodeServiceThread extends Thread{
                                 if(configuration.getStartListener() != null){
                                     configuration.getStartListener().completeExceptionally(new IllegalStateException("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!"));
                                 }else{
+                                    this.maxServiceOfGroupCount++;
+                                    if(this.maxServiceOfGroupCount < maxServiceOfGroupInterval) return;
+                                    this.maxServiceOfGroupCount = 0;
                                     CloudAPI.getInstance().getConsole().warn("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!");
                                 }
                                 return;

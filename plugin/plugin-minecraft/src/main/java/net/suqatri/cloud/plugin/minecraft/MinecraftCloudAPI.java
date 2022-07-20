@@ -8,6 +8,8 @@ import net.suqatri.cloud.api.impl.service.CloudServiceManager;
 import net.suqatri.cloud.api.impl.service.factory.CloudServiceFactory;
 import net.suqatri.cloud.api.impl.service.version.CloudServiceVersionManager;
 import net.suqatri.cloud.api.impl.template.CloudServiceTemplateManager;
+import net.suqatri.cloud.api.player.ICloudPlayer;
+import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.commons.ByteUtils;
 import net.suqatri.cloud.plugin.minecraft.command.BukkitCloudCommandManager;
 import net.suqatri.cloud.plugin.minecraft.console.BukkitConsole;
@@ -131,9 +133,9 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     @Override
     public void shutdown(boolean fromHook) {
 
-        //TODO use cloud player and send to lobby
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            onlinePlayer.kickPlayer("§cServer is shutting down.");
+            IRBucketHolder<ICloudPlayer> cloudPlayer = getPlayerManager().getPlayer(onlinePlayer.getUniqueId());
+            cloudPlayer.get().connect(getServiceManager().getFallbackService());
         }
 
         try {

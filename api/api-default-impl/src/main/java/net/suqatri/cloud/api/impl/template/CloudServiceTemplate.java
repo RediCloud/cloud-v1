@@ -2,6 +2,7 @@ package net.suqatri.cloud.api.impl.template;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;
@@ -18,12 +19,6 @@ public class CloudServiceTemplate extends RBucketObject implements ICloudService
     @Override
     public File getTemplateFolder() {
         return new File(Files.TEMPLATE_FOLDER.getFile(), this.name);
-    }
-
-    @Override
-    public void updateToNodes() {
-        //TODO File Manager
-        throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override

@@ -11,6 +11,5 @@ public interface ICloudServiceTemplate extends IRBucketObject {
     String getName();
     File getTemplateFolder();
     String getTemplatePath(ICloudNode node);
-    void updateToNodes();
 
 }

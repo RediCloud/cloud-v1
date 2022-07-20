@@ -16,4 +16,6 @@ public interface ICloudServiceTemplateManager {
 
     Collection<IRBucketHolder<ICloudServiceTemplate>> getAllTemplates();
     FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> getAllTemplatesAsync();
+
+
 }

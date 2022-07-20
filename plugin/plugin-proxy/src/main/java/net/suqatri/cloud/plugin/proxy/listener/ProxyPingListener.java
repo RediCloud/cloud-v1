@@ -7,6 +7,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.plugin.proxy.ProxyCloudAPI;
 
@@ -18,10 +19,14 @@ public class ProxyPingListener implements Listener {
     private int cachedNetworkOnlineCount = 0;
     private long cacheTime = 0L;
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPing(ProxyPingEvent event){
         ServerPing serverPing = event.getResponse();
-        serverPing.setDescription(ProxyCloudAPI.getInstance().getService().getMotd());
+
+
+        if (serverPing.getDescription().contains("Another Bungee server")) {
+            serverPing.setDescription(ProxyCloudAPI.getInstance().getService().getMotd());
+        }
 
         ServerPing.Players players = new ServerPing
                 .Players(ProxyCloudAPI.getInstance().getService().getMaxPlayers(), this.cachedNetworkOnlineCount, new ServerPing.PlayerInfo[0]);

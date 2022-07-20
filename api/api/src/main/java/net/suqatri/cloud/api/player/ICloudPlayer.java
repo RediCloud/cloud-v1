@@ -1,11 +1,27 @@
 package net.suqatri.cloud.api.player;
 
+import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.api.redis.bucket.IRBucketObject;
 import net.suqatri.cloud.api.service.ICloudService;
+import net.suqatri.cloud.commons.function.future.FutureAction;
 
-public interface ICloudPlayer extends ICloudOfflinePlayer{
+import java.util.UUID;
 
-    ICloudService getServer();
-    ICloudService getProxy();
+public interface ICloudPlayer extends IRBucketObject{
+
+
+    UUID getUniqueId();
+    String getName();
+    long getFirstLogin();
+    long getLastLogin();
+    long getLastLogout();
+    String getLastIp();
+    UUID getLastConnectedServerId();
+    UUID getLastConnectedProxyId();
+    boolean isConnected();
+
+    FutureAction<IRBucketHolder<ICloudService>> getServer();
+    FutureAction<IRBucketHolder<ICloudService>> getProxy();
 
     default long getSessionTime(){
         return System.currentTimeMillis() - getLastLogin();

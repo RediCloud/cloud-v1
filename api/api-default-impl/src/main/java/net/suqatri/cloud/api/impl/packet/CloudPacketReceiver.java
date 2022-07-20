@@ -42,7 +42,7 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
                     CloudAPI.getInstance().getConsole().error("Received packet: " + packet.getClass().getSimpleName() + " but it is not a response packet but was sent as a response packet!");
                     return;
                 }
-                CloudAPI.getInstance().getConsole().debug("Received response packet: " + packet.getClass().getSimpleName() + " for packet: " + packet.getPacketData().getResponseTargetData().getPacketId());
+                CloudAPI.getInstance().getConsole().trace("Received response packet: " + packet.getClass().getSimpleName() + " for packet: " + packet.getPacketData().getResponseTargetData().getPacketId());
                 packet.receive();
                 FutureAction<ICloudPacketResponse> futureAction = this.packetManager.getWaitingForResponse().get(packet.getPacketData().getResponseTargetData().getPacketId()).getResponseAction();
                 if(!futureAction.isCompletedExceptionally() && !futureAction.isDone() && !futureAction.isCancelled()){
@@ -53,7 +53,7 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
                 CloudAPI.getInstance().getConsole().warn("Received response packet for " + packet.getPacketData().getResponseTargetData().getPacketId() + " but no request is waiting for it!");
             }
         }else{
-            CloudAPI.getInstance().getConsole().debug("Received packet: " + packet.getClass().getSimpleName());
+            CloudAPI.getInstance().getConsole().trace("Received packet: " + packet.getClass().getSimpleName());
             packet.receive();
         }
 

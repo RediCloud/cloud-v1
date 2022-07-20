@@ -78,13 +78,13 @@ public class CloudServiceVersion extends RBucketObject implements ICloudServiceV
         return futureAction;
     }
 
-    @Override @JsonIgnore // TODO FIX ?
+    @Override @JsonIgnore
     public boolean isPatched() {
         if(!isPaperClip()) return false;
         return getPatchedFile().exists();
     }
 
-    @Override @JsonIgnore // TODO FIX ?
+    @Override @JsonIgnore
     public boolean isDownloaded() {
         return getFile().exists();
     }

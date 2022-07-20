@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 @Data
 public class BukkitConsole implements IConsole {
 
-    //TODO: REWRITE THIS CLASS AND USE LOGGER
     private final Logger logger;
 
     private final List<IConsoleLineEntry> lineEntries = new ArrayList<>();

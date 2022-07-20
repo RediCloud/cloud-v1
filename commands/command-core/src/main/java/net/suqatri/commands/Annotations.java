@@ -76,8 +76,6 @@ class Annotations<M extends CommandManager> extends AnnotationLookups {
             }
         }
 
-        // TODO: Aliases
-
         if (value == null) {
             if (hasOption(options, DEFAULT_EMPTY)) {
                 value = "";

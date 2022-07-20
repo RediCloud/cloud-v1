@@ -146,7 +146,6 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     @Override
     public void shutdown(boolean fromHook) {
-        //TODO use cloud player
         for (ProxiedPlayer onlinePlayer : ProxyServer.getInstance().getPlayers()) {
             onlinePlayer.disconnect("§cServer is shutting down.");
         }

@@ -29,7 +29,7 @@ public class NodeConsole implements IConsole {
     @Setter
     private boolean cleanConsoleMode = true;
     private final CommandConsoleManager consoleManager;
-    private LogLevel logLevel = LogLevel.DEBUG;
+    private LogLevel logLevel = LogLevel.INFO;
     private final NodeConsoleThread thread;
     private final InputStream inputStream;
     private final OutputStream outputStream;

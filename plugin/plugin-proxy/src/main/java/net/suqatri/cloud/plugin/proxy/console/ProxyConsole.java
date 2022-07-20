@@ -17,7 +17,7 @@ public class ProxyConsole implements IConsole {
     private final Logger logger;
 
     private final List<IConsoleLineEntry> lineEntries = new ArrayList<>();
-    private LogLevel logLevel = LogLevel.DEBUG;
+    private LogLevel logLevel = LogLevel.INFO;
 
     @Override
     public void log(IConsoleLine consoleLine) {

@@ -3,6 +3,7 @@ package net.suqatri.cloud.api;
 import lombok.Getter;
 import net.suqatri.cloud.api.console.ICommandManager;
 import net.suqatri.cloud.api.console.IConsole;
+import net.suqatri.cloud.api.console.LogLevel;
 import net.suqatri.cloud.api.event.ICloudEventManager;
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.group.ICloudGroupManager;

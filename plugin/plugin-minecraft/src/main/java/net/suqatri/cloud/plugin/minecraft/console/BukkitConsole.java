@@ -1,6 +1,7 @@
 package net.suqatri.cloud.plugin.minecraft.console;
 
 import lombok.Data;
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.IConsole;
 import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.api.console.IConsoleLineEntry;
@@ -16,7 +17,7 @@ public class BukkitConsole implements IConsole {
     private final Logger logger;
 
     private final List<IConsoleLineEntry> lineEntries = new ArrayList<>();
-    private LogLevel logLevel = LogLevel.DEBUG;
+    private LogLevel logLevel = LogLevel.INFO;
 
     @Override
     public void log(IConsoleLine consoleLine) {

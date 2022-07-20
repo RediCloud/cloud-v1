@@ -32,6 +32,8 @@ public class CloudService extends RBucketObject implements ICloudService {
     private long ramUsage = -1;
     private UUID nodeId;
     private Collection<UUID> consoleNodeListenerIds = new ArrayList<>();
+    private int port;
+    private String hostName;
 
     @Override
     public void merged() {

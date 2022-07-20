@@ -13,6 +13,7 @@ import java.util.UUID;
 public class CloudServiceEvent extends CloudGlobalEvent {
 
     private UUID serverId;
+    private String serviceName;
 
     public IRBucketHolder<ICloudService> getService() {
         return CloudAPI.getInstance().getServiceManager().getService(this.serverId);

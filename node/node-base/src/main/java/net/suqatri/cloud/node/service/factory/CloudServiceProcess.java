@@ -71,6 +71,8 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
         this.serviceHolder.get().setServiceState(ServiceState.STARTING);
         this.serviceHolder.getImpl(CloudService.class).setMaxRam(this.serviceHolder.get().getConfiguration().getMaxMemory());
+        this.serviceHolder.getImpl(CloudService.class).setHostName(NodeLauncher.getInstance().getNode().getHostname());
+        this.serviceHolder.getImpl(CloudService.class).setPort(this.port);
         this.serviceHolder.get().update();
 
         this.thread = new Thread(() -> {

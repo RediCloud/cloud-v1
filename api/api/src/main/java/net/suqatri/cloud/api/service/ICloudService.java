@@ -73,4 +73,7 @@ public interface ICloudService extends IRBucketObject {
 
     Collection<UUID> getConsoleNodeListenerIds();
 
+    String getHostName();
+    int getPort();
+
 }

@@ -10,6 +10,8 @@ import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.suqatri.cloud.api.console.ICommandManager;
 import net.suqatri.cloud.api.console.IConsole;
 import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
+import net.suqatri.cloud.api.impl.listener.service.CloudServiceStartedListener;
+import net.suqatri.cloud.api.impl.listener.service.CloudServiceStoppedListener;
 import net.suqatri.cloud.api.impl.redis.RedisConnection;
 import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.impl.service.CloudServiceManager;
@@ -32,6 +34,10 @@ import net.suqatri.cloud.commons.ByteUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
 import net.suqatri.cloud.plugin.proxy.command.BungeeCloudCommandManager;
 import net.suqatri.cloud.plugin.proxy.console.ProxyConsole;
+import net.suqatri.cloud.plugin.proxy.listener.LoginListener;
+import net.suqatri.cloud.plugin.proxy.listener.PlayerDisconnectListener;
+import net.suqatri.cloud.plugin.proxy.listener.ProxyPingListener;
+import net.suqatri.cloud.plugin.proxy.listener.ServerSwitchListener;
 import net.suqatri.cloud.plugin.proxy.scheduler.BungeeScheduler;
 
 import java.io.File;
@@ -40,6 +46,9 @@ import java.util.concurrent.TimeUnit;
 
 @Getter
 public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
+
+    @Getter
+    private static ProxyCloudAPI instance;
 
     private final Plugin plugin;
     private CloudService service;
@@ -55,6 +64,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     public ProxyCloudAPI(Plugin plugin) {
         super(ApplicationType.SERVICE_PROXY);
+        instance = this;
         this.plugin = plugin;
         this.scheduler = new BungeeScheduler(this.plugin);
         this.console = new ProxyConsole(this.plugin.getLogger());
@@ -69,7 +79,13 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     }
 
     private void initListeners(){
+        ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new LoginListener());
+        ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ProxyPingListener());
+        ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerSwitchListener());
+        ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PlayerDisconnectListener());
 
+        getEventManager().register(new CloudServiceStoppedListener());
+        getEventManager().register(new CloudServiceStartedListener());
     }
 
     private void init(){

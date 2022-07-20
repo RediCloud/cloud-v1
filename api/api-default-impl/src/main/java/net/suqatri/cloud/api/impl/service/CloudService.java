@@ -29,7 +29,6 @@ public class CloudService extends RBucketObject implements ICloudService {
     private ServiceState serviceState = ServiceState.UNKNOWN;
     private int onlineCount = -1;
     private long maxRam = -1;
-    private long ramUsage = -1;
     private UUID nodeId;
     private Collection<UUID> consoleNodeListenerIds = new ArrayList<>();
     private int port;

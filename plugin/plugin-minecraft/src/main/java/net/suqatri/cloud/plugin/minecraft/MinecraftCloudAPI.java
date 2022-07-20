@@ -15,6 +15,9 @@ import net.suqatri.cloud.api.service.event.CloudServiceStartedEvent;
 import net.suqatri.cloud.commons.ByteUtils;
 import net.suqatri.cloud.plugin.minecraft.command.BukkitCloudCommandManager;
 import net.suqatri.cloud.plugin.minecraft.console.BukkitConsole;
+import net.suqatri.cloud.plugin.minecraft.listener.PlayerJoinListener;
+import net.suqatri.cloud.plugin.minecraft.listener.PlayerKickListener;
+import net.suqatri.cloud.plugin.minecraft.listener.PlayerQuitListener;
 import net.suqatri.cloud.plugin.minecraft.listener.ServerListPingListener;
 import net.suqatri.cloud.plugin.minecraft.scheduler.BukkitScheduler;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
@@ -74,26 +77,20 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     private void initListeners(){
         Bukkit.getPluginManager().registerEvents(new ServerListPingListener(), this.javaPlugin);
+        Bukkit.getPluginManager().registerEvents(new PlayerKickListener(), this.javaPlugin);
+        Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), this.javaPlugin);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(), this.javaPlugin);
     }
 
     private void init(){
         initRedis();
         initThisService();
-        startUpdater();
-    }
-
-    private void startUpdater(){
-        this.updaterTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.javaPlugin, () -> {
-            this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
-            long usedRam = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
-            this.service.setRamUsage(ByteUtils.bytesToMb(usedRam));
-            this.service.update();
-        }, 0, 20);
     }
 
     private void initThisService(){
         this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_service_id"))).getImpl(CloudService.class);
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
+        this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
         this.service.update();
 
         getEventManager().postLocal(new CloudServiceStartedEvent(this.service.getHolder()));

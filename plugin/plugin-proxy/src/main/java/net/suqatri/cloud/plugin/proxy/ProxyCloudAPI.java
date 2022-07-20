@@ -94,6 +94,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PlayerDisconnectListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerKickListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerConnectListener());
+        ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PostLoginListener());
 
         getEventManager().register(new CloudServiceStoppedListener());
         getEventManager().register(new CloudServiceStartedListener());
@@ -103,7 +104,6 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         initRedis();
         initThisService();
         registerStartedService();
-        startUpdater();
     }
 
     private void registerStartedService(){
@@ -126,6 +126,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private void initThisService(){
         this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_service_id"))).getImpl(CloudService.class);
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
+        this.service.setOnlineCount(ProxyServer.getInstance().getOnlineCount());
         this.service.update();
 
         getEventManager().postLocal(new CloudServiceStartedEvent(this.service.getHolder()));
@@ -147,15 +148,6 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         } catch (Exception e) {
             this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
         }
-    }
-
-    private void startUpdater(){
-        this.updaterTask = ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
-            this.service.setOnlineCount(ProxyServer.getInstance().getOnlineCount());
-            long usedRam = (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory());
-            this.service.setRamUsage(ByteUtils.bytesToMb(usedRam));
-            this.service.update();
-        }, 0, 1, TimeUnit.SECONDS);
     }
 
     @Override

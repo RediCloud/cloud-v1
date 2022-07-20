@@ -1,11 +1,13 @@
 package net.suqatri.cloud.api.impl.redis.bucket.packet;
 
+import lombok.Data;
 import net.suqatri.cloud.api.impl.packet.CloudPacket;
 import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
-import net.suqatri.cloud.api.redis.bucket.packet.IBucketUpdatePacket;
 
 //TODO use SetObjectListener to listen to changes
-public class BucketUpdatePacket extends CloudPacket implements IBucketUpdatePacket {
+//SetObjectListener dont work...
+@Data
+public class BucketUpdatePacket extends CloudPacket  {
 
     private String identifier;
     private String redisPrefix;
@@ -18,33 +20,4 @@ public class BucketUpdatePacket extends CloudPacket implements IBucketUpdatePack
         manager.updateBucket(this.identifier, this.json);
     }
 
-    @Override
-    public String getIdentifier() {
-        return this.identifier;
-    }
-
-    @Override
-    public String getRedisPrefix() {
-        return this.redisPrefix;
-    }
-
-    @Override
-    public String getJson() {
-        return this.json;
-    }
-
-    @Override
-    public void setJson(String json) {
-        this.json = json;
-    }
-
-    @Override
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
-
-    @Override
-    public void setRedisPrefix(String redisPrefix) {
-        this.redisPrefix = redisPrefix;
-    }
 }

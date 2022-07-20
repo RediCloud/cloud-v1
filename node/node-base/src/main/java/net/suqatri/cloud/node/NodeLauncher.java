@@ -420,6 +420,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             if(this.serviceManager != null){
                 int stopCount = 0;
                 if(this.console != null) this.console.info("Stopping services...");
+                ((NodeCloudServiceFactory)this.serviceFactory).getThread().interrupt();
                 for (IRBucketHolder<ICloudService> serviceHolders : this.serviceManager.getServices()) {
                     if(!serviceHolders.get().getNodeId().equals(this.node.getUniqueId())) continue;
                     stopCount++;

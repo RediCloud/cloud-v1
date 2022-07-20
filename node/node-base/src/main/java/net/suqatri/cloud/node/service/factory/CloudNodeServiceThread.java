@@ -42,6 +42,8 @@ public class CloudNodeServiceThread extends Thread{
     public void run() {
         while(!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
 
+            if(NodeLauncher.getInstance().isShutdownInitialized()) break;
+
             long freeSpace = getFreeMemory();
             long preCalculatedFreeSpace = freeSpace;
             int maxStartSize = NodeLauncher.getInstance().getNode().getMaxParallelStartingServiceCount();

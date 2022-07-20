@@ -4,7 +4,6 @@ import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.group.ICloudGroupManager;
 import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
-import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.commons.function.future.FutureAction;
@@ -13,7 +12,6 @@ import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudGroup> implements ICloudGroupManager {

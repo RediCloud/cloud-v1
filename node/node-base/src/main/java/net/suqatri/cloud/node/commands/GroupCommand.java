@@ -252,7 +252,12 @@ public class GroupCommand extends ConsoleCommand {
                                     }
                                     holder.get().updateAsync();
                                 } catch (Exception e) {
-                                    commandSender.sendMessage("§cInvalid property! Properties: " + Arrays.stream(GroupProperty.values()).parallel().map(GroupProperty::name).reduce("", (a, b) -> a + ", " + b));
+                                    StringBuilder builder = new StringBuilder();
+                                    for (GroupProperty property : GroupProperty.values()) {
+                                        if(!builder.toString().isEmpty()) builder.append("§8, %hc");
+                                        builder.append(property.name());
+                                    }
+                                    commandSender.sendMessage("§cInvalid property! Properties: " + builder);
                                 }
                             });
                 });

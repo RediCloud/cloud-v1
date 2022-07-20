@@ -189,7 +189,7 @@ public class CloudNodeServiceThread extends Thread{
         cloudService.setServiceState(ServiceState.PREPARE);
         cloudService.setMaxPlayers(50);
         if(configuration.getEnvironment() == ServiceEnvironment.PROXY) {
-            cloudService.setMotd("&7•&8● &bRedi&3Cloud &8» &fA &bredis &fbased &bcluster &fcloud system &8[&3✓&8]&r\n     &b&l&8× &fDiscord &8➜ &3https://discord.gg/g2HV52VV4G");
+            cloudService.setMotd("§7•§8● §bRedi§3Cloud §8» §fA §bredis §fbased §bcluster §fcloud system§r\n    §b§l§8× §fDiscord §8➜ §3https://discord.gg/g2HV52VV4G");
         }else{
             cloudService.setMotd("§bRedi§3Cloud§7-§fService");
         }

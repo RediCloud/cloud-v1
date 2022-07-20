@@ -8,5 +8,6 @@ public enum GroupProperty {
     START_PRIORITY,
     FALLBACK,
     MAINTENANCE;
+    //TODO SERVICE VERSION
 
 }

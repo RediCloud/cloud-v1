@@ -127,11 +127,6 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     }
 
     @Override
-    public ICloudPlayerManager getPlayerManager() {
-        return null;
-    }
-
-    @Override
     public INetworkComponentInfo getNetworkComponentInfo() {
         return this.service.getNetworkComponentInfo();
     }

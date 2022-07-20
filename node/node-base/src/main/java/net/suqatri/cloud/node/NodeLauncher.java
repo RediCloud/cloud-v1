@@ -487,11 +487,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     }
 
     @Override
-    public ICloudPlayerManager getPlayerManager() {
-        return null;
-    }
-
-    @Override
     public Scheduler getScheduler() {
         return this.scheduler;
     }

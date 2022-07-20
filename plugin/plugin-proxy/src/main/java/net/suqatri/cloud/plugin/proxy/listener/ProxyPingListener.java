@@ -35,7 +35,6 @@ public class ProxyPingListener implements Listener {
         event.setResponse(serverPing);
 
         if((System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(2)) > cacheTime){
-            event.registerIntent(ProxyCloudAPI.getInstance().getPlugin());
             CloudAPI.getInstance().getPlayerManager().getOnlineCount()
                     .onFailure(throwable -> event.completeIntent(ProxyCloudAPI.getInstance().getPlugin()))
                     .onSuccess(onlineCount -> cachedNetworkOnlineCount = onlineCount);

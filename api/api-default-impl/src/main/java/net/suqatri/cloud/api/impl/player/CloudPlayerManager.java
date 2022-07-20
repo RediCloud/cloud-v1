@@ -17,9 +17,9 @@ import java.util.UUID;
 
 public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, ICloudPlayer> implements ICloudPlayerManager {
 
-    private RList<UUID> connectedList;
-    private RList<UUID> registeredList;
-    private RMap<String, UUID> nameFetcherMap;
+    private RList<String> connectedList;
+    private RList<String> registeredList;
+    private RMap<String, String> nameFetcherMap;
 
     public CloudPlayerManager() {
         super("player", ICloudPlayer.class);
@@ -83,11 +83,15 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
 
     @Override
     public IRBucketHolder<ICloudPlayer> createPlayer(ICloudPlayer cloudPlayer) {
+        this.registeredList.add(cloudPlayer.getUniqueId().toString());
+        this.nameFetcherMap.put(cloudPlayer.getName().toLowerCase(), cloudPlayer.getUniqueId().toString());
         return this.createBucket(cloudPlayer.getUniqueId().toString(), cloudPlayer);
     }
 
     @Override
     public FutureAction<IRBucketHolder<ICloudPlayer>> createPlayerAsync(ICloudPlayer cloudPlayer) {
+        this.registeredList.addAsync(cloudPlayer.getUniqueId().toString());
+        this.nameFetcherMap.putAsync(cloudPlayer.getName().toLowerCase(), cloudPlayer.getUniqueId().toString());
         return this.createBucketAsync(cloudPlayer.getUniqueId().toString(), cloudPlayer);
     }
 
@@ -111,8 +115,9 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
                     return;
                 }
                 FutureActionCollection<UUID, IRBucketHolder<ICloudPlayer>> futureActionCollection = new FutureActionCollection<>();
-                for(UUID value : values) {
-                    futureActionCollection.addToProcess(value, this.getPlayerAsync(value));
+                for(String value : values) {
+                    UUID uniqueId = UUID.fromString(value);
+                    futureActionCollection.addToProcess(uniqueId, this.getPlayerAsync(uniqueId));
                 }
                 futureActionCollection.process()
                     .onFailure(futureAction)
@@ -132,16 +137,23 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
                     return;
                 }
                 if(contains) {
-                    futureAction.complete(this.nameFetcherMap.get(playerName));
+                    this.nameFetcherMap.getAsync(playerName)
+                        .whenComplete((uuid, throwable1) -> {
+                            if(throwable1 != null) {
+                                futureAction.completeExceptionally(throwable1);
+                                return;
+                            }
+                            futureAction.complete(UUID.fromString(uuid));
+                    });
                     return;
                 }
                 this.nameFetcherMap.getAsync(playerName)
-                    .whenComplete((uniqueId, throwable1) -> {
+                    .whenComplete((uuid, throwable1) -> {
                         if(throwable1 != null) {
                             futureAction.completeExceptionally(throwable1);
                             return;
                         }
-                        futureAction.complete(uniqueId);
+                        futureAction.complete(UUID.fromString(uuid));
                         });
             });
 
@@ -150,6 +162,7 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
 
     @Override
     public UUID fetchName(String playerName) {
-        return this.nameFetcherMap.get(playerName);
+        return UUID.fromString(this.nameFetcherMap.get(playerName));
     }
+
 }

@@ -58,6 +58,8 @@ Please note that this project is still work in progress and not stable yet
   - redis cluster support ❌
   - smart clustering ❌
   - automatic service start 🚧
+  - 1.8-1.19 support ✅
+  - custom service versions ✅
 <br>
 
 ## Commands

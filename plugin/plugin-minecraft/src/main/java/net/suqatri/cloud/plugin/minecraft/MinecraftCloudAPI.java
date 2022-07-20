@@ -61,6 +61,8 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.serviceVersionManager = new CloudServiceVersionManager();
 
         init();
+        registerInternalListeners();
+        registerInternalPackets();
         initListeners();
     }
 

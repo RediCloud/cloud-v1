@@ -72,6 +72,8 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.commandManager = new BungeeCloudCommandManager(this.plugin);
 
         init();
+        registerInternalPackets();
+        registerInternalListeners();
         initListeners();
     }
 

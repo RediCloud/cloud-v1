@@ -72,7 +72,6 @@ public interface ICloudService extends IRBucketObject {
     }
 
     long getMaxRam();
-    long getRamUsage();
 
     Collection<UUID> getConsoleNodeListenerIds();
 

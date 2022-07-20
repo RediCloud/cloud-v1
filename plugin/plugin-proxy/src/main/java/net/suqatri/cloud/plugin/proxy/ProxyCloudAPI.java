@@ -129,7 +129,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.service.setOnlineCount(ProxyServer.getInstance().getOnlineCount());
         this.service.update();
 
-        getEventManager().postLocal(new CloudServiceStartedEvent(this.service.getHolder()));
+        getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service.getHolder()));
     }
 
     private void initRedis() {

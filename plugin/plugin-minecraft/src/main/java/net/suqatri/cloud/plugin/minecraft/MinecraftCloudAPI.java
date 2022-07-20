@@ -93,7 +93,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
         this.service.update();
 
-        getEventManager().postLocal(new CloudServiceStartedEvent(this.service.getHolder()));
+        getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service.getHolder()));
     }
 
     private void initRedis() {

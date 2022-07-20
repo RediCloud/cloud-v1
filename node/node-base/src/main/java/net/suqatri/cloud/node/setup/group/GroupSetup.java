@@ -41,7 +41,11 @@ public class GroupSetup extends Setup<GroupSetup> {
     @AnswerCompleter(value = BooleanSuggester.class)
     private boolean staticGroup;
 
-    @Question(id = 7, question = "What service version should be used for the group?")
+    @Question(id = 7, question = "Should the group be a fallback group?")
+    @AnswerCompleter(value = BooleanSuggester.class)
+    private boolean fallback;
+
+    @Question(id = 8, question = "What service version should be used for the group?")
     @ConditionChecker(value = ServiceVersionExistsCondition.class, message = "Service version does not exist.")
     private String serviceVersionName;
 

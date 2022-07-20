@@ -158,7 +158,7 @@ public class CloudNodeServiceThread extends Thread{
         cloudService.setFallback(configuration.isFallback());
         cloudService.setServiceState(ServiceState.PREPARE);
         cloudService.setMaxPlayers(50);
-        cloudService.setMotd("Welcome to RediCloud");
+        cloudService.setMotd("&7•&8● &bRedi&3Cloud &8» &fA &bredis &fbased &bcluster &fcloud system &8[&3✓&8]&r\n     &b&l&8× &fDiscord &8➜ &3https://discord.gg/g2HV52VV4G");
         cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
         IRBucketHolder<ICloudService> holder = this.factory.getServiceManager().createBucket(cloudService.getUniqueId().toString(), cloudService);
 

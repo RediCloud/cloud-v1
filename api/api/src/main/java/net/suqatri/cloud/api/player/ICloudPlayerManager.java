@@ -1,19 +1,28 @@
 package net.suqatri.cloud.api.player;
 
+import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.commons.function.future.FutureAction;
+
 import java.util.UUID;
 
 public interface ICloudPlayerManager {
 
-    ICloudPlayer getPlayer(String playerName);
-    ICloudPlayer getPlayer(UUID uniqueId);
+    IRBucketHolder<ICloudPlayer> getPlayer(String playerName);
+    IRBucketHolder<ICloudPlayer> getPlayer(UUID uniqueId);
 
-    ICloudOfflinePlayer getOfflinePlayer(String playerName);
-    ICloudOfflinePlayer getOfflinePlayer(UUID uniqueId);
+    FutureAction<IRBucketHolder<ICloudPlayer>> getPlayerAsync(String playerName);
+    FutureAction<IRBucketHolder<ICloudPlayer>> getPlayerAsync(UUID uniqueId);
 
-    boolean isConnected(String playerName);
-    boolean isConnected(UUID uniqueId);
+    boolean existsPlayer(UUID uniqueId);
+    FutureAction<Boolean> existsPlayerAsync(UUID uniqueId);
 
-    int getRegisteredCount();
-    int getOnlineCount();
+    IRBucketHolder<ICloudPlayer> createPlayer(ICloudPlayer cloudPlayer);
+    FutureAction<IRBucketHolder<ICloudPlayer>> createPlayerAsync(ICloudPlayer cloudPlayer);
+
+    FutureAction<Integer> getRegisteredCount();
+    FutureAction<Integer> getOnlineCount();
+
+    FutureAction<UUID> fetchNameAsync(String playerName);
+    UUID fetchName(String playerName);
 
 }

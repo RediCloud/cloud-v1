@@ -34,6 +34,9 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
     public FutureAction<IRBucketHolder<ICloudService>> queueService(IServiceStartConfiguration configuration) {
         this.thread.getQueue().add(configuration);
         configuration.listenToStart();
+        configuration.getStartListener()
+                .onSuccess(holder -> this.serviceManager.getServiceIdFetcherMap()
+                        .putAsync(holder.get().getServiceName(), holder.get().getUniqueId()));
         return configuration.getStartListener();
     }
 
@@ -55,6 +58,9 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
                 process.getServiceHolder().get().updateAsync()
                     .onFailure(futureAction)
                     .onSuccess(s -> {
+                        this.serviceManager.getServiceIdFetcherMap()
+                                .removeAsync(process.getServiceHolder().get().getServiceName(),
+                                        process.getServiceHolder().get().getUniqueId());
                         this.serviceManager.deleteBucketAsync(process.getServiceHolder().get().getUniqueId().toString())
                                 .onFailure(futureAction)
                                 .onSuccess(v -> futureAction.complete(true));

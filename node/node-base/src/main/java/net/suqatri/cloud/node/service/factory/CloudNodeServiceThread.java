@@ -48,6 +48,8 @@ public class CloudNodeServiceThread extends Thread{
                     .forEach(config -> {
                         this.queue.remove(config);
                         if(!((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).existsService(config.getUniqueId().toString())) return;
+                        ((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).getServiceIdFetcherMap()
+                                .removeAsync(config.getGroupName() + "-" + config.getId(), config.getUniqueId());
                         ((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).deleteBucket(config.getUniqueId().toString());
                     });
 

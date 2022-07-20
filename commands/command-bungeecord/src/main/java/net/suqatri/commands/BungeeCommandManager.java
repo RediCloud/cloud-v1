@@ -73,7 +73,6 @@ public class BungeeCommandManager extends CommandManager<
             ProxyServer.getInstance().getPlayers().forEach(this::readLocale);
         }, 5, 5, TimeUnit.SECONDS);
 
-        // TODO more default dependencies for bungee
         registerDependency(plugin.getClass(), plugin);
         registerDependency(Plugin.class, plugin);
         registerDependency(PluginDescription.class, plugin.getDescription());

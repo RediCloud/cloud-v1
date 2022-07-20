@@ -1,5 +1,6 @@
 package net.suqatri.cloud.api.impl.redis;
 
+import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.redis.bucket.packet.BucketUpdatePacket;
@@ -13,6 +14,7 @@ import org.redisson.connection.pool.MasterPubSubConnectionPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Getter
 public class RedisConnection implements IRedisConnection {
 
     private RedisCredentials redisCredentials;

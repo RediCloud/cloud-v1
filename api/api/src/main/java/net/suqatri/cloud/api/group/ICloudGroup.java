@@ -80,4 +80,7 @@ public interface ICloudGroup extends IRBucketObject {
 
     IServiceStartConfiguration createServiceConfiguration();
 
+    boolean isFallback();
+    void setFallback(boolean fallback);
+
 }

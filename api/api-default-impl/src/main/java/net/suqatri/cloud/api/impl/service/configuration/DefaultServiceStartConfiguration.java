@@ -24,6 +24,7 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
     private String name;
     private UUID uniqueId;
     private int id;
+    private boolean fallback;
     private int maxMemory;
     private Collection<UUID> possibleNodeIds;
     private int startPriority;
@@ -70,10 +71,12 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
                         .onFailure(futureAction)
                         .onSuccess(groupHolder -> {
                             configuration.getTemplateNames().addAll(groupHolder.get().getTemplateNames());
+                            configuration.setFallback(groupHolder.get().isFallback());
                             futureAction.complete(configuration);
                         });
         }else{
             configuration.setHasGroup(false);
+            configuration.setFallback(false);
             futureAction.complete(configuration);
         }
 

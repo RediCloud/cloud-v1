@@ -37,6 +37,7 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
     private int startPort;
     private String serviceVersionName;
     private UUID nodeId;
+    private boolean fallback = false;
     @JsonIgnore
     private FutureAction<IRBucketHolder<ICloudService>> startListener;
 
@@ -67,6 +68,7 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
         this.javaCommand = group.getJavaCommand();
         this.startPort = group.getStartPort();
         this.serviceVersionName = group.getServiceVersionName();
+        this.fallback = group.isFallback();
         return this;
     }
 

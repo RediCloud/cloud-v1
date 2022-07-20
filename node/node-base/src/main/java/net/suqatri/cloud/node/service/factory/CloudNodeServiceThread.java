@@ -3,13 +3,9 @@ package net.suqatri.cloud.node.service.factory;
 import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.group.ICloudGroup;
-import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.cloud.api.impl.service.CloudService;
-import net.suqatri.cloud.api.impl.service.configuration.GroupServiceStartConfiguration;
 import net.suqatri.cloud.api.impl.service.version.CloudServiceVersion;
-import net.suqatri.cloud.api.node.service.factory.ICloudNodeServiceFactory;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
-import net.suqatri.cloud.api.redis.bucket.IRedissonBucketManager;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.ServiceState;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
@@ -59,7 +55,7 @@ public class CloudNodeServiceThread extends Thread{
                     if (count < min) {
                         int added = 0;
                         for (int i = count; i <= min && added <= maxStartSize; i++) {
-                            IServiceStartConfiguration configuration = new GroupServiceStartConfiguration().applyFromGroup(groupHolder);
+                            IServiceStartConfiguration configuration = groupHolder.get().createServiceConfiguration();
                             preCalculatedFreeSpace -= configuration.getMaxMemory();
                             if (preCalculatedFreeSpace < 0) {
                                 CloudAPI.getInstance().getConsole().warn("Not enough memory to start a required service of group" + groupHolder.get().getName());

@@ -76,7 +76,7 @@ public interface ICloudGroup extends IRBucketObject {
     void setStartPriority(int startPriority);
 
     FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> getPlayers();
-    int getPlayersCount();
+    FutureAction<Integer> getPlayersCount();
 
     IServiceStartConfiguration createServiceConfiguration();
 

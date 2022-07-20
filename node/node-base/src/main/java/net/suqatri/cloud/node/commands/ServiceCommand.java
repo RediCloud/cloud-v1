@@ -1,7 +1,6 @@
 package net.suqatri.cloud.node.commands;
 
 import net.suqatri.cloud.api.CloudAPI;
-import net.suqatri.cloud.api.impl.service.configuration.GroupServiceStartConfiguration;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
@@ -53,7 +52,7 @@ public class ServiceCommand extends ConsoleCommand {
                     String groupName = groupHolder.get().getName();
                     FutureActionCollection<IServiceStartConfiguration, IRBucketHolder<ICloudService>> futureActionCollection = new FutureActionCollection();
                     for (int i = 0; i < amount.get(); i++) {
-                        GroupServiceStartConfiguration configuration = new GroupServiceStartConfiguration().applyFromGroup(groupHolder);
+                        IServiceStartConfiguration configuration = groupHolder.get().createServiceConfiguration();
                         futureActionCollection.addToProcess(configuration, CloudAPI.getInstance().getServiceFactory().queueService(configuration));
                     }
                     futureActionCollection.process()

@@ -5,6 +5,7 @@ import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
+import net.suqatri.cloud.api.impl.service.configuration.GroupServiceStartConfiguration;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.player.ICloudPlayer;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
@@ -194,13 +195,20 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         return futureAction;
     }
 
+    //TODO improve this methode
     @Override
-    public int getPlayersCount() {
-        return 0; //TODO playerManager / serviceManager
+    public FutureAction<Integer> getPlayersCount() {
+        return getOnlineServices().map(services -> {
+            int count = 0;
+            for (IRBucketHolder<ICloudService> service : services) {
+                if(service.get().getName().equals(this.name)) count++;
+            }
+            return count;
+        });
     }
 
     @Override
     public IServiceStartConfiguration createServiceConfiguration() {
-        return null; // TODO ServiceManager
+        return new GroupServiceStartConfiguration().applyFromGroup(this.getHolder());
     }
 }

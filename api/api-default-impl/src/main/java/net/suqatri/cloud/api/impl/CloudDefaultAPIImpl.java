@@ -16,6 +16,8 @@ import net.suqatri.cloud.api.impl.network.NetworkComponentManager;
 import net.suqatri.cloud.api.impl.node.CloudNodeManager;
 import net.suqatri.cloud.api.impl.packet.CloudPacketManager;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
+import net.suqatri.cloud.api.impl.redis.bucket.packet.BucketDeletePacket;
+import net.suqatri.cloud.api.impl.redis.bucket.packet.BucketUpdatePacket;
 import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.impl.service.CloudServiceManager;
 import net.suqatri.cloud.api.impl.service.version.CloudServiceVersionManager;
@@ -64,7 +66,8 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     }
 
     public void registerInternalPackets(){
-
+        CloudAPI.getInstance().getPacketManager().registerPacket(BucketUpdatePacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(BucketDeletePacket.class);
     }
 
     @Override

@@ -3,6 +3,7 @@ package net.suqatri.cloud.api.player;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public interface ICloudPlayerManager {
@@ -21,6 +22,8 @@ public interface ICloudPlayerManager {
 
     FutureAction<Integer> getRegisteredCount();
     FutureAction<Integer> getOnlineCount();
+
+    FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> getConnectedPlayers();
 
     FutureAction<UUID> fetchNameAsync(String playerName);
     UUID fetchName(String playerName);

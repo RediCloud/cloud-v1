@@ -167,9 +167,31 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         this.associatedNodeIds.addAll(nodes.stream().map(ICloudNode::getUniqueId).collect(Collectors.toList()));
     }
 
+    //TODO improve this methode
     @Override
-    public Collection<ICloudPlayer> getPlayers() {
-        return null; //TODO PlayerManager / serviceManager
+    public FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> getPlayers() {
+        FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> futureAction = new FutureAction<>();
+
+        CloudAPI.getInstance().getPlayerManager().getConnectedPlayers()
+                .onFailure(futureAction)
+                .onSuccess(players -> {
+                    FutureActionCollection<UUID, IRBucketHolder<ICloudService>> futureActionCollection = new FutureActionCollection<>();
+                    for (IRBucketHolder<ICloudPlayer> player : players) {
+                        futureActionCollection.addToProcess(player.get().getUniqueId(), CloudAPI.getInstance().getServiceManager().getServiceAsync(player.get().getLastConnectedServerId()));
+                    }
+                    futureActionCollection.process()
+                        .onFailure(futureAction)
+                        .onSuccess(playersServers -> {
+                            List<IRBucketHolder<ICloudPlayer>> list = new ArrayList<>();
+                            for (IRBucketHolder<ICloudPlayer> player : players) {
+                                if(!playersServers.get(player.get().getUniqueId()).get().getName().equals(this.name)) continue;
+                                list.add(player);
+                            }
+                            futureAction.complete(list);
+                        });
+                });
+
+        return futureAction;
     }
 
     @Override

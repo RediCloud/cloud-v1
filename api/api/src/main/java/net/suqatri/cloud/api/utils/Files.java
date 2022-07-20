@@ -2,10 +2,11 @@ package net.suqatri.cloud.api.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import net.suqatri.cloud.api.CloudAPI;
 
 import java.io.File;
 
-@AllArgsConstructor @Getter
+@Getter
 public enum Files {
 
     CLOUD_FOLDER("./"),
@@ -22,13 +23,17 @@ public enum Files {
     LIBS_INFO_FOLDER("storage/libs/info"),
     RUNNER_JAR("runner.jar"),
     NODE_JAR("storage/node.jar"),
-    MINECRAFT_PLUGIN_JAR("storage/plugin-minecraft.jar"),
-    PROXY_PLUGIN_JAR("storage/plugin-proxy.jar"),
+    MINECRAFT_PLUGIN_JAR("storage/plugin-minecraft-%version%.jar"),
+    PROXY_PLUGIN_JAR("storage/plugin-proxy-%version%.jar"),
     NODE_JSON("node.json"),
     VERSIONS_FOLDER("storage/versions"),
     REDIS_CONFIG("storage/redis.json");
 
     private final String path;
+
+    Files(String path){
+        this.path = path.replaceAll("%version%", CloudAPI.getVersion());
+    }
 
     public File getFile(){
         return new File(path);

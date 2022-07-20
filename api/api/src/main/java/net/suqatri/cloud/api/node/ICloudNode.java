@@ -1,6 +1,7 @@
 package net.suqatri.cloud.api.node;
 
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
+import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.bucket.IRBucketObject;
 import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.utils.Files;
@@ -16,7 +17,7 @@ public interface ICloudNode extends IRBucketObject {
     String getHostname();
     boolean isConnected();
 
-    FutureAction<Collection<ICloudService>> getStartedServices();
+    FutureAction<Collection<IRBucketHolder<ICloudService>>> getStartedServices();
     int getStartedServicesCount();
     int getMaxServiceCount();
     void setMaxServiceCount(int maxServiceCount);

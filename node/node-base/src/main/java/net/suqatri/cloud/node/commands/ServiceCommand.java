@@ -147,7 +147,7 @@ public class ServiceCommand extends ConsoleCommand {
                                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get service version", t))
                                 .onSuccess(versionHolder -> {
                                     commandSender.sendMessage("");
-                                    commandSender.sendMessage("%tcService Info of %hc" + serviceHolder.get().getServiceName() + "§8:");
+                                    commandSender.sendMessage("%tcService info of %hc" + serviceHolder.get().getServiceName() + "§8:");
                                     commandSender.sendMessage("§8 »%tc Environment: %hc" + serviceHolder.get().getEnvironment().name());
                                     commandSender.sendMessage("§8 »%tc Group: %hc" + (serviceHolder.get().isGroupBased() ? serviceHolder.get().getGroupName() : "None"));
                                     commandSender.sendMessage("§8 »%tc Version: %hc" + versionHolder.get().getName());

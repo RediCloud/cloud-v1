@@ -5,6 +5,7 @@ import net.suqatri.cloud.api.group.GroupProperty;
 import net.suqatri.cloud.api.group.ICloudGroup;
 import net.suqatri.cloud.api.impl.group.CloudGroup;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.commons.ConditionChecks;
 import net.suqatri.cloud.commons.function.future.FutureActionCollection;
@@ -37,6 +38,42 @@ public class GroupCommand extends ConsoleCommand {
     @HelpCommand
     public void onHelp(CommandHelp commandHelp) {
         commandHelp.showHelp();
+    }
+
+    @Subcommand("info")
+    @Description("Show information about a group")
+    @Syntax("<Name>")
+    public void onInfo(CommandSender commandSender, String groupName){
+        CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
+            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
+            .onSuccess(exists -> {
+               if(!exists){
+                   commandSender.sendMessage("Group " + groupName + " does not exist");
+                   return;
+               }
+
+               CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
+                   .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
+                   .onSuccess(groupHolder -> {
+                    groupHolder.get().getOnlineServices()
+                           .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
+                           .onSuccess(services -> {
+                               StringBuilder builder = new StringBuilder();
+                               if(services.isEmpty()) builder.append("No services");
+                               for (IRBucketHolder<ICloudService> service : services) {
+                                   if(!builder.toString().isEmpty()) builder.append("§8, ");
+                                    builder.append("%hc");
+                                    builder.append(service.get().getServiceName());
+                               }
+                               commandSender.sendMessage("%tcGroup info of %hc" + groupHolder.get().getName() + "§8:");
+                               commandSender.sendMessage("  Java-Command: " + groupHolder.get().getJavaCommand());
+                               commandSender.sendMessage("  JVM-Flags: " + Arrays.toString(groupHolder.get().getJvmArguments()));
+                               commandSender.sendMessage("  Process-Arguments: " + Arrays.toString(groupHolder.get().getProcessParameters()));
+                               commandSender.sendMessage("  Environment: " + groupHolder.get().getServiceEnvironment().name());
+                               commandSender.sendMessage("  Services: " + builder.toString());
+                           });
+                   });
+            });
     }
 
     @Subcommand("create")

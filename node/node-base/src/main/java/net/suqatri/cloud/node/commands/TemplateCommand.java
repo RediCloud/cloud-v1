@@ -27,7 +27,7 @@ public class TemplateCommand extends ConsoleCommand {
     /template delete <name>
     /template info <name>
     /template push <name>
-    /template pull <name> <Node> //TODO
+    /template pull <Node>
      */
 
     @HelpCommand

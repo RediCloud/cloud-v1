@@ -24,6 +24,8 @@ import net.suqatri.cloud.node.console.setup.SetupControlState;
 import net.suqatri.cloud.node.file.FileTransferManager;
 import net.suqatri.cloud.node.listener.CloudNodeConnectedListener;
 import net.suqatri.cloud.node.listener.CloudNodeDisconnectListener;
+import net.suqatri.cloud.node.listener.CloudServiceStartedListener;
+import net.suqatri.cloud.node.listener.CloudServiceStoppedListener;
 import net.suqatri.cloud.node.node.ClusterConnectionInformation;
 import net.suqatri.cloud.node.node.packet.NodePingPacket;
 import net.suqatri.cloud.node.scheduler.Scheduler;
@@ -198,6 +200,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private void registerListeners(){
         this.getEventManager().register(new CloudNodeConnectedListener());
         this.getEventManager().register(new CloudNodeDisconnectListener());
+        this.getEventManager().register(new CloudServiceStartedListener());
+        this.getEventManager().register(new CloudServiceStoppedListener());
     }
 
     private void init(Runnable runnable) throws IOException {

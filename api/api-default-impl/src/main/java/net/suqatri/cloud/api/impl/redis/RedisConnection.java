@@ -1,5 +1,6 @@
 package net.suqatri.cloud.api.impl.redis;
 
+import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.redis.bucket.packet.BucketUpdatePacket;
 import net.suqatri.cloud.api.redis.IRedisConnection;
@@ -17,13 +18,17 @@ public class RedisConnection implements IRedisConnection {
     private RedisCredentials redisCredentials;
     private RedissonClient client;
 
+    @Setter
+    private int subscriptionConnectionMinimumIdleSize = 1;
+    @Setter
+    private int subscriptionConnectionPoolSize = 50;
+    @Setter
+    private int connectionMinimumIdleSize = 24;
+    @Setter
+    private int connectionPoolSize = 64;
+
     public RedisConnection(RedisCredentials redisCredentials) {
         this.redisCredentials = redisCredentials;
-        this.registerPackets();
-    }
-
-    private void registerPackets(){
-        CloudAPI.getInstance().getPacketManager().registerPacket(BucketUpdatePacket.class);
     }
 
     @Override
@@ -35,6 +40,10 @@ public class RedisConnection implements IRedisConnection {
     public void connect() {
         Config config = new Config();
         config.useSingleServer()
+                .setSubscriptionConnectionMinimumIdleSize(this.subscriptionConnectionMinimumIdleSize)
+                .setSubscriptionConnectionPoolSize(this.subscriptionConnectionPoolSize)
+                .setConnectionMinimumIdleSize(this.connectionMinimumIdleSize)
+                .setConnectionPoolSize(this.connectionPoolSize)
                 .setAddress("redis://" + this.redisCredentials.getHostname() + ":" + this.redisCredentials.getPort())
                 .setPassword(this.redisCredentials.getPassword())
                 .setDatabase(this.redisCredentials.getDatabaseId());

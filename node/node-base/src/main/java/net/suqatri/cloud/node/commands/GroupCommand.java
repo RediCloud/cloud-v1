@@ -158,7 +158,7 @@ public class GroupCommand extends ConsoleCommand {
                             commandSender.sendMessage("Groups §8(%hc" + holders.size() + "§8):");
                             for (IRBucketHolder<ICloudGroup> holder : holders) {
                                 ICloudGroup group = holder.get();
-                                commandSender.sendMessage("§a" + group.getName() + " §7(" + map.get(group.getUniqueId()) + "/" + group.getMaxServices() + ")");
+                                commandSender.sendMessage("   " + group.getName() + " §7(" + map.get(group.getUniqueId()) + "/" + group.getMaxServices() + ")");
                             }
                             commandSender.sendMessage("");
                         });

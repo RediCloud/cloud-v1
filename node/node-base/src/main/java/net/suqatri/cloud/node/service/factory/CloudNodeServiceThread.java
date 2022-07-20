@@ -50,10 +50,10 @@ public class CloudNodeServiceThread extends Thread{
             int maxStartSize = NodeLauncher.getInstance().getNode().getMaxParallelStartingServiceCount();
 
             this.checkServiceCount++;
-            if(this.checkServiceCount >= checkServiceInterval) {
+            if(this.checkServiceCount == checkServiceInterval) {
                 this.checkServiceCount = 0;
                 for (IRBucketHolder<ICloudGroup> groupHolder : CloudAPI.getInstance().getGroupManager().getGroups()) {
-                    int count = groupHolder.get().getOnlineServiceCount();
+                    int count = groupHolder.get().getOnlineServiceCount().getBlockOrNull();
                     int min = groupHolder.get().getMinServices();
                     int max = groupHolder.get().getMaxServices();
                     if (count < min) {
@@ -79,7 +79,7 @@ public class CloudNodeServiceThread extends Thread{
                     .forEach(config -> {
                         this.queue.remove(config);
                         if(!((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).existsService(config.getUniqueId().toString())) return;
-                        ((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).getServiceIdFetcherMap()
+                        CloudAPI.getInstance().getServiceManager().getServiceIdFetcherMap()
                                 .removeAsync(config.getGroupName() + "-" + config.getId(), config.getUniqueId());
                         ((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).deleteBucket(config.getUniqueId().toString());
                     });

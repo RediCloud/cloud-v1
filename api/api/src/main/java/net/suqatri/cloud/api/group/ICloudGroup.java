@@ -47,8 +47,8 @@ public interface ICloudGroup extends IRBucketObject {
     void removeTemplate(ICloudServiceTemplate template);
     boolean hasTemplate(ICloudServiceTemplate template);
 
-    int getOnlineServiceCount();
-    int getServicesCount(ServiceState serviceState);
+    FutureAction<Integer> getOnlineServiceCount();
+    FutureAction<Integer> getServicesCount(ServiceState serviceState);
 
     FutureAction<Collection<IRBucketHolder<ICloudService>>> getOnlineServices();
     FutureAction<Collection<IRBucketHolder<ICloudService>>> getOnlineServices(ServiceState serviceState);

@@ -31,6 +31,14 @@ public class FutureAction<V> extends CompletableFuture<V> {
         });
     }
 
+    public V getBlockOrNull(){
+        try {
+            return this.get();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public FutureAction<V> orTimeout(long timeout, TimeUnit unit) {
         new Timer().schedule(new TimerTask() {
             @Override

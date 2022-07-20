@@ -90,13 +90,21 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     }
 
     @Override
-    public int getOnlineServiceCount() {
-        return 0; //TODO ServiceManager
+    public FutureAction<Integer> getOnlineServiceCount() {
+        return new FutureAction<>(CloudAPI.getInstance().getServiceManager().getServiceIdFetcherMap().readAllKeySet())
+                .map(names -> (int) names
+                        .parallelStream()
+                        .filter(name -> name.startsWith(this.getName() + "-"))
+                        .count());
     }
 
     @Override
-    public int getServicesCount(ServiceState serviceState) {
-        return 0; //TODO ServiceManager
+    public FutureAction<Integer> getServicesCount(ServiceState serviceState) {
+        return CloudAPI.getInstance().getServiceManager().getServicesAsync()
+                .map(services -> (int) services
+                        .parallelStream()
+                        .filter(service -> service.get().getServiceState() == serviceState)
+                        .count());
     }
 
     @Override

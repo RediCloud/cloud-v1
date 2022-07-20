@@ -4,11 +4,14 @@ import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.cloud.commons.function.future.FutureAction;
+import org.redisson.api.RMap;
 
 import java.util.Collection;
 import java.util.UUID;
 
 public interface ICloudServiceManager {
+
+    RMap<String, UUID> getServiceIdFetcherMap();
 
     FutureAction<IRBucketHolder<ICloudService>> getServiceAsync(String name);
     FutureAction<IRBucketHolder<ICloudService>> getServiceAsync(UUID uniqueId);

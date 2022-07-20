@@ -7,6 +7,7 @@ import net.suqatri.cloud.api.impl.group.CloudGroup;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ServiceEnvironment;
 import net.suqatri.cloud.commons.ConditionChecks;
+import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 import net.suqatri.cloud.node.console.setup.SetupControlState;
 import net.suqatri.cloud.node.setup.group.GroupSetup;
 import net.suqatri.commands.CommandHelp;
@@ -109,12 +110,21 @@ public class GroupCommand extends ConsoleCommand {
                         commandSender.sendMessage("No groups found!");
                         return;
                     }
-                    commandSender.sendMessage("");
-                    commandSender.sendMessage("Groups §8(%hc" + holders.size() + "§8):");
+                    FutureActionCollection<UUID, Integer> futureActionCollection = new FutureActionCollection<>();
                     for (IRBucketHolder<ICloudGroup> holder : holders) {
-                        commandSender.sendMessage("§8 » %tc" + holder.get().getName() + " §8| %tcServices: %hc" + holder.get().getOnlineServiceCount() + "§8/%hc" + holder.get().getMaxServices());
+                        futureActionCollection.addToProcess(holder.get().getUniqueId(), holder.get().getOnlineServiceCount());
                     }
-                    commandSender.sendMessage("");
+                    futureActionCollection.process()
+                        .onFailure(e2 -> commandSender.sendMessage("§cFailed to get groups"))
+                        .onSuccess(map -> {
+                            commandSender.sendMessage("");
+                            commandSender.sendMessage("Groups §8(%hc" + holders.size() + "§8):");
+                            for (IRBucketHolder<ICloudGroup> holder : holders) {
+                                ICloudGroup group = holder.get();
+                                commandSender.sendMessage("§a" + group.getName() + " §7(" + map.get(group.getUniqueId()) + "/" + group.getMaxServices() + ")");
+                            }
+                            commandSender.sendMessage("");
+                        });
                 });
     }
 

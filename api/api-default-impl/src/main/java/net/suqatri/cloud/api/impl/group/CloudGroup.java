@@ -95,7 +95,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         return new FutureAction<>(CloudAPI.getInstance().getServiceManager().getServiceIdFetcherMap().readAllKeySet())
                 .map(names -> (int) names
                         .parallelStream()
-                        .filter(name -> name.startsWith(this.getName() + "-"))
+                        .filter(name -> name.startsWith(this.getName().toLowerCase() + "-"))
                         .count());
     }
 

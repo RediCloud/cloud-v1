@@ -1,5 +1,6 @@
 import org.redisson.Redisson;
 import org.redisson.api.RList;
+import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.listener.ListAddListener;
 import org.redisson.api.listener.SetObjectListener;
@@ -9,6 +10,7 @@ import org.redisson.config.Config;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 public class ListTest {
 
@@ -20,35 +22,16 @@ public class ListTest {
                 .setPassword(System.getenv("password"))
                 .setDatabase(2);
         RedissonClient client = Redisson.create(config);
-        Runtime.getRuntime().addShutdownHook(new Thread("shutdown-hook"){
-            @Override
-            public void run(){
-                if(client.isShutdown()) return;
-                client.shutdown();
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if(client.isShutdown()) return;
+            client.shutdown();
+        }));
 
-        try {
+        RMap<String, UUID> map = client.getMap("map", new JsonJacksonCodec());
 
-            RList<String> list = client.getList("test-string", new JsonJacksonCodec());
-            list.clear();
+        map.putAsync("test", UUID.randomUUID());
+        System.out.println(map.get("test").toString());
 
-            list.addListenerAsync(new ListAddListener() {
-                @Override
-                public void onListAdd(String s) {
-                    System.out.println("Called");
-                    System.out.println("add: " + s);
-                }
-            });
-
-            list.add("a");
-            list.add("b");
-            list.add("c");
-            System.out.println(list.size());
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
 
 }

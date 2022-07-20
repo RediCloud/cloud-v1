@@ -64,8 +64,8 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
                     .onSuccess(s -> {
                         if(process.getServiceHolder().get().isStatic()) return;
                         this.serviceManager.getServiceIdFetcherMap()
-                                .removeAsync(process.getServiceHolder().get().getServiceName(),
-                                        process.getServiceHolder().get().getUniqueId());
+                                .removeAsync(process.getServiceHolder().get().getServiceName().toLowerCase(),
+                                        process.getServiceHolder().get().getUniqueId().toString());
                         this.serviceManager.deleteBucketAsync(process.getServiceHolder().get().getUniqueId().toString())
                                 .onFailure(futureAction)
                                 .onSuccess(v -> futureAction.complete(true));

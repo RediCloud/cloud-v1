@@ -10,6 +10,7 @@ import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 import org.redisson.api.RList;
 import org.redisson.api.RMap;
+import org.redisson.codec.JsonJacksonCodec;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -23,9 +24,9 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     public CloudPlayerManager() {
         super("player", ICloudPlayer.class);
         CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event -> {
-            this.connectedList = event.getConnection().getClient().getList("players@connected");
-            this.registeredList = event.getConnection().getClient().getList("players@registered");
-            this.nameFetcherMap = event.getConnection().getClient().getMap("players@nameFetcher");
+            this.connectedList = event.getConnection().getClient().getList("players@connected", getObjectCodec());
+            this.registeredList = event.getConnection().getClient().getList("players@registered", getObjectCodec());
+            this.nameFetcherMap = event.getConnection().getClient().getMap("players@nameFetcher", getObjectCodec());
         });
     }
 

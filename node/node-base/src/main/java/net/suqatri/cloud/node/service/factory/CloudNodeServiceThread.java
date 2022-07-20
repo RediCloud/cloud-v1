@@ -89,9 +89,9 @@ public class CloudNodeServiceThread extends Thread{
                         if(config.isStatic()) return;
                         if(!((NodeCloudServiceManager)CloudAPI.getInstance().getServiceManager()).existsService(config.getUniqueId().toString())) return;
                         CloudAPI.getInstance().getServiceManager().getServiceIdFetcherMap()
-                                .removeAsync(config.getGroupName() + "-" + config.getId(), config.getUniqueId());
+                                .removeAsync(config.getGroupName().toLowerCase() + "-" + config.getId(), config.getUniqueId().toString());
                         NodeLauncher.getInstance().getServiceManager().deleteBucket(config.getUniqueId().toString());
-                        NodeLauncher.getInstance().getServiceManager().getServiceIdFetcherMap().removeAsync(config.getName() + "-" + config.getId());
+                        NodeLauncher.getInstance().getServiceManager().getServiceIdFetcherMap().removeAsync(config.getName().toLowerCase() + "-" + config.getId());
                     });
 
                 if(!this.queue.isEmpty()){
@@ -197,7 +197,7 @@ public class CloudNodeServiceThread extends Thread{
         }
         cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
         IRBucketHolder<ICloudService> holder = this.factory.getServiceManager().createBucket(cloudService.getUniqueId().toString(), cloudService);
-        this.factory.getServiceManager().getServiceIdFetcherMap().putAsync(cloudService.getServiceName(), cloudService.getUniqueId());
+        this.factory.getServiceManager().getServiceIdFetcherMap().putAsync(cloudService.getServiceName().toLowerCase(), cloudService.getUniqueId().toString());
 
         CloudServiceProcess process = new CloudServiceProcess(this.factory, holder);
         process.start();

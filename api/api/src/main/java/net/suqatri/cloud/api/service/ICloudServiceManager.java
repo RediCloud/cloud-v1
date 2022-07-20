@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface ICloudServiceManager {
 
-    RMap<String, UUID> getServiceIdFetcherMap();
+    RMap<String, String> getServiceIdFetcherMap();
 
     FutureAction<IRBucketHolder<ICloudService>> getServiceAsync(String name);
     FutureAction<IRBucketHolder<ICloudService>> getServiceAsync(UUID uniqueId);

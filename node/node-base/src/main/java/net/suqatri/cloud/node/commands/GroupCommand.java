@@ -60,6 +60,7 @@ public class GroupCommand extends ConsoleCommand {
                                 cloudGroup.setMaxServices(groupSetup.getMaxServices());
                                 cloudGroup.setStaticGroup(groupSetup.isStaticGroup());
                                 cloudGroup.setMaintenance(true);
+                                cloudGroup.setFallback(groupSetup.isFallback());
                                 cloudGroup.setMaxMemory(groupSetup.getMaxMemory());
                                 cloudGroup.setStartPriority(groupSetup.getStartPriority());
                                 cloudGroup.setServiceVersionName(groupSetup.getServiceVersionName());

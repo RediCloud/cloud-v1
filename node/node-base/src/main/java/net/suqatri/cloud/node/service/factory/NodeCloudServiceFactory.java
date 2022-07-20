@@ -38,7 +38,7 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
         configuration.listenToStart();
         configuration.getStartListener()
                 .onSuccess(holder -> this.serviceManager.getServiceIdFetcherMap()
-                        .putAsync(holder.get().getServiceName(), holder.get().getUniqueId()));
+                        .putAsync(holder.get().getServiceName(), holder.get().getUniqueId().toString()));
         return configuration.getStartListener();
     }
 

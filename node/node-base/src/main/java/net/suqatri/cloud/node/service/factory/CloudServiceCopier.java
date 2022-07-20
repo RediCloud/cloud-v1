@@ -85,6 +85,8 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                             break;
                                                     }
 
+                                                    if(Files.SERVER_ICON.exists()) FileUtils.copyFileToDirectory(Files.SERVER_ICON.getFile(), getServiceDirectory());
+
                                                     for (File configFile : configFiles) {
                                                         File target = new File(this.getServiceDirectory(), configFile.getName());
                                                         if(target.exists()) continue;
@@ -155,6 +157,8 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                 configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "config.yml"));
                 break;
         }
+
+        if(Files.SERVER_ICON.exists()) FileUtils.copyFileToDirectory(Files.SERVER_ICON.getFile(), getServiceDirectory());
 
         for (File configFile : configFiles) {
             File target = new File(this.getServiceDirectory(), configFile.getName());

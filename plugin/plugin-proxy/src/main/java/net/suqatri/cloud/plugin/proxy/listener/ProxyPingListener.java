@@ -1,5 +1,6 @@
 package net.suqatri.cloud.plugin.proxy.listener;
 
+import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.event.ProxyPingEvent;
@@ -14,11 +15,13 @@ public class ProxyPingListener implements Listener {
 
     private int cachedNetworkOnlineCount = 0;
     private long cacheTime = 0L;
+    private Favicon favicon = ProxyCloudAPI.getInstance().get;
 
     @EventHandler
     public void onPing(ProxyPingEvent event){
         ServerPing serverPing = event.getResponse();
         serverPing.setDescription(ProxyCloudAPI.getInstance().getService().getMotd());
+        if(serverPing.getFavicon() == null) serverPing.setFavicon(favicon);
 
         ServerPing.Players players = new ServerPing
                 .Players(ProxyCloudAPI.getInstance().getService().getMaxPlayers(), this.cachedNetworkOnlineCount, new ServerPing.PlayerInfo[0]);

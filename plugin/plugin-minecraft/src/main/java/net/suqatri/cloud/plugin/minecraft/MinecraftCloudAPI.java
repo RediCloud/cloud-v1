@@ -2,6 +2,7 @@ package net.suqatri.cloud.plugin.minecraft;
 
 import lombok.Getter;
 import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
+import net.suqatri.cloud.api.impl.player.CloudPlayerManager;
 import net.suqatri.cloud.api.impl.redis.RedisConnection;
 import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.impl.service.CloudServiceManager;
@@ -50,6 +51,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private final CloudServiceTemplateManager serviceTemplateManager;
     private final CloudServiceVersionManager serviceVersionManager;
     private BukkitTask updaterTask;
+    private final CloudPlayerManager playerManager;
 
     public MinecraftCloudAPI(JavaPlugin javaPlugin) {
         super(ApplicationType.SERVICE_MINECRAFT);
@@ -62,6 +64,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.commandManager = new BukkitCloudCommandManager(this.javaPlugin);
         this.serviceTemplateManager = new CloudServiceTemplateManager();
         this.serviceVersionManager = new CloudServiceVersionManager();
+        this.playerManager = new CloudPlayerManager();
 
         init();
         registerInternalListeners();

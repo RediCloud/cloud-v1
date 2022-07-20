@@ -12,6 +12,7 @@ import net.suqatri.cloud.api.console.IConsole;
 import net.suqatri.cloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.cloud.api.impl.listener.service.CloudServiceStartedListener;
 import net.suqatri.cloud.api.impl.listener.service.CloudServiceStoppedListener;
+import net.suqatri.cloud.api.impl.player.CloudPlayerManager;
 import net.suqatri.cloud.api.impl.redis.RedisConnection;
 import net.suqatri.cloud.api.impl.service.CloudService;
 import net.suqatri.cloud.api.impl.service.CloudServiceManager;
@@ -59,6 +60,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private final ProxyConsole console;
     private final BungeeCloudCommandManager commandManager;
     private final BungeeScheduler scheduler;
+    private final CloudPlayerManager playerManager;
 
     public ProxyCloudAPI(Plugin plugin) {
         super(ApplicationType.SERVICE_PROXY);
@@ -71,6 +73,8 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.serviceVersionManager = new CloudServiceVersionManager();
         this.serviceTemplateManager = new CloudServiceTemplateManager();
         this.commandManager = new BungeeCloudCommandManager(this.plugin);
+        this.playerManager = new CloudPlayerManager();
+
 
         init();
         registerInternalPackets();

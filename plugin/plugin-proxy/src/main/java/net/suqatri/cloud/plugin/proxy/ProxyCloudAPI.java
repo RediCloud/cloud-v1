@@ -34,10 +34,7 @@ import net.suqatri.cloud.commons.ByteUtils;
 import net.suqatri.cloud.commons.file.FileWriter;
 import net.suqatri.cloud.plugin.proxy.command.BungeeCloudCommandManager;
 import net.suqatri.cloud.plugin.proxy.console.ProxyConsole;
-import net.suqatri.cloud.plugin.proxy.listener.LoginListener;
-import net.suqatri.cloud.plugin.proxy.listener.PlayerDisconnectListener;
-import net.suqatri.cloud.plugin.proxy.listener.ProxyPingListener;
-import net.suqatri.cloud.plugin.proxy.listener.ServerSwitchListener;
+import net.suqatri.cloud.plugin.proxy.listener.*;
 import net.suqatri.cloud.plugin.proxy.scheduler.BungeeScheduler;
 
 import java.io.File;
@@ -83,6 +80,8 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ProxyPingListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerSwitchListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PlayerDisconnectListener());
+        ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerKickListener());
+        ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerConnectListener());
 
         getEventManager().register(new CloudServiceStoppedListener());
         getEventManager().register(new CloudServiceStartedListener());

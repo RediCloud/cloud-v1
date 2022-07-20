@@ -155,9 +155,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        } catch (InterruptedException e) {}
 
         if(this.updaterTask != null) this.updaterTask.cancel();
 

@@ -443,9 +443,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                 if(stopCount != 0) {
                     try {
                         Thread.sleep(3000 + (stopCount * 200L));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    } catch (InterruptedException e) {}
                 }
             }
 

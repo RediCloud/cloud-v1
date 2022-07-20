@@ -83,9 +83,7 @@ public class FileTransferProcessThread extends Thread {
                     }
                     try {
                         Thread.sleep(1000);
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
-                    }
+                    } catch (InterruptedException ex) {}
                 }
             }
     }

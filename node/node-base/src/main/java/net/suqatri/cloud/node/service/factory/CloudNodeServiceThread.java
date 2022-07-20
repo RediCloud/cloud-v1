@@ -141,9 +141,7 @@ public class CloudNodeServiceThread extends Thread{
 
             try {
                 Thread.sleep(200);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            } catch (InterruptedException e) {}
         }
     }
 

@@ -18,6 +18,9 @@ public interface ICloudService extends IRBucketObject {
 
     UUID getNodeId();
 
+    boolean isFallback();
+    void setFallback(boolean fallback);
+
     INetworkComponentInfo getNetworkComponentInfo();
 
     default FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion(){

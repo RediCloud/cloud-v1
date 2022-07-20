@@ -25,6 +25,8 @@ public interface ICloudServiceManager {
 
     ICloudServiceFactory getServiceFactory();
 
+    IRBucketHolder<ICloudService> getFallbackService();
+
     boolean existsService(String name);
     boolean existsService(UUID uniqueId);
     FutureAction<Boolean> existsServiceAsync(String name);

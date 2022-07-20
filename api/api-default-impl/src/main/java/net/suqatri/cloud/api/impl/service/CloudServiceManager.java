@@ -17,6 +17,7 @@ import net.suqatri.cloud.commons.function.future.FutureAction;
 import org.redisson.api.RMap;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -126,10 +127,25 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
         return futureAction;
     }
 
-
     @Override
     public ICloudServiceFactory getServiceFactory() {
         return CloudAPI.getInstance().getServiceFactory();
+    }
+
+    @Override
+    public IRBucketHolder<ICloudService> getFallbackService() {
+        IRBucketHolder<ICloudService> fallbackHolder = null;
+        for (IRBucketHolder<ICloudService> serviceHolder : getServices()) {
+            if(!serviceHolder.get().getConfiguration().isFallback()) continue;
+            if(fallbackHolder == null){
+                fallbackHolder = serviceHolder;
+                continue;
+            }
+            if(fallbackHolder.get().getOnlineCount() > serviceHolder.get().getOnlineCount()) {
+                fallbackHolder = serviceHolder;
+            }
+        }
+        return fallbackHolder;
     }
 
     @Override

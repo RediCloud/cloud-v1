@@ -40,6 +40,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     private int maxMemory;
     private int startPriority = 0;
     private String serviceVersionName;
+    private boolean fallback = false;
 
     @Override
     public FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion() {

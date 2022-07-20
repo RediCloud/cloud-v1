@@ -21,6 +21,9 @@ public interface IServiceStartConfiguration {
     String getName();
     UUID getUniqueId();
 
+    boolean isFallback();
+    void setFallback(boolean fallback);
+
     String getServiceVersionName();
     void setServiceVersionName(String serviceVersionName);
 

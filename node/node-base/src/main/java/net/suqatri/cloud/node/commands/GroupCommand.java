@@ -136,7 +136,7 @@ public class GroupCommand extends ConsoleCommand {
                                     GroupProperty property = GroupProperty.valueOf(key);
                                     switch (property) {
                                         case MAX_MEMORY:
-                                            if (ConditionChecks.isInteger(value)) {
+                                            if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
                                             }
@@ -148,17 +148,26 @@ public class GroupCommand extends ConsoleCommand {
                                             holder.get().setMaxMemory(intValue);
                                             commandSender.sendMessage("Group %hc" + name + "%tc max memory set to %hc" + intValue);
                                             break;
-                                        case MAINTENANCE:
-                                            if (ConditionChecks.isBoolean(value)) {
+                                        case FALLBACK:
+                                            if(!ConditionChecks.isBoolean(value)){
                                                 commandSender.sendMessage("Value must be a boolean");
                                                 return;
                                             }
                                             boolean boolValue = Boolean.parseBoolean(value);
+                                            holder.get().setFallback(boolValue);
+                                            commandSender.sendMessage("Group %hc" + name + "%tc fallback set to %hc" + boolValue);
+                                            break;
+                                        case MAINTENANCE:
+                                            if (!ConditionChecks.isBoolean(value)) {
+                                                commandSender.sendMessage("Value must be a boolean");
+                                                return;
+                                            }
+                                            boolValue = Boolean.parseBoolean(value);
                                             holder.get().setMaintenance(boolValue);
                                             commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
                                             break;
                                         case MAX_SERVICES:
-                                            if (ConditionChecks.isInteger(value)) {
+                                            if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
                                             }
@@ -171,7 +180,7 @@ public class GroupCommand extends ConsoleCommand {
                                             commandSender.sendMessage("Group %hc" + name + "%tc max services set to %hc" + intValue);
                                             break;
                                         case MIN_SERVICES:
-                                            if (ConditionChecks.isInteger(value)) {
+                                            if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
                                             }
@@ -184,7 +193,7 @@ public class GroupCommand extends ConsoleCommand {
                                             commandSender.sendMessage("Group %hc" + name + "%tc min services set to %hc" + intValue);
                                             break;
                                         case START_PRIORITY:
-                                            if (ConditionChecks.isInteger(value)) {
+                                            if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
                                             }

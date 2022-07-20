@@ -34,6 +34,7 @@ public class CloudService extends RBucketObject implements ICloudService {
     private Collection<UUID> consoleNodeListenerIds = new ArrayList<>();
     private int port;
     private String hostName;
+    private boolean fallback = false;
 
     @Override
     public void merged() {

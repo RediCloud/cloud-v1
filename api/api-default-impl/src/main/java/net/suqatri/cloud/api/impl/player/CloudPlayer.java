@@ -78,7 +78,7 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
     }
 
     @Override
-    public void connect(ICloudService cloudService) {
+    public void connect(IRBucketHolder<ICloudService> cloudService) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

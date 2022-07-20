@@ -25,6 +25,7 @@ import net.suqatri.cloud.api.redis.RedisCredentials;
 import net.suqatri.cloud.api.scheduler.IScheduler;
 import net.suqatri.cloud.api.service.ICloudServiceManager;
 import net.suqatri.cloud.api.service.ServiceState;
+import net.suqatri.cloud.api.service.event.CloudServiceStartedEvent;
 import net.suqatri.cloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.cloud.api.service.version.ICloudServiceVersionManager;
 import net.suqatri.cloud.api.template.ICloudServiceTemplateManager;
@@ -96,16 +97,18 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     }
 
     private void initThisService(){
-        this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_serviceId"))).getImpl(CloudService.class);
+        this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_service_id"))).getImpl(CloudService.class);
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.service.update();
+
+        getEventManager().postLocal(new CloudServiceStartedEvent(this.service.getHolder()));
     }
 
     private void initRedis() {
         RedisCredentials redisCredentials;
         try {
             System.out.println(Files.REDIS_CONFIG.getFile().getAbsolutePath());
-            redisCredentials = FileWriter.readObject(new File(System.getenv("redicloud_redis_path")), RedisCredentials.class);
+            redisCredentials = FileWriter.readObject(new File(System.getenv("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())), RedisCredentials.class);
         } catch (Exception e) {
             this.console.error("Failed to read redis.json file! Please check your credentials.");
             return;

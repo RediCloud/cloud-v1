@@ -89,17 +89,17 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     }
 
     private void initThisService(){
-        this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_serviceId"))).getImpl(CloudService.class);
+        this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_service_id"))).getImpl(CloudService.class);
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.service.update();
 
-        CloudServiceStartedEvent event = new CloudServiceStartedEvent();
+        getEventManager().postLocal(new CloudServiceStartedEvent(this.service.getHolder()));
     }
 
     private void initRedis() {
         RedisCredentials redisCredentials;
         try {
-            redisCredentials = FileWriter.readObject(new File(System.getenv("redicloud_redis_path")), RedisCredentials.class);
+            redisCredentials = FileWriter.readObject(new File(System.getenv("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())), RedisCredentials.class);
         } catch (Exception e) {
             this.console.error("Failed to read redis.json file! Please check your credentials.");
             Bukkit.getPluginManager().disablePlugin(this.javaPlugin);

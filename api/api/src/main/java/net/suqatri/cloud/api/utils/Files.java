@@ -27,6 +27,7 @@ public enum Files {
     PROXY_PLUGIN_JAR("storage/plugin-proxy-%version%.jar"),
     NODE_JSON("node.json"),
     VERSIONS_FOLDER("storage/versions"),
+    SERVER_ICON("storage/server-icon.png"),
     REDIS_CONFIG("storage/redis.json");
 
     private final String path;

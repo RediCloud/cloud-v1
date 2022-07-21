@@ -5,11 +5,15 @@ import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersionManager
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.redicloud.api.utils.Files;
+import net.suqatri.redicloud.commons.StreamUtils;
 import net.suqatri.redicloud.commons.file.FileUtils;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
+import net.suqatri.redicloud.node.console.ConsoleLine;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.UUID;
 
 public class NodeCloudServiceVersionManager extends CloudServiceVersionManager  {
@@ -98,9 +102,42 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager  
 
         File jarToPatch = new File(processDir, holder.get().getName() + ".jar");
 
-        ProcessBuilder builder = new ProcessBuilder("java", "-jar", jarToPatch.getAbsolutePath());
+        ProcessBuilder builder = new ProcessBuilder(holder.get().getJavaCommand(), "-jar", jarToPatch.getAbsolutePath());
         builder.directory(processDir);
-        builder.start().waitFor();
+
+        logPatch("Patching service version " + holder.get().getName() + "...");
+
+        Process process = builder.start();
+        InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
+        BufferedReader reader = new BufferedReader(inputStreamReader);
+        while(process.isAlive() && reader.ready()){
+            String line = reader.readLine();
+            if(line != null) {
+                logPatch(line);
+            }
+        }
+        reader.close();
+        int exitCode = process.waitFor();
+        CloudAPI.getInstance().getConsole().info("Patch service version " + holder.get().getName() + " with exit code " + exitCode);
+
+        if(StreamUtils.isOpen(process.getErrorStream())) {
+            reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            boolean error = false;
+            while(reader.ready()){
+                String line = reader.readLine();
+                error = true;
+                if(line != null) {
+                    logErrorPatch(line);
+                }
+            }
+            reader.close();
+            if(error){
+                logErrorPatch("There was an error while patching service version " + holder.get().getName() + "!");
+                logErrorPatch("Redownloading and repatching jar in few seconds...");
+                if(holder.get().getFile().exists()) holder.get().getFile().delete();
+                return this.patch(holder, true);
+            }
+        }
 
         File patchedJar = null;
         File cacheDir = new File(processDir, "cache");
@@ -153,11 +190,46 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager  
                         }
                         File jarToPatch = new File(processDir, holder.get().getName() + ".jar");
 
-                        ProcessBuilder builder = new ProcessBuilder("java", "-jar", jarToPatch.getAbsolutePath());
+                        ProcessBuilder builder = new ProcessBuilder(holder.get().getJavaCommand(), "-jar", jarToPatch.getAbsolutePath());
                         builder.directory(processDir);
+                        logPatch("Patching service version " + holder.get().getName() + "...");
+
                         try {
-                            builder.start().waitFor();
-                        }catch (InterruptedException | IOException e) {
+                            Process process = builder.start();
+                            InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
+                            BufferedReader reader = new BufferedReader(inputStreamReader);
+                            while(process.isAlive() && reader.ready()){
+                                String line = reader.readLine();
+                                if(line != null) {
+                                    logPatch(line);
+                                }
+                            }
+                            reader.close();
+                            int exitCode = process.waitFor();
+                            CloudAPI.getInstance().getConsole().info("Patch service version " + holder.get().getName() + " with exit code " + exitCode);
+
+                            if(StreamUtils.isOpen(process.getErrorStream())) {
+                                reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                                boolean error = false;
+                                while(reader.ready()){
+                                    String line = reader.readLine();
+                                    error = true;
+                                    if(line != null) {
+                                        logErrorPatch(line);
+                                    }
+                                }
+                                reader.close();
+                                if(error){
+                                    logErrorPatch("There was an error while patching service version " + holder.get().getName() + "!");
+                                    logErrorPatch("Redownloading and repatching jar in few seconds...");
+                                    if(holder.get().getFile().exists()) holder.get().getFile().delete();
+                                    this.patchAsync(holder, true)
+                                            .onFailure(futureAction)
+                                            .onSuccess(futureAction::complete);
+                                    return;
+                                }
+                            }
+                        }catch (Exception e){
                             futureAction.completeExceptionally(e);
                             return;
                         }
@@ -196,5 +268,13 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager  
                 });
 
         return futureAction;
+    }
+
+    private void logPatch(String message){
+        CloudAPI.getInstance().getConsole().log(new ConsoleLine("PATCH", message));
+    }
+
+    private void logErrorPatch(String message){
+        CloudAPI.getInstance().getConsole().log(new ConsoleLine("ERROR-PATCH", message));
     }
 }

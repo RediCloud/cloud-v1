@@ -16,7 +16,7 @@ public class TimeOuPollResultPacket extends CloudPacket {
 
     @Override
     public void receive() {
-        NodeLauncher.getInstance().getTimeOutPoolManager().getPoll(this.pollID)
+        NodeLauncher.getInstance().getTimeOutPollManager().getPoll(this.pollID)
                 .onFailure(e ->
                         CloudAPI.getInstance().getConsole().error("Error while getting timeout poll " + this.pollID + "!"))
                 .onSuccess(pool ->

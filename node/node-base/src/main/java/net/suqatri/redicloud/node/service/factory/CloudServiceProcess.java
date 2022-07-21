@@ -12,6 +12,7 @@ import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.event.CloudServiceStoppedEvent;
+import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.StreamUtils;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
@@ -73,7 +74,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
             environment.put("redicloud_files_" + value.name().toLowerCase(), value.getFile().getAbsolutePath());
         }
         builder.directory(this.serviceDirectory);
-        builder.command(getStartCommand());
+        builder.command(getStartCommand(this.serviceHolder.get().getServiceVersion().get(3, TimeUnit.SECONDS)));
         this.process = builder.start();
 
         this.serviceHolder.get().setServiceState(ServiceState.STARTING);
@@ -96,7 +97,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                         this.process.isAlive()
                         && Thread.currentThread().isAlive()
                         && !Thread.currentThread().isInterrupted()
-                        && StreamUtils.isOpen(this.process.getInputStream())
+                        && reader.ready()
                 ) {
                     try {
                         String line = reader.readLine();
@@ -246,10 +247,10 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         }
     }
 
-    private List<String> getStartCommand(){
+    private List<String> getStartCommand(IRBucketHolder<ICloudServiceVersion> serviceVersionHolder){
         List<String> command = new ArrayList<>();
 
-        command.add(this.serviceHolder.get().getConfiguration().getJavaCommand());
+        command.add(serviceVersionHolder.get().getJavaCommand());
 
         command.addAll(this.serviceHolder.get().getConfiguration().getJvmArguments());
 

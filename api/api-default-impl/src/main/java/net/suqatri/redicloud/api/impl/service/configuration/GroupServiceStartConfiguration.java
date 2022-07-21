@@ -32,7 +32,6 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
     private String groupName;
     private List<String> processParameters;
     private List<String> jvmArguments;
-    private String javaCommand;
     private int startPort;
     private String serviceVersionName;
     private UUID nodeId;
@@ -64,7 +63,6 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
         this.groupName = group.getName();
         this.processParameters = Arrays.asList(group.getProcessParameters());
         this.jvmArguments = Arrays.asList(group.getJvmArguments());
-        this.javaCommand = group.getJavaCommand();
         this.startPort = group.getStartPort();
         this.serviceVersionName = group.getServiceVersionName();
         this.fallback = group.isFallback();

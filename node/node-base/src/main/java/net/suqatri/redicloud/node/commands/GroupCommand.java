@@ -65,7 +65,6 @@ public class GroupCommand extends ConsoleCommand {
                                     builder.append(service.get().getServiceName());
                                }
                                commandSender.sendMessage("%tcGroup info of %hc" + groupHolder.get().getName() + "§8:");
-                               commandSender.sendMessage("  Java-Command: %hc" + groupHolder.get().getJavaCommand());
                                commandSender.sendMessage("  JVM-Flags: %hc" + Arrays.toString(groupHolder.get().getJvmArguments()));
                                commandSender.sendMessage("  Process-Arguments: %hc" + Arrays.toString(groupHolder.get().getProcessParameters()));
                                commandSender.sendMessage("  Environment: %hc" + groupHolder.get().getServiceEnvironment().name());

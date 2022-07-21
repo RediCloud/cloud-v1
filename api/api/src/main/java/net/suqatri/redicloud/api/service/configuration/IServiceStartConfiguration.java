@@ -12,7 +12,6 @@ import java.util.UUID;
 public interface IServiceStartConfiguration {
 
     ServiceEnvironment getEnvironment();
-    String getJavaCommand();
 
     UUID getNodeId();
     void setNodeId(UUID nodeId);

@@ -1,4 +1,4 @@
-package net.suqatri.redicloud.plugin.proxy;
+package net.suqatri.redicloud.plugin.proxy.console;
 
 import lombok.Data;
 import net.suqatri.redicloud.api.console.IConsole;

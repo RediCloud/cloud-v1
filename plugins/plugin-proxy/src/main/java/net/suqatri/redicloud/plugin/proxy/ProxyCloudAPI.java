@@ -26,6 +26,10 @@ import net.suqatri.redicloud.api.service.event.CloudServiceStartedEvent;
 import net.suqatri.redicloud.api.utils.ApplicationType;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.file.FileWriter;
+import net.suqatri.redicloud.plugin.proxy.command.BungeeCloudCommandManager;
+import net.suqatri.redicloud.plugin.proxy.console.ProxyConsole;
+import net.suqatri.redicloud.plugin.proxy.listener.*;
+import net.suqatri.redicloud.plugin.proxy.scheduler.BungeeScheduler;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -118,7 +122,6 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private void initRedis() {
         RedisCredentials redisCredentials;
         try {
-            System.out.println(Files.REDIS_CONFIG.getFile().getAbsolutePath());
             redisCredentials = FileWriter.readObject(new File(System.getenv("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())), RedisCredentials.class);
         } catch (Exception e) {
             this.console.error("Failed to read redis.json file! Please check your credentials.");

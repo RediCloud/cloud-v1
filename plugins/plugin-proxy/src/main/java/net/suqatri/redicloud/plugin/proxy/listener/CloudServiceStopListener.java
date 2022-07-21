@@ -1,4 +1,4 @@
-package net.suqatri.redicloud.plugin.proxy;
+package net.suqatri.redicloud.plugin.proxy.listener;
 
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;

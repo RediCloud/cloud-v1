@@ -104,9 +104,9 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
             return;
         }
         this.redisConnection = new RedisConnection(redisCredentials);
-        this.redisConnection.setConnectionPoolSize(this.redisConnection.getConnectionPoolSize() / 4);
-        this.redisConnection.setConnectionMinimumIdleSize(this.redisConnection.getSubscriptionConnectionMinimumIdleSize() / 5);
-        this.redisConnection.setSubscriptionConnectionPoolSize(this.redisConnection.getSubscriptionConnectionMinimumIdleSize() / 6);
+        this.redisConnection.setConnectionPoolSize(24);
+        this.redisConnection.setConnectionMinimumIdleSize(6);
+        this.redisConnection.setSubscriptionConnectionPoolSize(10);
         try {
             this.redisConnection.connect();
             this.console.info("Redis connection established!");

@@ -1,4 +1,4 @@
-package net.suqatri.redicloud.plugin.proxy;
+package net.suqatri.redicloud.plugin.proxy.command;
 
 import net.md_5.bungee.api.plugin.Plugin;
 import net.suqatri.redicloud.api.console.ICommandManager;

@@ -1,4 +1,4 @@
-package net.suqatri.redicloud.plugin.proxy;
+package net.suqatri.redicloud.plugin.proxy.scheduler;
 
 import lombok.Data;
 import net.md_5.bungee.api.scheduler.ScheduledTask;

@@ -1,10 +1,11 @@
-package net.suqatri.redicloud.plugin.proxy;
+package net.suqatri.redicloud.plugin.proxy.listener;
 
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.player.CloudPlayer;
+import net.suqatri.redicloud.plugin.proxy.ProxyCloudAPI;
 
 import java.util.UUID;
 

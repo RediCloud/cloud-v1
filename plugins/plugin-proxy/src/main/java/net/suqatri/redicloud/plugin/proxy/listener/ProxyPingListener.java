@@ -1,4 +1,4 @@
-package net.suqatri.redicloud.plugin.proxy;
+package net.suqatri.redicloud.plugin.proxy.listener;
 
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.event.ProxyPingEvent;
@@ -6,6 +6,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.plugin.proxy.ProxyCloudAPI;
 
 import java.util.concurrent.TimeUnit;
 

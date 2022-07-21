@@ -30,7 +30,6 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     private String name;
     private String[] processParameters = new String[0];
     private String[] jvmArguments = new String[0];
-    private String javaCommand = "java";
     private int minServices = 0;
     private int maxServices = -1;
     private Collection<String> templateNames = new ArrayList<>();

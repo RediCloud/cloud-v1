@@ -27,9 +27,6 @@ public interface ICloudGroup extends IRBucketObject {
     String[] getJvmArguments();
     void setJvmArguments(String[] jvmArguments);
 
-    String getJavaCommand();
-    void setJavaCommand(String javaCommand);
-
     int getMinServices();
     void setMinServices(int minServices);
 

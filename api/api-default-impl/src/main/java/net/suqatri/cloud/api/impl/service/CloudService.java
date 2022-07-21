@@ -9,8 +9,8 @@ import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
-import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.ServiceState;
+import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 

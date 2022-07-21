@@ -10,7 +10,6 @@ import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.commons.function.future.FutureActionCollection;
 import org.redisson.api.RList;
 import org.redisson.api.RMap;
-import org.redisson.codec.JsonJacksonCodec;
 
 import java.util.Collection;
 import java.util.UUID;

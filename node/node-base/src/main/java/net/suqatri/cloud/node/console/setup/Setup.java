@@ -2,7 +2,6 @@ package net.suqatri.cloud.node.console.setup;
 
 import com.google.common.primitives.Primitives;
 import lombok.Getter;
-import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.IConsoleInput;
 import net.suqatri.cloud.api.console.IConsoleLine;
 import net.suqatri.cloud.api.console.IConsoleLineEntry;

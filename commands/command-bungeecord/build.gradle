@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+group 'net.suqatri.redicloud'
+version '1.0-BETA'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+}
+
+dependencies {
+    implementation project(':commands:command-core');
+    implementation project(':commands:command-locales');
+    compileOnly('net.md-5:bungeecord-api:1.19-R0.1-SNAPSHOT');
+}

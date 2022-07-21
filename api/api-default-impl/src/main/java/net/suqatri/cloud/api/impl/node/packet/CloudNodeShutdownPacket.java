@@ -2,11 +2,9 @@ package net.suqatri.cloud.api.impl.node.packet;
 
 import lombok.Data;
 import net.suqatri.cloud.api.CloudAPI;
-import net.suqatri.cloud.api.impl.node.CloudNode;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 
 import java.util.UUID;
-import java.util.function.Consumer;
 
 @Data
 public class CloudNodeShutdownPacket extends CloudNodePacket {

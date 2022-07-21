@@ -3,7 +3,6 @@ package net.suqatri.cloud.runner;
 import net.suqatri.cloud.runner.dependency.DependencyLoader;
 
 import java.lang.reflect.InvocationTargetException;
-
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;

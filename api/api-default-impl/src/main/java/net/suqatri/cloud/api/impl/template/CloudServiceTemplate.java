@@ -2,7 +2,6 @@ package net.suqatri.cloud.api.impl.template;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.template.ICloudServiceTemplate;

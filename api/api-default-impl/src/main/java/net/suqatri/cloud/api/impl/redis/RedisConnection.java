@@ -3,16 +3,12 @@ package net.suqatri.cloud.api.impl.redis;
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
-import net.suqatri.cloud.api.impl.redis.bucket.packet.BucketUpdatePacket;
 import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-import org.redisson.connection.pool.MasterPubSubConnectionPool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Getter
 public class RedisConnection implements IRedisConnection {

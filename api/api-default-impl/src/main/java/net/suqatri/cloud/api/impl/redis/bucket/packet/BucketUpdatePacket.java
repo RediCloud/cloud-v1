@@ -1,8 +1,8 @@
 package net.suqatri.cloud.api.impl.redis.bucket.packet;
 
+import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
 import lombok.Data;
 import net.suqatri.cloud.api.impl.packet.CloudPacket;
-import net.suqatri.cloud.api.impl.redis.bucket.RedissonBucketManager;
 
 //TODO use SetObjectListener to listen to changes
 //SetObjectListener dont work...

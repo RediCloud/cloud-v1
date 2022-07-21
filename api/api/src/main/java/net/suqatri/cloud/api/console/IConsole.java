@@ -1,7 +1,6 @@
 package net.suqatri.cloud.api.console;
 
 import java.util.Collection;
-import java.util.List;
 
 public interface IConsole {
 

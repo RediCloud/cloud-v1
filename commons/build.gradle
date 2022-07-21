@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+}
+
+group 'net.suqatri.redicloud'
+version '1.0-BETA'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation('commons-io:commons-io:2.11.0')
+}

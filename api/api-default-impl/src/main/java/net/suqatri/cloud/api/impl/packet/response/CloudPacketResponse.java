@@ -1,15 +1,12 @@
 package net.suqatri.cloud.api.impl.packet.response;
 
+import net.suqatri.cloud.api.impl.packet.CloudPacketManager;
 import lombok.Getter;
-import lombok.Setter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.packet.CloudPacket;
-import net.suqatri.cloud.api.impl.packet.CloudPacketManager;
 import net.suqatri.cloud.api.packet.ICloudPacketData;
 import net.suqatri.cloud.api.packet.ICloudPacketResponse;
 import net.suqatri.cloud.commons.function.future.FutureAction;
-
-import java.util.List;
 
 @Getter
 public abstract class CloudPacketResponse extends CloudPacket implements ICloudPacketResponse {

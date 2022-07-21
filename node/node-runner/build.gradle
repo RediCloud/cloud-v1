@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+group 'net.suqatri.redicloud'
+version '1.0-BETA'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':commons')
+    implementation('org.eclipse.aether:aether-impl:1.1.0')
+    implementation('org.eclipse.aether:aether-connector-basic:1.1.0')
+    implementation('org.eclipse.aether:aether-transport-file:1.1.0')
+    implementation('org.eclipse.aether:aether-transport-http:1.1.0')
+    implementation('org.apache.maven:maven-aether-provider:3.3.9')
+    implementation('cglib:cglib:3.3.0')
+    implementation('com.fasterxml.jackson.core:jackson-databind:2.13.3')
+}

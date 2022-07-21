@@ -5,7 +5,6 @@ import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.node.file.process.IFileTransferReceiveProcess;
 import net.suqatri.cloud.api.utils.ApplicationType;
 import net.suqatri.cloud.node.NodeLauncher;
-import net.suqatri.cloud.node.file.process.FileTransferReceiveProcess;
 
 @Data
 public class FileTransferBytesPacket extends FileTransferPacket {

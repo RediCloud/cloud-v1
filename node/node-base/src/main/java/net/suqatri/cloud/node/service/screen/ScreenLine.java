@@ -1,6 +1,5 @@
 package net.suqatri.cloud.node.service.screen;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.IConsoleLine;

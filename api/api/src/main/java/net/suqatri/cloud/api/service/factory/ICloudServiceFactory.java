@@ -5,7 +5,6 @@ import net.suqatri.cloud.api.service.ICloudService;
 import net.suqatri.cloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 
-import java.io.IOException;
 import java.util.UUID;
 
 public interface ICloudServiceFactory {

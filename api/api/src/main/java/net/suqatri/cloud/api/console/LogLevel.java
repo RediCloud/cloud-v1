@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.awt.*;
-import java.util.logging.Level;
 
 @Getter
 @AllArgsConstructor

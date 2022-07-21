@@ -1,8 +1,8 @@
 package net.suqatri.cloud.api.impl.packet;
 
-import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.impl.packet.response.CloudPacketResponse;
 import net.suqatri.cloud.api.impl.packet.response.SimpleCloudPacketResponse;
+import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.packet.ICloudPacket;

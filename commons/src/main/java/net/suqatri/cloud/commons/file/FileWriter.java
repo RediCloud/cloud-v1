@@ -1,6 +1,5 @@
 package net.suqatri.cloud.commons.file;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.redisson.codec.JsonJacksonCodec;
 
 import java.io.File;
@@ -17,7 +16,7 @@ public class FileWriter {
             java.io.FileWriter fw = new java.io.FileWriter(file);
             fw.write(content);
             fw.close();
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

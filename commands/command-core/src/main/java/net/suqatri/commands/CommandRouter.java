@@ -23,14 +23,10 @@
 
 package net.suqatri.commands;
 
-import net.suqatri.commands.apachecommonslang.ApacheCommonsLangUtil;
 import com.google.common.collect.SetMultimap;
+import net.suqatri.commands.apachecommonslang.ApacheCommonsLangUtil;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static net.suqatri.commands.BaseCommand.CATCHUNKNOWN;
 import static net.suqatri.commands.BaseCommand.DEFAULT;

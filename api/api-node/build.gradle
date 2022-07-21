@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+}
+
+group 'net.suqatri.redicloud'
+version '1.0-BETA'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':api:api')
+    implementation project(':api:api-default-impl')
+    implementation project(':commons')
+}

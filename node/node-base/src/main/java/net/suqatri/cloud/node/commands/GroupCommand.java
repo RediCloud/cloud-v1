@@ -15,7 +15,6 @@ import net.suqatri.commands.CommandHelp;
 import net.suqatri.commands.CommandSender;
 import net.suqatri.commands.ConsoleCommand;
 import net.suqatri.commands.annotation.*;
-import net.suqatri.commands.annotation.HelpCommand;
 
 import java.util.Arrays;
 import java.util.UUID;

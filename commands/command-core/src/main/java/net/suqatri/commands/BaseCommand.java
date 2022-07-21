@@ -23,38 +23,17 @@
 
 package net.suqatri.commands;
 
-import net.suqatri.commands.apachecommonslang.ApacheCommonsLangUtil;
-import net.suqatri.commands.annotation.CatchAll;
-import net.suqatri.commands.annotation.CatchUnknown;
-import net.suqatri.commands.annotation.CommandAlias;
-import net.suqatri.commands.annotation.CommandPermission;
-import net.suqatri.commands.annotation.Conditions;
-import net.suqatri.commands.annotation.Default;
-import net.suqatri.commands.annotation.Description;
-import net.suqatri.commands.annotation.HelpCommand;
-import net.suqatri.commands.annotation.PreCommand;
-import net.suqatri.commands.annotation.Subcommand;
-import net.suqatri.commands.annotation.UnknownHandler;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
+import net.suqatri.commands.annotation.*;
+import net.suqatri.commands.apachecommonslang.ApacheCommonsLangUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 

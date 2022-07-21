@@ -1,7 +1,6 @@
 package net.suqatri.cloud.api.redis;
 
 import org.redisson.api.RedissonClient;
-import org.redisson.client.codec.Codec;
 import org.redisson.codec.JsonJacksonCodec;
 
 public interface IRedissonManager {

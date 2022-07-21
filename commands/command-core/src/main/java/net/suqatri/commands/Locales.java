@@ -23,21 +23,14 @@
 
 package net.suqatri.commands;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import net.suqatri.commands.locales.LocaleManager;
 import net.suqatri.commands.locales.MessageKey;
 import net.suqatri.commands.locales.MessageKeyProvider;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 
 @SuppressWarnings("WeakerAccess")

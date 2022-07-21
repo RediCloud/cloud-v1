@@ -3,8 +3,6 @@ package net.suqatri.cloud.api.service.event;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.service.ICloudService;
 
-import java.util.UUID;
-
 public class CloudServiceStartedEvent extends CloudServiceEvent {
 
     public CloudServiceStartedEvent(IRBucketHolder<ICloudService> holder) {

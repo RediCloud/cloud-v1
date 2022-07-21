@@ -23,28 +23,16 @@
 
 package net.suqatri.commands;
 
+import net.suqatri.commands.annotation.Optional;
+import net.suqatri.commands.annotation.*;
 import net.suqatri.commands.contexts.ContextResolver;
 import net.suqatri.commands.contexts.IssuerAwareContextResolver;
 import net.suqatri.commands.contexts.IssuerOnlyContextResolver;
 import net.suqatri.commands.contexts.OptionalContextResolver;
-import net.suqatri.commands.annotation.CommandPermission;
-import net.suqatri.commands.annotation.Conditions;
-import net.suqatri.commands.annotation.Default;
-import net.suqatri.commands.annotation.Description;
-import net.suqatri.commands.annotation.Flags;
-import net.suqatri.commands.annotation.Name;
-import net.suqatri.commands.annotation.Optional;
-import net.suqatri.commands.annotation.Single;
-import net.suqatri.commands.annotation.Syntax;
-import net.suqatri.commands.annotation.Values;
 import net.suqatri.commands.locales.MessageKey;
 
 import java.lang.reflect.Parameter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class CommandParameter<CEC extends CommandExecutionContext<CEC, ? extends CommandIssuer>> {
     private final Parameter parameter;

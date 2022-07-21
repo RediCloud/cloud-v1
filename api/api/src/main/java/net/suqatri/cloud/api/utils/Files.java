@@ -1,6 +1,5 @@
 package net.suqatri.cloud.api.utils;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 
@@ -23,7 +22,7 @@ public enum Files {
     LIBS_REPO_FOLDER("storage/libs/repo"),
     LIBS_INFO_FOLDER("storage/libs/info"),
     RUNNER_JAR("runner.jar"),
-    NODE_JAR("storage/node.jar"),
+    NODE_JAR("storage/node-base-%version%.jar"),
     MINECRAFT_PLUGIN_JAR("storage/plugin-minecraft-%version%.jar"),
     PROXY_PLUGIN_JAR("storage/plugin-proxy-%version%.jar"),
     NODE_JSON("node.json"),

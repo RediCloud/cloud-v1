@@ -13,7 +13,6 @@ import net.suqatri.commands.CommandHelp;
 import net.suqatri.commands.CommandSender;
 import net.suqatri.commands.ConsoleCommand;
 import net.suqatri.commands.annotation.*;
-import net.suqatri.commands.annotation.HelpCommand;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;

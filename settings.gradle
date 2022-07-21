@@ -1,0 +1,45 @@
+rootProject.name = 'redi-cloud'
+include 'api:api'
+findProject(':api:api')?.name = 'api'
+
+include 'api:api-default-impl'
+findProject(':api:api-default-impl')?.name = 'api-default-impl'
+
+include 'api:api-minecraft'
+findProject(':api:api-minecraft')?.name = 'api-minecraft'
+
+include 'api:api-node'
+findProject(':api:api-node')?.name = 'api-node'
+
+include 'api:api-proxy'
+findProject(':api:api-proxy')?.name = 'api-proxy'
+
+include 'commands:command-bukkit'
+findProject(':commands:command-bukkit')?.name = 'command-bukkit'
+
+include 'commands:command-bungeecord'
+findProject(':commands:command-bungeecord')?.name = 'command-bungeecord'
+
+include 'commands:command-console'
+findProject(':commands:command-console')?.name = 'command-console'
+
+include 'commands:command-core'
+findProject(':commands:command-core')?.name = 'command-core'
+
+include 'commands:command-locales'
+findProject(':commands:command-locales')?.name = 'command-locales'
+
+include 'commons'
+findProject(':commons')?.name = 'commons'
+
+include'node:node-runner'
+findProject(':node:node-runner')?.name = 'node-runner'
+
+include 'node:node-base'
+findProject(':node:node-base')?.name = 'node-base'
+
+include 'plugins:plugin-minecraft'
+findProject(':plugins:plugin-minecraft')?.name = 'plugin-minecraft'
+
+include 'plugins:plugin-proxy'
+findProject(':plugins:plugin-proxy')?.name = 'plugin-proxy'

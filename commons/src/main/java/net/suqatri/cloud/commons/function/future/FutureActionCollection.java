@@ -1,7 +1,6 @@
 package net.suqatri.cloud.commons.function.future;
 
 import net.suqatri.cloud.commons.StringUtils;
-import net.suqatri.cloud.commons.function.BiSupplier;
 import net.suqatri.cloud.commons.function.Predicates;
 
 import java.util.ArrayList;

@@ -2,11 +2,7 @@ package net.suqatri.commands.locales;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.function.Function;
 
 @SuppressWarnings({"WeakerAccess", "unused"})

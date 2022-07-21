@@ -56,7 +56,7 @@ Please note that this project is still work in progress and not stable yet
   - module system ❌
   - default modules: perms, cloudflare ❌
   - redis cluster support ❌
-  - smart clustering ❌
+  - smart clustering ⚙️
   - automatic service start ✅
   - 1.8-1.19 support ✅
   - custom service versions ✅

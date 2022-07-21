@@ -35,6 +35,15 @@ public class DebugCommand extends ConsoleCommand {
         commandSender.sendMessage("Sent process queue size: " + NodeLauncher.getInstance().getFileTransferManager().getThread().getSentProcesses().size());
     }
 
+    @Subcommand("restart")
+    @Syntax("<Start-Delay in seconds>")
+    @Description("Restarts the node")
+    public void onRestart(CommandSender commandSender, long delay){
+        NodeLauncher.getInstance().getNode().setTimeOut(System.currentTimeMillis()+(1000 * delay));
+        NodeLauncher.getInstance().getNode().updateAsync();
+        NodeLauncher.getInstance().restartNode();
+    }
+
     @Subcommand("file-transfer pull")
     @Description("Show the pull complete listeners")
     public void onFilePull(CommandSender commandSender){

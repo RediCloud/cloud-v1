@@ -1,19 +1,16 @@
+import net.suqatri.cloud.node.scheduler.Scheduler;
+
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class SocketTest {
 
     public static void main(String[] args) {
-        while (true) {
-            try {
-                Socket socket = new Socket("localhost", new Scanner(System.in).nextInt());
-                System.out.println("Connected to " + socket.getInetAddress());
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println("Connection failed");
-            }
-        }
-
+        Scheduler scheduler = new Scheduler();
+        scheduler.scheduleTaskAsync(() -> {
+            System.out.println("Hello World");
+        }, 1, 1, TimeUnit.SECONDS);
     }
 
 }

@@ -15,7 +15,10 @@ public interface ICloudNode extends IRBucketObject {
     UUID getUniqueId();
     String getName();
     String getHostname();
+
     boolean isConnected();
+    long getTimeOut();
+    void setTimeOut(long time);
 
     FutureAction<Collection<IRBucketHolder<ICloudService>>> getStartedServices();
     int getStartedServicesCount();

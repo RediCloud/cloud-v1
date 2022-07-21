@@ -14,3 +14,6 @@ test/node-1/storage/libs/*
 test/node-2/storage/libs/*
 test/node-1/storage/versions/*
 test/node-2/storage/versions/*
+test/node-1/storage/plugin-proxy-1.0-SNAPSHOT.jar
+test/node-1/storage/plugin-minecraft-1.0-SNAPSHOT.jar
+test/node-1/node-base-1.0-SNAPSHOT.jar

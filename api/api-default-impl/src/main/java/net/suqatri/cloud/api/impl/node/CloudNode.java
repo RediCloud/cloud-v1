@@ -42,6 +42,7 @@ public class CloudNode extends RBucketObject implements ICloudNode {
     private long lastDisconnect = 0L;
     private String filePath;
     private boolean fileNode = false;
+    private long timeOut = 0L;
 
     @Override
     public long getFreeMemory() {

@@ -60,7 +60,9 @@ Please note that this project is still work in progress and not stable yet
   - automatic service start ✅
   - 1.8-1.19 support ✅
   - custom service versions ✅
-<br>
+  - java start command is customizable for each service version ✅
+  - modify programm arguments and jvm flags for each group ✅
+  <br>
 
 ## Commands
 <br>

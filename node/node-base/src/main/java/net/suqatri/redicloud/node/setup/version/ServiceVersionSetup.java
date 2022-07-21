@@ -21,6 +21,9 @@ public class ServiceVersionSetup extends Setup<ServiceVersionSetup> {
     @Question(id = 3, question = "Is this version a paper clip?")
     private boolean paperClip;
 
+    @Question(id = 4, question = "What is the java command of this version?")
+    private String javaCommand;
+
     public ServiceVersionSetup() {
         super(NodeLauncher.getInstance().getConsole());
     }

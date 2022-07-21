@@ -54,6 +54,7 @@ public class ServiceVersionCommand extends ConsoleCommand {
                         }
                         CloudServiceVersion serviceVersion = new CloudServiceVersion();
                         serviceVersion.setName(name);
+                        serviceVersion.setJavaCommand(setup.getJavaCommand());
                         serviceVersion.setDownloadUrl(setup.getDownloadUrl());
                         serviceVersion.setEnvironmentType(setup.getEnvironment());
                         serviceVersion.setPaperClip(setup.isPaperClip());

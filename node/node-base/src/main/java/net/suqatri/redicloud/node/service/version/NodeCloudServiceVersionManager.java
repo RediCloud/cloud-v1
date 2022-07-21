@@ -92,7 +92,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager  
 
         if(!force && holder.get().isPatched()) return false;
 
-        CloudAPI.getInstance().getConsole().debug("Patching service version " + holder.get().getName() + "...");
+        logPatch("Patching service version " + holder.get().getName() + "...");
 
         UUID id = UUID.randomUUID();
         File processDir = new File(Files.TEMP_VERSION_FOLDER.getFile(), holder.get().getName() + "-" + id);
@@ -104,8 +104,6 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager  
 
         ProcessBuilder builder = new ProcessBuilder(holder.get().getJavaCommand(), "-jar", jarToPatch.getAbsolutePath());
         builder.directory(processDir);
-
-        logPatch("Patching service version " + holder.get().getName() + "...");
 
         Process process = builder.start();
         InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());

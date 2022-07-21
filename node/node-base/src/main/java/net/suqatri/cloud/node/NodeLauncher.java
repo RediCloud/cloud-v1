@@ -43,10 +43,12 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Getter
 public class NodeLauncher extends NodeCloudDefaultAPI {
@@ -70,6 +72,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private final ServiceScreenManager screenManager;
     private boolean firstTemplatePulled = false;
     private final ITimeOutPollManager timeOutPollManager;
+    private boolean restarting = false;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -419,12 +422,25 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         Files.VERSIONS_FOLDER.createIfNotExists();
     }
 
+    public void restartNode(){
+        this.restarting = true;
+        this.shutdown(false);
+    }
+
     @Override
     public void shutdown(boolean fromHook) {
         if (this.shutdownInitialized) return;
-
         this.shutdownInitialized = true;
+
+
+        String sleepArgument = "";
         if (this.node != null) {
+            sleepArgument = isInstanceTimeOuted() ? " --sleep=" + (this.node.getTimeOut() - System.currentTimeMillis()) : "";
+
+            if(this.isInstanceTimeOuted()) {
+                if(this.console != null) this.console.info("Instance time out detected, shutting down...");
+            }
+
             if (this.console != null) this.console.info("Disconnecting from cluster...");
 
             if(this.serviceManager != null){
@@ -467,21 +483,38 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.node.update();
         }
         if (this.fileTransferManager != null) {
-            this.console.info("Stopping file transfer manager...");
+            if(this.console != null) this.console.info("Stopping file transfer manager...");
             this.fileTransferManager.getThread().interrupt();
         }
         if (this.redisConnection != null) {
-            this.console.info("Disconnecting from redis...");
+            if(this.console != null) this.console.info("Disconnecting from redis...");
             this.redisConnection.disconnect();
-         }
-        if(this.console != null) {
-            this.console.info("Stopping node console thread...");
-            this.console.stopThread();
         }
+        String finalSleepArgument = sleepArgument;
         getScheduler().runTaskLater(() -> {
             if(this.console != null) this.console.info("Shutting down...");
+
+            if(this.isRestarting()){
+                String startCommand = "java -jar " + this.node.getFilePath(Files.NODE_JAR) + String.join(" ", NodeLauncherMain.ARGUMENTS) + finalSleepArgument;
+                if(this.console != null) this.console.info("Restarting node with command: " + startCommand);
+                try {
+                    Runtime.getRuntime().exec(startCommand);
+                } catch (IOException e) {
+                    this.console.error("Failed to restart node: " + e);
+                }
+            }
+
+            if(this.console != null) {
+                this.console.info("Stopping node console thread...");
+                this.console.stopThread();
+            }
+
             if(!fromHook) System.exit(0);
         }, 2, TimeUnit.SECONDS);
+    }
+
+    public boolean isInstanceTimeOuted(){
+        return this.node.getTimeOut() > System.currentTimeMillis();
     }
 
     @Override

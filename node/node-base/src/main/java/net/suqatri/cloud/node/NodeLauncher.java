@@ -3,6 +3,7 @@ package net.suqatri.cloud.node;
 import lombok.Getter;
 import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.LogLevel;
+import net.suqatri.cloud.api.impl.poll.timeout.ITimeOutPollManager;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.node.NodeCloudDefaultAPI;
@@ -11,7 +12,6 @@ import net.suqatri.cloud.api.impl.node.CloudNode;
 import net.suqatri.cloud.api.impl.redis.RedisConnection;
 import net.suqatri.cloud.api.node.event.CloudNodeDisconnectEvent;
 import net.suqatri.cloud.api.node.file.event.FilePulledTemplatesEvent;
-import net.suqatri.cloud.api.player.ICloudPlayerManager;
 import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
@@ -29,6 +29,7 @@ import net.suqatri.cloud.node.listener.CloudServiceStartedListener;
 import net.suqatri.cloud.node.listener.CloudServiceStoppedListener;
 import net.suqatri.cloud.node.node.ClusterConnectionInformation;
 import net.suqatri.cloud.node.node.packet.NodePingPacket;
+import net.suqatri.cloud.node.poll.timeout.TimeOutPollManager;
 import net.suqatri.cloud.node.scheduler.Scheduler;
 import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 import net.suqatri.cloud.node.service.factory.NodeCloudServiceFactory;
@@ -68,6 +69,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private final NodeCloudServiceVersionManager serviceVersionManager;
     private final ServiceScreenManager screenManager;
     private boolean firstTemplatePulled = false;
+    private final ITimeOutPollManager timeOutPoolManager;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -78,6 +80,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.serviceFactory = new NodeCloudServiceFactory(this.serviceManager);
         this.serviceVersionManager = new NodeCloudServiceVersionManager();
         this.screenManager = new ServiceScreenManager();
+        this.timeOutPoolManager = new TimeOutPollManager();
         this.handleProgrammArguments(args);
 
         this.init(() -> {
@@ -227,6 +230,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@§c" + node.getName() + " §f=> "));
             this.console.resetPrefix();
             this.node = node;
+            this.node.setTimeOut(0L);
             this.node.setLastConnection(System.currentTimeMillis());
             this.node.setLastStart(System.currentTimeMillis());
             this.node.setConnected(true);
@@ -294,6 +298,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     cloudNode.setMaxParallelStartingServiceCount(setup.getMaxParallelServiceCount());
                     cloudNode.setMaxMemory(setup.getMaxMemory());
                     cloudNode.setMaxServiceCount(setup.getMaxServiceCount());
+                    cloudNode.setTimeOut(0L);
                     FileWriter.writeObject(connectionInformation, Files.NODE_JSON.getFile());
                     cloudNode = this.getNodeManager().createNode(cloudNode).getImpl(CloudNode.class);
                     consumer.accept(cloudNode);

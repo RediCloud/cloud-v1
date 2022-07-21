@@ -69,7 +69,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private final NodeCloudServiceVersionManager serviceVersionManager;
     private final ServiceScreenManager screenManager;
     private boolean firstTemplatePulled = false;
-    private final ITimeOutPollManager timeOutPoolManager;
+    private final ITimeOutPollManager timeOutPollManager;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -80,7 +80,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.serviceFactory = new NodeCloudServiceFactory(this.serviceManager);
         this.serviceVersionManager = new NodeCloudServiceVersionManager();
         this.screenManager = new ServiceScreenManager();
-        this.timeOutPoolManager = new TimeOutPollManager();
+        this.timeOutPollManager = new TimeOutPollManager();
         this.handleProgrammArguments(args);
 
         this.init(() -> {

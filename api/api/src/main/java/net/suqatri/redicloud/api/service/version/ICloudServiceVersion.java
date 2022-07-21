@@ -11,6 +11,8 @@ public interface ICloudServiceVersion extends IRBucketObject {
 
     String getName();
 
+    String getJavaCommand();
+
     String getDownloadUrl();
     void setDownloadUrl(String url);
 

@@ -17,6 +17,7 @@ import java.io.IOException;
 public class CloudServiceVersion extends RBucketObject implements ICloudServiceVersion {
 
     private String name;
+    private String javaCommand = "java";
     private String downloadUrl;
     private ServiceEnvironment environmentType;
     private boolean paperClip;

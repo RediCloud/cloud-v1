@@ -20,12 +20,6 @@
         </dependency>
         <dependency>
             <groupId>net.suqatri.cloud</groupId>
-            <artifactId>node-console</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.suqatri.cloud</groupId>
             <artifactId>api-node</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>

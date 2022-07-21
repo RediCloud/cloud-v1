@@ -5,8 +5,8 @@ test/node-1/storage/redis.json
 test/node-2/storage/redis.json
 test/node-1/templates/
 test/node-2/templates/
-test/node1-/temp/
-test/node2-/temp/
+test/node-1/temp/
+test/node-2/temp/
 test/node-1/storage/libs/
 test/node-2/storage/libs/
 test/node-1/storage/versions/

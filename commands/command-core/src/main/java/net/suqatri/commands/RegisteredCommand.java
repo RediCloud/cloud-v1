@@ -23,31 +23,15 @@
 
 package net.suqatri.commands;
 
-import net.suqatri.commands.annotation.Conditions;
-import net.suqatri.commands.annotation.Private;
-import net.suqatri.commands.annotation.Syntax;
+import net.suqatri.commands.annotation.*;
 import net.suqatri.commands.contexts.ContextResolver;
-import net.suqatri.commands.annotation.CommandAlias;
-import net.suqatri.commands.annotation.CommandCompletion;
-import net.suqatri.commands.annotation.CommandPermission;
-import net.suqatri.commands.annotation.Description;
-import net.suqatri.commands.annotation.HelpSearchTags;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;

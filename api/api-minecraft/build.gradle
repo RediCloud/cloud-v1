@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+group 'net.suqatri.redicloud'
+version '1.0-BETA'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://hub.spigotmc.org/nexus/content/groups/public/'
+    }
+}
+
+dependencies {
+    implementation project(':api:api')
+    implementation project(':api:api-default-impl')
+    compileOnly('org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT')
+    implementation project(':commands:command-bukkit')
+}

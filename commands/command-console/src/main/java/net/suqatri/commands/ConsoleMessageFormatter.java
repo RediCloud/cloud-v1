@@ -1,7 +1,5 @@
 package net.suqatri.commands;
 
-import net.suqatri.commands.MessageFormatter;
-
 import java.awt.*;
 
 public class ConsoleMessageFormatter extends MessageFormatter<Color> {

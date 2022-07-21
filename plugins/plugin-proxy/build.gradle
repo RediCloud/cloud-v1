@@ -1,0 +1,37 @@
+plugins {
+    id 'java'
+}
+
+group 'net.suqatri.redicloud'
+version '1.0-BETA'
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
+}
+
+dependencies {
+    implementation project(':commons')
+    implementation project(':api:api')
+    implementation project(':api:api-default-impl')
+    implementation project(':commands:command-bungeecord')
+    implementation project(':commands:command-core')
+    implementation project(':commands:command-locales')
+    compileOnly('net.md-5:bungeecord-api:1.19-R0.1-SNAPSHOT')
+}
+
+task createProperties(dependsOn: processResources) {
+    doLast {
+        new File("$buildDir/resources/main/redicloud.properties").withWriter { w ->
+            Properties p = new Properties()
+            p['version'] = project.version.toString()
+            p.store w, null
+        }
+    }
+}
+
+classes {
+    dependsOn createProperties
+}

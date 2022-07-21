@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+}
+
+group 'net.suqatri.redicloud'
+version '1.0-BETA'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':commands:command-locales')
+    implementation('net.jodah:expiringmap:0.5.10')
+}

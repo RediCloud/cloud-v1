@@ -1,0 +1,96 @@
+plugins {
+    id 'java'
+    id "com.github.johnrengelman.shadow" version "7.0.0"
+}
+
+group 'net.suqatri.redicloud'
+version '1.0-BETA'
+
+tasks.register('buildAndCopy', Copy) {
+    dependsOn ':commons:build'
+    dependsOn ':api:api:build'
+    dependsOn ':api:api-default-impl:build'
+
+    dependsOn ':commands:command-locales:build'
+    dependsOn ':commands:command-core:build'
+    dependsOn ':commands:command-bukkit:build'
+    dependsOn ':commands:command-bungeecord:build'
+
+    dependsOn ':api:api-node:build'
+    dependsOn ':api:api-minecraft:build'
+    dependsOn ':api:api-proxy:build'
+
+    dependsOn ':node:node-base:build'
+    dependsOn ':node:node-runner:build'
+
+    dependsOn ':plugins:plugin-minecraft:build'
+    dependsOn ':plugins:plugin-proxy:build'
+
+    project.delete(
+            file("${rootDir}/test/node-1/node-base-${project.version}.jar"),
+            file("${rootDir}/test/node-1/storage/plugin-proxy-${project.version}.jar"),
+            file("${rootDir}/test/node-1/storage/plugin-minecraft-${project.version}.jar")
+    )
+
+    dependsOn copyNodeBase
+    dependsOn copyMinecraftPlugin
+    dependsOn copyProxyPlugin
+}
+
+tasks.register('copyNodeBase', Copy) {
+    from "node/node-base/build/libs/node-base-${project.version}-all.jar"
+    into 'test/node-1'
+    rename "node-base-${project.version}-all.jar", "node-base-${project.version}.jar"
+}
+
+tasks.register('copyMinecraftPlugin', Copy) {
+    from "plugins/plugin-minecraft/build/libs/plugin-minecraft-${project.version}-all.jar"
+    into 'test/node-1/storage'
+    rename "plugin-minecraft-${project.version}-all.jar", "plugin-minecraft-${project.version}.jar"
+}
+
+tasks.register('copyProxyPlugin', Copy) {
+    from "plugins/plugin-proxy/build/libs/plugin-proxy-${project.version}-all.jar"
+    into 'test/node-1/storage'
+    rename "plugin-proxy-${project.version}-all.jar", "plugin-proxy-${project.version}.jar"
+}
+
+allprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    version '1.0-BETA'
+
+    compileJava {
+        options.encoding = 'UTF-8'
+    }
+
+    repositories {
+        mavenCentral()
+        maven {
+            url = 'https://oss.sonatype.org/content/groups/public/'
+        }
+        maven {
+            url = "https://repo1.maven.org/maven2/"
+        }
+    }
+
+    dependencies {
+        implementation('org.projectlombok:lombok:1.18.24')
+        annotationProcessor('org.projectlombok:lombok:1.18.24')
+
+        implementation('org.redisson:redisson:3.17.4')
+        implementation('com.google.guava:guava:31.1-jre')
+        implementation('org.jetbrains:annotations:23.0.0')
+    }
+
+    tasks.jar.dependsOn tasks.shadowJar
+
+    shadowJar {
+        dependencies {
+            configurations = [project.configurations.runtimeClasspath]
+        }
+    }
+
+}

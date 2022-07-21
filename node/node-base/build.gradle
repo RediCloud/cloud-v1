@@ -1,0 +1,48 @@
+plugins {
+    id 'java'
+}
+
+group 'net.suqatri.redicloud'
+version '1.0-BETA'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'net.suqatri.cloud.node.NodeLauncherMain'
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = "https://repo1.maven.org/maven2/"
+    }
+}
+
+dependencies {
+    implementation project(':api:api')
+    implementation project(':api:api-default-impl')
+    implementation project(':api:api-node')
+    implementation project(':commons')
+    implementation project(':commands:command-core')
+    implementation project(':commands:command-console')
+    implementation project(':commands:command-locales')
+    implementation('org.apache.commons:commons-io:1.3.2')
+    implementation('org.slf4j:slf4j-api:1.7.36')
+    implementation('org.slf4j:slf4j-simple:1.7.36')
+    implementation('org.jline:jline:3.21.0')
+    implementation('org.fusesource.jansi:jansi:2.4.0')
+}
+
+task createProperties(dependsOn: processResources) {
+    doLast {
+        new File("$buildDir/resources/main/redicloud.properties").withWriter { w ->
+            Properties p = new Properties()
+            p['version'] = project.version.toString()
+            p.store w, null
+        }
+    }
+}
+
+classes {
+    dependsOn createProperties
+}

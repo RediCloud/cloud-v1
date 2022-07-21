@@ -24,11 +24,11 @@
 package net.suqatri.commands;
 
 
-import net.suqatri.commands.annotation.Optional;
-import net.suqatri.commands.bungee.contexts.OnlinePlayer;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.suqatri.commands.annotation.Optional;
+import net.suqatri.commands.bungee.contexts.OnlinePlayer;
 import net.suqatri.commands.contexts.OnlineProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
 

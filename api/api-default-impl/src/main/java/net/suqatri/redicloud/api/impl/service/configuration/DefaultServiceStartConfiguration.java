@@ -19,7 +19,6 @@ import java.util.UUID;
 public class DefaultServiceStartConfiguration implements IServiceStartConfiguration {
 
     private ServiceEnvironment environment;
-    private String javaCommand;
     private String name;
     private UUID uniqueId;
     private int id;
@@ -49,7 +48,6 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
         FutureAction<DefaultServiceStartConfiguration> futureAction = new FutureAction<>();
         DefaultServiceStartConfiguration configuration = new DefaultServiceStartConfiguration();
         configuration.setEnvironment(interfaceConfig.getEnvironment());
-        configuration.setJavaCommand(interfaceConfig.getJavaCommand());
         configuration.setName(interfaceConfig.getName());
         configuration.setUniqueId(interfaceConfig.getUniqueId());
         configuration.setId(interfaceConfig.getId());

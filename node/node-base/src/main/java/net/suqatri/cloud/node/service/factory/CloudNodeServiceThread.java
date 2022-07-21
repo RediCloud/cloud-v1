@@ -51,6 +51,9 @@ public class CloudNodeServiceThread extends Thread{
         while(!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
 
             if(NodeLauncher.getInstance().isShutdownInitialized()) break;
+            if(NodeLauncher.getInstance().isInstanceTimeOuted()) break;
+            if(NodeLauncher.getInstance().isRestarting()) break;
+            if(NodeLauncher.getInstance().isShutdownInitialized()) break;
 
             int maxStartSize = NodeLauncher.getInstance().getNode().getMaxParallelStartingServiceCount();
 

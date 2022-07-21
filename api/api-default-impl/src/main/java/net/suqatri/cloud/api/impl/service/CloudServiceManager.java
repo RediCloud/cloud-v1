@@ -170,6 +170,7 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
         IRBucketHolder<ICloudService> fallbackHolder = null;
         for (IRBucketHolder<ICloudService> serviceHolder : getServices()) {
             if(!serviceHolder.get().getConfiguration().isFallback()) continue;
+            if(serviceHolder.get().getOnlineCount() < serviceHolder.get().getMaxPlayers()) continue;
             if(fallbackHolder == null){
                 fallbackHolder = serviceHolder;
                 continue;

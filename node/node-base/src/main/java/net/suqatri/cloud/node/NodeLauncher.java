@@ -5,6 +5,7 @@ import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.console.LogLevel;
 import net.suqatri.cloud.api.impl.node.CloudNode;
 import net.suqatri.cloud.api.impl.redis.RedisConnection;
+import net.suqatri.cloud.api.impl.poll.timeout.ITimeOutPollManager;
 import net.suqatri.cloud.api.network.INetworkComponentInfo;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.node.NodeCloudDefaultAPI;
@@ -29,6 +30,7 @@ import net.suqatri.cloud.node.listener.CloudServiceStartedListener;
 import net.suqatri.cloud.node.listener.CloudServiceStoppedListener;
 import net.suqatri.cloud.node.node.ClusterConnectionInformation;
 import net.suqatri.cloud.node.node.packet.NodePingPacket;
+import net.suqatri.cloud.node.poll.timeout.TimeOutPollManager;
 import net.suqatri.cloud.node.scheduler.Scheduler;
 import net.suqatri.cloud.node.service.NodeCloudServiceManager;
 import net.suqatri.cloud.node.service.factory.NodeCloudServiceFactory;
@@ -41,10 +43,12 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Getter
 public class NodeLauncher extends NodeCloudDefaultAPI {
@@ -67,6 +71,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private final NodeCloudServiceVersionManager serviceVersionManager;
     private final ServiceScreenManager screenManager;
     private boolean firstTemplatePulled = false;
+    private final ITimeOutPollManager timeOutPollManager;
+    private boolean restarting = false;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
@@ -77,6 +83,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.serviceFactory = new NodeCloudServiceFactory(this.serviceManager);
         this.serviceVersionManager = new NodeCloudServiceVersionManager();
         this.screenManager = new ServiceScreenManager();
+        this.timeOutPollManager = new TimeOutPollManager();
         this.handleProgrammArguments(args);
 
         this.init(() -> {
@@ -226,6 +233,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@§c" + node.getName() + " §f=> "));
             this.console.resetPrefix();
             this.node = node;
+            this.node.setTimeOut(0L);
             this.node.setLastConnection(System.currentTimeMillis());
             this.node.setLastStart(System.currentTimeMillis());
             this.node.setConnected(true);
@@ -293,6 +301,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     cloudNode.setMaxParallelStartingServiceCount(setup.getMaxParallelServiceCount());
                     cloudNode.setMaxMemory(setup.getMaxMemory());
                     cloudNode.setMaxServiceCount(setup.getMaxServiceCount());
+                    cloudNode.setTimeOut(0L);
                     FileWriter.writeObject(connectionInformation, Files.NODE_JSON.getFile());
                     cloudNode = this.getNodeManager().createNode(cloudNode).getImpl(CloudNode.class);
                     consumer.accept(cloudNode);
@@ -413,12 +422,25 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         Files.VERSIONS_FOLDER.createIfNotExists();
     }
 
+    public void restartNode(){
+        this.restarting = true;
+        this.shutdown(false);
+    }
+
     @Override
     public void shutdown(boolean fromHook) {
         if (this.shutdownInitialized) return;
-
         this.shutdownInitialized = true;
+
+
+        String sleepArgument = "";
         if (this.node != null) {
+            sleepArgument = isInstanceTimeOuted() ? " --sleep=" + (this.node.getTimeOut() - System.currentTimeMillis()) : "";
+
+            if(this.isInstanceTimeOuted()) {
+                if(this.console != null) this.console.info("Instance time out detected, shutting down...");
+            }
+
             if (this.console != null) this.console.info("Disconnecting from cluster...");
 
             if(this.serviceManager != null){
@@ -461,21 +483,38 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.node.update();
         }
         if (this.fileTransferManager != null) {
-            this.console.info("Stopping file transfer manager...");
+            if(this.console != null) this.console.info("Stopping file transfer manager...");
             this.fileTransferManager.getThread().interrupt();
         }
         if (this.redisConnection != null) {
-            this.console.info("Disconnecting from redis...");
+            if(this.console != null) this.console.info("Disconnecting from redis...");
             this.redisConnection.disconnect();
-         }
-        if(this.console != null) {
-            this.console.info("Stopping node console thread...");
-            this.console.stopThread();
         }
+        String finalSleepArgument = sleepArgument;
         getScheduler().runTaskLater(() -> {
             if(this.console != null) this.console.info("Shutting down...");
+
+            if(this.isRestarting()){
+                String startCommand = "java -jar " + this.node.getFilePath(Files.NODE_JAR) + String.join(" ", NodeLauncherMain.ARGUMENTS) + finalSleepArgument;
+                if(this.console != null) this.console.info("Restarting node with command: " + startCommand);
+                try {
+                    Runtime.getRuntime().exec(startCommand);
+                } catch (IOException e) {
+                    this.console.error("Failed to restart node: " + e);
+                }
+            }
+
+            if(this.console != null) {
+                this.console.info("Stopping node console thread...");
+                this.console.stopThread();
+            }
+
             if(!fromHook) System.exit(0);
         }, 2, TimeUnit.SECONDS);
+    }
+
+    public boolean isInstanceTimeOuted(){
+        return this.node.getTimeOut() > System.currentTimeMillis();
     }
 
     @Override

@@ -6,6 +6,7 @@ import net.suqatri.cloud.api.CloudAPI;
 import net.suqatri.cloud.api.redis.IRedisConnection;
 import net.suqatri.cloud.api.redis.RedisCredentials;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
+import net.suqatri.cloud.api.redis.event.RedisDisconnectedEvent;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -53,6 +54,7 @@ public class RedisConnection implements IRedisConnection {
 
     @Override
     public void disconnect() {
+        CloudAPI.getInstance().getEventManager().postLocal(new RedisDisconnectedEvent());
         this.client.shutdown();
     }
 

@@ -46,6 +46,7 @@ public class NodeConsole implements IConsole {
 
     private final String textColor = "§b";
     private final String highlightColor = "§f";
+    private boolean colorsEnabled = true;
 
     public NodeConsole(CommandConsoleManager consoleManager) throws IOException {
         this.consoleManager = consoleManager;
@@ -143,7 +144,7 @@ public class NodeConsole implements IConsole {
         String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
         String p = "§7[§f" + dateTime + "§7] §f" + prefix + "§7: " + this.textColor;
 
-        String line = translateColorCodes(p + message);
+        String line = this.colorsEnabled ? translateColorCodes(p + message) : ColorTranslator.removeColorCodes(p + message);
         this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
         this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
         this.lineReader.getTerminal().writer().flush();
@@ -174,7 +175,7 @@ public class NodeConsole implements IConsole {
             prefix = "§f" + consoleLine.getPrefix() + "§7: " + (logLevel == LogLevel.INFO ? this.textColor : Ansi.ansi().a(Ansi.Attribute.RESET).fgRgb(consoleLine.getLogLevel().getColor().getRed(), consoleLine.getLogLevel().getColor().getGreen(), consoleLine.getLogLevel().getColor().getBlue()).toString());
         }
 
-        String line = translateColorCodes(dateTime + prefix + message);
+        String line = this.colorsEnabled ? translateColorCodes(dateTime + prefix + message) : ColorTranslator.removeColorCodes(dateTime + prefix + message);
         this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
         this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
         this.lineReader.getTerminal().writer().flush();
@@ -269,4 +270,8 @@ public class NodeConsole implements IConsole {
         return ColorTranslator.translate(message);
     }
 
+    public void disableColors() {
+        this.colorsEnabled = false;
+        this.warn("Console colors are now diabled! Use this only for debugging purposes!");
+    }
 }

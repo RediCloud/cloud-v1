@@ -155,6 +155,10 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         if(args.length > 0){
             for (String argument : args) {
                 switch (argument.toLowerCase()){
+                    case "--test-console": {
+                        this.console.disableColors();
+                        continue;
+                    }
                     case "--printstacktraces": {
                         this.console.setCleanConsoleMode(false);
                         continue;

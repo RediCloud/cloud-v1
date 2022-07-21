@@ -1,7 +1,10 @@
 package net.suqatri.redicloud.node.service.factory;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.impl.service.factory.CloudServiceFactory;
 import net.suqatri.redicloud.api.node.file.event.FilePulledTemplatesEvent;
 import net.suqatri.redicloud.api.node.service.factory.ICloudNodeServiceFactory;
 import net.suqatri.redicloud.api.node.service.factory.ICloudServiceProcess;
@@ -15,14 +18,15 @@ import net.suqatri.redicloud.node.service.NodeCloudServiceManager;
 
 import java.util.UUID;
 
-@Data
-public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
+@Getter @Setter
+public class NodeCloudServiceFactory extends CloudServiceFactory implements ICloudNodeServiceFactory {
 
     private final NodeCloudServiceManager serviceManager;
     private final CloudNodePortManager portManager;
     private final CloudNodeServiceThread thread;
 
     public NodeCloudServiceFactory(NodeCloudServiceManager serviceManager) {
+        super(serviceManager);
         this.serviceManager = serviceManager;
         this.portManager = new CloudNodePortManager();
         this.thread = new CloudNodeServiceThread(this);
@@ -45,25 +49,35 @@ public class NodeCloudServiceFactory implements ICloudNodeServiceFactory {
     public FutureAction<Boolean> destroyServiceAsync(UUID uniqueId, boolean force) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
 
-        ICloudServiceProcess process = this.thread.getProcesses().get(uniqueId);
-        if(process == null) {
-            this.thread.getWaitForRemove().add(uniqueId);
-            futureAction.complete(true);
-            return futureAction;
-        }
-
-        process.stopAsync(force)
+        CloudAPI.getInstance().getServiceManager().getServiceAsync(uniqueId)
             .onFailure(futureAction)
-            .onSuccess(b -> {
-                process.getServiceHolder().get().setServiceState(ServiceState.OFFLINE);
-                process.getServiceHolder().get().updateAsync()
+            .onSuccess(serviceHolder -> {
+                if(!serviceHolder.get().getNodeId().equals(NodeLauncher.getInstance().getNode().getUniqueId())){
+                    super.destroyServiceAsync(uniqueId, force)
+                        .onFailure(futureAction)
+                        .onSuccess(futureAction::complete);
+                    return;
+                }
+                ICloudServiceProcess process = this.thread.getProcesses().get(uniqueId);
+                if(process == null) {
+                    this.thread.getWaitForRemove().add(uniqueId);
+                    futureAction.complete(true);
+                    return;
+                }
+
+                process.stopAsync(force)
                     .onFailure(futureAction)
-                    .onSuccess(s -> {
-                        if(process.getServiceHolder().get().isStatic()) return;
-                        this.serviceManager.removeFromFetcher(process.getServiceHolder().get().getServiceName());
-                        this.serviceManager.deleteBucketAsync(process.getServiceHolder().get().getUniqueId().toString())
+                    .onSuccess(b -> {
+                        process.getServiceHolder().get().setServiceState(ServiceState.OFFLINE);
+                        process.getServiceHolder().get().updateAsync()
                                 .onFailure(futureAction)
-                                .onSuccess(v -> futureAction.complete(true));
+                                .onSuccess(s -> {
+                                    if(process.getServiceHolder().get().isStatic()) return;
+                                    this.serviceManager.removeFromFetcher(process.getServiceHolder().get().getServiceName());
+                                    this.serviceManager.deleteBucketAsync(process.getServiceHolder().get().getUniqueId().toString())
+                                            .onFailure(futureAction)
+                                            .onSuccess(v -> futureAction.complete(true));
+                                });
                     });
             });
 

@@ -2,9 +2,7 @@ package net.suqatri.redicloud.node.console.setup;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import net.suqatri.cloud.node.console.setup.annotations.*;
 import net.suqatri.redicloud.node.console.setup.annotations.*;
-import net.suqatri.rediscloud.node.console.setup.annotations.*;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;

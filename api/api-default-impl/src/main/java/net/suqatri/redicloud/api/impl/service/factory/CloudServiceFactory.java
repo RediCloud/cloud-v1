@@ -15,13 +15,13 @@ public class CloudServiceFactory implements ICloudServiceFactory {
 
     private final ICloudServiceManager cloudServiceManager;
 
-    //TODO packets to net.suqatri.cloud.api.impl.node
+    //TODO packets to node
     @Override
     public FutureAction<IRBucketHolder<ICloudService>> queueService(IServiceStartConfiguration configuration) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    //TODO packets to net.suqatri.cloud.api.impl.node
+    //TODO packets to node
     @Override
     public FutureAction<Boolean> destroyServiceAsync(UUID uniqueId, boolean force) {
         throw new UnsupportedOperationException("Not implemented yet");

@@ -12,7 +12,7 @@ public class CloudServiceStartedListener {
     public void onCloudServiceStarted(CloudServiceStartedEvent event) {
         NetworkComponentManager manager = (NetworkComponentManager) CloudDefaultAPIImpl.getInstance().getNetworkComponentManager();
         event.getServiceAsync()
-                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while caching net.suqatri.cloud.api.impl.network components of net.suqatri.cloud.api.impl.service@" + event.getService().getIdentifier(), e))
+                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while caching network components of service@" + event.getService().getIdentifier(), e))
                 .onSuccess(serviceHolder -> {
                     manager.addCachedService(serviceHolder.get());
                 });

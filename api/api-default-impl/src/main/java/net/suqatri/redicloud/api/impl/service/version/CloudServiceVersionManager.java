@@ -94,25 +94,25 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
         return futureAction;
     }
 
-    //TODO net.suqatri.cloud.api.impl.packet to net.suqatri.cloud.api.impl.node
+    //TODO packet to node
     @Override
     public boolean patch(IRBucketHolder<ICloudServiceVersion> holder, boolean force) throws IOException, InterruptedException {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    //TODO net.suqatri.cloud.api.impl.packet to net.suqatri.cloud.api.impl.node
+    //TODO packet to node
     @Override
     public FutureAction<Boolean> patchAsync(IRBucketHolder<ICloudServiceVersion> holder, boolean force) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    //TODO net.suqatri.cloud.api.impl.packet to net.suqatri.cloud.api.impl.node
+    //TODO packet to node
     @Override
     public boolean download(IRBucketHolder<ICloudServiceVersion> holder, boolean force) throws IOException, InterruptedException {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    //TODO net.suqatri.cloud.api.impl.packet to net.suqatri.cloud.api.impl.node
+    //TODO packet to node
     @Override
     public FutureAction<Boolean> downloadAsync(IRBucketHolder<ICloudServiceVersion> holder, boolean force) {
         throw new UnsupportedOperationException("Not implemented yet");

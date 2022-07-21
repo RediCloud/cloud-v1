@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import net.suqatri.redicloud.api.event.*;
 import net.suqatri.redicloud.api.impl.event.packet.GlobalEventPacket;
 import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.cloud.api.event.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -12,7 +12,7 @@ public class CloudNodeConnectedListener {
     public void onCloudNodeConnected(CloudNodeConnectedEvent event) {
         NetworkComponentManager manager = (NetworkComponentManager) CloudDefaultAPIImpl.getInstance().getNetworkComponentManager();
         event.getCloudNodeAsync()
-                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while caching net.suqatri.cloud.api.impl.network components of net.suqatri.cloud.api.impl.node@" + event.getCloudNode().getIdentifier(), e))
+                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while caching network components of node@" + event.getCloudNode().getIdentifier(), e))
                 .onSuccess(nodeHolder -> {
                     manager.addCachedNode(nodeHolder.get());
                 });

@@ -19,7 +19,6 @@ import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.connection.IPUtils;
 import net.suqatri.redicloud.commons.file.FileWriter;
-import net.suqatri.cloud.node.commands.*;
 import net.suqatri.redicloud.node.commands.*;
 import net.suqatri.redicloud.node.console.CommandConsoleManager;
 import net.suqatri.redicloud.node.console.NodeConsole;
@@ -40,7 +39,6 @@ import net.suqatri.redicloud.node.setup.redis.RedisSetup;
 import net.suqatri.redicloud.node.template.NodeCloudServiceTemplateManager;
 import net.suqatri.redicloud.node.file.FileTransferManager;
 import net.suqatri.redicloud.node.scheduler.Scheduler;
-import net.suqatri.rediscloud.node.commands.*;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;

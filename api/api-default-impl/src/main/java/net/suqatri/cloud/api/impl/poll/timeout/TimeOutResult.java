@@ -5,6 +5,7 @@ public enum TimeOutResult {
     FAILED,
     PASSED,
     CONNECTED,
-    ERROR;
+    ERROR,
+    UNKNOWN;
 
 }

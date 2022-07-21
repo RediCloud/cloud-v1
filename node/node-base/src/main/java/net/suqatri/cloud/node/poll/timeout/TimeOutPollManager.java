@@ -9,16 +9,22 @@ import net.suqatri.cloud.api.network.NetworkComponentType;
 import net.suqatri.cloud.api.node.ICloudNode;
 import net.suqatri.cloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.cloud.api.redis.event.RedisConnectedEvent;
+import net.suqatri.cloud.api.redis.event.RedisDisconnectedEvent;
+import net.suqatri.cloud.api.scheduler.IRepeatScheduler;
 import net.suqatri.cloud.commons.function.future.FutureAction;
 import net.suqatri.cloud.node.NodeLauncher;
 import net.suqatri.cloud.node.node.packet.NodePingPacket;
 import net.suqatri.cloud.node.poll.timeout.packet.TimeOutPollRequestPacket;
+import net.suqatri.cloud.node.scheduler.RepeatSchedulerTask;
 
 import java.util.UUID;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITimeOutPoll> implements ITimeOutPollManager {
+
+    private IRepeatScheduler<?> task;
 
     public TimeOutPollManager() {
         super("timeouts", ITimeOutPoll.class);
@@ -26,7 +32,14 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
     }
 
     private void checker(){
-        CloudAPI.getInstance().getScheduler().scheduleTaskAsync(() -> {
+        CloudAPI.getInstance().getEventManager().register(RedisDisconnectedEvent.class, event -> this.task.cancel());
+        this.task = CloudAPI.getInstance().getScheduler().scheduleTaskAsync(() -> {
+            if(NodeLauncher.getInstance().isRestarting()
+                    || NodeLauncher.getInstance().isShutdownInitialized()
+                    || NodeLauncher.getInstance().isInstanceTimeOuted()){
+                this.task.cancel();
+                return;
+            }
             CloudAPI.getInstance().getNodeManager().getNodesAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking timeouts", e))
                 .onSuccess(nodes -> {
@@ -55,16 +68,12 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
                                             TimeOutPollRequestPacket requestPacket = new TimeOutPollRequestPacket();
                                             requestPacket.setPollId(pollHolder.get().getPollId());
                                             requestPacket.publishAllAsync(NetworkComponentType.NODE);
-                                            CloudAPI.getInstance().getScheduler().runTaskLaterAsync(() -> poll.close(),
+                                            CloudAPI.getInstance().getScheduler().runTaskLaterAsync(poll::close,
                                                     TimeOutPoll.PACKET_RESPONSE_TIMEOUT + 1500, TimeUnit.MILLISECONDS);
                                         });
                                     return;
                                 }
                                 CloudAPI.getInstance().getConsole().error("Error while checking timeouts", e);
-                            })
-                            .onSuccess(response -> {
-                                if(node.get().isConnected()) return;
-
                             });
                         packet.publishAsync();
                     });

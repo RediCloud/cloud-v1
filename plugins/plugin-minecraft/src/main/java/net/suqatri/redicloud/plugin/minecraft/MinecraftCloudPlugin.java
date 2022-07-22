@@ -10,8 +10,6 @@ public class MinecraftCloudPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         cloudAPI = new MinecraftCloudAPI(this);
-        cloudAPI.getService().setServiceState(ServiceState.RUNNING_UNDEFINED);
-        cloudAPI.getService().update();
     }
 
     @Override

@@ -12,6 +12,8 @@ import net.suqatri.commands.annotation.Description;
 import net.suqatri.commands.annotation.Subcommand;
 import net.suqatri.commands.annotation.Syntax;
 
+import java.util.UUID;
+
 @CommandAlias("debug")
 public class DebugCommand extends ConsoleCommand {
 
@@ -19,6 +21,15 @@ public class DebugCommand extends ConsoleCommand {
     @Description("Prints the factory queue")
     public void onFactoryQueue(CommandSender commandSender){
         commandSender.sendMessage("Factory queue: " + NodeLauncher.getInstance().getServiceFactory().getThread().getQueue());
+    }
+
+    @Subcommand("facatory processes")
+    @Description("Prints the factory processes")
+    public void onFactoryProcesses(CommandSender commandSender){
+        commandSender.sendMessage("Factory processes: ");
+        for (UUID uuid : NodeLauncher.getInstance().getServiceFactory().getThread().getProcesses().keySet()) {
+            commandSender.sendMessage(" - " + uuid);
+        }
     }
 
     @Subcommand("file-transfer sent")

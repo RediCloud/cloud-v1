@@ -12,7 +12,7 @@ public interface ICloudPortManager {
 
     boolean isInUse(int port);
 
-    void unusePort(int port);
+    void unUsePort(ICloudServiceProcess process);
 
     void addBlockedPort(int port);
 

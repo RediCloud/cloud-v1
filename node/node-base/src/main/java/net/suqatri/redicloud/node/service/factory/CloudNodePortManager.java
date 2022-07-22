@@ -28,22 +28,22 @@ public class CloudNodePortManager implements ICloudPortManager {
             int currentPort = !inRange ? (process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.PROXY
                     ? 25565 : 49152)
                     : process.getServiceHolder().get().getConfiguration().getStartPort();
-            if(!inRange){
-                if(process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.MINECRAFT) {
+            if (!inRange) {
+                if (process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.MINECRAFT) {
                     CloudAPI.getInstance().getConsole().warn("Service " + process.getServiceHolder().get().getServiceName()
                             + " has invalid start port " + process.getServiceHolder().get().getConfiguration().getStartPort()
                             + " (must be in range 49152-65535)");
                     CloudAPI.getInstance().getConsole().warn("Using default start port 49152");
-                }else{
+                } else {
                     CloudAPI.getInstance().getConsole().warn("Service " + process.getServiceHolder().get().getServiceName()
                             + " has invalid start port " + process.getServiceHolder().get().getConfiguration().getStartPort()
                             + " (must be in range 25500-25600)");
                     CloudAPI.getInstance().getConsole().warn("Using default start port 25565");
                 }
             }
-            while(isInUse(currentPort) || isPortBlocked(currentPort)) {
+            while (isInUse(currentPort) || isPortBlocked(currentPort)) {
                 currentPort++;
-                if(process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.MINECRAFT
+                if (process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.MINECRAFT
                         ? currentPort >= 65535
                         : currentPort >= 25565
                 ) currentPort = process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.MINECRAFT
@@ -60,11 +60,11 @@ public class CloudNodePortManager implements ICloudPortManager {
     }
 
     public boolean isPortBlocked(int port) {
-        if(this.blockedPorts.contains(port)) return true;
+        if (this.blockedPorts.contains(port)) return true;
         return !isPortAvailable(port);
     }
 
-    public boolean isPortAvailable(int port){
+    public boolean isPortAvailable(int port) {
         Socket socket = null;
         try {
             socket = new Socket("127.0.0.1", port);
@@ -75,15 +75,16 @@ public class CloudNodePortManager implements ICloudPortManager {
         }
     }
 
-    public boolean isInUse(int port){
+    public boolean isInUse(int port) {
         return this.usedPort.containsKey(port);
     }
 
-    public void unusePort(int port){
-        this.usedPort.remove(port);
+    public void unUsePort(ICloudServiceProcess process) {
+        this.usedPort.remove(process);
+        this.blockedPorts.remove(process.getPort());
     }
 
-    public void addBlockedPort(int port){
+    public void addBlockedPort(int port) {
         this.blockedPorts.add(port);
     }
 }

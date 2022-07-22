@@ -20,6 +20,8 @@ import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.connection.IPUtils;
 import net.suqatri.redicloud.commons.file.FileWriter;
+import net.suqatri.redicloud.commons.function.future.FutureAction;
+import net.suqatri.redicloud.commons.function.future.FutureActionCollection;
 import net.suqatri.redicloud.node.commands.*;
 import net.suqatri.redicloud.node.console.CommandConsoleManager;
 import net.suqatri.redicloud.node.console.NodeConsole;
@@ -44,6 +46,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -171,7 +175,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         }
                     }
                     case "--test": {
-                        this.console.setLogLevel(LogLevel.DEBUG);
+                        this.console.setLogLevel(LogLevel.TRACE);
                         this.console.setCleanConsoleMode(false);
                         continue;
                     }
@@ -262,6 +266,23 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.node.setMemoryUsage(0);
             this.node.setHostname(this.hostName);
             this.node.setFilePath(Files.CLOUD_FOLDER.getFile().getAbsolutePath());
+
+            if(!this.serviceManager.getServices().isEmpty()) {
+                this.console.warn("It seems that the node was not correctly shut down last time!");
+                int count = 0;
+                for (IRBucketHolder<ICloudService> service : this.serviceManager.getServices()) {
+                    if(!service.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    count++;
+                    this.console.warn("Service " + service.get().getServiceName()  + " is still registered in redi!");
+                    this.serviceManager.deleteBucketAsync(service.getIdentifier());
+                    this.serviceManager.removeFromFetcher(service.get().getServiceName(), service.get().getUniqueId());
+                    if(this.redisConnection.getClient().getList("screen-log@" + service.get().getUniqueId()).isExists()) {
+                        this.redisConnection.getClient().getList("screen-log@" + service.get().getUniqueId()).deleteAsync();
+                    }
+                }
+                this.console.warn("Removed " + count + " services from redis!");
+                this.console.warn("Please check if there are any service processes running in the background!");
+            }
 
             runnable.run();
 
@@ -473,7 +494,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     if(!this.serviceManager.existsService(serviceHolders.get().getUniqueId())) continue;
                     stopCount++;
                     try {
-                        this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), false).get(5, TimeUnit.SECONDS);
+                        this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), false).get(10, TimeUnit.SECONDS);
                         if(this.console != null) this.console.info("Stopped service " + serviceHolders.get().getServiceName());
                     } catch (InterruptedException | ExecutionException | TimeoutException e) {
                         try {

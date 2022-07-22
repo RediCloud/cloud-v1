@@ -60,24 +60,27 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
                 }
                 ICloudServiceProcess process = this.thread.getProcesses().get(uniqueId);
                 if(process == null) {
+                    CloudAPI.getInstance().getConsole().debug("Service " + uniqueId + " was removed from queue.");
                     this.thread.getWaitForRemove().add(uniqueId);
                     futureAction.complete(true);
                     return;
                 }
 
+                CloudAPI.getInstance().getConsole().debug("Service " + uniqueId + " is being stopped.");
                 process.stopAsync(force)
                     .onFailure(futureAction)
                     .onSuccess(b -> {
-                        process.getServiceHolder().get().setServiceState(ServiceState.OFFLINE);
-                        process.getServiceHolder().get().updateAsync()
-                                .onFailure(futureAction)
-                                .onSuccess(s -> {
-                                    if(process.getServiceHolder().get().isStatic()) return;
-                                    this.serviceManager.removeFromFetcher(process.getServiceHolder().get().getServiceName());
-                                    this.serviceManager.deleteBucketAsync(process.getServiceHolder().get().getUniqueId().toString())
-                                            .onFailure(futureAction)
-                                            .onSuccess(v -> futureAction.complete(true));
-                                });
+                        if(process.getServiceHolder().get().isStatic()) {
+                            process.getServiceHolder().get().setServiceState(ServiceState.OFFLINE);
+                            process.getServiceHolder().get().updateAsync()
+                                    .onFailure(futureAction)
+                                    .onSuccess(v -> futureAction.complete(true));
+                        }else{
+                            this.serviceManager.removeFromFetcher(process.getServiceHolder().get().getServiceName());
+                            this.serviceManager.deleteBucketAsync(process.getServiceHolder().get().getUniqueId().toString())
+                                    .onFailure(futureAction)
+                                    .onSuccess(v -> futureAction.complete(true));
+                        }
                     });
             });
 

@@ -8,4 +8,8 @@ public class CloudServiceStoppedEvent extends CloudServiceEvent {
     public CloudServiceStoppedEvent(IRBucketHolder<ICloudService> holder) {
         super(holder);
     }
+
+    public CloudServiceStoppedEvent(){
+        super();
+    }
 }

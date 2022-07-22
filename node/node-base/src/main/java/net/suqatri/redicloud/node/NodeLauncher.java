@@ -294,12 +294,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
             this.console.info(this.node.getName() + " is now connected to the cluster!");
             this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@" + this.console.getHighlightColor() + this.node.getName() + " §f=> "));
-
-            if(this.getNodeManager().getNodes().size() == 1){
-                this.serviceTemplateManager.createTemplate("global-minecraft");
-                this.serviceTemplateManager.createTemplate("global-proxy");
-                this.serviceTemplateManager.createTemplate("global-all");
-            }
         }));
     }
 
@@ -334,6 +328,12 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         return;
                     }
 
+                    if(this.getNodeManager().getNodes().size() == 1){
+                        this.serviceTemplateManager.createTemplate("global-minecraft");
+                        this.serviceTemplateManager.createTemplate("global-proxy");
+                        this.serviceTemplateManager.createTemplate("global-all");
+                    }
+
                     CloudNode cloudNode = new CloudNode();
                     connectionInformation.applyToNode(cloudNode);
                     cloudNode.setName(setup.getName());
@@ -346,6 +346,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     FileWriter.writeObject(connectionInformation, Files.NODE_JSON.getFile());
                     cloudNode = this.getNodeManager().createNode(cloudNode).getImpl(CloudNode.class);
                     consumer.accept(cloudNode);
+
                 }
             });
             return;

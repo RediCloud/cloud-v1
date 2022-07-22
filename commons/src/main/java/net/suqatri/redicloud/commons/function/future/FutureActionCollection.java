@@ -35,6 +35,7 @@ public class FutureActionCollection<K, T> {
      * @return
      */
     public FutureAction<HashMap<K, T>> process(){
+        if(this.toProcess.isEmpty()) return new FutureAction(new HashMap<>());
         return processNext(new FutureAction<>(), new HashMap<>());
     }
 

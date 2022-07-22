@@ -4,6 +4,8 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.node.service.screen.IScreenLine;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
+import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.commands.CommandSender;
 import net.suqatri.commands.ConsoleCommand;
@@ -11,7 +13,10 @@ import net.suqatri.commands.annotation.CommandAlias;
 import net.suqatri.commands.annotation.Description;
 import net.suqatri.commands.annotation.Subcommand;
 import net.suqatri.commands.annotation.Syntax;
+import net.suqatri.redicloud.node.file.FileTransferProcessThread;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @CommandAlias("debug")
@@ -32,10 +37,28 @@ public class DebugCommand extends ConsoleCommand {
         }
     }
 
+    @Subcommand("factory nextid")
+    @Description("Prints next id of group")
+    public void onFactoryNextId(CommandSender commandSender, String groupName){
+        CloudAPI.getInstance().getServiceManager().getServicesAsync()
+            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error getting services!", t))
+            .onSuccess(serviceHolders -> {
+                int i = 1;
+                List<Integer> ids = new ArrayList<>();
+                for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders)
+                    if(serviceHolder.get().getGroupName().equalsIgnoreCase(groupName)){
+                        commandSender.sendMessage(" - " + i + ": " + serviceHolder.get().getId());
+                        ids.add(serviceHolder.get().getId());
+                    }
+                while (ids.contains(i)) i++;
+                commandSender.sendMessage("Result: " + groupName + "-" + i);
+            });
+    }
+
     @Subcommand("file-transfer sent")
     @Description("Show how many sent file transfers are currently queued")
     public void onFileTransferSent(CommandSender commandSender){
-        commandSender.sendMessage("Sent process queue size: " + NodeLauncher.getInstance().getFileTransferManager().getThread().getSentProcesses().size());
+        commandSender.sendMessage("Sent process queue size: " + FileTransferProcessThread.getSentProcesses().size());
     }
 
     @Subcommand("restart")

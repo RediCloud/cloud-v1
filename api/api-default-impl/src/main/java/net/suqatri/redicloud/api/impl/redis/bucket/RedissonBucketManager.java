@@ -175,7 +175,9 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
                     }
                     futureActionCollection.process()
                             .onFailure(futureAction)
-                            .onSuccess(holders -> futureAction.complete(holders.values()));
+                            .onSuccess(holders -> {
+                                futureAction.complete(holders.values());
+                            });
                 });
         return futureAction;
     }

@@ -43,6 +43,7 @@ public class GroupCommand extends ConsoleCommand {
     @Description("Show information about a group")
     @Syntax("<Name>")
     public void onInfo(CommandSender commandSender, String groupName){
+        CloudAPI.getInstance().getConsole().trace("Checking existence of group " + groupName + "... ");
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
             .onSuccess(exists -> {
@@ -138,6 +139,7 @@ public class GroupCommand extends ConsoleCommand {
     @Subcommand("list")
     @Description("List all groups")
     public void onList(CommandSender commandSender) {
+        CloudAPI.getInstance().getConsole().trace("Gettings groups...");
         CloudAPI.getInstance().getGroupManager().getGroupsAsync()
                 .onFailure(e -> commandSender.sendMessage("§cFailed to get groups"))
                 .onSuccess(holders -> {
@@ -149,6 +151,7 @@ public class GroupCommand extends ConsoleCommand {
                     for (IRBucketHolder<ICloudGroup> holder : holders) {
                         futureActionCollection.addToProcess(holder.get().getUniqueId(), holder.get().getOnlineServiceCount());
                     }
+                    CloudAPI.getInstance().getConsole().trace("Processing online count task");
                     futureActionCollection.process()
                         .onFailure(e2 -> commandSender.sendMessage("§cFailed to get groups"))
                         .onSuccess(map -> {

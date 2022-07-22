@@ -15,10 +15,8 @@ import net.suqatri.redicloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 import org.redisson.api.RMap;
 
-import java.util.Collection;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class CloudServiceManager extends RedissonBucketManager<CloudService, ICloudService> implements ICloudServiceManager {
 
@@ -37,7 +35,7 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
 
     @Override
     public void putInFetcher(String serviceName, UUID serviceId) {
-        this.serviceIdFetcherMap.putAsync(serviceName.toLowerCase(Locale.ROOT), serviceId.toString());
+        this.serviceIdFetcherMap.putAsync(serviceName.toLowerCase(), serviceId.toString());
     }
 
     @Override
@@ -78,7 +76,7 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
                 .onFailure(futureAction)
                 .onSuccess(contains -> {
                     if(!contains) {
-                        futureAction.completeExceptionally(new IllegalArgumentException("Service not found"));
+                        futureAction.completeExceptionally(new IllegalArgumentException(name + " service not found"));
                         return;
                     }
                     getServiceIdFromFetcherAsync(name)
@@ -114,12 +112,21 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
 
     @Override
     public FutureAction<Collection<IRBucketHolder<ICloudService>>> getServicesAsync() {
-        return this.getBucketHoldersAsync();
+        return this.getBucketHoldersAsync().map(services -> {
+            for (IRBucketHolder<ICloudService> service : services) {
+                putInFetcher(service.get().getServiceName(), service.get().getUniqueId());
+            }
+            return services;
+        });
     }
 
     @Override
     public Collection<IRBucketHolder<ICloudService>> getServices() {
-        return this.getBucketHolders();
+        Collection<IRBucketHolder<ICloudService>> services = getBucketHolders();
+        for (IRBucketHolder<ICloudService> service : services) {
+            putInFetcher(service.get().getServiceName(), service.get().getUniqueId());
+        }
+        return services;
     }
 
     @Override
@@ -166,11 +173,13 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
     }
 
     @Override
-    public IRBucketHolder<ICloudService> getFallbackService() {
+    public final IRBucketHolder<ICloudService> getFallbackService(IRBucketHolder<ICloudService>... blacklisted) {
         IRBucketHolder<ICloudService> fallbackHolder = null;
+        List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(holder -> holder.get().getUniqueId()).collect(Collectors.toList());
         for (IRBucketHolder<ICloudService> serviceHolder : getServices()) {
+            if(blackList.contains(serviceHolder.get().getUniqueId())) continue;
             if(!serviceHolder.get().getConfiguration().isFallback()) continue;
-            if(serviceHolder.get().getOnlineCount() < serviceHolder.get().getMaxPlayers()) continue;
+            if(serviceHolder.get().getOnlineCount() >= serviceHolder.get().getMaxPlayers()) continue;
             if(fallbackHolder == null){
                 fallbackHolder = serviceHolder;
                 continue;

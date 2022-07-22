@@ -32,6 +32,7 @@ public class ScreenCommand extends ConsoleCommand {
     @Description("Toggle the screen of a service")
     @Syntax("<Service>")
     public void onToggle(CommandSender commandSender, String serviceName){
+        CloudAPI.getInstance().getConsole().trace("Check existences of screen " + serviceName);
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking if service exists", e))
                 .onSuccess(exists -> {
@@ -39,6 +40,7 @@ public class ScreenCommand extends ConsoleCommand {
                        commandSender.sendMessage("Service " + serviceName + " does not exist");
                        return;
                    }
+                    CloudAPI.getInstance().getConsole().trace("Get service of screen " + serviceName);
                      CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting service", e))
                             .onSuccess(service -> {
@@ -60,6 +62,7 @@ public class ScreenCommand extends ConsoleCommand {
     @Description("Join a screen")
     @Syntax("<Service>")
     public void onJoin(CommandSender commandSender, String serviceName){
+        CloudAPI.getInstance().getConsole().trace("Check existences of screen " + serviceName);
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking service existence!", e))
                 .onSuccess(exists -> {
@@ -67,6 +70,7 @@ public class ScreenCommand extends ConsoleCommand {
                         commandSender.sendMessage("Screen " + serviceName + " does not exist!");
                         return;
                     }
+                    CloudAPI.getInstance().getConsole().trace("Get service of screen " + serviceName);
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
                         .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to join screen " + serviceName + "!", e))
                         .onSuccess(serviceHolder -> {
@@ -87,6 +91,7 @@ public class ScreenCommand extends ConsoleCommand {
     @Description("Leave a screen")
     @Syntax("<Service>")
     public void onLeave(CommandSender commandSender, String serviceName){
+        CloudAPI.getInstance().getConsole().trace("Check existences of screen " + serviceName);
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking service existence!", e))
                 .onSuccess(exists -> {
@@ -94,6 +99,7 @@ public class ScreenCommand extends ConsoleCommand {
                         commandSender.sendMessage("Screen " + serviceName + " is not active!");
                         return;
                     }
+                    CloudAPI.getInstance().getConsole().trace("Get service of screen " + serviceName);
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to leave screen " + serviceName + "!", e))
                             .onSuccess(serviceHolder -> {

@@ -25,6 +25,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
     }
 
     public void setPublishedObject(T object) {
+        if(object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
         CloudAPI.getInstance().getConsole().trace("Setting published object for bucket " + identifier + " to " + object);
         this.publishedObject = object;
         this.publishedObject.setHolder(this);
@@ -41,6 +42,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public IRBucketHolder<T> update(T object) {
+        if(object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
         CloudAPI.getInstance().getConsole().trace("Updating bucket " + getRedisKey() + "!");
         this.bucket.set(object);
         try {
@@ -57,6 +59,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public FutureAction<IRBucketHolder<T>> updateAsync(T object) {
+        if(object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
         CloudAPI.getInstance().getConsole().trace("Updating bucket " + getRedisKey() + "!");
         FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
 
@@ -86,9 +89,10 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public void mergeChanges(String json) {
+        if(json == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
         try {
+            CloudAPI.getInstance().getConsole().trace("Merging changes for bucket " + getRedisKey() + " | publishedObject: " + (this.publishedObject != null));
             if(this.publishedObject != null) {
-                CloudAPI.getInstance().getConsole().trace("Merging changes for bucket " + getRedisKey());
                 this.bucketManager.getObjectCodec().getObjectMapper().readerForUpdating(this.publishedObject).readValue(json);
                 this.publishedObject.setHolder(this);
                 this.publishedObject.merged();
@@ -114,5 +118,13 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
     @Override
     public String getIdentifier() {
         return this.identifier;
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if(obj == null) return false;
+        if(!(obj instanceof IRBucketHolder)) return false;
+        if(((IRBucketHolder<?>) obj).getRedisKey().equals(this.getRedisKey())) return true;
+        return true;
     }
 }

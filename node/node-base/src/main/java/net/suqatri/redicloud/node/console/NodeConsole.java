@@ -9,6 +9,7 @@ import net.suqatri.redicloud.api.console.IConsoleLineEntry;
 import net.suqatri.redicloud.api.console.LogLevel;
 import net.suqatri.redicloud.node.console.setup.Setup;
 import org.fusesource.jansi.Ansi;
+
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;

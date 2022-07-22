@@ -223,24 +223,20 @@ public class ServiceVersionCommand extends ConsoleCommand {
     @Syntax("<Name>")
     public void onDownload(CommandSender commandSender, String serviceVersionName) {
         CloudAPI.getInstance().getServiceVersionManager().existsServiceVersionAsync(serviceVersionName)
-                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while checking service version existence", t))
-                .onSuccess(exists -> {
-                    if (!exists) {
-                        commandSender.sendMessage("Service version does not exist");
-                        return;
-                    }
-                    CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(serviceVersionName)
-                            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while getting service version", t))
-                            .onSuccess(versionHolder -> {
-                                if (!versionHolder.get().isPaperClip()) {
-                                    CloudAPI.getInstance().getConsole().error("Service version is not paperclip");
-                                    return;
-                                }
-                                CloudAPI.getInstance().getServiceVersionManager().downloadAsync(versionHolder, true)
-                                        .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while downloading service version", t))
-                                        .onSuccess(v -> commandSender.sendMessage("Service version downloaded"));
-                            });
-                });
+            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while checking service version existence", t))
+            .onSuccess(exists -> {
+                if (!exists) {
+                    commandSender.sendMessage("Service version does not exist");
+                    return;
+                }
+                CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(serviceVersionName)
+                    .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while getting service version", t))
+                    .onSuccess(versionHolder -> {
+                        CloudAPI.getInstance().getServiceVersionManager().downloadAsync(versionHolder, true)
+                                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while downloading service version", t))
+                                .onSuccess(v -> commandSender.sendMessage("Service version downloaded"));
+                    });
+            });
     }
 
 }

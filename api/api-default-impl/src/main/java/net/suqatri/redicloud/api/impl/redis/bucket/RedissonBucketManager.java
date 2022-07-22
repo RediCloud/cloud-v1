@@ -89,7 +89,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
         if(this.isBucketHolderCached(identifier)) return (IRBucketHolder<I>) this.cachedBucketHolders.get(identifier);
         RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
-        if(!bucket.isExists()) throw new NullPointerException("Bucket[" + identifier + "] does not exist");
+        if(!bucket.isExists()) throw new NullPointerException("Bucket[" + getRedisKey(identifier) + "] does not exist");
         T object = bucket.get();
         IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, (RBucketObject) object);
         this.cachedBucketHolders.put(identifier, bucketHolder);
@@ -103,7 +103,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
 
     public IRBucketHolder<I> createBucket(String identifier, I object) {
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
-        if(existsBucket(identifier)) throw new IllegalArgumentException("Bucket[" + identifier + "] already exists");
+        if(existsBucket(identifier)) throw new IllegalArgumentException("Bucket[" + getRedisKey(identifier) + "] already exists");
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).set(object);
         RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
         IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, bucket.get());
@@ -118,7 +118,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
                 .onFailure(futureAction)
                 .onSuccess(exists -> {
                     if(exists){
-                        futureAction.completeExceptionally(new IllegalArgumentException("Bucket[" + identifier + "] already exists"));
+                        futureAction.completeExceptionally(new IllegalArgumentException("Bucket[" + getRedisKey(identifier) + "] already exists"));
                         return;
                     }
                     getClient().getBucket(getRedisKey(identifier), getObjectCodec()).setAsync(object)
@@ -140,7 +140,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
     public void updateBucket(String identifier, String json){
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
         if(!this.isBucketHolderCached(identifier)) {
-            CloudAPI.getInstance().getConsole().debug("Cant update Bucket[" + identifier + "]! Its not created or not linked yet");
+            CloudAPI.getInstance().getConsole().debug("Cant update Bucket[" + getRedisKey(identifier) + "]! Its not created or not linked yet");
             return;
         }
         CloudAPI.getInstance().getConsole().trace("Updating bucket: " + getRedisKey(identifier));

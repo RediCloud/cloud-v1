@@ -10,6 +10,9 @@ import java.util.function.Consumer;
 
 public class FutureAction<V> extends CompletableFuture<V> {
 
+    private V result;
+    private Throwable error;
+
     public FutureAction() {}
 
     public FutureAction(Throwable t){
@@ -17,22 +20,30 @@ public class FutureAction<V> extends CompletableFuture<V> {
     }
 
     public FutureAction(V value) {
+        this.result = value;
         this.complete(value);
     }
 
     public FutureAction(CompletionStage<V> future){
         future.whenComplete((v, t) -> {
             if(t != null) {
+                this.error = t;
                 this.completeExceptionally(t);
             } else {
+                this.result = v;
                 this.complete(v);
             }
         });
     }
 
+    public boolean isFinishedAnyway() {
+        return this.isDone() || this.isCompletedExceptionally() || this.isCancelled();
+    }
+
     public V getBlockOrNull(){
         try {
-            return this.get();
+            this.result = this.get();
+            return this.result;
         } catch (Exception e) {
             return null;
         }
@@ -53,6 +64,7 @@ public class FutureAction<V> extends CompletableFuture<V> {
     public FutureAction<V> onFailure(FutureAction futureAction) {
         this.whenComplete((v, t) -> {
             if(t != null) {
+                this.error = t;
                 futureAction.completeExceptionally(t);
             }
         });
@@ -66,6 +78,7 @@ public class FutureAction<V> extends CompletableFuture<V> {
                 this.error = t;
                 future.completeExceptionally(t);
             } else {
+                this.result = v;
                 R value = mapper.get(v);
                 if(value instanceof Throwable) {
                     future.completeExceptionally((Throwable) value);
@@ -77,12 +90,33 @@ public class FutureAction<V> extends CompletableFuture<V> {
         return future;
     }
 
+    @Override
+    public boolean complete(V value) {
+        this.result = value;
+        return super.complete(value);
+    }
+
+    @Override
+    public boolean completeExceptionally(Throwable ex) {
+        this.error = ex;
+        return super.completeExceptionally(ex);
+    }
+
     public <R> FutureAction<R> map(FutureMapper<V, R> mapper) {
         FutureAction<R> future = new FutureAction<>();
+        if(this.isFinishedAnyway()){
+            if(this.error != null){
+                future.completeExceptionally(this.error);
+            }else {
+                future.complete(mapper.get(this.result));
+            }
+        }
         this.whenComplete((v, t) -> {
             if(t != null) {
+                this.error = t;
                 future.completeExceptionally(t);
             } else {
+                this.result = v;
                 R value = mapper.get(v);
                 future.complete(value);
             }
@@ -91,8 +125,13 @@ public class FutureAction<V> extends CompletableFuture<V> {
     }
 
     public FutureAction<V> onSuccess(Consumer<V> consumer){
+        if(isDone()) {
+            consumer.accept(this.result);
+            return this;
+        }
         this.whenComplete((v, t) -> {
             if(t == null) {
+                this.result = v;
                 consumer.accept(v);
             }
         });
@@ -100,8 +139,13 @@ public class FutureAction<V> extends CompletableFuture<V> {
     }
 
     public FutureAction<V> onFailure(Consumer<Exception> consumer){
+        if(isCancelled() || isCompletedExceptionally()){
+            consumer.accept((Exception) this.error);
+            return this;
+        }
         this.whenComplete((v, t) -> {
             if(t != null) {
+                this.error = t;
                 consumer.accept((Exception) t);
             }
         });

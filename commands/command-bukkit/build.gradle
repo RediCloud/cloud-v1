@@ -5,19 +5,9 @@ plugins {
 group 'net.suqatri.redicloud'
 version '1.0-BETA'
 
-repositories {
-    mavenCentral()
-    maven {
-        url = "https://repo.aikar.co/nexus/content/groups/aikar/"
-    }
-    maven {
-        url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots"
-    }
-}
-
 dependencies {
+    implementation('co.aikar:minecraft-timings:1.0.4')
     implementation project(':commands:command-core')
     implementation project(':commands:command-locales')
-    compileOnly("org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT")
-    compileOnly('co.aikar:minecraft-timings:1.0.4')
+    compileOnly('org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT')
 }

@@ -5,13 +5,6 @@ plugins {
 group 'net.suqatri.redicloud'
 version '1.0-BETA'
 
-repositories {
-    mavenCentral()
-    maven {
-        url = 'https://hub.spigotmc.org/nexus/content/groups/public/'
-    }
-}
-
 dependencies {
     implementation project(':commons')
     implementation project(':api:api')
@@ -19,6 +12,7 @@ dependencies {
     implementation project(':commands:command-bukkit')
     implementation project(':commands:command-core')
     implementation project(':commands:command-locales')
+    implementation('co.aikar:minecraft-timings:1.0.4')
     compileOnly('org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT')
 }
 

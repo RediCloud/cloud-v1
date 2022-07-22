@@ -20,6 +20,7 @@ public class LoginListener implements Listener {
         CloudAPI.getInstance().getPlayerManager().existsPlayerAsync(uniqueId)
             .onFailure(throwable -> {
                 event.setCancelled(true);
+                event.registerIntent(ProxyCloudAPI.getInstance().getPlugin());
                 event.getConnection().disconnect(throwable.getMessage());
             }).onSuccess(exists -> {
                 if(!exists){
@@ -43,6 +44,7 @@ public class LoginListener implements Listener {
                 CloudAPI.getInstance().getPlayerManager().getPlayerAsync(uniqueId)
                         .onFailure(throwable -> {
                             event.setCancelled(true);
+                            event.registerIntent(ProxyCloudAPI.getInstance().getPlugin());
                             event.getConnection().disconnect(throwable.getMessage());
                         }).onSuccess(holder -> {
                             holder.getImpl(CloudPlayer.class).setConnected(true);
@@ -52,6 +54,7 @@ public class LoginListener implements Listener {
                             holder.get().updateAsync()
                                     .onFailure(throwable -> {
                                         event.setCancelled(true);
+                                        event.registerIntent(ProxyCloudAPI.getInstance().getPlugin());
                                         event.getConnection().disconnect(throwable.getMessage());
                                     }).onSuccess(v -> {
                                         event.completeIntent(ProxyCloudAPI.getInstance().getPlugin());

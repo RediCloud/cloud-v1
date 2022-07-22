@@ -21,9 +21,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CloudNodeServiceThread extends Thread{
 
     private static final int checkServiceInterval = 4;
-    private static final int memoryWarningInterval = 15;
-    private static final int maxServiceOnNodeInterval = 20;
-    private static final int maxServiceOfGroupInterval = 15;
+    private static final int memoryWarningInterval = 30;
+    private static final int maxServiceOnNodeInterval = 35;
+    private static final int maxServiceOfGroupInterval = 25;
+    private static final int valueCheckInterval = 300;
 
     @Getter
     private final PriorityQueue<IServiceStartConfiguration> queue;
@@ -32,10 +33,11 @@ public class CloudNodeServiceThread extends Thread{
     private final ConcurrentHashMap<UUID, CloudServiceProcess> processes;
     @Getter
     private final List<UUID> waitForRemove = new ArrayList<>();
-    private int checkServiceCount = 0;
-    private int memoryWarningCount = 0;
-    private int maxServiceOnNodeCount = 0;
-    private int maxServiceOfGroupCount = 0;
+    private int checkServiceCount = Integer.MAX_VALUE;
+    private int memoryWarningCount = Integer.MAX_VALUE;
+    private int maxServiceOnNodeCount = Integer.MAX_VALUE;
+    private int maxServiceOfGroupCount = Integer.MAX_VALUE;
+    private int currentValueCount = Integer.MAX_VALUE;
     private CloudNode node;
 
     public CloudNodeServiceThread(NodeCloudServiceFactory factory) {
@@ -105,9 +107,10 @@ public class CloudNodeServiceThread extends Thread{
                     }
 
                     IServiceStartConfiguration configuration = this.queue.poll();
-                    while(getCurrentStartingCount() <= maxStartSize
-                            && !this.queue.isEmpty()
-                            && this.node.getFreeMemory() - configuration.getMaxMemory() > 0){
+                    while((this.node.getMaxServiceCount() == -1 || getCurrentStartingCount() < maxStartSize)
+                            && configuration != null
+                            && this.node.getFreeMemory() > 0){
+                        CloudAPI.getInstance().getConsole().debug("Service " + configuration.getName() + " is now inside a big thread of a POWER cpu!");
                         if(configuration.isGroupBased()){
                             IRBucketHolder<ICloudGroup> groupHolder = CloudAPI.getInstance().getGroupManager().getGroup(configuration.getGroupName());
                             if(groupHolder.get().getOnlineServiceCount().getBlockOrNull() >= groupHolder.get().getMaxServices() && groupHolder.get().getMaxServices() != -1){
@@ -115,11 +118,16 @@ public class CloudNodeServiceThread extends Thread{
                                     configuration.getStartListener().completeExceptionally(new IllegalStateException("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!"));
                                 }else{
                                     this.maxServiceOfGroupCount++;
-                                    if(this.maxServiceOfGroupCount < maxServiceOfGroupInterval) return;
+                                    if(!this.queue.isEmpty()) {
+                                        configuration = this.queue.poll();
+                                    }else{
+                                        configuration = null;
+                                    }
+                                    if(this.maxServiceOfGroupCount < maxServiceOfGroupInterval) continue;
                                     this.maxServiceOfGroupCount = 0;
                                     CloudAPI.getInstance().getConsole().warn("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!");
                                 }
-                                return;
+                                continue;
                             }
                         }
                         try {
@@ -132,7 +140,21 @@ public class CloudNodeServiceThread extends Thread{
                                 CloudAPI.getInstance().getConsole().error("Error starting service " + configuration.getName(), e);
                             }
                         }
-                        if(!this.queue.isEmpty()) configuration = this.queue.poll();
+                        if(!this.queue.isEmpty()) {
+                            configuration = this.queue.poll();
+                        }else{
+                            configuration = null;
+                        }
+                    }
+                    if(configuration != null){
+                        this.queue.add(configuration);
+                        this.currentValueCount++;
+                        if(this.currentValueCount > valueCheckInterval) {
+                            this.currentValueCount = 0;
+                            CloudAPI.getInstance().getConsole().warn("Failed to start service " + configuration.getName() + "! Check following values:");
+                            CloudAPI.getInstance().getConsole().warn(" - Max service count: " + getCurrentStartingCount() + "/" + this.node.getMaxServiceCount());
+                            CloudAPI.getInstance().getConsole().warn(" - Max memory: " + this.node.getMemoryUsage() + "/" + this.node.getMaxMemory());
+                        }
                     }
                 }
             }
@@ -152,6 +174,8 @@ public class CloudNodeServiceThread extends Thread{
     }
 
     private void start(IServiceStartConfiguration configuration) throws Exception {
+        CloudAPI.getInstance().getConsole().debug("Preparing to start service " + configuration.getName());
+
         if(!CloudAPI.getInstance().getServiceVersionManager().existsServiceVersion(configuration.getServiceVersionName())) throw new Exception("Service version " + configuration.getServiceVersionName() + " not found");
 
         CloudService cloudService = null;
@@ -201,6 +225,8 @@ public class CloudNodeServiceThread extends Thread{
         CloudServiceProcess process = new CloudServiceProcess(this.factory, holder);
         process.start();
         this.processes.put(cloudService.getUniqueId(), process);
+
+        CloudAPI.getInstance().getConsole().debug("Started service process for " + cloudService.getServiceName() + " successfully");
     }
 
     private int getNextId(String groupName, Collection<IRBucketHolder<ICloudService>> servicesHolders){

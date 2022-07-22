@@ -16,6 +16,7 @@ import net.suqatri.redicloud.api.redis.IRedisConnection;
 import net.suqatri.redicloud.api.redis.RedisCredentials;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
+import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.connection.IPUtils;
 import net.suqatri.redicloud.commons.file.FileWriter;
@@ -468,6 +469,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                 ((NodeCloudServiceFactory)this.serviceFactory).getThread().interrupt();
                 for (IRBucketHolder<ICloudService> serviceHolders : this.serviceManager.getServices()) {
                     if(!serviceHolders.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    if(serviceHolders.get().getServiceState() == ServiceState.OFFLINE) continue;
+                    if(!this.serviceManager.existsService(serviceHolders.get().getUniqueId())) continue;
                     stopCount++;
                     try {
                         this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), false).get(5, TimeUnit.SECONDS);

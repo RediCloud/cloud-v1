@@ -7,6 +7,23 @@ group 'net.suqatri.redicloud'
 version '1.0-BETA'
 
 tasks.register('buildAndCopy', Copy) {
+    dependsOn projectBuild
+}
+
+tasks.register('copyToTest') {
+    println 'Deleting test files'
+    project.delete(
+            file("${rootDir}/test/node-1/node-base-${project.version}.jar"),
+            file("${rootDir}/test/node-1/storage/plugin-proxy-${project.version}.jar"),
+            file("${rootDir}/test/node-1/storage/plugin-minecraft-${project.version}.jar")
+    )
+    println 'Copying files'
+    dependsOn copyNodeBase
+    dependsOn copyMinecraftPlugin
+    dependsOn copyProxyPlugin
+}
+
+tasks.register('projectBuild') {
     dependsOn ':commons:build'
     dependsOn ':api:api:build'
     dependsOn ':api:api-default-impl:build'
@@ -26,15 +43,7 @@ tasks.register('buildAndCopy', Copy) {
     dependsOn ':plugins:plugin-minecraft:build'
     dependsOn ':plugins:plugin-proxy:build'
 
-    project.delete(
-            file("${rootDir}/test/node-1/node-base-${project.version}.jar"),
-            file("${rootDir}/test/node-1/storage/plugin-proxy-${project.version}.jar"),
-            file("${rootDir}/test/node-1/storage/plugin-minecraft-${project.version}.jar")
-    )
-
-    dependsOn copyNodeBase
-    dependsOn copyMinecraftPlugin
-    dependsOn copyProxyPlugin
+    finalizedBy ':copyToTest'
 }
 
 tasks.register('copyNodeBase', Copy) {
@@ -103,6 +112,7 @@ allprojects {
         dependencies {
             configurations = [project.configurations.runtimeClasspath]
         }
+        relocate 'io.netty', 'net.suqatri.redicloud.libs.io.netty'
     }
 
 }

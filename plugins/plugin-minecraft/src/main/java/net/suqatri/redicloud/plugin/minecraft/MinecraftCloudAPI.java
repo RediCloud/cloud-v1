@@ -71,6 +71,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         registerInternalListeners();
         registerInternalPackets();
         initListeners();
+        initThisService();
     }
 
     private void initListeners(){
@@ -82,7 +83,6 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     private void init(){
         initRedis();
-        initThisService();
     }
 
     private void initThisService(){

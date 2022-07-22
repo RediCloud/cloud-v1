@@ -72,6 +72,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         registerInternalPackets();
         registerInternalListeners();
         initListeners();
+        initThisService();
     }
 
     private void initListeners(){
@@ -89,7 +90,6 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     private void init(){
         initRedis();
-        initThisService();
         registerStartedService();
     }
 

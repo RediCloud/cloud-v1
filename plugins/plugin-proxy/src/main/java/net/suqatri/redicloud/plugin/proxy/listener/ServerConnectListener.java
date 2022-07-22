@@ -6,6 +6,8 @@ import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.redicloud.api.service.ICloudService;
 
 public class ServerConnectListener implements Listener {
 
@@ -16,13 +18,16 @@ public class ServerConnectListener implements Listener {
         ServerInfo serverInfo =
                 (event.getTarget().getName().equalsIgnoreCase("fallback")
                         || event.getTarget().getName().equalsIgnoreCase("lobby"))
-                ? ProxyServer.getInstance()
-                .getServerInfo(CloudAPI.getInstance().getServiceManager().getFallbackService().get().getServiceName())
+                ? null
                 : event.getTarget();
 
-        if(serverInfo == null) {
-            event.getPlayer().disconnect("Fallback service is not available.");
-            return;
+        if(serverInfo == null){
+            IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService();
+            if(holder == null){
+                event.getPlayer().disconnect("Fallback service is not available.");
+                return;
+            }
+            serverInfo = ProxyServer.getInstance().getServerInfo(holder.get().getServiceName());
         }
 
         event.setTarget(serverInfo);

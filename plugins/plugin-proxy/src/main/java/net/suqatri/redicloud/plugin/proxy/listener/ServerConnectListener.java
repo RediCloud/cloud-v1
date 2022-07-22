@@ -13,7 +13,9 @@ public class ServerConnectListener implements Listener {
     public void onServerConnect(ServerConnectEvent event){
         if(event.isCancelled()) return;
 
-        ServerInfo serverInfo = event.getTarget().getName().equals("fallback")
+        ServerInfo serverInfo =
+                (event.getTarget().getName().equalsIgnoreCase("fallback")
+                        || event.getTarget().getName().equalsIgnoreCase("lobby"))
                 ? ProxyServer.getInstance()
                 .getServerInfo(CloudAPI.getInstance().getServiceManager().getFallbackService().get().getServiceName())
                 : event.getTarget();

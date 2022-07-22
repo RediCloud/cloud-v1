@@ -50,6 +50,7 @@ public class FileEditor {
     private void loadMap(){
         for(String line : this.lines){
             if(line.contains(" - ")) continue;
+            if(line.contains("- ")) continue;
             if(line.endsWith(":")) continue;
             if(line.startsWith("#")) continue;
             String key = "";
@@ -89,7 +90,7 @@ public class FileEditor {
         return this.keyValues.get(key);
     }
 
-    private List<String> newLine(){
+    public List<String> newLine(){
         List<String> list = new ArrayList<>(this.lines);
         this.keyValues.forEach((key, value) -> {
             int lineIndex = getLineIndexByKey(key);
@@ -99,14 +100,14 @@ public class FileEditor {
         return list;
     }
 
-    private String constructNewLine(String key, String value, int lineIndex){
+    public String constructNewLine(String key, String value, int lineIndex){
         String lineWithoutSpaces = key + this.splitter + value;
         int amountOfStartSpaces = getAmountOfStartSpacesInLine(this.lines.get(lineIndex));
         String spacesString = getStringWithSpaces(amountOfStartSpaces);
         return spacesString + lineWithoutSpaces;
     }
 
-    private String getStringWithSpaces(int amount){
+    public String getStringWithSpaces(int amount){
         String spacesString = "";
         for(int i = 0; i < amount; i++){
             spacesString += " ";
@@ -114,12 +115,12 @@ public class FileEditor {
         return spacesString;
     }
 
-    private String removeFirstSpaces(String line) {
+    public String removeFirstSpaces(String line) {
         int amountOfSpaces = getAmountOfStartSpacesInLine(line);
         return line.substring(amountOfSpaces);
     }
 
-    private int getAmountOfStartSpacesInLine(String line){
+    public int getAmountOfStartSpacesInLine(String line){
         int amountOfSpaces = 0;
         for(int i = 0; i < line.length(); i++){
             if(line.charAt(i) == ' '){
@@ -131,7 +132,7 @@ public class FileEditor {
         return amountOfSpaces;
     }
 
-    private int getLineIndexByKey(String key){
+    public int getLineIndexByKey(String key){
         String match = key + this.splitter;
         for(int i = 0; i < this.lines.size(); i++){
             if(this.lines.get(i).contains(match)){

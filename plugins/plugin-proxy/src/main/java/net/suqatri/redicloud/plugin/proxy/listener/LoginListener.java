@@ -20,8 +20,9 @@ public class LoginListener implements Listener {
         CloudAPI.getInstance().getPlayerManager().existsPlayerAsync(uniqueId)
             .onFailure(throwable -> {
                 event.setCancelled(true);
-                event.registerIntent(ProxyCloudAPI.getInstance().getPlugin());
+                event.completeIntent(ProxyCloudAPI.getInstance().getPlugin());
                 event.getConnection().disconnect(throwable.getMessage());
+                CloudAPI.getInstance().getConsole().error("Error while checking if player " + event.getConnection().getUniqueId() + "exists!", throwable);
             }).onSuccess(exists -> {
                 if(!exists){
                     CloudPlayer cloudPlayer = new CloudPlayer();
@@ -35,7 +36,9 @@ public class LoginListener implements Listener {
                     CloudAPI.getInstance().getPlayerManager().createPlayerAsync(cloudPlayer)
                             .onFailure(throwable -> {
                                 event.setCancelled(true);
+                                event.completeIntent(ProxyCloudAPI.getInstance().getPlugin());
                                 event.getConnection().disconnect(throwable.getMessage());
+                                CloudAPI.getInstance().getConsole().error("Error while creating player " + event.getConnection().getUniqueId() + "!", throwable);
                             }).onSuccess(c -> {
                                 event.completeIntent(ProxyCloudAPI.getInstance().getPlugin());
                             });
@@ -44,7 +47,8 @@ public class LoginListener implements Listener {
                 CloudAPI.getInstance().getPlayerManager().getPlayerAsync(uniqueId)
                         .onFailure(throwable -> {
                             event.setCancelled(true);
-                            event.registerIntent(ProxyCloudAPI.getInstance().getPlugin());
+                            event.completeIntent(ProxyCloudAPI.getInstance().getPlugin());
+                            CloudAPI.getInstance().getConsole().error("Error while getting player " + event.getConnection().getUniqueId() + "!", throwable);
                             event.getConnection().disconnect(throwable.getMessage());
                         }).onSuccess(holder -> {
                             holder.getImpl(CloudPlayer.class).setConnected(true);
@@ -54,8 +58,9 @@ public class LoginListener implements Listener {
                             holder.get().updateAsync()
                                     .onFailure(throwable -> {
                                         event.setCancelled(true);
-                                        event.registerIntent(ProxyCloudAPI.getInstance().getPlugin());
+                                        event.completeIntent(ProxyCloudAPI.getInstance().getPlugin());
                                         event.getConnection().disconnect(throwable.getMessage());
+                                        CloudAPI.getInstance().getConsole().error("Error while updating player " + event.getConnection().getUniqueId() + "!", throwable);
                                     }).onSuccess(v -> {
                                         event.completeIntent(ProxyCloudAPI.getInstance().getPlugin());
                                     });

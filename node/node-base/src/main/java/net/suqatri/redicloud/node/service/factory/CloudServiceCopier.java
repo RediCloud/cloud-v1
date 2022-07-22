@@ -119,6 +119,8 @@ public class CloudServiceCopier implements ICloudServiceCopier {
     public File copyFiles() throws Exception {
         List<File> folders = new ArrayList<>();
 
+        CloudAPI.getInstance().getConsole().debug("Copying files for service " + this.process.getServiceHolder().get().getName() + "...");
+
         IRBucketHolder<ICloudServiceVersion> serviceVersionHolder = this.process.getServiceHolder().get().getServiceVersion().get(5, TimeUnit.SECONDS);
         if(serviceVersionHolder == null) throw new NullPointerException("Service version " + this.process.getServiceHolder().get().getConfiguration().getServiceVersionName() + "not found");
 
@@ -169,6 +171,8 @@ public class CloudServiceCopier implements ICloudServiceCopier {
         editFiles();
 
         FileUtils.copyFile(serviceVersionHolder.get().getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
+
+        CloudAPI.getInstance().getConsole().debug("Copying files for service " + this.process.getServiceHolder().get().getName() + " finished.");
 
         return this.getServiceDirectory();
     }

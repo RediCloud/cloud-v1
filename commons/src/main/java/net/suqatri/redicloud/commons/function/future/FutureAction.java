@@ -63,6 +63,7 @@ public class FutureAction<V> extends CompletableFuture<V> {
         FutureAction<R> future = new FutureAction<>();
         this.whenComplete((v, t) -> {
             if(t != null) {
+                this.error = t;
                 future.completeExceptionally(t);
             } else {
                 R value = mapper.get(v);

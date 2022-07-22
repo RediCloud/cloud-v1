@@ -139,10 +139,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
 
     public void updateBucket(String identifier, String json){
         Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
-        if(!this.isBucketHolderCached(identifier)) {
-            CloudAPI.getInstance().getConsole().debug("Cant update Bucket[" + getRedisKey(identifier) + "]! Its not created or not linked yet");
-            return;
-        }
+        if(!this.isBucketHolderCached(identifier)) return;
         CloudAPI.getInstance().getConsole().trace("Updating bucket: " + getRedisKey(identifier));
         IRBucketHolder<T> bucketHolder = this.cachedBucketHolders.get(identifier);
         bucketHolder.mergeChanges(json);

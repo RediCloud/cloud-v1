@@ -11,6 +11,7 @@ import net.suqatri.redicloud.commons.function.future.FutureAction;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -79,17 +80,17 @@ public class NetworkComponentManager implements INetworkComponentManager {
                     for(IRBucketHolder<ICloudNode> node : nodes) {
                         this.cachedNodes.put(node.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.NODE, node.get().getUniqueId().toString()));
                     }
-                    futureAction.complete(this.cachedNodes.values());
-                });
-
-
-        CloudAPI.getInstance().getServiceManager().getServicesAsync()
-                .onFailure(futureAction)
-                .onSuccess(services -> {
-                    for(IRBucketHolder<ICloudService> service : services) {
-                        this.cachedServices.put(service.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.SERVICE, service.get().getUniqueId().toString()));
-                    }
-                    futureAction.complete(this.cachedServices.values());
+                    CloudAPI.getInstance().getServiceManager().getServicesAsync()
+                            .onFailure(futureAction)
+                            .onSuccess(services -> {
+                                for(IRBucketHolder<ICloudService> service : services) {
+                                    this.cachedServices.put(service.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.SERVICE, service.get().getUniqueId().toString()));
+                                }
+                                List<INetworkComponentInfo> infos = new ArrayList<>();
+                                infos.addAll(this.cachedServices.values());
+                                infos.addAll(this.cachedNodes.values());
+                                futureAction.complete(infos);
+                            });
                 });
 
         return futureAction;

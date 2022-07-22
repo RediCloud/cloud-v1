@@ -71,9 +71,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private boolean firstTemplatePulled = false;
     private final ITimeOutPollManager timeOutPollManager;
     private boolean restarting = false;
+    private String hostName;
 
     public NodeLauncher(String[] args) throws Exception{
         instance = this;
+        this.hostName = IPUtils.getPublicIP();
         this.scheduler = new Scheduler();
         this.commandManager = new CommandConsoleManager();
         this.console = this.commandManager.getNodeConsole();
@@ -158,7 +160,26 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private void handleProgrammArguments(String[] args) {
         if(args.length > 0){
             for (String argument : args) {
-                switch (argument.toLowerCase()){
+                switch (argument.split("=")[0]){
+                    default: {
+                        if(argument.split("=").length > 1){
+                            this.console.debug("Argument key: " + argument.split("=")[0]);
+                            this.console.debug("Argument value: " + argument.split("=")[1]);
+                        }else{
+                            this.console.debug("Argument: " + argument);
+                        }
+                    }
+                    case "--test": {
+                        this.console.setLogLevel(LogLevel.DEBUG);
+                        this.console.setCleanConsoleMode(false);
+                        continue;
+                    }
+                    case "--host" :
+                    case "--hostname": {
+                        this.hostName = argument.split("=")[1];
+                        this.console.info("Using hostname: " + this.hostName);
+                        continue;
+                    }
                     case "--test-console": {
                         this.console.disableColors();
                         continue;
@@ -238,7 +259,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.node.setCpuUsage(0);
             this.node.setStartedServiceUniqueIds(new ArrayList<>());
             this.node.setMemoryUsage(0);
-            this.node.setHostname(IPUtils.getPublicIP());
+            this.node.setHostname(this.hostName);
             this.node.setFilePath(Files.CLOUD_FOLDER.getFile().getAbsolutePath());
 
             runnable.run();

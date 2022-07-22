@@ -1,1 +1,1 @@
-java -jar node-base-1.0-BETA.jar --printstacktraces
+java -jar node-base-1.0-BETA.jar --test --hostname=127.0.0.1

@@ -12,7 +12,6 @@ public class NodeLauncherMain {
         long sleep = -1L;
         if(args.length != 0){
             for (String arg : args) {
-                System.out.println(" - " + args);
                 if(arg.startsWith("--sleep=")){
                     sleep = Long.parseLong(arg.substring("--sleep=".length()));
                 }

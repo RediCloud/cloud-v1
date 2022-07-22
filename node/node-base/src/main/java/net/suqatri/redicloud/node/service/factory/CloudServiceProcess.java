@@ -152,8 +152,12 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                 }
 
                 this.destroyScreen();
-                if(!this.serviceHolder.get().isStatic())
+                if(!this.serviceHolder.get().isStatic()) {
                     ((NodeCloudServiceManager) this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
+                }else{
+                    this.serviceHolder.get().setServiceState(ServiceState.OFFLINE);
+                    this.serviceHolder.get().updateAsync();
+                }
 
                 if (this.serviceDirectory.exists() && !this.serviceHolder.get().isStatic()) {
                     try {

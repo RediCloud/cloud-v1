@@ -97,7 +97,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                         this.process.isAlive()
                         && Thread.currentThread().isAlive()
                         && !Thread.currentThread().isInterrupted()
-                        && reader.ready()
+                        && StreamUtils.isOpen(this.process.getInputStream())
                 ) {
                     try {
                         String line = reader.readLine();
@@ -121,7 +121,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
                 this.factory.getPortManager().unusePort(this.port);
 
-                CloudAPI.getInstance().getEventManager().postLocal(new CloudServiceStoppedEvent(this.serviceHolder));
+                CloudAPI.getInstance().getEventManager().postGlobalAsync(new CloudServiceStoppedEvent(this.serviceHolder));
 
                 if(!this.serviceHolder.get().isStatic())
                     ((NodeCloudServiceManager)this.factory.getServiceManager())
@@ -129,7 +129,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
                 if(StreamUtils.isOpen(this.process.getErrorStream())) {
                     reader = new BufferedReader(new InputStreamReader(this.process.getErrorStream()));
-                    while (reader.ready()) {
+                    while (StreamUtils.isOpen(this.process.getErrorStream())) {
                         String line = reader.readLine();
                         CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN-ERROR [" + this.serviceHolder.get().getServiceName() + "]", line));
                     }

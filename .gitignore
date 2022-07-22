@@ -1,6 +1,8 @@
 .idea/
 *.iml
 
+releases/
+
 test/node-1/storage/redis.json
 test/node-2/storage/redis.json
 test/node-1/templates/

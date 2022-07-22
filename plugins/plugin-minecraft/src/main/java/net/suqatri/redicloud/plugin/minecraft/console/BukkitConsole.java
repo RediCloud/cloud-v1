@@ -15,8 +15,14 @@ public class BukkitConsole implements IConsole {
 
     private final Logger logger;
 
-    private final List<IConsoleLineEntry> lineEntries = new ArrayList<>();
+    private final List<IConsoleLineEntry> lineEntries;
     private LogLevel logLevel = LogLevel.INFO;
+
+    public BukkitConsole(Logger logger) {
+        this.logger = logger;
+        this.lineEntries = new ArrayList<>();
+        this.logLevel = LogLevel.valueOf(System.getenv("redicloud_log_level"));
+    }
 
     @Override
     public void log(IConsoleLine consoleLine) {

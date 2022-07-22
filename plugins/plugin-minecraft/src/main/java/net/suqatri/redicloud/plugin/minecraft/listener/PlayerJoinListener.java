@@ -10,8 +10,7 @@ public class PlayerJoinListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event){
-        MinecraftCloudAPI.getInstance().getService().setOnlineCount(Bukkit.getOnlinePlayers().size());
-        MinecraftCloudAPI.getInstance().getService().updateAsync();
+        MinecraftCloudAPI.getInstance().setOnlineCount(Bukkit.getOnlinePlayers().size());
     }
 
 }

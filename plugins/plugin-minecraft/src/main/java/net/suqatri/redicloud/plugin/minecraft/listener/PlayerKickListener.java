@@ -10,8 +10,7 @@ public class PlayerKickListener implements Listener {
 
     @EventHandler
     public void onKick(PlayerQuitEvent event){
-        MinecraftCloudAPI.getInstance().getService().setOnlineCount(Bukkit.getOnlinePlayers().size()-1);
-        MinecraftCloudAPI.getInstance().getService().updateAsync();
+        MinecraftCloudAPI.getInstance().setOnlineCount(Bukkit.getOnlinePlayers().size()-1);
     }
 
 }

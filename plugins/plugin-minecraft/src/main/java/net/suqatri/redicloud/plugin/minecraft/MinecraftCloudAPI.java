@@ -1,6 +1,7 @@
 package net.suqatri.redicloud.plugin.minecraft;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.suqatri.redicloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.redicloud.api.impl.player.CloudPlayerManager;
 import net.suqatri.redicloud.api.impl.redis.RedisConnection;
@@ -53,6 +54,10 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private final CloudServiceVersionManager serviceVersionManager;
     private BukkitTask updaterTask;
     private final CloudPlayerManager playerManager;
+    @Setter
+    private String chatPrefix = "§bRedi§3Cloud §8» §f";
+    @Setter
+    private int onlineCount = 0;
 
     public MinecraftCloudAPI(JavaPlugin javaPlugin) {
         super(ApplicationType.SERVICE_MINECRAFT);
@@ -67,22 +72,18 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.serviceVersionManager = new CloudServiceVersionManager();
         this.playerManager = new CloudPlayerManager();
 
-        init();
+        initRedis();
         registerInternalListeners();
         registerInternalPackets();
         initListeners();
         initThisService();
     }
 
-    private void initListeners(){
+    private void initListeners() {
         Bukkit.getPluginManager().registerEvents(new ServerListPingListener(), this.javaPlugin);
         Bukkit.getPluginManager().registerEvents(new PlayerKickListener(), this.javaPlugin);
         Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), this.javaPlugin);
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(), this.javaPlugin);
-    }
-
-    private void init(){
-        initRedis();
     }
 
     private void initThisService(){
@@ -90,8 +91,14 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
         this.service.update();
-
         getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service.getHolder()));
+
+        this.updaterTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.javaPlugin, () -> {
+            if(this.service.getOnlineCount() != this.onlineCount) {
+                this.service.setOnlineCount(this.onlineCount);
+                this.service.updateAsync();
+            }
+        }, 0, 20);
     }
 
     private void initRedis() {

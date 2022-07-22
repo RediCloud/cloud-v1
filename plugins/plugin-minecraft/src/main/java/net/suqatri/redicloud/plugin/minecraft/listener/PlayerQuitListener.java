@@ -10,8 +10,7 @@ public class PlayerQuitListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event){
-        MinecraftCloudAPI.getInstance().getService().setOnlineCount(Bukkit.getOnlinePlayers().size()-1);
-        MinecraftCloudAPI.getInstance().getService().updateAsync();
+        MinecraftCloudAPI.getInstance().setOnlineCount(Bukkit.getOnlinePlayers().size()-1);
     }
 
 }

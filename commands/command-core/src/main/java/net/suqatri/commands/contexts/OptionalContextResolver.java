@@ -28,10 +28,11 @@ import net.suqatri.commands.CommandIssuer;
 
 /**
  * The same as {@link ContextResolver}, however it can accept a null context.
- *
+ * <p>
  * If the parameter was marked optional, will still be called with an empty args list
  *
  * @param <T>
  * @param <C>
  */
-public interface OptionalContextResolver <T, C extends CommandExecutionContext<?, ? extends CommandIssuer>> extends ContextResolver <T, C> {}
+public interface OptionalContextResolver<T, C extends CommandExecutionContext<?, ? extends CommandIssuer>> extends ContextResolver<T, C> {
+}

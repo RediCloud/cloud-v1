@@ -14,7 +14,7 @@ public class ServiceTemplateDeletePacket extends CloudPacket {
     @Override
     public void receive() {
         File file = new File(Files.TEMPLATE_FOLDER.getFile(), this.templateName);
-        if(file.exists()){
+        if (file.exists()) {
             file.delete();
         }
     }

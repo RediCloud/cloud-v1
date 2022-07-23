@@ -9,6 +9,7 @@ public interface IConsole {
     void log(IConsoleLine consoleLine);
 
     void error(String message, Throwable throwable);
+
     void error(String message);
 
     void warn(String message);
@@ -21,8 +22,9 @@ public interface IConsole {
 
     void fatal(String message, Throwable throwable);
 
-    void setLogLevel(LogLevel level);
     LogLevel getLogLevel();
+
+    void setLogLevel(LogLevel level);
 
     default boolean canLog(IConsoleLine consoleLine) {
         return consoleLine.getLogLevel().getId() >= getLogLevel().getId();

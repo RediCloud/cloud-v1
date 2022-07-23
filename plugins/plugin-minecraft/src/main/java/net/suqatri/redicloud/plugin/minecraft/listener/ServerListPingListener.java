@@ -8,7 +8,7 @@ import org.bukkit.event.server.ServerListPingEvent;
 public class ServerListPingListener implements Listener {
 
     @EventHandler
-    public void onServerListPing(ServerListPingEvent event){
+    public void onServerListPing(ServerListPingEvent event) {
         event.setMotd(MinecraftCloudAPI.getInstance().getService().getMotd());
         event.setMaxPlayers(MinecraftCloudAPI.getInstance().getService().getMaxPlayers());
 

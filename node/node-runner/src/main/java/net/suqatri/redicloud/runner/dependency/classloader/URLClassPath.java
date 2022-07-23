@@ -13,30 +13,29 @@ public class URLClassPath {
 
     private final URLClassLoader classLoader;
 
-    public URLClassPath(final URLClassLoader classLoader){
+    public URLClassPath(final URLClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 
-    public void addUrl(final URL url){
+    public void addUrl(final URL url) {
         Unsafe unsafe;
         MethodHandles.Lookup lookup;
         try {
             final Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             theUnsafe.setAccessible(true);
-            unsafe = (Unsafe)theUnsafe.get(null);
+            unsafe = (Unsafe) theUnsafe.get(null);
             unsafe.ensureClassInitialized(MethodHandles.Lookup.class);
             final Field lookupField = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
             final Object lookupBase = unsafe.staticFieldBase(lookupField);
             final long lookupOffset = unsafe.staticFieldOffset(lookupField);
-            lookup = (MethodHandles.Lookup)unsafe.getObject(lookupBase, lookupOffset);
+            lookup = (MethodHandles.Lookup) unsafe.getObject(lookupBase, lookupOffset);
         } catch (Throwable t) {
             throw new IllegalStateException("Unsafe not found");
         }
         Field field;
         try {
             field = URLClassLoader.class.getDeclaredField("ucp");
-        }
-        catch (NoSuchFieldException e2) {
+        } catch (NoSuchFieldException e2) {
             throw new RuntimeException("Couldn't find ucp field from ClassLoader!");
         }
         try {
@@ -44,8 +43,7 @@ public class URLClassPath {
             final Object ucp = unsafe.getObject(this.classLoader, ucpOffset);
             final MethodHandle methodHandle = lookup.findVirtual(ucp.getClass(), "addURL", MethodType.methodType(Void.TYPE, URL.class));
             methodHandle.invoke(ucp, url);
-        }
-        catch (Throwable throwable) {
+        } catch (Throwable throwable) {
             throw new RuntimeException("Something wrong while adding spigot.jar to class path!", throwable);
         }
     }

@@ -28,7 +28,7 @@ public abstract class RBucketObject implements IRBucketObject {
     }
 
     @Override
-    public void merged(){
+    public void merged() {
 
     }
 

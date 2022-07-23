@@ -13,12 +13,12 @@ public class ScreenLine implements IScreenLine {
     private final long time = System.currentTimeMillis();
     private final String line;
 
-    public ScreenLine(){
+    public ScreenLine() {
         this.line = null;
         this.serviceName = null;
     }
 
-    public ScreenLine(String serviceName, String line){
+    public ScreenLine(String serviceName, String line) {
         this.serviceName = serviceName;
         this.line = line;
     }

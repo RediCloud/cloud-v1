@@ -1,6 +1,5 @@
 package net.suqatri.redicloud.node.service.factory;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.redicloud.api.CloudAPI;
@@ -18,7 +17,8 @@ import net.suqatri.redicloud.node.service.NodeCloudServiceManager;
 
 import java.util.UUID;
 
-@Getter @Setter
+@Getter
+@Setter
 public class NodeCloudServiceFactory extends CloudServiceFactory implements ICloudNodeServiceFactory {
 
     private final NodeCloudServiceManager serviceManager;
@@ -30,9 +30,9 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
         this.serviceManager = serviceManager;
         this.portManager = new CloudNodePortManager();
         this.thread = new CloudNodeServiceThread(this);
-        if(NodeLauncher.getInstance().isFirstTemplatePulled()){
+        if (NodeLauncher.getInstance().isFirstTemplatePulled()) {
             this.thread.start();
-        }else{
+        } else {
             CloudAPI.getInstance().getEventManager().register(FilePulledTemplatesEvent.class, event -> this.thread.start());
         }
     }
@@ -50,39 +50,39 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
         FutureAction<Boolean> futureAction = new FutureAction<>();
 
         CloudAPI.getInstance().getServiceManager().getServiceAsync(uniqueId)
-            .onFailure(futureAction)
-            .onSuccess(serviceHolder -> {
-                if(!serviceHolder.get().getNodeId().equals(NodeLauncher.getInstance().getNode().getUniqueId())){
-                    super.destroyServiceAsync(uniqueId, force)
-                        .onFailure(futureAction)
-                        .onSuccess(futureAction::complete);
-                    return;
-                }
-                ICloudServiceProcess process = this.thread.getProcesses().get(uniqueId);
-                if(process == null) {
-                    CloudAPI.getInstance().getConsole().debug("Service " + uniqueId + " was removed from queue.");
-                    this.thread.getWaitForRemove().add(uniqueId);
-                    futureAction.complete(true);
-                    return;
-                }
+                .onFailure(futureAction)
+                .onSuccess(serviceHolder -> {
+                    if (!serviceHolder.get().getNodeId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) {
+                        super.destroyServiceAsync(uniqueId, force)
+                                .onFailure(futureAction)
+                                .onSuccess(futureAction::complete);
+                        return;
+                    }
+                    ICloudServiceProcess process = this.thread.getProcesses().get(uniqueId);
+                    if (process == null) {
+                        CloudAPI.getInstance().getConsole().debug("Service " + uniqueId + " was removed from queue.");
+                        this.thread.getWaitForRemove().add(uniqueId);
+                        futureAction.complete(true);
+                        return;
+                    }
 
-                CloudAPI.getInstance().getConsole().debug("Service " + uniqueId + " is being stopped.");
-                process.stopAsync(force)
-                    .onFailure(futureAction)
-                    .onSuccess(b -> {
-                        if(process.getServiceHolder().get().isStatic()) {
-                            process.getServiceHolder().get().setServiceState(ServiceState.OFFLINE);
-                            process.getServiceHolder().get().updateAsync()
-                                    .onFailure(futureAction)
-                                    .onSuccess(v -> futureAction.complete(true));
-                        }else{
-                            this.serviceManager.removeFromFetcher(process.getServiceHolder().get().getServiceName());
-                            this.serviceManager.deleteBucketAsync(process.getServiceHolder().get().getUniqueId().toString())
-                                    .onFailure(futureAction)
-                                    .onSuccess(v -> futureAction.complete(true));
-                        }
-                    });
-            });
+                    CloudAPI.getInstance().getConsole().debug("Service " + uniqueId + " is being stopped.");
+                    process.stopAsync(force)
+                            .onFailure(futureAction)
+                            .onSuccess(b -> {
+                                if (process.getServiceHolder().get().isStatic()) {
+                                    process.getServiceHolder().get().setServiceState(ServiceState.OFFLINE);
+                                    process.getServiceHolder().get().updateAsync()
+                                            .onFailure(futureAction)
+                                            .onSuccess(v -> futureAction.complete(true));
+                                } else {
+                                    this.serviceManager.removeFromFetcher(process.getServiceHolder().get().getServiceName());
+                                    this.serviceManager.deleteBucketAsync(process.getServiceHolder().get().getUniqueId().toString())
+                                            .onFailure(futureAction)
+                                            .onSuccess(v -> futureAction.complete(true));
+                                }
+                            });
+                });
 
         return futureAction;
     }

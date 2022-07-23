@@ -2,6 +2,7 @@ package net.suqatri.redicloud.node.setup.group;
 
 import lombok.Getter;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
+import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.console.setup.Setup;
 import net.suqatri.redicloud.node.console.setup.SetupHeaderBehaviour;
 import net.suqatri.redicloud.node.console.setup.annotations.AnswerCompleter;
@@ -13,7 +14,6 @@ import net.suqatri.redicloud.node.console.setup.suggester.BooleanSuggester;
 import net.suqatri.redicloud.node.setup.condition.GroupMemoryCondition;
 import net.suqatri.redicloud.node.setup.condition.ServiceVersionExistsCondition;
 import net.suqatri.redicloud.node.setup.suggester.ServiceEnvironmentSuggester;
-import net.suqatri.redicloud.node.NodeLauncher;
 
 @Getter
 public class GroupSetup extends Setup<GroupSetup> {

@@ -1,10 +1,10 @@
 package net.suqatri.redicloud.api.impl.service.configuration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import net.suqatri.redicloud.api.impl.group.CloudGroup;
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.redicloud.api.group.ICloudGroup;
+import net.suqatri.redicloud.api.impl.group.CloudGroup;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
@@ -41,7 +41,7 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
 
     @Override
     public void listenToStart() {
-        if(this.startListener != null) return;
+        if (this.startListener != null) return;
         this.startListener = new FutureAction<>();
     }
 

@@ -1,5 +1,9 @@
 package net.suqatri.redicloud.node.commands;
 
+import net.suqatri.commands.CommandHelp;
+import net.suqatri.commands.CommandSender;
+import net.suqatri.commands.ConsoleCommand;
+import net.suqatri.commands.annotation.*;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.group.GroupProperty;
 import net.suqatri.redicloud.api.group.ICloudGroup;
@@ -11,10 +15,6 @@ import net.suqatri.redicloud.commons.ConditionChecks;
 import net.suqatri.redicloud.commons.function.future.FutureActionCollection;
 import net.suqatri.redicloud.node.console.setup.SetupControlState;
 import net.suqatri.redicloud.node.setup.group.GroupSetup;
-import net.suqatri.commands.CommandHelp;
-import net.suqatri.commands.CommandSender;
-import net.suqatri.commands.ConsoleCommand;
-import net.suqatri.commands.annotation.*;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -42,37 +42,37 @@ public class GroupCommand extends ConsoleCommand {
     @Subcommand("info")
     @Description("Show information about a group")
     @Syntax("<Name>")
-    public void onInfo(CommandSender commandSender, String groupName){
+    public void onInfo(CommandSender commandSender, String groupName) {
         CloudAPI.getInstance().getConsole().trace("Checking existence of group " + groupName + "... ");
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
-            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
-            .onSuccess(exists -> {
-               if(!exists){
-                   commandSender.sendMessage("Group " + groupName + " does not exist");
-                   return;
-               }
+                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
+                .onSuccess(exists -> {
+                    if (!exists) {
+                        commandSender.sendMessage("Group " + groupName + " does not exist");
+                        return;
+                    }
 
-               CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
-                   .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
-                   .onSuccess(groupHolder -> {
-                    groupHolder.get().getOnlineServices()
-                           .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
-                           .onSuccess(services -> {
-                               StringBuilder builder = new StringBuilder();
-                               if(services.isEmpty()) builder.append("No services");
-                               for (IRBucketHolder<ICloudService> service : services) {
-                                   if(!builder.toString().isEmpty()) builder.append("§8, ");
-                                    builder.append("%hc");
-                                    builder.append(service.get().getServiceName());
-                               }
-                               commandSender.sendMessage("%tcGroup info of %hc" + groupHolder.get().getName() + "§8:");
-                               commandSender.sendMessage("  JVM-Flags: %hc" + Arrays.toString(groupHolder.get().getJvmArguments()));
-                               commandSender.sendMessage("  Process-Arguments: %hc" + Arrays.toString(groupHolder.get().getProcessParameters()));
-                               commandSender.sendMessage("  Environment: %hc" + groupHolder.get().getServiceEnvironment().name());
-                               commandSender.sendMessage("  Services: %hc" + builder.toString());
-                           });
-                   });
-            });
+                    CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
+                            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
+                            .onSuccess(groupHolder -> {
+                                groupHolder.get().getOnlineServices()
+                                        .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
+                                        .onSuccess(services -> {
+                                            StringBuilder builder = new StringBuilder();
+                                            if (services.isEmpty()) builder.append("No services");
+                                            for (IRBucketHolder<ICloudService> service : services) {
+                                                if (!builder.toString().isEmpty()) builder.append("§8, ");
+                                                builder.append("%hc");
+                                                builder.append(service.get().getServiceName());
+                                            }
+                                            commandSender.sendMessage("%tcGroup info of %hc" + groupHolder.get().getName() + "§8:");
+                                            commandSender.sendMessage("  JVM-Flags: %hc" + Arrays.toString(groupHolder.get().getJvmArguments()));
+                                            commandSender.sendMessage("  Process-Arguments: %hc" + Arrays.toString(groupHolder.get().getProcessParameters()));
+                                            commandSender.sendMessage("  Environment: %hc" + groupHolder.get().getServiceEnvironment().name());
+                                            commandSender.sendMessage("  Services: %hc" + builder.toString());
+                                        });
+                            });
+                });
     }
 
     @Subcommand("create")
@@ -153,16 +153,16 @@ public class GroupCommand extends ConsoleCommand {
                     }
                     CloudAPI.getInstance().getConsole().trace("Processing online count task");
                     futureActionCollection.process()
-                        .onFailure(e2 -> commandSender.sendMessage("§cFailed to get groups"))
-                        .onSuccess(map -> {
-                            commandSender.sendMessage("");
-                            commandSender.sendMessage("Groups §8(%hc" + holders.size() + "§8):");
-                            for (IRBucketHolder<ICloudGroup> holder : holders) {
-                                ICloudGroup group = holder.get();
-                                commandSender.sendMessage("   " + group.getName() + " §7(" + map.get(group.getUniqueId()) + "/" + group.getMaxServices() + ")");
-                            }
-                            commandSender.sendMessage("");
-                        });
+                            .onFailure(e2 -> commandSender.sendMessage("§cFailed to get groups"))
+                            .onSuccess(map -> {
+                                commandSender.sendMessage("");
+                                commandSender.sendMessage("Groups §8(%hc" + holders.size() + "§8):");
+                                for (IRBucketHolder<ICloudGroup> holder : holders) {
+                                    ICloudGroup group = holder.get();
+                                    commandSender.sendMessage("   " + group.getName() + " §7(" + map.get(group.getUniqueId()) + "/" + group.getMaxServices() + ")");
+                                }
+                                commandSender.sendMessage("");
+                            });
                 });
     }
 
@@ -198,7 +198,7 @@ public class GroupCommand extends ConsoleCommand {
                                             commandSender.sendMessage("Group %hc" + name + "%tc max memory set to %hc" + intValue);
                                             break;
                                         case FALLBACK:
-                                            if(!ConditionChecks.isBoolean(value)){
+                                            if (!ConditionChecks.isBoolean(value)) {
                                                 commandSender.sendMessage("Value must be a boolean");
                                                 return;
                                             }
@@ -255,7 +255,7 @@ public class GroupCommand extends ConsoleCommand {
                                 } catch (Exception e) {
                                     StringBuilder builder = new StringBuilder();
                                     for (GroupProperty property : GroupProperty.values()) {
-                                        if(!builder.toString().isEmpty()) builder.append("§8, %hc");
+                                        if (!builder.toString().isEmpty()) builder.append("§8, %hc");
                                         builder.append(property.name());
                                     }
                                     commandSender.sendMessage("§cInvalid property! Properties: " + builder);

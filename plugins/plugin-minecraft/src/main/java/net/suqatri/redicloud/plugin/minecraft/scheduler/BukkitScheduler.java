@@ -59,15 +59,15 @@ public class BukkitScheduler implements IScheduler<BukkitSchedulerTask, BukkitRe
     @Override
     public Runnable createRepeatTask(IRepeatScheduler schedulerTask, Runnable runnable) {
         Runnable task = () -> {
-            if((schedulerTask.isAsyncFilter() && !isMainThread()) || !schedulerTask.isAsyncFilter()){
-                if(!schedulerTask.filters()) {
+            if ((schedulerTask.isAsyncFilter() && !isMainThread()) || !schedulerTask.isAsyncFilter()) {
+                if (!schedulerTask.filters()) {
                     schedulerTask.cancel();
                     return;
                 }
                 runnable.run();
-            }else {
+            } else {
                 schedulerTask.filters((Consumer<Boolean>) filterState -> {
-                    if(!filterState){
+                    if (!filterState) {
                         schedulerTask.cancel();
                         return;
                     }

@@ -35,6 +35,8 @@ import java.util.stream.Collectors;
 
 public class ACFBungeeUtil {
 
+    public static final char COLOR_CHAR = '\u00A7';
+
     public static String color(String message) {
         return ChatColor.translateAlternateColorCodes('&', message);
     }
@@ -60,6 +62,8 @@ public class ACFBungeeUtil {
         return replaceChatString(message, Pattern.compile(Pattern.quote(replace), Pattern.CASE_INSENSITIVE), with);
     }
 
+    //Imported from org.bukkit.ChatColor
+
     public static String replaceChatString(String message, Pattern replace, String with) {
         final String[] split = replace.split(message + "1");
 
@@ -74,10 +78,6 @@ public class ACFBungeeUtil {
         }
         return message.substring(0, message.length() - 1);
     }
-
-    //Imported from org.bukkit.ChatColor
-
-    public static final char COLOR_CHAR = '\u00A7';
 
     public static String getLastColors(String input) {
         StringBuilder result = new StringBuilder();

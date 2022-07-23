@@ -50,6 +50,28 @@ class Annotations<M extends CommandManager> extends AnnotationLookups {
         this.manager = manager;
     }
 
+    private static Annotation getAnnotationRecursive(AnnotatedElement object, Class<? extends Annotation> annoClass, Collection<Annotation> checked) {
+        if (object.isAnnotationPresent(annoClass)) {
+            return object.getAnnotation(annoClass);
+        } else {
+            for (Annotation otherAnnotation : object.getDeclaredAnnotations()) {
+                if (!otherAnnotation.annotationType().getPackage().getName().startsWith("java.")) {
+                    if (checked.contains(otherAnnotation)) return null;
+                    checked.add(otherAnnotation);
+                    final Annotation foundAnnotation = getAnnotationRecursive(otherAnnotation.annotationType(), annoClass, checked);
+                    if (foundAnnotation != null) {
+                        return foundAnnotation;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean hasOption(int options, int option) {
+        return (options & option) == option;
+    }
+
     String getAnnotationValue(AnnotatedElement object, Class<? extends Annotation> annoClass, int options) {
         Annotation annotation = getAnnotationRecursive(object, annoClass, new HashSet<>());
         String value = null;
@@ -100,28 +122,6 @@ class Annotations<M extends CommandManager> extends AnnotationLookups {
         }
 
         return value;
-    }
-
-    private static Annotation getAnnotationRecursive(AnnotatedElement object, Class<? extends Annotation> annoClass, Collection<Annotation> checked) {
-        if (object.isAnnotationPresent(annoClass)) {
-            return object.getAnnotation(annoClass);
-        } else {
-            for (Annotation otherAnnotation : object.getDeclaredAnnotations()) {
-                if (!otherAnnotation.annotationType().getPackage().getName().startsWith("java.")) {
-                    if (checked.contains(otherAnnotation)) return null;
-                    checked.add(otherAnnotation);
-                    final Annotation foundAnnotation = getAnnotationRecursive(otherAnnotation.annotationType(), annoClass, checked);
-                    if (foundAnnotation != null) {
-                        return foundAnnotation;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static boolean hasOption(int options, int option) {
-        return (options & option) == option;
     }
 
 }

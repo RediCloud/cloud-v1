@@ -1,18 +1,18 @@
 package net.suqatri.redicloud.plugin.proxy.command;
 
 import net.md_5.bungee.api.plugin.Plugin;
-import net.suqatri.redicloud.api.console.ICommandManager;
 import net.suqatri.commands.BaseCommand;
 import net.suqatri.commands.BungeeCommandManager;
 import net.suqatri.commands.Locales;
 import net.suqatri.commands.MessageKeys;
 import net.suqatri.commands.locales.MessageKeyProvider;
+import net.suqatri.redicloud.api.console.ICommandManager;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class BungeeCloudCommandManager extends BungeeCommandManager implements ICommandManager<BaseCommand>{
+public class BungeeCloudCommandManager extends BungeeCommandManager implements ICommandManager<BaseCommand> {
 
     private final Map<MessageKeyProvider, String> messages;
 
@@ -24,7 +24,7 @@ public class BungeeCloudCommandManager extends BungeeCommandManager implements I
     }
 
 
-    private void loadDefaultLanguage(){
+    private void loadDefaultLanguage() {
         addLanguageKey(MessageKeys.PERMISSION_DENIED, "§cYou don't have permission to use this command.");
         addLanguageKey(MessageKeys.PERMISSION_DENIED_PARAMETER, "§cYou don't have permission to use this parameter!");
         addLanguageKey(MessageKeys.ERROR_GENERIC_LOGGED, "§cError: %error%");
@@ -54,11 +54,11 @@ public class BungeeCloudCommandManager extends BungeeCommandManager implements I
         getLocales().setDefaultLocale(Locales.ENGLISH);
     }
 
-    public void saveLanguage(Locale locale){
+    public void saveLanguage(Locale locale) {
         this.getLocales().addMessages(locale, messages);
     }
 
-    public void addLanguageKey(MessageKeys keys, String value){
+    public void addLanguageKey(MessageKeys keys, String value) {
         messages.put(keys, value);
     }
 

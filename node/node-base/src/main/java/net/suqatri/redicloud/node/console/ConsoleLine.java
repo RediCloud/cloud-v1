@@ -11,22 +11,22 @@ import java.io.Serializable;
 @Getter
 public class ConsoleLine implements IConsoleLine, Cloneable, Serializable {
 
-    @Setter
-    private long time = System.currentTimeMillis();
     private final LogLevel logLevel;
     private final String prefix;
     private final String message;
+    @Setter
+    private long time = System.currentTimeMillis();
     private boolean stored = true;
     private boolean printTimestamp = true;
     private boolean printPrefix = true;
 
-    public ConsoleLine(LogLevel logLevel, String message){
+    public ConsoleLine(LogLevel logLevel, String message) {
         this.logLevel = logLevel;
         this.message = message;
         this.prefix = logLevel.name();
     }
 
-    public ConsoleLine(String prefix, String message){
+    public ConsoleLine(String prefix, String message) {
         this.logLevel = LogLevel.INFO;
         this.prefix = prefix;
         this.message = message;

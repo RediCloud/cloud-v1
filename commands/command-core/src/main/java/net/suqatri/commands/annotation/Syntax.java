@@ -31,10 +31,10 @@ import java.lang.annotation.Target;
 /**
  * Specifies the syntax to be used when executing this command.
  * It should not include any descriptions of the arguments nor when some are allowed and when they are not.
- *
+ * <p>
  * Use of this annotation is not necessary. Syntax will be automatically generated for you.
  * Use this annotation to override automatic syntax
- *
+ * <p>
  * Use {@link Description} together with the help menu for that purpose.
  **/
 @Retention(RetentionPolicy.RUNTIME)

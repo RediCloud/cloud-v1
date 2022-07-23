@@ -10,17 +10,17 @@ public class NodeLauncherMain {
         ARGUMENTS = args;
         System.out.println("Arguments: " + args.length);
         long sleep = -1L;
-        if(args.length != 0){
+        if (args.length != 0) {
             for (String arg : args) {
-                if(arg.startsWith("--sleep=")){
+                if (arg.startsWith("--sleep=")) {
                     sleep = Long.parseLong(arg.substring("--sleep=".length()));
                 }
             }
         }
         try {
-            if(sleep != -1L){
+            if (sleep != -1L) {
                 SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-                System.out.println("Starting node at " + sdf.format(System.currentTimeMillis()+sleep));
+                System.out.println("Starting node at " + sdf.format(System.currentTimeMillis() + sleep));
                 Thread.sleep(sleep);
             }
             new NodeLauncher(args);

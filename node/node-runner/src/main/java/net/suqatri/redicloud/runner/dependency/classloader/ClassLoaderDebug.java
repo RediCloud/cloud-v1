@@ -2,7 +2,7 @@ package net.suqatri.redicloud.runner.dependency.classloader;
 
 public class ClassLoaderDebug {
 
-    public ClassLoaderDebug(){
+    public ClassLoaderDebug() {
         System.out.println("System Class Loader:");
         System.out.println("- " + ClassLoader.getSystemClassLoader().getClass().getName());
         System.out.println("Current Class Loader:");

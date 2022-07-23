@@ -7,28 +7,39 @@ import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-public interface IFileTransferReceiveProcess extends IFileTransferProcess{
+public interface IFileTransferReceiveProcess extends IFileTransferProcess {
 
     INetworkComponentInfo getSenderNetworkComponentInfo();
-    UUID getTransferId();
-    int getIndexes();
-    TreeMap<Integer, byte[]> getReceivedFileData();
-
-    String getOriginalFilePath();
-    String getDestinationFilePath();
-    File getZipFile();
-    String getTargetFilePathToDelete();
-
-    AtomicLong getLastAction();
 
     void setSenderNetworkComponentInfo(INetworkComponentInfo senderNetworkComponentInfo);
+
+    UUID getTransferId();
+
+    int getIndexes();
+
     void setIndexes(int indexes);
+
+    TreeMap<Integer, byte[]> getReceivedFileData();
+
     void setReceivedFileData(TreeMap<Integer, byte[]> receivedFileData);
 
+    String getOriginalFilePath();
+
     void setOriginalFilePath(String originalFilePath);
+
+    String getDestinationFilePath();
+
     void setDestinationFilePath(String destinationFilePath);
+
+    File getZipFile();
+
     void setZipFile(File zipFile);
+
+    String getTargetFilePathToDelete();
+
     void setTargetFilePathToDelete(String targetFilePathToDelete);
+
+    AtomicLong getLastAction();
 
     void setLastAction(AtomicLong lastAction);
 

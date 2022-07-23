@@ -26,8 +26,8 @@ package net.suqatri.commands;
 import java.util.*;
 
 public class CommandCompletionContext<I extends CommandIssuer> {
-    private final RegisteredCommand command;
     protected final I issuer;
+    private final RegisteredCommand command;
     private final String input;
     private final String config;
     private final Map<String, String> configs = new HashMap<>();

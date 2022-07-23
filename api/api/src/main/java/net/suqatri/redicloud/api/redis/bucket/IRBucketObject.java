@@ -10,7 +10,9 @@ public interface IRBucketObject extends Serializable, IRUpdateAble {
     IRBucketHolder<IRBucketObject> getHolder();
 
     void update();
+
     FutureAction<Void> updateAsync();
+
     void merged();
 
 }

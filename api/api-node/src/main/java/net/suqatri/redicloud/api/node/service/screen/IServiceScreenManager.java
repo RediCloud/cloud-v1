@@ -16,6 +16,7 @@ public interface IServiceScreenManager {
     void leave(IServiceScreen serviceScreen);
 
     boolean isActive(IServiceScreen serviceScreen);
+
     boolean isActive(UUID serviceId);
 
     Collection<IServiceScreen> getActiveScreens();

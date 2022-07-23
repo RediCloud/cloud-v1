@@ -42,17 +42,17 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private static ProxyCloudAPI instance;
 
     private final Plugin plugin;
-    private CloudService service;
-    private RedisConnection redisConnection;
     private final CloudServiceFactory serviceFactory;
     private final CloudServiceManager serviceManager;
     private final CloudServiceVersionManager serviceVersionManager;
     private final CloudServiceTemplateManager serviceTemplateManager;
-    private ScheduledTask updaterTask;
     private final ProxyConsole console;
     private final BungeeCloudCommandManager commandManager;
     private final BungeeScheduler scheduler;
     private final CloudPlayerManager playerManager;
+    private CloudService service;
+    private RedisConnection redisConnection;
+    private ScheduledTask updaterTask;
     @Setter
     private String chatPrefix = "§bRedi§3Cloud §8» §f";
     @Setter
@@ -79,7 +79,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         initThisService();
     }
 
-    private void initListeners(){
+    private void initListeners() {
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new LoginListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ProxyPingListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerSwitchListener());
@@ -92,47 +92,47 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         getEventManager().register(new CloudServiceStoppedListener());
     }
 
-    void registerStartedService(){
+    void registerStartedService() {
         this.serviceManager.getServicesAsync()
-            .onFailure(e -> this.console.error("Failed to register started service", e))
-            .onSuccess(serviceHolders -> {
-                ProxyServer.getInstance().getServers().clear();
+                .onFailure(e -> this.console.error("Failed to register started service", e))
+                .onSuccess(serviceHolders -> {
+                    ProxyServer.getInstance().getServers().clear();
 
-                for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                    if(serviceHolder.get().getEnvironment() == ServiceEnvironment.PROXY) continue;
-                    ServerInfo serverInfo = ProxyServer.getInstance().constructServerInfo(
-                            serviceHolder.get().getServiceName(),
-                            new InetSocketAddress(serviceHolder.get().getHostName(), serviceHolder.get().getPort()),
-                            serviceHolder.get().getMotd(),
+                    for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
+                        if (serviceHolder.get().getEnvironment() == ServiceEnvironment.PROXY) continue;
+                        ServerInfo serverInfo = ProxyServer.getInstance().constructServerInfo(
+                                serviceHolder.get().getServiceName(),
+                                new InetSocketAddress(serviceHolder.get().getHostName(), serviceHolder.get().getPort()),
+                                serviceHolder.get().getMotd(),
+                                false);
+                        ProxyServer.getInstance().getServers().put(serverInfo.getName(), serverInfo);
+                        CloudAPI.getInstance().getConsole().debug("Registered service: " + serverInfo.getName());
+                    }
+
+                    ServerInfo fallback = ProxyServer.getInstance().constructServerInfo(
+                            "fallback",
+                            new InetSocketAddress("127.0.0.1", 0),
+                            "Fallback",
                             false);
-                    ProxyServer.getInstance().getServers().put(serverInfo.getName(), serverInfo);
-                    CloudAPI.getInstance().getConsole().debug("Registered service: " + serverInfo.getName());
-                }
+                    ProxyServer.getInstance().getServers().put(fallback.getName(), fallback);
+                    CloudAPI.getInstance().getConsole().debug("Registered service: " + fallback.getName());
 
-                ServerInfo fallback = ProxyServer.getInstance().constructServerInfo(
-                        "fallback",
-                        new InetSocketAddress("127.0.0.1", 0),
-                        "Fallback",
-                        false);
-                ProxyServer.getInstance().getServers().put(fallback.getName(), fallback);
-                CloudAPI.getInstance().getConsole().debug("Registered service: " + fallback.getName());
-
-                ServerInfo lobby = ProxyServer.getInstance().constructServerInfo(
-                        "lobby",
-                        new InetSocketAddress("127.0.0.1", 0),
-                        "lobby",
-                        false);
-                ProxyServer.getInstance().getServers().put(lobby.getName(), lobby);
-                CloudAPI.getInstance().getConsole().debug("Registered service: " + lobby.getName());
-            });
+                    ServerInfo lobby = ProxyServer.getInstance().constructServerInfo(
+                            "lobby",
+                            new InetSocketAddress("127.0.0.1", 0),
+                            "lobby",
+                            false);
+                    ProxyServer.getInstance().getServers().put(lobby.getName(), lobby);
+                    CloudAPI.getInstance().getConsole().debug("Registered service: " + lobby.getName());
+                });
     }
 
-    private void initThisService(){
+    private void initThisService() {
         this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_service_id"))).getImpl(CloudService.class);
         getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service.getHolder()));
 
         this.updaterTask = ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
-            if(this.service.getOnlineCount() != this.onlineCount) {
+            if (this.service.getOnlineCount() != this.onlineCount) {
                 this.service.setOnlineCount(this.onlineCount);
                 this.service.updateAsync();
             }
@@ -158,7 +158,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     @Override
     public void updateApplicationProperties(CloudService object) {
-        if(!object.getUniqueId().equals(service.getUniqueId())) return;
+        if (!object.getUniqueId().equals(service.getUniqueId())) return;
 
     }
 
@@ -175,10 +175,11 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e) {
+        }
 
-        if(this.updaterTask != null) this.updaterTask.cancel();
+        if (this.updaterTask != null) this.updaterTask.cancel();
 
-        if(this.redisConnection != null) this.redisConnection.getClient().shutdown();
+        if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
     }
 }

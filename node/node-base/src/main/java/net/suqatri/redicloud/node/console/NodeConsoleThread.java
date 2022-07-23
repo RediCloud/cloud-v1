@@ -1,10 +1,10 @@
 package net.suqatri.redicloud.node.console;
 
+import net.suqatri.commands.RootCommand;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.console.LogLevel;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
 import net.suqatri.redicloud.node.NodeLauncher;
-import net.suqatri.commands.RootCommand;
 import org.jline.reader.UserInterruptException;
 
 import java.util.ArrayList;
@@ -25,30 +25,30 @@ public class NodeConsoleThread extends Thread {
     public void run() {
         String line;
         try {
-            while(!Thread.currentThread().isInterrupted()){
+            while (!Thread.currentThread().isInterrupted()) {
                 line = this.nodeConsole.getLineReader().readLine(this.nodeConsole.getPrefix());
                 handleInput(line);
             }
-        }catch (UserInterruptException e){
+        } catch (UserInterruptException e) {
             CloudAPI.getInstance().shutdown(false);
-        }catch (Exception e1){
-            if(e1 instanceof ClassNotFoundException) {
+        } catch (Exception e1) {
+            if (e1 instanceof ClassNotFoundException) {
                 this.nodeConsole.log(LogLevel.FATAL, "Its seems that something overrides the node jar file! Please only override the node jar file when the node is not running!");
                 this.nodeConsole.fatal("Node is crashed!", e1);
                 CloudAPI.getInstance().shutdown(false);
-            }else{
+            } else {
                 this.nodeConsole.error("Error while reading console line!", e1);
             }
         }
     }
 
-    public void handleInput(String raw){
+    public void handleInput(String raw) {
         String line = raw;
 
-        if(line == null) return;
-        if(line.isEmpty()) return;
+        if (line == null) return;
+        if (line.isEmpty()) return;
 
-        while(line.startsWith(" ")){
+        while (line.startsWith(" ")) {
             line = line.substring(1);
         }
 
@@ -58,10 +58,10 @@ public class NodeConsoleThread extends Thread {
             inputHandler.accept(line);
         }
 
-        if(isSetup) return;
+        if (isSetup) return;
 
-        if(NodeLauncher.getInstance().getScreenManager().isAnyScreenActive()) {
-            if(raw.equalsIgnoreCase("exit") || raw.equalsIgnoreCase("leave")){
+        if (NodeLauncher.getInstance().getScreenManager().isAnyScreenActive()) {
+            if (raw.equalsIgnoreCase("exit") || raw.equalsIgnoreCase("leave")) {
                 for (IServiceScreen activeScreen : NodeLauncher.getInstance().getScreenManager().getActiveScreens()) {
                     NodeLauncher.getInstance().getScreenManager().leave(activeScreen);
                 }
@@ -73,7 +73,7 @@ public class NodeConsoleThread extends Thread {
 
         String name = line.split(" ")[0];
         String[] args = line.split(" ");
-        if(args.length > 1) {
+        if (args.length > 1) {
             String[] args1 = new String[args.length - 1];
             System.arraycopy(args, 1, args1, 0, args1.length);
             args = args1;
@@ -86,7 +86,7 @@ public class NodeConsoleThread extends Thread {
                 .collect(Collectors.toList());
 
         for (RootCommand command : commands) {
-            if(command.getCommandName().equalsIgnoreCase(name)) {
+            if (command.getCommandName().equalsIgnoreCase(name)) {
                 command.execute(this.nodeConsole.getConsoleManager().getCommandIssuer(this.nodeConsole.getConsoleManager().getCommandSender()), name, args);
                 return;
             }

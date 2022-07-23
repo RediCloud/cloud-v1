@@ -14,9 +14,9 @@ import java.util.concurrent.ScheduledFuture;
 public class RepeatSchedulerTask implements IRepeatScheduler<ScheduledFuture> {
 
     private final List<ITaskFilter> filters;
+    private final Scheduler scheduler;
     private boolean asyncFilter;
     private ScheduledFuture task;
-    private final Scheduler scheduler;
     private int id;
 
     public RepeatSchedulerTask(Scheduler scheduler) {

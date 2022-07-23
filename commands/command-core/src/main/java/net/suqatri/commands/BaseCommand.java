@@ -71,39 +71,23 @@ public abstract class BaseCommand {
      * A map of flags to pass to Context Resolution for every parameter of the type. This is like an automatic @Flags on each.
      */
     final Map<Class<?>, String> contextFlags = new HashMap<>();
-
     /**
-     * What method was annoated with {@link PreCommand} to execute before commands.
+     * The last operative context data of this command. This may be null if this command hasn't been run yet.
      */
-    @Nullable
-    private Method preCommandHandler;
-
+    private final ThreadLocal<CommandOperationContext> lastCommandOperationContext = new ThreadLocal<>();
     /**
-     * What root command the user actually entered to access the currently executing command
+     * The permissions of the command.
      */
-    @SuppressWarnings("WeakerAccess")
-    private String execLabel;
-    /**
-     * What subcommand the user actually entered to access the currently executing command
-     */
-    @SuppressWarnings("WeakerAccess")
-    private String execSubcommand;
-    /**
-     * What arguments the user actually entered after the root command to access the currently executing command
-     */
-    @SuppressWarnings("WeakerAccess")
-    private String[] origArgs;
-
+    private final Set<String> permissions = new HashSet<>();
+    public Map<String, RootCommand> registeredCommands = new HashMap<>();
     /**
      * The manager this is registered to
      */
     CommandManager<?, ?, ?, ?, ?, ?> manager = null;
-
     /**
      * The command which owns this. This may be null if there are no owners.
      */
     BaseCommand parentCommand;
-    public Map<String, RootCommand> registeredCommands = new HashMap<>();
     /**
      * The description of the command. This may be null if no description has been provided.
      * Used for help documentation
@@ -125,25 +109,35 @@ public abstract class BaseCommand {
      * Identifies if the command has an explicit help command annotated with {@link HelpCommand}
      */
     boolean hasHelpCommand;
-
+    /**
+     * What method was annoated with {@link PreCommand} to execute before commands.
+     */
+    @Nullable
+    private Method preCommandHandler;
+    /**
+     * What root command the user actually entered to access the currently executing command
+     */
+    @SuppressWarnings("WeakerAccess")
+    private String execLabel;
+    /**
+     * What subcommand the user actually entered to access the currently executing command
+     */
+    @SuppressWarnings("WeakerAccess")
+    private String execSubcommand;
+    /**
+     * What arguments the user actually entered after the root command to access the currently executing command
+     */
+    @SuppressWarnings("WeakerAccess")
+    private String[] origArgs;
     /**
      * The handler of all uncaught exceptions thrown by the user's command implementation.
      */
     private ExceptionHandler exceptionHandler = null;
     /**
-     * The last operative context data of this command. This may be null if this command hasn't been run yet.
-     */
-    private final ThreadLocal<CommandOperationContext> lastCommandOperationContext = new ThreadLocal<>();
-    /**
      * If a parent exists to this command, and it has  a Subcommand annotation, prefix all subcommands in this class with this
      */
     @Nullable
     private String parentSubcommand;
-
-    /**
-     * The permissions of the command.
-     */
-    private final Set<String> permissions = new HashSet<>();
 
     public BaseCommand() {
     }
@@ -157,6 +151,63 @@ public abstract class BaseCommand {
     @Deprecated
     public BaseCommand(@Nullable String cmd) {
         this.commandName = cmd;
+    }
+
+    /**
+     * Takes a string like "foo|bar baz|qux" and generates a list of
+     * - foo baz
+     * - foo qux
+     * - bar baz
+     * - bar qux
+     * <p>
+     * For every possible sub command combination
+     *
+     * @param subCommandParts
+     * @return List of all sub command possibilities
+     */
+    private static Set<String> getSubCommandPossibilityList(String[] subCommandParts) {
+        int i = 0;
+        Set<String> current = null;
+        while (true) {
+            Set<String> newList = new HashSet<>();
+
+            if (i < subCommandParts.length) {
+                for (String s1 : ACFPatterns.PIPE.split(subCommandParts[i])) {
+                    if (current != null) {
+                        newList.addAll(current.stream().map(s -> s + " " + s1).collect(Collectors.toList()));
+                    } else {
+                        newList.add(s1);
+                    }
+                }
+            }
+
+            if (i + 1 < subCommandParts.length) {
+                current = newList;
+                i = i + 1;
+                continue;
+            }
+
+            return newList;
+        }
+    }
+
+    static boolean isSpecialSubcommand(String key) {
+        return CATCHUNKNOWN.equals(key) || DEFAULT.equals(key);
+    }
+
+    /**
+     * Gets the actual args in string form the user typed
+     * This returns a list of all tab complete options which are possible with the given argument and commands.
+     *
+     * @param arg  Argument which was pressed tab on.
+     * @param cmds The possibilities to return.
+     * @return All possible options. This may be empty.
+     */
+    private static List<String> filterTabComplete(String arg, List<String> cmds) {
+        return cmds.stream()
+                .distinct()
+                .filter(cmd -> cmd != null && (arg.isEmpty() || ApacheCommonsLangUtil.startsWithIgnoreCase(cmd, arg)))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -446,44 +497,6 @@ public abstract class BaseCommand {
         }
     }
 
-    /**
-     * Takes a string like "foo|bar baz|qux" and generates a list of
-     * - foo baz
-     * - foo qux
-     * - bar baz
-     * - bar qux
-     * <p>
-     * For every possible sub command combination
-     *
-     * @param subCommandParts
-     * @return List of all sub command possibilities
-     */
-    private static Set<String> getSubCommandPossibilityList(String[] subCommandParts) {
-        int i = 0;
-        Set<String> current = null;
-        while (true) {
-            Set<String> newList = new HashSet<>();
-
-            if (i < subCommandParts.length) {
-                for (String s1 : ACFPatterns.PIPE.split(subCommandParts[i])) {
-                    if (current != null) {
-                        newList.addAll(current.stream().map(s -> s + " " + s1).collect(Collectors.toList()));
-                    } else {
-                        newList.add(s1);
-                    }
-                }
-            }
-
-            if (i + 1 < subCommandParts.length) {
-                current = newList;
-                i = i + 1;
-                continue;
-            }
-
-            return newList;
-        }
-    }
-
     void execute(CommandIssuer issuer, CommandRouter.CommandRouteResult command) {
         try {
             CommandOperationContext commandContext = preCommandOperation(issuer, command.commandLabel, command.args, false);
@@ -544,8 +557,8 @@ public abstract class BaseCommand {
         return CommandManager.getCurrentCommandManager();
     }
 
-    private void executeCommand(CommandOperationContext commandOperationContext,
-                                CommandIssuer issuer, String[] args, RegisteredCommand cmd) {
+    private void executeCommand(CommandOperationContext<?> commandOperationContext,
+                                CommandIssuer issuer, String[] args, RegisteredCommand<?> cmd) {
         if (cmd.hasPermission(issuer)) {
             commandOperationContext.setRegisteredCommand(cmd);
             if (checkPrecommand(commandOperationContext, cmd, issuer, args)) {
@@ -561,9 +574,8 @@ public abstract class BaseCommand {
     /**
      * Please use command conditions for restricting execution
      *
-     * @param issuer
-     * @param cmd
-     * @return
+     * @param issuer The user who executed the command.
+     * @param cmd    The command that was executed.
      * @deprecated See {@link CommandConditions}
      */
     @SuppressWarnings("DeprecatedIsStillUsed")
@@ -651,10 +663,6 @@ public abstract class BaseCommand {
         return new ArrayList<>(cmds);
     }
 
-    static boolean isSpecialSubcommand(String key) {
-        return CATCHUNKNOWN.equals(key) || DEFAULT.equals(key);
-    }
-
     /**
      * Complete a command properly per issuer and input.
      *
@@ -679,21 +687,6 @@ public abstract class BaseCommand {
     }
 
     /**
-     * Gets the actual args in string form the user typed
-     * This returns a list of all tab complete options which are possible with the given argument and commands.
-     *
-     * @param arg  Argument which was pressed tab on.
-     * @param cmds The possibilities to return.
-     * @return All possible options. This may be empty.
-     */
-    private static List<String> filterTabComplete(String arg, List<String> cmds) {
-        return cmds.stream()
-                .distinct()
-                .filter(cmd -> cmd != null && (arg.isEmpty() || ApacheCommonsLangUtil.startsWithIgnoreCase(cmd, arg)))
-                .collect(Collectors.toList());
-    }
-
-    /**
      * Executes the precommand and sees whether something is wrong. Ideally, you get false from this.
      *
      * @param commandOperationContext The context to use.
@@ -702,7 +695,7 @@ public abstract class BaseCommand {
      * @param args                    The arguments the issuer provided.
      * @return Whether something went wrong.
      */
-    private boolean checkPrecommand(CommandOperationContext commandOperationContext, RegisteredCommand cmd, CommandIssuer issuer, String[] args) {
+    private boolean checkPrecommand(CommandOperationContext<?> commandOperationContext, RegisteredCommand<?> cmd, CommandIssuer issuer, String[] args) {
         Method pre = this.preCommandHandler;
         if (pre != null) {
             try {
@@ -815,9 +808,7 @@ public abstract class BaseCommand {
     }
 
     public List<RegisteredCommand> getRegisteredCommands() {
-        List<RegisteredCommand> registeredCommands = new ArrayList<>();
-        registeredCommands.addAll(this.subCommands.values());
-        return registeredCommands;
+        return new ArrayList<>(this.subCommands.values());
     }
 
     protected SetMultimap<String, RegisteredCommand> getSubCommands() {

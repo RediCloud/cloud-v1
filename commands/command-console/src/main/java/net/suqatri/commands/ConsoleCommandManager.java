@@ -83,8 +83,8 @@ public class ConsoleCommandManager extends CommandManager<
             String commandName = entry.getKey().toLowerCase(Locale.ENGLISH);
             ConsoleRootCommand consoleCommand = (ConsoleRootCommand) entry.getValue();
             consoleCommand.isRegistered = true;
-            if(!(command instanceof ConsoleCommand)) {
-               throw new IllegalArgumentException("BaseCommand must be a ConsoleCommand otherwise it cannot be registered");
+            if (!(command instanceof ConsoleCommand)) {
+                throw new IllegalArgumentException("BaseCommand must be a ConsoleCommand otherwise it cannot be registered");
             }
             registeredCommands.put(commandName, consoleCommand);
         }

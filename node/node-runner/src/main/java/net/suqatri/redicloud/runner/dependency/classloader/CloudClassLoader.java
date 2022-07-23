@@ -5,6 +5,10 @@ import java.net.URLClassLoader;
 
 public class CloudClassLoader extends URLClassLoader {
 
+    static {
+        ClassLoader.registerAsParallelCapable();
+    }
+
     private final URLClassPath ucp;
 
     public CloudClassLoader(final URL[] urls, final ClassLoader classLoader) {
@@ -12,22 +16,18 @@ public class CloudClassLoader extends URLClassLoader {
         this.ucp = new URLClassPath(this);
     }
 
-    public CloudClassLoader(ClassLoader classLoader){
+    public CloudClassLoader(ClassLoader classLoader) {
         super(new URL[0], classLoader);
         this.ucp = new URLClassPath(this);
     }
 
-    public CloudClassLoader(final URL[] urls){
+    public CloudClassLoader(final URL[] urls) {
         super(urls);
         this.ucp = new URLClassPath(this);
     }
 
     public void addURL(final URL url) {
         this.ucp.addUrl(url);
-    }
-
-    static {
-        ClassLoader.registerAsParallelCapable();
     }
 
 }

@@ -4,8 +4,8 @@ import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.console.LogLevel;
 import net.suqatri.redicloud.api.impl.node.CloudNode;
-import net.suqatri.redicloud.api.impl.redis.RedisConnection;
 import net.suqatri.redicloud.api.impl.poll.timeout.ITimeOutPollManager;
+import net.suqatri.redicloud.api.impl.redis.RedisConnection;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.node.NodeCloudDefaultAPI;
@@ -20,12 +20,11 @@ import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.connection.IPUtils;
 import net.suqatri.redicloud.commons.file.FileWriter;
-import net.suqatri.redicloud.commons.function.future.FutureAction;
-import net.suqatri.redicloud.commons.function.future.FutureActionCollection;
 import net.suqatri.redicloud.node.commands.*;
 import net.suqatri.redicloud.node.console.CommandConsoleManager;
 import net.suqatri.redicloud.node.console.NodeConsole;
 import net.suqatri.redicloud.node.console.setup.SetupControlState;
+import net.suqatri.redicloud.node.file.FileTransferManager;
 import net.suqatri.redicloud.node.listener.CloudNodeConnectedListener;
 import net.suqatri.redicloud.node.listener.CloudNodeDisconnectListener;
 import net.suqatri.redicloud.node.listener.CloudServiceStartedListener;
@@ -33,6 +32,7 @@ import net.suqatri.redicloud.node.listener.CloudServiceStoppedListener;
 import net.suqatri.redicloud.node.node.ClusterConnectionInformation;
 import net.suqatri.redicloud.node.node.packet.NodePingPacket;
 import net.suqatri.redicloud.node.poll.timeout.TimeOutPollManager;
+import net.suqatri.redicloud.node.scheduler.Scheduler;
 import net.suqatri.redicloud.node.service.NodeCloudServiceManager;
 import net.suqatri.redicloud.node.service.factory.NodeCloudServiceFactory;
 import net.suqatri.redicloud.node.service.screen.ServiceScreenManager;
@@ -40,14 +40,10 @@ import net.suqatri.redicloud.node.service.version.NodeCloudServiceVersionManager
 import net.suqatri.redicloud.node.setup.node.NodeConnectionDataSetup;
 import net.suqatri.redicloud.node.setup.redis.RedisSetup;
 import net.suqatri.redicloud.node.template.NodeCloudServiceTemplateManager;
-import net.suqatri.redicloud.node.file.FileTransferManager;
-import net.suqatri.redicloud.node.scheduler.Scheduler;
 import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -61,24 +57,24 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     private final NodeConsole console;
     private final CommandConsoleManager commandManager;
-    private RedisConnection redisConnection;
     private final Scheduler scheduler;
+    private final NodeCloudServiceManager serviceManager;
+    private final NodeCloudServiceFactory serviceFactory;
+    private final NodeCloudServiceVersionManager serviceVersionManager;
+    private final ServiceScreenManager screenManager;
+    private final ITimeOutPollManager timeOutPollManager;
+    private RedisConnection redisConnection;
     private INetworkComponentInfo networkComponentInfo;
     private boolean shutdownInitialized = false;
     private CloudNode node;
     private FileTransferManager fileTransferManager;
     private NodeCloudServiceTemplateManager serviceTemplateManager;
-    private final NodeCloudServiceManager serviceManager;
     private boolean skiptempaltesync = false;
-    private final NodeCloudServiceFactory serviceFactory;
-    private final NodeCloudServiceVersionManager serviceVersionManager;
-    private final ServiceScreenManager screenManager;
     private boolean firstTemplatePulled = false;
-    private final ITimeOutPollManager timeOutPollManager;
     private boolean restarting = false;
     private String hostName;
 
-    public NodeLauncher(String[] args) throws Exception{
+    public NodeLauncher(String[] args) throws Exception {
         instance = this;
         this.hostName = IPUtils.getPublicIP();
         this.scheduler = new Scheduler();
@@ -104,73 +100,73 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         });
     }
 
-    private void syncTemplates(Runnable runnable){
-       if(this.skiptempaltesync){
-           this.console.info("Skipping template sync!");
-           runnable.run();
-           return;
-       }
-       this.console.info("Searching for node to sync pull templates from...");
-       IRBucketHolder<ICloudNode> nodeHolder = null;
-       for (IRBucketHolder<ICloudNode> holder : getNodeManager().getNodes()) {
-            if(!holder.get().isConnected()) continue;
-            if(holder.get().getUniqueId().equals(this.node.getUniqueId())) continue;
-            if(nodeHolder == null && !this.node.isFileNode()){
+    private void syncTemplates(Runnable runnable) {
+        if (this.skiptempaltesync) {
+            this.console.info("Skipping template sync!");
+            runnable.run();
+            return;
+        }
+        this.console.info("Searching for node to sync pull templates from...");
+        IRBucketHolder<ICloudNode> nodeHolder = null;
+        for (IRBucketHolder<ICloudNode> holder : getNodeManager().getNodes()) {
+            if (!holder.get().isConnected()) continue;
+            if (holder.get().getUniqueId().equals(this.node.getUniqueId())) continue;
+            if (nodeHolder == null && !this.node.isFileNode()) {
                 nodeHolder = holder;
                 continue;
             }
-            if(holder.get().isFileNode()){
-                if(holder.get().getUpTime() > nodeHolder.get().getUpTime()){
+            if (holder.get().isFileNode()) {
+                if (holder.get().getUpTime() > nodeHolder.get().getUpTime()) {
                     nodeHolder = holder;
                     continue;
                 }
                 nodeHolder = holder;
             }
-       }
-       if(nodeHolder == null && !this.node.isFileNode()){
-           this.console.warn("-----------------------------------------");
-           this.console.warn("No node found to sync templates from!");
-           this.console.warn("You can setup a node to pull templates from by set the node-property \"filenode\" to true!");
-           this.console.warn("You can also setup multiple nodes to pull templates from. The cluster will use the node with the highest uptime!");
-           this.console.warn("-----------------------------------------");
-           this.firstTemplatePulled = true;
-           getEventManager().postLocal(new FilePulledTemplatesEvent(null, false));
-           runnable.run();
-           return;
-       }
-       if(nodeHolder == null){
-           this.console.info("No node found to sync templates from!");
-           this.console.info("Skipping template sync!");
-           this.firstTemplatePulled = true;
-           getEventManager().postLocal(new FilePulledTemplatesEvent(null, false));
-           runnable.run();
-           return;
-       }
-       ICloudNode targetNode = nodeHolder.get();
-       this.console.info("Found node to sync templates from: %hc" + nodeHolder.get().getName());
-       this.serviceTemplateManager.pullTemplates(nodeHolder)
-               .onFailure(e -> {
-                   this.console.error("Failed to pull templates from node " + targetNode.getName(), e);
-                   this.firstTemplatePulled = true;
-                   runnable.run();
-               })
-               .onSuccess(s -> {
-                   this.console.info("Successfully pulled templates from node %hc" + targetNode.getName());
-                   this.firstTemplatePulled = true;
-                   runnable.run();
-               });
+        }
+        if (nodeHolder == null && !this.node.isFileNode()) {
+            this.console.warn("-----------------------------------------");
+            this.console.warn("No node found to sync templates from!");
+            this.console.warn("You can setup a node to pull templates from by set the node-property \"filenode\" to true!");
+            this.console.warn("You can also setup multiple nodes to pull templates from. The cluster will use the node with the highest uptime!");
+            this.console.warn("-----------------------------------------");
+            this.firstTemplatePulled = true;
+            getEventManager().postLocal(new FilePulledTemplatesEvent(null, false));
+            runnable.run();
+            return;
+        }
+        if (nodeHolder == null) {
+            this.console.info("No node found to sync templates from!");
+            this.console.info("Skipping template sync!");
+            this.firstTemplatePulled = true;
+            getEventManager().postLocal(new FilePulledTemplatesEvent(null, false));
+            runnable.run();
+            return;
+        }
+        ICloudNode targetNode = nodeHolder.get();
+        this.console.info("Found node to sync templates from: %hc" + nodeHolder.get().getName());
+        this.serviceTemplateManager.pullTemplates(nodeHolder)
+                .onFailure(e -> {
+                    this.console.error("Failed to pull templates from node " + targetNode.getName(), e);
+                    this.firstTemplatePulled = true;
+                    runnable.run();
+                })
+                .onSuccess(s -> {
+                    this.console.info("Successfully pulled templates from node %hc" + targetNode.getName());
+                    this.firstTemplatePulled = true;
+                    runnable.run();
+                });
 
     }
 
     private void handleProgrammArguments(String[] args) {
-        if(args.length > 0){
+        if (args.length > 0) {
             for (String argument : args) {
-                switch (argument.split("=")[0]){
+                switch (argument.split("=")[0]) {
                     default: {
-                        if(argument.split("=").length > 1){
+                        if (argument.split("=").length > 1) {
                             this.console.debug("Argument key: " + argument.split("=")[0]);
                             this.console.debug("Argument value: " + argument.split("=")[1]);
-                        }else{
+                        } else {
                             this.console.debug("Argument: " + argument);
                         }
                     }
@@ -179,7 +175,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         this.console.setCleanConsoleMode(false);
                         continue;
                     }
-                    case "--host" :
+                    case "--host":
                     case "--hostname": {
                         this.hostName = argument.split("=")[1];
                         this.console.info("Using hostname: " + this.hostName);
@@ -222,9 +218,10 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         }
     }
 
-    private void registerCommands(){
+    private void registerCommands() {
         this.console.info("Registering cloud commands for the console...");
-        if(CloudAPI.getInstance().getConsole().getLogLevel().getId() <= LogLevel.DEBUG.getId()) this.commandManager.registerCommand(new DebugCommand());
+        if (CloudAPI.getInstance().getConsole().getLogLevel().getId() <= LogLevel.DEBUG.getId())
+            this.commandManager.registerCommand(new DebugCommand());
         this.commandManager.registerCommand(new ClearCommand());
         this.commandManager.registerCommand(new StopCommand());
         this.commandManager.registerCommand(new ClusterCommand());
@@ -237,11 +234,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.commandManager.registerCommand(new ScreenCommand());
     }
 
-    private void registerPackets(){
+    private void registerPackets() {
         this.getPacketManager().registerPacket(NodePingPacket.class);
     }
 
-    private void registerListeners(){
+    private void registerListeners() {
         this.getEventManager().register(new CloudNodeConnectedListener());
         this.getEventManager().register(new CloudNodeDisconnectListener());
         this.getEventManager().register(new CloudServiceStartedListener());
@@ -267,16 +264,16 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.node.setHostname(this.hostName);
             this.node.setFilePath(Files.CLOUD_FOLDER.getFile().getAbsolutePath());
 
-            if(!this.serviceManager.getServices().isEmpty()) {
+            if (!this.serviceManager.getServices().isEmpty()) {
                 this.console.warn("It seems that the node was not correctly shut down last time!");
                 int count = 0;
                 for (IRBucketHolder<ICloudService> service : this.serviceManager.getServices()) {
-                    if(!service.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    if (!service.get().getNodeId().equals(this.node.getUniqueId())) continue;
                     count++;
-                    this.console.warn("Service " + service.get().getServiceName()  + " is still registered in redi!");
+                    this.console.warn("Service " + service.get().getServiceName() + " is still registered in redi!");
                     this.serviceManager.deleteBucketAsync(service.getIdentifier());
                     this.serviceManager.removeFromFetcher(service.get().getServiceName(), service.get().getUniqueId());
-                    if(this.redisConnection.getClient().getList("screen-log@" + service.get().getUniqueId()).isExists()) {
+                    if (this.redisConnection.getClient().getList("screen-log@" + service.get().getUniqueId()).isExists()) {
                         this.redisConnection.getClient().getList("screen-log@" + service.get().getUniqueId()).deleteAsync();
                     }
                 }
@@ -300,10 +297,10 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private void initClusterConnection(Consumer<CloudNode> consumer) {
         String publicIp = IPUtils.getPublicIP();
         boolean firstClusterConnection = !Files.NODE_JSON.exists();
-        if(firstClusterConnection){
+        if (firstClusterConnection) {
             try {
                 Files.NODE_JSON.getFile().createNewFile();
-            }catch (IOException e){
+            } catch (IOException e) {
                 this.console.fatal("Failed to create node.json file", e);
                 this.console.info("Stopping node in 5 seconds...");
                 this.scheduler.runTaskLater(() -> {
@@ -313,11 +310,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                 return;
             }
             new NodeConnectionDataSetup().start((setup, state) -> {
-                if(state == SetupControlState.FINISHED){
+                if (state == SetupControlState.FINISHED) {
                     ClusterConnectionInformation connectionInformation = new ClusterConnectionInformation();
                     connectionInformation.setUniqueId(setup.getUniqueId());
 
-                    if(getNodeManager().existsNode(connectionInformation.getUniqueId())){
+                    if (getNodeManager().existsNode(connectionInformation.getUniqueId())) {
                         this.console.error("A Node with the same name already exists!");
                         this.console.error("Please choose a different name!");
                         this.console.info("Restarting cluster connection setup in 5 seconds...");
@@ -328,7 +325,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         return;
                     }
 
-                    if(this.getNodeManager().getNodes().size() == 1){
+                    if (this.getNodeManager().getNodes().size() == 1) {
                         this.serviceTemplateManager.createTemplate("global-minecraft");
                         this.serviceTemplateManager.createTemplate("global-proxy");
                         this.serviceTemplateManager.createTemplate("global-all");
@@ -354,7 +351,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         ClusterConnectionInformation connectionInformation;
         try {
             connectionInformation = FileWriter.readObject(Files.NODE_JSON.getFile(), ClusterConnectionInformation.class);
-        }catch (Exception e){
+        } catch (Exception e) {
             this.console.error("Failed to read node.json file, but it's not the first cluster connection!");
             this.console.error("Starting cluster connection setup in 5 seconds...");
             this.scheduler.runTaskLater(() -> {
@@ -364,16 +361,16 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             return;
         }
 
-        if(!this.getNodeManager().existsNode(connectionInformation.getUniqueId())){
+        if (!this.getNodeManager().existsNode(connectionInformation.getUniqueId())) {
             CloudNode cloudNode = new CloudNode();
             connectionInformation.applyToNode(cloudNode);
             cloudNode.setConnected(true);
             cloudNode.setLastConnection(System.currentTimeMillis());
             cloudNode.setLastStart(System.currentTimeMillis());
             this.node = this.getNodeManager().createNode(cloudNode).getImpl(CloudNode.class);
-        }else {
+        } else {
             this.node = this.getNodeManager().getNode(connectionInformation.getUniqueId()).getImpl(CloudNode.class);
-            if(this.node.getUniqueId().equals(connectionInformation.getUniqueId()) && this.node.isConnected()){
+            if (this.node.getUniqueId().equals(connectionInformation.getUniqueId()) && this.node.isConnected()) {
                 this.console.warn("A Node with the same uniqueId is already connected!");
                 this.console.warn("Please check if this node is already running in the background!");
             }
@@ -383,11 +380,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         consumer.accept(this.node);
     }
 
-    private void initRedis(Consumer<RedisConnection> consumer){
+    private void initRedis(Consumer<RedisConnection> consumer) {
         boolean redisConfigExits = Files.REDIS_CONFIG.exists();
-        if(!redisConfigExits){
+        if (!redisConfigExits) {
             new RedisSetup().start(((redisSetup, state) -> {
-                if(state == SetupControlState.FINISHED){
+                if (state == SetupControlState.FINISHED) {
                     RedisCredentials credentials = new RedisCredentials();
                     credentials.setHostname(redisSetup.getHostname());
                     credentials.setPort(redisSetup.getPort());
@@ -398,7 +395,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         this.redisConnection.connect();
                         FileWriter.writeObject(credentials, Files.REDIS_CONFIG.getFile());
                         this.console.info("Redis connection established!");
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
                         this.console.info("Restarting redis setup in 5 seconds...");
                         this.scheduler.runTaskLater(() -> {
@@ -410,11 +407,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     consumer.accept(this.redisConnection);
                 }
             }));
-        }else{
+        } else {
             RedisCredentials credentials;
             try {
                 credentials = FileWriter.readObject(Files.REDIS_CONFIG.getFile(), RedisCredentials.class);
-            }catch (Exception e){
+            } catch (Exception e) {
                 this.console.error("Failed to read redis.json file! Please check your credentials.");
                 this.console.error("Restarting redis setup in 5 seconds...");
                 this.scheduler.runTaskLater(() -> {
@@ -427,7 +424,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             try {
                 this.redisConnection.connect();
                 this.console.info("Redis connection established!");
-            }catch (Exception e){
+            } catch (Exception e) {
                 this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
                 this.console.info("Trying to reconnect in 5 seconds...");
                 this.scheduler.runTaskLater(() -> {
@@ -442,14 +439,14 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private void createDefaultFiles() throws IOException {
         this.console.info("Creating default folders...");
 
-        if(Files.TEMP_FOLDER.exists()) FileUtils.deleteDirectory(Files.TEMP_FOLDER.getFile());
+        if (Files.TEMP_FOLDER.exists()) FileUtils.deleteDirectory(Files.TEMP_FOLDER.getFile());
 
         Files.MODULES_FOLDER.createIfNotExists();
         Files.STORAGE_FOLDER.createIfNotExists();
-        if(!Files.MINECRAFT_PLUGIN_JAR.exists()){
+        if (!Files.MINECRAFT_PLUGIN_JAR.exists()) {
             Files.MINECRAFT_PLUGIN_JAR.downloadFromUrl("");
         }
-        if(!Files.PROXY_PLUGIN_JAR.exists()){
+        if (!Files.PROXY_PLUGIN_JAR.exists()) {
             Files.PROXY_PLUGIN_JAR.downloadFromUrl("");
         }
         Files.LIBS_FOLDER.createIfNotExists();
@@ -464,7 +461,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         Files.VERSIONS_FOLDER.createIfNotExists();
     }
 
-    public void restartNode(){
+    public void restartNode() {
         this.restarting = true;
         this.shutdown(false);
     }
@@ -479,41 +476,44 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         if (this.node != null) {
             sleepArgument = isInstanceTimeOuted() ? " --sleep=" + (this.node.getTimeOut() - System.currentTimeMillis()) : "";
 
-            if(this.isInstanceTimeOuted()) {
-                if(this.console != null) this.console.info("Instance time out detected, shutting down...");
+            if (this.isInstanceTimeOuted()) {
+                if (this.console != null) this.console.info("Instance time out detected, shutting down...");
             }
 
             if (this.console != null) this.console.info("Disconnecting from cluster...");
 
-            if(this.serviceManager != null){
+            if (this.serviceManager != null) {
                 int stopCount = 0;
-                if(this.console != null) this.console.info("Stopping services...");
-                ((NodeCloudServiceFactory)this.serviceFactory).getThread().interrupt();
+                if (this.console != null) this.console.info("Stopping services...");
+                ((NodeCloudServiceFactory) this.serviceFactory).getThread().interrupt();
                 for (IRBucketHolder<ICloudService> serviceHolders : this.serviceManager.getServices()) {
-                    if(!serviceHolders.get().getNodeId().equals(this.node.getUniqueId())) continue;
-                    if(serviceHolders.get().getServiceState() == ServiceState.OFFLINE) continue;
-                    if(!this.serviceManager.existsService(serviceHolders.get().getUniqueId())) continue;
+                    if (!serviceHolders.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    if (serviceHolders.get().getServiceState() == ServiceState.OFFLINE) continue;
+                    if (!this.serviceManager.existsService(serviceHolders.get().getUniqueId())) continue;
                     stopCount++;
                     try {
                         this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), false).get(10, TimeUnit.SECONDS);
-                        if(this.console != null) this.console.info("Stopped service " + serviceHolders.get().getServiceName());
+                        if (this.console != null)
+                            this.console.info("Stopped service " + serviceHolders.get().getServiceName());
                     } catch (InterruptedException | ExecutionException | TimeoutException e) {
                         try {
-                            if(this.console != null) this.console.warn("Failed to stop service " + serviceHolders.get().getServiceName() + "! Try to force stop...");
+                            if (this.console != null)
+                                this.console.warn("Failed to stop service " + serviceHolders.get().getServiceName() + "! Try to force stop...");
                             this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), true).get(5, TimeUnit.SECONDS);
-                        }catch (InterruptedException | ExecutionException | TimeoutException e1) {
-                            if(this.console != null) {
+                        } catch (InterruptedException | ExecutionException | TimeoutException e1) {
+                            if (this.console != null) {
                                 this.console.error("Failed to stop service " + serviceHolders.get().getServiceName(), e1);
-                            }else{
+                            } else {
                                 e1.printStackTrace();
                             }
                         }
                     }
                 }
-                if(stopCount != 0) {
+                if (stopCount != 0) {
                     try {
                         Thread.sleep(3000 + (stopCount * 200L));
-                    } catch (InterruptedException e) {}
+                    } catch (InterruptedException e) {
+                    }
                 }
             }
 
@@ -527,20 +527,20 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.node.update();
         }
         if (this.fileTransferManager != null) {
-            if(this.console != null) this.console.info("Stopping file transfer manager...");
+            if (this.console != null) this.console.info("Stopping file transfer manager...");
             this.fileTransferManager.getThread().interrupt();
         }
         if (this.redisConnection != null) {
-            if(this.console != null) this.console.info("Disconnecting from redis...");
+            if (this.console != null) this.console.info("Disconnecting from redis...");
             this.redisConnection.disconnect();
         }
         String finalSleepArgument = sleepArgument;
         getScheduler().runTaskLater(() -> {
-            if(this.console != null) this.console.info("Shutting down...");
+            if (this.console != null) this.console.info("Shutting down...");
 
-            if(this.isRestarting()){
+            if (this.isRestarting()) {
                 String startCommand = "java -jar " + this.node.getFilePath(Files.NODE_JAR) + String.join(" ", NodeLauncherMain.ARGUMENTS) + finalSleepArgument;
-                if(this.console != null) this.console.info("Restarting node with command: " + startCommand);
+                if (this.console != null) this.console.info("Restarting node with command: " + startCommand);
                 try {
                     Runtime.getRuntime().exec(startCommand);
                 } catch (IOException e) {
@@ -548,22 +548,22 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                 }
             }
 
-            if(this.console != null) {
+            if (this.console != null) {
                 this.console.info("Stopping node console thread...");
                 this.console.stopThread();
             }
 
-            if(!fromHook) System.exit(0);
+            if (!fromHook) System.exit(0);
         }, 2, TimeUnit.SECONDS);
     }
 
-    public boolean isInstanceTimeOuted(){
+    public boolean isInstanceTimeOuted() {
         return this.node.getTimeOut() > System.currentTimeMillis();
     }
 
     @Override
     public void updateApplicationProperties(CloudNode object) {
-        if(!object.getNetworkComponentInfo().equals(this.networkComponentInfo)) return;
+        if (!object.getNetworkComponentInfo().equals(this.networkComponentInfo)) return;
         //TODO: Update application properties
     }
 

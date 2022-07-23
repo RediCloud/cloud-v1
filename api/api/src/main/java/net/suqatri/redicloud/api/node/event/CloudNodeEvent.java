@@ -14,11 +14,11 @@ public class CloudNodeEvent extends CloudGlobalEvent {
 
     private UUID nodeId;
 
-    public IRBucketHolder<ICloudNode> getCloudNode(){
+    public IRBucketHolder<ICloudNode> getCloudNode() {
         return CloudAPI.getInstance().getNodeManager().getNode(this.nodeId);
     }
 
-    public FutureAction<IRBucketHolder<ICloudNode>> getCloudNodeAsync(){
+    public FutureAction<IRBucketHolder<ICloudNode>> getCloudNodeAsync() {
         return CloudAPI.getInstance().getNodeManager().getNodeAsync(this.nodeId);
     }
 

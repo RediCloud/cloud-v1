@@ -9,8 +9,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 public class PlayerKickListener implements Listener {
 
     @EventHandler
-    public void onKick(PlayerQuitEvent event){
-        MinecraftCloudAPI.getInstance().setOnlineCount(Bukkit.getOnlinePlayers().size()-1);
+    public void onKick(PlayerQuitEvent event) {
+        MinecraftCloudAPI.getInstance().setOnlineCount(Bukkit.getOnlinePlayers().size() - 1);
     }
 
 }

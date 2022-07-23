@@ -18,26 +18,26 @@ public class CloudServiceStartedListener {
         event.getServiceAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to register service!", e))
                 .onSuccess(serviceHolder -> {
-                    if(serviceHolder.get().getEnvironment() == ServiceEnvironment.PROXY) return;
+                    if (serviceHolder.get().getEnvironment() == ServiceEnvironment.PROXY) return;
                     ServerInfo serverInfo = ProxyServer.getInstance().constructServerInfo(
-                                    serviceHolder.get().getServiceName(),
-                                    new InetSocketAddress(serviceHolder.get().getHostName(), serviceHolder.get().getPort()),
-                                    serviceHolder.get().getMotd(),
-                                    false);
+                            serviceHolder.get().getServiceName(),
+                            new InetSocketAddress(serviceHolder.get().getHostName(), serviceHolder.get().getPort()),
+                            serviceHolder.get().getMotd(),
+                            false);
 
                     ProxyServer.getInstance().getServers().put(serverInfo.getName(), serverInfo);
                     CloudAPI.getInstance().getConsole().debug("Registered service: " + serviceHolder.get().getServiceName());
 
                     CloudAPI.getInstance().getNodeManager().getNodeAsync(serviceHolder.get().getNodeId())
-                        .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node!", e))
-                        .onSuccess(nodeHolder -> {
+                            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node!", e))
+                            .onSuccess(nodeHolder -> {
 
-                            for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-                                if(!player.hasPermission("redicloud.service.notify")) continue;
-                                player.sendMessage(ProxyCloudAPI.getInstance().getChatPrefix()
-                                        + "§3" + serviceHolder.get().getServiceName() + "§8(§f" + nodeHolder.get().getName() + "§8) » §a§l■");
-                            }
-                        });
+                                for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
+                                    if (!player.hasPermission("redicloud.service.notify")) continue;
+                                    player.sendMessage(ProxyCloudAPI.getInstance().getChatPrefix()
+                                            + "§3" + serviceHolder.get().getServiceName() + "§8(§f" + nodeHolder.get().getName() + "§8) » §a§l■");
+                                }
+                            });
                 });
     }
 

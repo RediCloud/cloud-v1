@@ -1,6 +1,5 @@
 package net.suqatri.redicloud.plugin.minecraft;
 
-import net.suqatri.redicloud.api.service.ServiceState;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MinecraftCloudPlugin extends JavaPlugin {

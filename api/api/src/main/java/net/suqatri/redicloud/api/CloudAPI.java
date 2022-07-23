@@ -31,28 +31,43 @@ public abstract class CloudAPI {
     private final ApplicationType applicationType;
     private boolean shutdownHookAdded = false;
 
-    public CloudAPI(ApplicationType type){
+    public CloudAPI(ApplicationType type) {
         instance = this;
         initShutdownHook();
         this.applicationType = type;
     }
 
     public abstract ExecutorService getExecutorService();
+
     public abstract IScheduler getScheduler();
+
     public abstract IConsole getConsole();
+
     public abstract ICommandManager<?> getCommandManager();
+
     public abstract ICloudGroupManager getGroupManager();
+
     public abstract ICloudNodeManager getNodeManager();
+
     public abstract ICloudPacketManager getPacketManager();
+
     public abstract ICloudPlayerManager getPlayerManager();
+
     public abstract ICloudServiceFactory getServiceFactory();
+
     public abstract ICloudServiceManager getServiceManager();
+
     public abstract ICloudServiceTemplateManager getServiceTemplateManager();
+
     public abstract ICloudEventManager getEventManager();
+
     public abstract INetworkComponentManager getNetworkComponentManager();
+
     public abstract INetworkComponentInfo getNetworkComponentInfo();
+
     public abstract ICloudServiceVersionManager getServiceVersionManager();
 
     public abstract void initShutdownHook();
+
     public abstract void shutdown(boolean fromHook);
 }

@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 
 /**
  * Defines additional keywords to feed into the search help system.
- *
+ * <p>
  * For example, if a specific word doesn't make sense to use in the command name or description, but should
  * be used for help in discovering the correct command, then you can add it as a tag.
  */

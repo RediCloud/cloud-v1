@@ -37,6 +37,7 @@ import java.lang.annotation.Target;
 public @interface Dependency {
     /**
      * The key that should be used to lookup the instances, defaults to \"\"
+     *
      * @return the key
      */
     String value() default "";

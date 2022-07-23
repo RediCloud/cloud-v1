@@ -41,6 +41,7 @@ public class BukkitCommandExecutionContext extends CommandExecutionContext<Bukki
 
     /**
      * Returns the Player object if this Issuer is a Player
+     *
      * @return
      */
     public Player getPlayer() {

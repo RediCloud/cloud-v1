@@ -13,7 +13,7 @@ public class ClusterConnectionInformation implements Serializable {
 
     private UUID uniqueId;
 
-    public void applyToNode(CloudNode cloudNode){
+    public void applyToNode(CloudNode cloudNode) {
         cloudNode.setUniqueId(this.uniqueId);
     }
 

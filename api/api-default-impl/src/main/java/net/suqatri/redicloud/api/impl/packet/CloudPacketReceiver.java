@@ -26,29 +26,31 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
 
     @Override
     public void receive(ICloudPacket packet) {
-        if(!CloudAPI.getInstance().getPacketManager().isRegisteredPacket(packet.getClass())){
+        if (!CloudAPI.getInstance().getPacketManager().isRegisteredPacket(packet.getClass())) {
             CloudAPI.getInstance().getConsole().warn("Received packet: " + packet.getClass().getSimpleName() + " but it is not registered!");
             return;
         }
-        if(!packet.getPacketData().getReceivers().contains(CloudAPI.getInstance().getNetworkComponentInfo()) && !packet.getPacketData().getReceivers().isEmpty()) return;
-        if(packet.getPacketData().getSender().equals(CloudAPI.getInstance().getNetworkComponentInfo()) && !packet.getPacketData().isSenderAsReceiverAllowed()) return;
-        if(packet.getPacketData().getResponseTargetData() != null){
-            if(this.packetManager.getWaitingForResponse().containsKey(packet.getPacketData().getResponseTargetData().getPacketId())){
-                if(!(packet instanceof ICloudPacketResponse)){
+        if (!packet.getPacketData().getReceivers().contains(CloudAPI.getInstance().getNetworkComponentInfo()) && !packet.getPacketData().getReceivers().isEmpty())
+            return;
+        if (packet.getPacketData().getSender().equals(CloudAPI.getInstance().getNetworkComponentInfo()) && !packet.getPacketData().isSenderAsReceiverAllowed())
+            return;
+        if (packet.getPacketData().getResponseTargetData() != null) {
+            if (this.packetManager.getWaitingForResponse().containsKey(packet.getPacketData().getResponseTargetData().getPacketId())) {
+                if (!(packet instanceof ICloudPacketResponse)) {
                     CloudAPI.getInstance().getConsole().error("Received packet: " + packet.getClass().getSimpleName() + " but it is not a response packet but was sent as a response packet!");
                     return;
                 }
                 CloudAPI.getInstance().getConsole().trace("Received response packet: " + packet.getClass().getSimpleName() + " for packet: " + packet.getPacketData().getResponseTargetData().getPacketId());
                 packet.receive();
                 FutureAction<ICloudPacketResponse> futureAction = this.packetManager.getWaitingForResponse().get(packet.getPacketData().getResponseTargetData().getPacketId()).getResponseAction();
-                if(!futureAction.isCompletedExceptionally() && !futureAction.isDone() && !futureAction.isCancelled()){
+                if (!futureAction.isCompletedExceptionally() && !futureAction.isDone() && !futureAction.isCancelled()) {
                     futureAction.complete((ICloudPacketResponse) packet);
                 }
                 this.packetManager.getWaitingForResponse().remove(packet.getPacketData().getResponseTargetData().getPacketId());
-            }else{
+            } else {
                 CloudAPI.getInstance().getConsole().warn("Received response packet for " + packet.getPacketData().getResponseTargetData().getPacketId() + " but no request is waiting for it!");
             }
-        }else{
+        } else {
             CloudAPI.getInstance().getConsole().trace("Received packet: " + packet.getClass().getSimpleName());
             packet.receive();
         }
@@ -70,7 +72,7 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
 
     @Override
     public <T extends ICloudPacket> void disconnectPacketListener(Class<T> packetClass) {
-        if(!this.listeners.containsKey(packetClass)) return;
+        if (!this.listeners.containsKey(packetClass)) return;
         int listenerId = this.listeners.get(packetClass);
         this.topic.removeListenerAsync(listenerId);
         this.listeners.remove(packetClass);

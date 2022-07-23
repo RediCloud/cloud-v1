@@ -1,18 +1,18 @@
 package net.suqatri.redicloud.api.impl;
 
+import lombok.Getter;
+import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.event.ICloudEventManager;
+import net.suqatri.redicloud.api.group.ICloudGroupManager;
 import net.suqatri.redicloud.api.impl.event.CloudEventManager;
 import net.suqatri.redicloud.api.impl.group.CloudGroupManager;
 import net.suqatri.redicloud.api.impl.listener.node.CloudNodeConnectedListener;
 import net.suqatri.redicloud.api.impl.listener.node.CloudNodeDisconnectListener;
 import net.suqatri.redicloud.api.impl.listener.service.CloudServiceStartedListener;
 import net.suqatri.redicloud.api.impl.listener.service.CloudServiceStoppedListener;
+import net.suqatri.redicloud.api.impl.network.NetworkComponentManager;
 import net.suqatri.redicloud.api.impl.node.CloudNodeManager;
 import net.suqatri.redicloud.api.impl.packet.CloudPacketManager;
-import lombok.Getter;
-import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.redicloud.api.event.ICloudEventManager;
-import net.suqatri.redicloud.api.group.ICloudGroupManager;
-import net.suqatri.redicloud.api.impl.network.NetworkComponentManager;
 import net.suqatri.redicloud.api.impl.player.CloudPlayerManager;
 import net.suqatri.redicloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.redicloud.api.impl.redis.bucket.packet.BucketDeletePacket;
@@ -53,30 +53,31 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
         this.playerManager = new CloudPlayerManager();
     }
 
-    public void registerInternalListeners(){
+    public void registerInternalListeners() {
         this.eventManager.register(new CloudNodeConnectedListener());
         this.eventManager.register(new CloudNodeDisconnectListener());
         this.eventManager.register(new CloudServiceStartedListener());
         this.eventManager.register(new CloudServiceStoppedListener());
     }
 
-    public void registerInternalPackets(){
+    public void registerInternalPackets() {
         CloudAPI.getInstance().getPacketManager().registerPacket(BucketUpdatePacket.class);
         CloudAPI.getInstance().getPacketManager().registerPacket(BucketDeletePacket.class);
     }
 
     @Override
-    public void initShutdownHook(){
-        if(this.isShutdownHookAdded()) return;
-        Runtime.getRuntime().addShutdownHook(new Thread("node-shutdown-hook"){
+    public void initShutdownHook() {
+        if (this.isShutdownHookAdded()) return;
+        Runtime.getRuntime().addShutdownHook(new Thread("node-shutdown-hook") {
             @Override
-            public void run(){
+            public void run() {
                 CloudAPI.getInstance().shutdown(true);
             }
         });
     }
 
     public abstract IRedisConnection getRedisConnection();
+
     public abstract void updateApplicationProperties(T object);
 
 }

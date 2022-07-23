@@ -13,7 +13,7 @@ public class CloudNodeShutdownPacket extends CloudNodePacket {
 
     @Override
     public void receive() {
-        if(CloudAPI.getInstance().getNetworkComponentInfo().getType() != NetworkComponentType.NODE) {
+        if (CloudAPI.getInstance().getNetworkComponentInfo().getType() != NetworkComponentType.NODE) {
             CloudAPI.getInstance().getConsole().error("The " + this.getClass().getSimpleName() + " can only be received by the node!");
             return;
         }

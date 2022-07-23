@@ -31,7 +31,7 @@ public class ProxyConsole implements IConsole {
 
     @Override
     public void error(String message, Throwable throwable) {
-        if(!canLog(LogLevel.ERROR)) return;
+        if (!canLog(LogLevel.ERROR)) return;
         System.out.println("[ERROR] " + message);
         if (throwable != null) {
             throwable.printStackTrace();
@@ -40,37 +40,37 @@ public class ProxyConsole implements IConsole {
 
     @Override
     public void error(String message) {
-        if(!canLog(LogLevel.ERROR)) return;
+        if (!canLog(LogLevel.ERROR)) return;
         System.out.println("[ERROR] " + message);
     }
 
     @Override
     public void warn(String message) {
-        if(!canLog(LogLevel.WARN)) return;
+        if (!canLog(LogLevel.WARN)) return;
         System.out.println("[WARN] " + message);
     }
 
     @Override
     public void info(String message) {
-        if(!canLog(LogLevel.INFO)) return;
+        if (!canLog(LogLevel.INFO)) return;
         System.out.println("[INFO] " + message);
     }
 
     @Override
     public void debug(String message) {
-        if(!canLog(LogLevel.DEBUG)) return;
+        if (!canLog(LogLevel.DEBUG)) return;
         System.out.println("[DEBUG] " + message);
     }
 
     @Override
     public void trace(String message) {
-        if(!canLog(LogLevel.TRACE)) return;
+        if (!canLog(LogLevel.TRACE)) return;
         System.out.println("[TRACE] " + message);
     }
 
     @Override
     public void fatal(String message, Throwable throwable) {
-        if(!canLog(LogLevel.FATAL)) return;
+        if (!canLog(LogLevel.FATAL)) return;
         System.out.println("[FATAL] " + message);
         if (throwable != null) {
             throwable.printStackTrace();

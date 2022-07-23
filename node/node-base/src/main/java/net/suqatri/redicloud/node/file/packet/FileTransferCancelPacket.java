@@ -8,7 +8,7 @@ public class FileTransferCancelPacket extends FileTransferPacket {
 
     @Override
     public void receive() {
-        if(CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
+        if (CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
         NodeLauncher.getInstance().getFileTransferManager().cancelTransfer(this.getTransferId(), true);
     }
 }

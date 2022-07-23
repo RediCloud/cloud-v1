@@ -29,7 +29,7 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
     @Override
     public FutureAction<IRBucketHolder<ICloudService>> getServer() {
         FutureAction<IRBucketHolder<ICloudService>> futureAction = new FutureAction<>();
-        if(!isConnected()) {
+        if (!isConnected()) {
             futureAction.completeExceptionally(new IllegalStateException("player@" + this.getUniqueId() + " is not connected"));
             return futureAction;
         }
@@ -42,7 +42,7 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
     @Override
     public FutureAction<IRBucketHolder<ICloudService>> getProxy() {
         FutureAction<IRBucketHolder<ICloudService>> futureAction = new FutureAction<>();
-        if(!isConnected()) {
+        if (!isConnected()) {
             futureAction.completeExceptionally(new IllegalStateException("player@" + this.getUniqueId() + " is not connected"));
             return futureAction;
         }

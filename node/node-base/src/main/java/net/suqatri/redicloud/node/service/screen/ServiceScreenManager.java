@@ -22,7 +22,7 @@ public class ServiceScreenManager implements IServiceScreenManager {
     private final ConcurrentHashMap<UUID, IServiceScreen> screens;
     private final List<IServiceScreen> activeScreens;
 
-    public ServiceScreenManager(){
+    public ServiceScreenManager() {
         this.activeScreens = new ArrayList<>();
         this.screens = new ConcurrentHashMap<>();
 
@@ -32,7 +32,7 @@ public class ServiceScreenManager implements IServiceScreenManager {
 
     @Override
     public IServiceScreen getServiceScreen(IRBucketHolder<ICloudService> serviceHolder) {
-        if(!this.screens.containsKey(serviceHolder.get().getUniqueId())) {
+        if (!this.screens.containsKey(serviceHolder.get().getUniqueId())) {
             this.screens.put(serviceHolder.get().getUniqueId(), new ServiceScreen(serviceHolder));
         }
         return this.screens.get(serviceHolder.get().getUniqueId());
@@ -45,14 +45,14 @@ public class ServiceScreenManager implements IServiceScreenManager {
         serviceScreen.getService().get().getConsoleNodeListenerIds().add(NodeLauncher.getInstance().getNode().getUniqueId());
         serviceScreen.getService().get().updateAsync();
 
-        if(this.activeScreens.contains(serviceScreen)) {
+        if (this.activeScreens.contains(serviceScreen)) {
             futureAction.complete(serviceScreen);
             return futureAction;
         }
         this.activeScreens.add(serviceScreen);
 
         serviceScreen.getLines().readAllAsync().whenComplete((lines, e) -> {
-            if(e != null){
+            if (e != null) {
                 futureAction.completeExceptionally(e);
                 return;
             }

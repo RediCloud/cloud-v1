@@ -12,18 +12,18 @@ import net.suqatri.redicloud.api.service.ICloudService;
 public class ServerConnectListener implements Listener {
 
     @EventHandler
-    public void onServerConnect(ServerConnectEvent event){
-        if(event.isCancelled()) return;
+    public void onServerConnect(ServerConnectEvent event) {
+        if (event.isCancelled()) return;
 
         ServerInfo serverInfo =
                 (event.getTarget().getName().equalsIgnoreCase("fallback")
                         || event.getTarget().getName().equalsIgnoreCase("lobby"))
-                ? null
-                : event.getTarget();
+                        ? null
+                        : event.getTarget();
 
-        if(serverInfo == null){
+        if (serverInfo == null) {
             IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService();
-            if(holder == null){
+            if (holder == null) {
                 event.getPlayer().disconnect("Fallback service is not available.");
                 return;
             }

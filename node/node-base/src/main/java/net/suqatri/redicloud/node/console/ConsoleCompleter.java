@@ -1,11 +1,11 @@
 package net.suqatri.redicloud.node.console;
 
+import net.suqatri.commands.ConsoleCommandIssuer;
+import net.suqatri.commands.RootCommand;
 import net.suqatri.redicloud.commons.reflection.ReflectionUtils;
 import net.suqatri.redicloud.node.console.setup.Setup;
 import net.suqatri.redicloud.node.console.setup.SetupEntry;
 import net.suqatri.redicloud.node.console.setup.SetupSuggester;
-import net.suqatri.commands.ConsoleCommandIssuer;
-import net.suqatri.commands.RootCommand;
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
@@ -27,9 +27,9 @@ public class ConsoleCompleter implements Completer {
         String line = parsedLine.line();
 
         Setup<?> currentSetup = consoleManager.getNodeConsole().getCurrentSetup();
-        if(currentSetup != null){
+        if (currentSetup != null) {
             SetupEntry entry = currentSetup.getSetup().getValue();
-            if(entry.getCompleter() != null){
+            if (entry.getCompleter() != null) {
                 Class<? extends SetupSuggester> value = entry.getCompleter().value();
                 SetupSuggester suggester = ReflectionUtils.createEmpty(value);
                 for (String s : suggester.suggest(currentSetup, currentSetup.getSetup().getValue())) {
@@ -43,7 +43,7 @@ public class ConsoleCompleter implements Completer {
 
         String name = line.split(" ")[0];
         String[] args = line.split(" ");
-        if(args.length > 1) {
+        if (args.length > 1) {
             args = removeFirstArguments(args, 1);
         } else {
             args = new String[0];
@@ -58,14 +58,14 @@ public class ConsoleCompleter implements Completer {
                 .findFirst()
                 .orElse(null);
 
-        if(args.length == 0 && matchedCommand == null){
+        if (args.length == 0 && matchedCommand == null) {
             for (RootCommand command : commands) {
                 list.add(new Candidate(command.getCommandName()));
             }
             return;
         }
 
-        if(matchedCommand == null) return;
+        if (matchedCommand == null) return;
 
         List<Candidate> candidates = matchedCommand
                 .getTabCompletions(commandSender, matchedCommand.getCommandName(), line.endsWith(" ") && args.length != 0 ? addEmptyArgument(args) : args)
@@ -77,25 +77,25 @@ public class ConsoleCompleter implements Completer {
         list.addAll(candidates);
     }
 
-    private String[] removeFirstArguments(String[] args, int count){
+    private String[] removeFirstArguments(String[] args, int count) {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < args.length; i++) {
-            if(i >= count) {
-                if(!sb.toString().isEmpty()) sb.append(" ");
+        for (int i = 0; i < args.length; i++) {
+            if (i >= count) {
+                if (!sb.toString().isEmpty()) sb.append(" ");
                 sb.append(args[i]);
             }
         }
         return sb.toString().split(" ");
     }
 
-    private String[] addEmptyArgument(String[] args){
+    private String[] addEmptyArgument(String[] args) {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < args.length; i++) {
-            if(!sb.toString().isEmpty()) sb.append(" ");
+        for (int i = 0; i < args.length; i++) {
+            if (!sb.toString().isEmpty()) sb.append(" ");
             sb.append(args[i]);
         }
         String toAppend = "";
-        if(!sb.toString().isEmpty()) toAppend = " ";
+        if (!sb.toString().isEmpty()) toAppend = " ";
         toAppend += "<|>";
         sb.append(toAppend);
         return sb.toString().split(" ");

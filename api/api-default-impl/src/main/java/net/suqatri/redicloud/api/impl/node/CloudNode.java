@@ -47,13 +47,13 @@ public class CloudNode extends RBucketObject implements ICloudNode {
         return getMaxMemory() - getMemoryUsage();
     }
 
-    public long getUpTime(){
+    public long getUpTime() {
         return System.currentTimeMillis() - this.lastStart;
     }
 
     @Override
     public void shutdown() {
-        if(CloudAPI.getInstance().getNetworkComponentInfo().equals(this.getNetworkComponentInfo())){
+        if (CloudAPI.getInstance().getNetworkComponentInfo().equals(this.getNetworkComponentInfo())) {
             CloudAPI.getInstance().shutdown(false);
             return;
         }
@@ -90,7 +90,7 @@ public class CloudNode extends RBucketObject implements ICloudNode {
 
     @Override
     public void merged() {
-        if(CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
+        if (CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
         CloudDefaultAPIImpl.getInstance().updateApplicationProperties(this);
     }
 }

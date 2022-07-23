@@ -9,10 +9,15 @@ import java.util.Collection;
 public interface INetworkComponentManager {
 
     INetworkComponentInfo getComponentInfo(String identifier);
+
     INetworkComponentInfo getComponentInfo(NetworkComponentType type, String identifier);
+
     INetworkComponentInfo getComponentInfo(ICloudNode node);
+
     INetworkComponentInfo getComponentInfo(ICloudService service);
+
     FutureAction<Collection<INetworkComponentInfo>> getAllComponentInfoAsync();
+
     Collection<INetworkComponentInfo> getAllComponentInfo();
 
 }

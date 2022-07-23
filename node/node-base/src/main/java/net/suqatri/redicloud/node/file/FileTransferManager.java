@@ -20,9 +20,8 @@ public class FileTransferManager implements IFileTransferManager {
 
     public static final int BYTES_PER_PACKET = 10485760;
     public static final int SLEEP_TIME_PER_PACKET = 60;
-
-    private FileTransferProcessThread thread;
     private final ConcurrentHashMap<UUID, IFileTransferReceiveProcess> waitingReceiveProcesses;
+    private FileTransferProcessThread thread;
     private FutureAction<Boolean> pullingRequest;
 
     public FileTransferManager() {
@@ -33,7 +32,7 @@ public class FileTransferManager implements IFileTransferManager {
         CloudAPI.getInstance().getConsole().info("File transfer thread successfully started and file packets registered!");
     }
 
-    private void registerPackets(){
+    private void registerPackets() {
         CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferStartPacket.class);
         CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferBytesPacket.class);
         CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferCompletedPacket.class);
@@ -43,14 +42,14 @@ public class FileTransferManager implements IFileTransferManager {
     }
 
     public void addProcessQueue(UUID transferId) {
-        if(!this.waitingReceiveProcesses.containsKey(transferId)){
+        if (!this.waitingReceiveProcesses.containsKey(transferId)) {
             CloudAPI.getInstance().getConsole().warn("File-read-transfer process with id " + transferId + " is not found or already processed!");
             return;
         }
         FileTransferProcessThread.getReceiveProcesses().put(transferId, this.waitingReceiveProcesses.get(transferId));
     }
 
-    public FutureAction<File> transferFolderToNode(File folder, File targetFile, String targetFilePathToDelete, IRBucketHolder<ICloudNode> holder){
+    public FutureAction<File> transferFolderToNode(File folder, File targetFile, String targetFilePathToDelete, IRBucketHolder<ICloudNode> holder) {
         FutureAction<File> futureAction = new FutureAction<>();
 
         FileTransferSendProcess process = new FileTransferSendProcess();
@@ -67,7 +66,7 @@ public class FileTransferManager implements IFileTransferManager {
         return futureAction;
     }
 
-    public FutureAction<File> transferFolderToNode(File folder, File targetFile, String targetFilePathToDelete, UUID nodeId){
+    public FutureAction<File> transferFolderToNode(File folder, File targetFile, String targetFilePathToDelete, UUID nodeId) {
         FutureAction<File> futureAction = new FutureAction<>();
         CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeId)
                 .onFailure(futureAction)
@@ -78,9 +77,9 @@ public class FileTransferManager implements IFileTransferManager {
         return futureAction;
     }
 
-    public void cancelTransfer(UUID transferId, boolean interrupt){
-        if(FileTransferProcessThread.getCurrentReceiveProcess() != null){
-            if(FileTransferProcessThread.getCurrentReceiveProcess() != null) {
+    public void cancelTransfer(UUID transferId, boolean interrupt) {
+        if (FileTransferProcessThread.getCurrentReceiveProcess() != null) {
+            if (FileTransferProcessThread.getCurrentReceiveProcess() != null) {
                 if (FileTransferProcessThread.getCurrentReceiveProcess().getTransferId().equals(transferId)) {
                     if (interrupt) {
                         this.thread.interrupt();
@@ -92,8 +91,8 @@ public class FileTransferManager implements IFileTransferManager {
                 }
             }
         }
-        if(FileTransferProcessThread.getCurrentSentProcess() != null){
-            if(FileTransferProcessThread.getCurrentSentProcess() != null) {
+        if (FileTransferProcessThread.getCurrentSentProcess() != null) {
+            if (FileTransferProcessThread.getCurrentSentProcess() != null) {
                 if (FileTransferProcessThread.getCurrentSentProcess().getTransferId().equals(transferId)) {
                     if (interrupt) {
                         this.thread.interrupt();
@@ -107,9 +106,9 @@ public class FileTransferManager implements IFileTransferManager {
         }
     }
 
-    public FutureAction<Boolean> pullFile(String originalFilePath, File destinationFile, File targetFileToDelete, IRBucketHolder<ICloudNode> holder){
+    public FutureAction<Boolean> pullFile(String originalFilePath, File destinationFile, File targetFileToDelete, IRBucketHolder<ICloudNode> holder) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
-        if(this.pullingRequest != null){
+        if (this.pullingRequest != null) {
             futureAction.completeExceptionally(new IllegalStateException("Pulling request is already in progress!"));
             return futureAction;
         }

@@ -62,14 +62,14 @@ public class DependencyResolver {
         return this.system.readArtifactDescriptor(session, request).getDependencies();
     }
 
-    private RepositorySystem newRepositorySystem(DefaultServiceLocator locator){
+    private RepositorySystem newRepositorySystem(DefaultServiceLocator locator) {
         locator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
         locator.addService(TransporterFactory.class, FileTransporterFactory.class);
         locator.addService(TransporterFactory.class, HttpTransporterFactory.class);
         return locator.getService(RepositorySystem.class);
     }
 
-    private RepositorySystemSession newSession(RepositorySystem system){
+    private RepositorySystemSession newSession(RepositorySystem system) {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
         LocalRepository localRepository = new LocalRepository(DependencyLoader.getLoader().getRepositoryFolder());
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepository));

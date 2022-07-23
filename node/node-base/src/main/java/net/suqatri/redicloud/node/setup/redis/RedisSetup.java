@@ -1,13 +1,13 @@
 package net.suqatri.redicloud.node.setup.redis;
 
 import lombok.Getter;
+import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.console.setup.Setup;
 import net.suqatri.redicloud.node.console.setup.SetupHeaderBehaviour;
 import net.suqatri.redicloud.node.console.setup.annotations.AnswerCompleter;
 import net.suqatri.redicloud.node.console.setup.annotations.Question;
 import net.suqatri.redicloud.node.console.setup.suggester.HostNameSuggester;
 import net.suqatri.redicloud.node.console.setup.suggester.RedisPortSuggester;
-import net.suqatri.redicloud.node.NodeLauncher;
 
 @Getter
 public class RedisSetup extends Setup<RedisSetup> {

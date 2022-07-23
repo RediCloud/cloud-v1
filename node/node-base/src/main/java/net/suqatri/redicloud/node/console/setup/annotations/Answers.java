@@ -8,6 +8,7 @@ import java.lang.annotation.Target;
 public @interface Answers {
 
     String[] forbidden() default {};
+
     String[] only() default {};
 
 }

@@ -1,15 +1,15 @@
 package net.suqatri.redicloud.node.commands;
 
+import net.suqatri.commands.CommandHelp;
+import net.suqatri.commands.CommandSender;
+import net.suqatri.commands.ConsoleCommand;
+import net.suqatri.commands.annotation.*;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.commons.ConditionChecks;
 import net.suqatri.redicloud.commons.function.future.FutureActionCollection;
-import net.suqatri.commands.CommandHelp;
-import net.suqatri.commands.CommandSender;
-import net.suqatri.commands.ConsoleCommand;
-import net.suqatri.commands.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,22 +23,22 @@ public class ServiceCommand extends ConsoleCommand {
     @Subcommand("help")
     @Default
     @Syntax("[Page]")
-    public void onHelp(CommandHelp commandHelp){
+    public void onHelp(CommandHelp commandHelp) {
         commandHelp.showHelp();
     }
 
     @Subcommand("start")
     @Description("Start a amount of services")
     @Syntax("<Gruppe> [Amount]")
-    public void onStart(CommandSender commandSender, String name, @Optional String amountString){
+    public void onStart(CommandSender commandSender, String name, @Optional String amountString) {
         AtomicInteger amount = new AtomicInteger(1);
-        if(amountString != null){
-            if(!ConditionChecks.isInteger(amountString)){
+        if (amountString != null) {
+            if (!ConditionChecks.isInteger(amountString)) {
                 commandSender.sendMessage("Amount must be an integer");
                 return;
-            }else{
+            } else {
                 int i = Integer.parseInt(amountString);
-                if(i < 1){
+                if (i < 1) {
                     commandSender.sendMessage("Amount must be greater than 0");
                     return;
                 }
@@ -67,9 +67,9 @@ public class ServiceCommand extends ConsoleCommand {
     @Description("Stop a service")
     @Syntax("<Service> --force")
     @CommandCompletion("@service --force")
-    public void onStop(CommandSender commandSender, String serviceName, @Optional String arg){
+    public void onStop(CommandSender commandSender, String serviceName, @Optional String arg) {
         boolean force = arg != null && arg.equalsIgnoreCase("--force");
-        if(serviceName.endsWith("-*")) {
+        if (serviceName.endsWith("-*")) {
             CloudAPI.getInstance().getGroupManager().getGroupAsync(serviceName.split("-")[0])
                     .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group", t))
                     .onSuccess(groupHolder -> {
@@ -79,18 +79,18 @@ public class ServiceCommand extends ConsoleCommand {
                         }
                         commandSender.sendMessage((force ? "Force stopping" : "Stopping") + " all service of group " + groupHolder.get().getName() + "...");
                         groupHolder.get().getOnlineServices()
-                            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get services", t))
-                            .onSuccess(serviceHolders -> {
-                                FutureActionCollection<IServiceStartConfiguration, Boolean> futureActionCollection = new FutureActionCollection();
-                                for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                                    futureActionCollection.addToProcess(serviceHolder.get().getConfiguration(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId(), force));
-                                }
-                                futureActionCollection.process()
-                                        .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to stop services", t))
-                                        .onSuccess(b -> commandSender.sendMessage("Stopped all services of group " + groupHolder.get().getName()));
-                            });
+                                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get services", t))
+                                .onSuccess(serviceHolders -> {
+                                    FutureActionCollection<IServiceStartConfiguration, Boolean> futureActionCollection = new FutureActionCollection();
+                                    for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
+                                        futureActionCollection.addToProcess(serviceHolder.get().getConfiguration(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId(), force));
+                                    }
+                                    futureActionCollection.process()
+                                            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to stop services", t))
+                                            .onSuccess(b -> commandSender.sendMessage("Stopped all services of group " + groupHolder.get().getName()));
+                                });
                     });
-        }else{
+        } else {
             CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
                     .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get service", t))
                     .onSuccess(serviceHolder -> {
@@ -108,66 +108,67 @@ public class ServiceCommand extends ConsoleCommand {
 
     @Subcommand("list")
     @Description("List all services")
-    public void onList(CommandSender commandSender){
+    public void onList(CommandSender commandSender) {
         CloudAPI.getInstance().getConsole().trace("Getting services...");
         CloudAPI.getInstance().getServiceManager().getServicesAsync()
-            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get services", t))
-            .onSuccess(serviceHolders -> {
-                if(serviceHolders.isEmpty()){
-                    commandSender.sendMessage("No services found");
-                    return;
-                }
-                List<String> lines = new ArrayList<>();
-                for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                    lines.add("§8 » %tc" + serviceHolder.get().getServiceName() + " §8| %hc" + serviceHolder.get().getOnlineCount() + "§8/%tc" + serviceHolder.get().getMaxPlayers());
-                }
+                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get services", t))
+                .onSuccess(serviceHolders -> {
+                    if (serviceHolders.isEmpty()) {
+                        commandSender.sendMessage("No services found");
+                        return;
+                    }
+                    List<String> lines = new ArrayList<>();
+                    for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
+                        lines.add("§8 » %tc" + serviceHolder.get().getServiceName() + " §8| %hc" + serviceHolder.get().getOnlineCount() + "§8/%tc" + serviceHolder.get().getMaxPlayers());
+                    }
 
-                commandSender.sendMessage("");
-                commandSender.sendMessage("%tcServices §8(%hc" + serviceHolders.size() + "§8)%tc:");
-                for (String s : lines.parallelStream().sorted().collect(Collectors.toList())) {
-                    commandSender.sendMessage(s);
-                }
-                commandSender.sendMessage("");
-            });
+                    commandSender.sendMessage("");
+                    commandSender.sendMessage("%tcServices §8(%hc" + serviceHolders.size() + "§8)%tc:");
+                    for (String s : lines.parallelStream().sorted().collect(Collectors.toList())) {
+                        commandSender.sendMessage(s);
+                    }
+                    commandSender.sendMessage("");
+                });
     }
 
     @Subcommand("info")
     @Description("Get info about a service")
     @Syntax("<Service>")
     @CommandCompletion("@service")
-    public void onInfo(CommandSender commandSender, String serviceName){
+    public void onInfo(CommandSender commandSender, String serviceName) {
         CloudAPI.getInstance().getConsole().trace("Checking service existence...");
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get service", t))
                 .onSuccess(exists -> {
-                    if(!exists){
+                    if (!exists) {
                         commandSender.sendMessage("Service not found");
                         return;
                     }
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
-                        .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get service", t))
-                        .onSuccess(serviceHolder -> {
-                            serviceHolder.get().getServiceVersion()
-                                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get service version", t))
-                                .onSuccess(versionHolder -> {
-                                    commandSender.sendMessage("");
-                                    commandSender.sendMessage("%tcService info of %hc" + serviceHolder.get().getServiceName() + "§8:");
-                                    commandSender.sendMessage("§8 »%tc Environment: %hc" + serviceHolder.get().getEnvironment().name());
-                                    commandSender.sendMessage("§8 »%tc Group: %hc" + (serviceHolder.get().isGroupBased() ? serviceHolder.get().getGroupName() : "None"));
-                                    commandSender.sendMessage("§8 »%tc Version: %hc" + versionHolder.get().getName());
-                                    commandSender.sendMessage("§8 »%tc State: %hc" + serviceHolder.get().getServiceState().name());
-                                    commandSender.sendMessage("§8 »%tc Players: %hc" + serviceHolder.get().getOnlineCount() + "§8/%hc" + serviceHolder.get().getMaxPlayers());
-                                    commandSender.sendMessage("§8 »%tc RAM: %hc" + serviceHolder.get().getMaxRam() + " MB");
-                                    StringBuilder templateBuilder = new StringBuilder();
-                                    for (String templateName : serviceHolder.get().getConfiguration().getTemplateNames()) {
-                                        if(!templateBuilder.toString().isEmpty()) templateBuilder.append("§8, %hc");
-                                        templateBuilder.append("%hc");
-                                        templateBuilder.append(templateName);
-                                    }
-                                    commandSender.sendMessage("§8 »%tc Templates: %hc" + templateBuilder);
-                                    commandSender.sendMessage("");
-                                });
-                        });
+                            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get service", t))
+                            .onSuccess(serviceHolder -> {
+                                serviceHolder.get().getServiceVersion()
+                                        .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get service version", t))
+                                        .onSuccess(versionHolder -> {
+                                            commandSender.sendMessage("");
+                                            commandSender.sendMessage("%tcService info of %hc" + serviceHolder.get().getServiceName() + "§8:");
+                                            commandSender.sendMessage("§8 »%tc Environment: %hc" + serviceHolder.get().getEnvironment().name());
+                                            commandSender.sendMessage("§8 »%tc Group: %hc" + (serviceHolder.get().isGroupBased() ? serviceHolder.get().getGroupName() : "None"));
+                                            commandSender.sendMessage("§8 »%tc Version: %hc" + versionHolder.get().getName());
+                                            commandSender.sendMessage("§8 »%tc State: %hc" + serviceHolder.get().getServiceState().name());
+                                            commandSender.sendMessage("§8 »%tc Players: %hc" + serviceHolder.get().getOnlineCount() + "§8/%hc" + serviceHolder.get().getMaxPlayers());
+                                            commandSender.sendMessage("§8 »%tc RAM: %hc" + serviceHolder.get().getMaxRam() + " MB");
+                                            StringBuilder templateBuilder = new StringBuilder();
+                                            for (String templateName : serviceHolder.get().getConfiguration().getTemplateNames()) {
+                                                if (!templateBuilder.toString().isEmpty())
+                                                    templateBuilder.append("§8, %hc");
+                                                templateBuilder.append("%hc");
+                                                templateBuilder.append(templateName);
+                                            }
+                                            commandSender.sendMessage("§8 »%tc Templates: %hc" + templateBuilder);
+                                            commandSender.sendMessage("");
+                                        });
+                            });
                 });
     }
 

@@ -7,7 +7,8 @@ import net.suqatri.redicloud.api.impl.packet.CloudPacket;
 
 import java.util.UUID;
 
-@Getter @Setter
+@Getter
+@Setter
 public class CloudFactoryServiceStopPacket extends CloudPacket {
 
     private UUID serviceId;

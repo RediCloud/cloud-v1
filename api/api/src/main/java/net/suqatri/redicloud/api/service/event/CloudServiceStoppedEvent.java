@@ -9,7 +9,7 @@ public class CloudServiceStoppedEvent extends CloudServiceEvent {
         super(holder);
     }
 
-    public CloudServiceStoppedEvent(){
+    public CloudServiceStoppedEvent() {
         super();
     }
 }

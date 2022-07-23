@@ -11,21 +11,21 @@ import org.redisson.api.RBucket;
 public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T> {
 
     private final String identifier;
-    private IRedissonBucketManager<T> bucketManager;
     private final RBucket<T> bucket;
+    private IRedissonBucketManager<T> bucketManager;
     private T publishedObject;
 
     public RBucketHolder(String identifier, IRedissonBucketManager<T> bucketManager, RBucket<T> bucket, T object) {
         this.bucket = bucket;
         this.identifier = identifier;
         this.bucketManager = bucketManager;
-        if(object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
+        if (object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
         this.publishedObject = object;
         this.publishedObject.setHolder(this);
     }
 
     public void setPublishedObject(T object) {
-        if(object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
+        if (object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
         CloudAPI.getInstance().getConsole().trace("Setting published object for bucket " + identifier + " to " + object);
         this.publishedObject = object;
         this.publishedObject.setHolder(this);
@@ -33,7 +33,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public T get(boolean force) {
-        if(this.publishedObject != null && !force) {
+        if (this.publishedObject != null && !force) {
             return this.publishedObject;
         }
         setPublishedObject(this.bucket.get());
@@ -42,7 +42,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public IRBucketHolder<T> update(T object) {
-        if(object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
+        if (object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
         CloudAPI.getInstance().getConsole().trace("Updating bucket " + getRedisKey() + "!");
         this.bucket.set(object);
         try {
@@ -59,7 +59,7 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public FutureAction<IRBucketHolder<T>> updateAsync(T object) {
-        if(object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
+        if (object == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
         CloudAPI.getInstance().getConsole().trace("Updating bucket " + getRedisKey() + "!");
         FutureAction<IRBucketHolder<T>> futureAction = new FutureAction<>();
 
@@ -89,14 +89,14 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
 
     @Override
     public void mergeChanges(String json) {
-        if(json == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
+        if (json == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
         try {
             CloudAPI.getInstance().getConsole().trace("Merging changes for bucket " + getRedisKey() + " | publishedObject: " + (this.publishedObject != null));
-            if(this.publishedObject != null) {
+            if (this.publishedObject != null) {
                 this.bucketManager.getObjectCodec().getObjectMapper().readerForUpdating(this.publishedObject).readValue(json);
                 this.publishedObject.setHolder(this);
                 this.publishedObject.merged();
-            }else{
+            } else {
                 this.setPublishedObject(this.bucketManager.getObjectCodec().getObjectMapper().readValue(json, this.bucketManager.getImplClass()));
                 this.publishedObject.merged();
             }
@@ -121,10 +121,10 @@ public class RBucketHolder<T extends RBucketObject> implements IRBucketHolder<T>
     }
 
     @Override
-    public boolean equals(Object obj){
-        if(obj == null) return false;
-        if(!(obj instanceof IRBucketHolder)) return false;
-        if(((IRBucketHolder<?>) obj).getRedisKey().equals(this.getRedisKey())) return true;
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (!(obj instanceof IRBucketHolder)) return false;
+        if (((IRBucketHolder<?>) obj).getRedisKey().equals(this.getRedisKey())) return true;
         return true;
     }
 }

@@ -75,7 +75,7 @@ public class FileUtils {
                 .collect(Collectors.toList());
     }
 
-    public static File download(String urlString, File file) throws IOException{
+    public static File download(String urlString, File file) throws IOException {
         URL url = new URL(urlString);
         ReadableByteChannel byteChannel = Channels.newChannel(url.openStream());
         FileOutputStream fileOutputStream = new FileOutputStream(file);

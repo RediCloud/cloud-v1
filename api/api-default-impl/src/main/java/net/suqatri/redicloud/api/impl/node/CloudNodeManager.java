@@ -33,7 +33,7 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode, ICloudNod
                             .parallelStream()
                             .filter(node -> node.get().getName().equalsIgnoreCase(name))
                             .findFirst();
-                    if(optional.isPresent()) {
+                    if (optional.isPresent()) {
                         futureAction.complete(optional.get());
                     } else {
                         futureAction.completeExceptionally(new IllegalArgumentException("Node not found"));
@@ -59,17 +59,17 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode, ICloudNod
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudNode>> getNodeAsync(UUID uniqueId){
+    public FutureAction<IRBucketHolder<ICloudNode>> getNodeAsync(UUID uniqueId) {
         return this.getBucketHolderAsync(uniqueId.toString());
     }
 
-    public void shutdownCluster(){
+    public void shutdownCluster() {
         for (IRBucketHolder<ICloudNode> node : getNodes()) {
             node.get().shutdown();
         }
     }
 
-    public void shutdownClusterAsync(){
+    public void shutdownClusterAsync() {
         getNodesAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while shutting down cluster", e))
                 .onSuccess(nodes -> {
@@ -108,9 +108,9 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode, ICloudNod
 
         getNodeAsync(name)
                 .onFailure(e -> {
-                    if(e instanceof NullPointerException){
+                    if (e instanceof NullPointerException) {
                         futureAction.complete(false);
-                    }else{
+                    } else {
                         futureAction.completeExceptionally(e);
                     }
                 })

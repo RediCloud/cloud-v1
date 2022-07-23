@@ -42,41 +42,41 @@ public class ServiceScreen implements IServiceScreen {
         this.lines.add(screenLine);
 
         this.current++;
-        if(this.current > MAX_LINES) {
+        if (this.current > MAX_LINES) {
             removeUselessLines();
             this.current = 0;
         }
 
-        if(this.getService().get().getConsoleNodeListenerIds().isEmpty()) return;
+        if (this.getService().get().getConsoleNodeListenerIds().isEmpty()) return;
 
         ScreenLinePacket packet = null;
         for (UUID nodeId : this.getService().get().getConsoleNodeListenerIds()) {
-            if(nodeId.equals(NodeLauncher.getInstance().getNode().getUniqueId())) continue;
-            if(packet == null){
+            if (nodeId.equals(NodeLauncher.getInstance().getNode().getUniqueId())) continue;
+            if (packet == null) {
                 packet = new ScreenLinePacket();
                 packet.setServiceId(this.service.get().getUniqueId());
                 packet.setScreenLine(screenLine);
             }
             packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager().getComponentInfo(NetworkComponentType.NODE, nodeId.toString()));
         }
-        if(packet != null) packet.publishAsync();
+        if (packet != null) packet.publishAsync();
 
-        if(NodeLauncher.getInstance().getConsole().getCurrentSetup() != null) return;
-        if(!NodeLauncher.getInstance().getScreenManager().isActive(this)) return;
+        if (NodeLauncher.getInstance().getConsole().getCurrentSetup() != null) return;
+        if (!NodeLauncher.getInstance().getScreenManager().isActive(this)) return;
         screenLine.print();
     }
 
     @Override
-    public void removeUselessLines(){
+    public void removeUselessLines() {
         this.lines.sizeAsync()
                 .thenAccept(size -> {
-                   if(size <= MAX_LINES) return;
-                   this.lines.readAllAsync().thenAccept(lines -> {
-                       for(IScreenLine line : lines){
-                           if(this.lines.size() <= MAX_LINES) break;
-                           this.lines.removeAsync(line);
-                       }
-                   });
+                    if (size <= MAX_LINES) return;
+                    this.lines.readAllAsync().thenAccept(lines -> {
+                        for (IScreenLine line : lines) {
+                            if (this.lines.size() <= MAX_LINES) break;
+                            this.lines.removeAsync(line);
+                        }
+                    });
                 });
     }
 

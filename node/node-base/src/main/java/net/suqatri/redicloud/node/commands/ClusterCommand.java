@@ -1,5 +1,9 @@
 package net.suqatri.redicloud.node.commands;
 
+import net.suqatri.commands.CommandHelp;
+import net.suqatri.commands.CommandSender;
+import net.suqatri.commands.ConsoleCommand;
+import net.suqatri.commands.annotation.*;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.node.CloudNode;
 import net.suqatri.redicloud.api.impl.node.CloudNodeManager;
@@ -7,10 +11,6 @@ import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.node.packet.NodePingPacket;
-import net.suqatri.commands.CommandHelp;
-import net.suqatri.commands.CommandSender;
-import net.suqatri.commands.ConsoleCommand;
-import net.suqatri.commands.annotation.*;
 
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -59,7 +59,7 @@ public class ClusterCommand extends ConsoleCommand {
                     CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node " + nodeName, e))
                             .onSuccess(nodeHolder -> {
-                                if(!nodeHolder.get().isConnected()){
+                                if (!nodeHolder.get().isConnected()) {
                                     commandSender.sendMessage("Node not connected!");
                                     return;
                                 }

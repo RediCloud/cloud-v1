@@ -1,9 +1,9 @@
 package net.suqatri.redicloud.node.console;
 
 import lombok.Getter;
-import net.suqatri.redicloud.api.console.ICommandManager;
 import net.suqatri.commands.*;
 import net.suqatri.commands.locales.MessageKeyProvider;
+import net.suqatri.redicloud.api.console.ICommandManager;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -29,7 +29,7 @@ public class CommandConsoleManager extends ConsoleCommandManager implements ICom
     }
 
     public NodeConsole createNodeConsole() throws Exception {
-        if(this.nodeConsole != null) throw new IllegalStateException("NodeConsole already created");
+        if (this.nodeConsole != null) throw new IllegalStateException("NodeConsole already created");
         this.nodeConsole = new NodeConsole(this);
         return this.nodeConsole;
     }
@@ -44,7 +44,7 @@ public class CommandConsoleManager extends ConsoleCommandManager implements ICom
         super.unregisterCommand(command);
     }
 
-    private void loadDefaultLanguage(){
+    private void loadDefaultLanguage() {
         addLanguageKey(MessageKeys.PERMISSION_DENIED, "You don't have permission to use this command.");
         addLanguageKey(MessageKeys.PERMISSION_DENIED_PARAMETER, "You don't have permission to use this parameter!");
         addLanguageKey(MessageKeys.ERROR_GENERIC_LOGGED, "Error: %error%");
@@ -74,11 +74,11 @@ public class CommandConsoleManager extends ConsoleCommandManager implements ICom
         getLocales().setDefaultLocale(Locales.ENGLISH);
     }
 
-    public void saveLanguage(Locale locale){
+    public void saveLanguage(Locale locale) {
         this.getLocales().addMessages(locale, messages);
     }
 
-    public void addLanguageKey(MessageKeys keys, String value){
+    public void addLanguageKey(MessageKeys keys, String value) {
         messages.put(keys, value);
     }
 }

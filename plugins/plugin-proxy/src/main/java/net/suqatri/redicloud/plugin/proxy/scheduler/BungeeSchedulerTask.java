@@ -19,7 +19,7 @@ public class BungeeSchedulerTask implements ISchedulerTask<ScheduledTask> {
 
     @Override
     public void cancel() {
-        if(task == null) return;
+        if (task == null) return;
         this.task.cancel();
     }
 }

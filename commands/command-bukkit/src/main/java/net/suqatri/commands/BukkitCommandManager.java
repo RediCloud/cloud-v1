@@ -29,12 +29,7 @@ import net.suqatri.commands.apachecommonslang.ApacheCommonsExceptionUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandException;
-import org.bukkit.command.CommandMap;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginIdentifiableCommand;
-import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.command.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.help.GenericCommandHelpTopic;
@@ -50,15 +45,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -75,23 +62,23 @@ public class BukkitCommandManager extends CommandManager<
         BukkitConditionContext
         > {
 
+    public final Integer mcMinorVersion;
+    public final Integer mcPatchVersion;
     @SuppressWarnings("WeakerAccess")
     protected final Plugin plugin;
     private final CommandMap commandMap;
     private final TimingManager timingManager;
     private final BukkitTask localeTask;
     private final Logger logger;
-    public final Integer mcMinorVersion;
-    public final Integer mcPatchVersion;
     protected Map<String, Command> knownCommands = new HashMap<>();
     protected Map<String, BukkitRootCommand> registeredCommands = new HashMap<>();
     protected BukkitCommandContexts contexts;
     protected BukkitCommandCompletions completions;
-    MCTiming commandTiming;
     protected BukkitLocales locales;
     protected Map<UUID, String> issuersLocaleString = new ConcurrentHashMap<>();
-    private boolean cantReadLocale = false;
     protected boolean autoDetectFromClient = true;
+    MCTiming commandTiming;
+    private boolean cantReadLocale = false;
 
     public BukkitCommandManager(Plugin plugin) {
         this.plugin = plugin;
@@ -387,7 +374,7 @@ public class BukkitCommandManager extends CommandManager<
         logger.log(logLevel, level.name() + message);
         if (throwable != null) {
             for (String line : ACFPatterns.NEWLINE.split(ApacheCommonsExceptionUtil.getFullStackTrace(throwable))) {
-                logger.log(logLevel,  level.name() + line);
+                logger.log(logLevel, level.name() + line);
             }
         }
     }

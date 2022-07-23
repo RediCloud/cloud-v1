@@ -60,7 +60,7 @@ public class RedisConnection implements IRedisConnection {
 
     @Override
     public boolean isConnected() {
-        if(this.client == null) return false;
+        if (this.client == null) return false;
         return !this.client.isShutdown();
     }
 

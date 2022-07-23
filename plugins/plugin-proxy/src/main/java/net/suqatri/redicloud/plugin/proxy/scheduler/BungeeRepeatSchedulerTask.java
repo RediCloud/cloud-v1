@@ -33,7 +33,7 @@ public class BungeeRepeatSchedulerTask implements IRepeatScheduler<ScheduledTask
 
     @Override
     public void cancel() {
-        if(this.task == null) return;
+        if (this.task == null) return;
         this.task.cancel();
     }
 }

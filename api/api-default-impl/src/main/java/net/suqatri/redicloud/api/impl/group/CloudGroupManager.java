@@ -41,7 +41,7 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
                             .parallelStream()
                             .filter(group -> group.get().getName().equalsIgnoreCase(name))
                             .findFirst();
-                    if(optional.isPresent()) {
+                    if (optional.isPresent()) {
                         futureAction.complete(optional.get());
                     } else {
                         futureAction.completeExceptionally(new NullPointerException("Group not found"));
@@ -72,7 +72,7 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
 
         getGroupAsync(name)
                 .onFailure(e -> {
-                    if(e instanceof NullPointerException) {
+                    if (e instanceof NullPointerException) {
                         futureAction.complete(false);
                     } else {
                         futureAction.completeExceptionally(e);
@@ -110,31 +110,31 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
                 .onFailure(futureAction)
                 .onSuccess(groupHolder -> {
                     groupHolder.get().getOnlineServices()
-                        .onFailure(futureAction)
-                        .onSuccess(serviceHolders -> {
-                            FutureActionCollection<UUID, Boolean> futureActionFutureAction = new FutureActionCollection<>();
-                            for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                                futureActionFutureAction.addToProcess(serviceHolder.get().getUniqueId(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId(), true));
-                            }
-                            futureActionFutureAction.process()
-                                .onFailure(futureAction)
-                                .onSuccess(s1 -> {
-                                    this.deleteBucketAsync(uniqueId.toString())
-                                            .onFailure(futureAction)
-                                            .onSuccess(s2 -> futureAction.complete(true));
-                                });
-                        });
+                            .onFailure(futureAction)
+                            .onSuccess(serviceHolders -> {
+                                FutureActionCollection<UUID, Boolean> futureActionFutureAction = new FutureActionCollection<>();
+                                for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
+                                    futureActionFutureAction.addToProcess(serviceHolder.get().getUniqueId(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId(), true));
+                                }
+                                futureActionFutureAction.process()
+                                        .onFailure(futureAction)
+                                        .onSuccess(s1 -> {
+                                            this.deleteBucketAsync(uniqueId.toString())
+                                                    .onFailure(futureAction)
+                                                    .onSuccess(s2 -> futureAction.complete(true));
+                                        });
+                            });
                 });
 
         return futureAction;
     }
 
     @Override
-    public boolean deleteGroup(UUID uniqueId) throws Exception{
+    public boolean deleteGroup(UUID uniqueId) throws Exception {
         IRBucketHolder<ICloudGroup> holder = getGroup(uniqueId);
         for (IRBucketHolder<ICloudService> service : CloudAPI.getInstance().getServiceManager().getServices()) {
-            if(service.get().getGroup() == null) continue;
-            if(service.get().getGroupName().equalsIgnoreCase(holder.get().getName())) {
+            if (service.get().getGroup() == null) continue;
+            if (service.get().getGroupName().equalsIgnoreCase(holder.get().getName())) {
                 CloudAPI.getInstance().getServiceManager().stopServiceAsync(service.get().getUniqueId(), true).get(5, TimeUnit.SECONDS);
             }
         }

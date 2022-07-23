@@ -40,7 +40,7 @@ public class CommandParameter<CEC extends CommandExecutionContext<CEC, ? extends
     private final String name;
     private final CommandManager manager;
     private final int paramIndex;
-
+    boolean consumesRest;
     private ContextResolver<?, CEC> resolver;
     private boolean optional;
     private Set<String> permissions = new HashSet<>();
@@ -55,7 +55,6 @@ public class CommandParameter<CEC extends CommandExecutionContext<CEC, ? extends
     private Map<String, String> flags;
     private boolean canConsumeInput;
     private boolean optionalResolver;
-    boolean consumesRest;
     private boolean isLast;
     private boolean isOptionalInput;
     private CommandParameter<CEC> nextParam;
@@ -239,12 +238,12 @@ public class CommandParameter<CEC extends CommandExecutionContext<CEC, ? extends
         this.canConsumeInput = canConsumeInput;
     }
 
-    public void setOptionalResolver(boolean optionalResolver) {
-        this.optionalResolver = optionalResolver;
-    }
-
     public boolean isOptionalResolver() {
         return optionalResolver;
+    }
+
+    public void setOptionalResolver(boolean optionalResolver) {
+        this.optionalResolver = optionalResolver;
     }
 
     public boolean requiresInput() {
@@ -259,6 +258,10 @@ public class CommandParameter<CEC extends CommandExecutionContext<CEC, ? extends
         return getSyntax(null);
     }
 
+    public void setSyntax(String syntax) {
+        this.syntax = syntax;
+    }
+
     public String getSyntax(CommandIssuer issuer) {
         if (commandIssuer) return null;
         if (syntax == null) {
@@ -269,10 +272,6 @@ public class CommandParameter<CEC extends CommandExecutionContext<CEC, ? extends
             }
         }
         return syntax;
-    }
-
-    public void setSyntax(String syntax) {
-        this.syntax = syntax;
     }
 
     public String getConditions() {
@@ -287,12 +286,12 @@ public class CommandParameter<CEC extends CommandExecutionContext<CEC, ? extends
         return permissions;
     }
 
-    public void setNextParam(CommandParameter<CEC> nextParam) {
-        this.nextParam = nextParam;
-    }
-
     public CommandParameter<CEC> getNextParam() {
         return nextParam;
+    }
+
+    public void setNextParam(CommandParameter<CEC> nextParam) {
+        this.nextParam = nextParam;
     }
 
     public boolean canExecuteWithoutInput() {

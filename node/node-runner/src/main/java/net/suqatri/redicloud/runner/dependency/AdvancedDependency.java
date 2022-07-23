@@ -17,23 +17,29 @@ public class AdvancedDependency extends CloudDependency {
         super(groupId, artifactId, version);
     }
 
+    public static AdvancedDependency fromCoords(String coords) {
+        String[] split = coords.split(":");
+        if (split.length != 3) return null;
+        return new AdvancedDependency(split[0], split[1], split[2]);
+    }
+
     public URL toURL() throws MalformedURLException {
         return getDownloadedFile().toURI().toURL();
     }
 
-    private String getDownloadUrl(String repoUrl){
+    private String getDownloadUrl(String repoUrl) {
         return getUrlWithoutExtension(repoUrl) + ".jar";
     }
 
-    public File getDownloadedFile(){
+    public File getDownloadedFile() {
         return new File(DependencyLoader.getLoader().getDependencyFolder(), getName() + ".jar");
     }
 
-    public File getDownloadedInfoFile(){
+    public File getDownloadedInfoFile() {
         return new File(DependencyLoader.getLoader().getInfoFolder(), getName() + ".info");
     }
 
-    public boolean existInRepo(String repoUrl){
+    public boolean existInRepo(String repoUrl) {
         return WebContentLoader.loadContent(getDownloadUrl(repoUrl)) != null;
     }
 
@@ -45,15 +51,15 @@ public class AdvancedDependency extends CloudDependency {
         Downloader.userAgentDownload(this.getDownloadUrl(repoUrl), downloadFile);
     }
 
-    private String getMainUrl(String repoUrl){
+    private String getMainUrl(String repoUrl) {
         return repoUrl + getGroupId().replaceAll("\\.", "/") + "/" + getArtifactId() + "/";
     }
 
-    private String getUrlWithoutExtension(String repoUrl){
+    private String getUrlWithoutExtension(String repoUrl) {
         return getMainUrl(repoUrl) + getVersion() + "/" + getArtifactId() + "-" + getVersion();
     }
 
-    public AdvancedDependency getDependencyWithNewerVersion(AdvancedDependency other){
+    public AdvancedDependency getDependencyWithNewerVersion(AdvancedDependency other) {
         Integer[] dependencyVersion = (Integer[]) getVersionStringAsIntArray(getVersion()).toArray();
         Integer[] otherDependencyVersion = (Integer[]) getVersionStringAsIntArray(other.getVersion()).toArray();
         if (dependencyVersion[0] > otherDependencyVersion[0]) return this;
@@ -68,13 +74,13 @@ public class AdvancedDependency extends CloudDependency {
         return this;
     }
 
-    private List<Integer> getVersionStringAsIntArray(String version){
+    private List<Integer> getVersionStringAsIntArray(String version) {
         String[] versionParts = version.split("\\.");
         int major = Integer.parseInt(versionParts[0]);
         String versionParts1 = versionParts.length == 2 ? versionParts[1] : null;
         int minor = parseVersionPart(versionParts1);
         String versionParts2 = versionParts.length == 3 ? versionParts[2] : null;
-        int patch  = parseVersionPart(versionParts2);
+        int patch = parseVersionPart(versionParts2);
         return Arrays.asList(major, minor, patch);
     }
 
@@ -95,11 +101,5 @@ public class AdvancedDependency extends CloudDependency {
             builder.append(number);
         }
         return Integer.parseInt(builder.toString());
-    }
-
-    public static AdvancedDependency fromCoords(String coords){
-        String[] split = coords.split(":");
-        if(split.length != 3) return null;
-        return new AdvancedDependency(split[0], split[1], split[2]);
     }
 }

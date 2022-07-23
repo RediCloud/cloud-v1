@@ -31,7 +31,7 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
 
     @Override
     public IRBucketHolder<ICloudPlayer> getPlayer(String playerName) {
-        if(!this.nameFetcherMap.containsKey(playerName)) return null;
+        if (!this.nameFetcherMap.containsKey(playerName)) return null;
         return this.getPlayer(this.nameFetcherMap.get(playerName));
     }
 
@@ -45,22 +45,22 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
         FutureAction<IRBucketHolder<ICloudPlayer>> futureAction = new FutureAction<>();
 
         this.nameFetcherMap.containsKeyAsync(playerName)
-            .whenComplete((contains, throwable) -> {
-                if(throwable != null) {
-                    futureAction.completeExceptionally(throwable);
-                    return;
-                }
-                this.nameFetcherMap.getAsync(playerName)
-                    .whenComplete((uniqueId, throwable1) -> {
-                        if(throwable1 != null) {
-                            futureAction.completeExceptionally(throwable1);
-                            return;
-                        }
-                        this.getPlayerAsync(uniqueId)
-                                .onFailure(futureAction)
-                                .onSuccess(futureAction::complete);
-                    });
-            });
+                .whenComplete((contains, throwable) -> {
+                    if (throwable != null) {
+                        futureAction.completeExceptionally(throwable);
+                        return;
+                    }
+                    this.nameFetcherMap.getAsync(playerName)
+                            .whenComplete((uniqueId, throwable1) -> {
+                                if (throwable1 != null) {
+                                    futureAction.completeExceptionally(throwable1);
+                                    return;
+                                }
+                                this.getPlayerAsync(uniqueId)
+                                        .onFailure(futureAction)
+                                        .onSuccess(futureAction::complete);
+                            });
+                });
 
         return futureAction;
     }
@@ -108,20 +108,20 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     public FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> getConnectedPlayers() {
         FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> futureAction = new FutureAction<>();
         this.nameFetcherMap.readAllValuesAsync()
-            .whenComplete((values, throwable) -> {
-                if(throwable != null) {
-                    futureAction.completeExceptionally(throwable);
-                    return;
-                }
-                FutureActionCollection<UUID, IRBucketHolder<ICloudPlayer>> futureActionCollection = new FutureActionCollection<>();
-                for(String value : values) {
-                    UUID uniqueId = UUID.fromString(value);
-                    futureActionCollection.addToProcess(uniqueId, this.getPlayerAsync(uniqueId));
-                }
-                futureActionCollection.process()
-                    .onFailure(futureAction)
-                    .onSuccess(r -> futureAction.complete(r.values()));
-            });
+                .whenComplete((values, throwable) -> {
+                    if (throwable != null) {
+                        futureAction.completeExceptionally(throwable);
+                        return;
+                    }
+                    FutureActionCollection<UUID, IRBucketHolder<ICloudPlayer>> futureActionCollection = new FutureActionCollection<>();
+                    for (String value : values) {
+                        UUID uniqueId = UUID.fromString(value);
+                        futureActionCollection.addToProcess(uniqueId, this.getPlayerAsync(uniqueId));
+                    }
+                    futureActionCollection.process()
+                            .onFailure(futureAction)
+                            .onSuccess(r -> futureAction.complete(r.values()));
+                });
         return futureAction;
     }
 
@@ -130,31 +130,31 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
         FutureAction<UUID> futureAction = new FutureAction<>();
 
         this.nameFetcherMap.containsKeyAsync(playerName)
-            .whenComplete((contains, throwable) -> {
-                if(throwable != null) {
-                    futureAction.completeExceptionally(throwable);
-                    return;
-                }
-                if(contains) {
+                .whenComplete((contains, throwable) -> {
+                    if (throwable != null) {
+                        futureAction.completeExceptionally(throwable);
+                        return;
+                    }
+                    if (contains) {
+                        this.nameFetcherMap.getAsync(playerName)
+                                .whenComplete((uuid, throwable1) -> {
+                                    if (throwable1 != null) {
+                                        futureAction.completeExceptionally(throwable1);
+                                        return;
+                                    }
+                                    futureAction.complete(UUID.fromString(uuid));
+                                });
+                        return;
+                    }
                     this.nameFetcherMap.getAsync(playerName)
-                        .whenComplete((uuid, throwable1) -> {
-                            if(throwable1 != null) {
-                                futureAction.completeExceptionally(throwable1);
-                                return;
-                            }
-                            futureAction.complete(UUID.fromString(uuid));
-                    });
-                    return;
-                }
-                this.nameFetcherMap.getAsync(playerName)
-                    .whenComplete((uuid, throwable1) -> {
-                        if(throwable1 != null) {
-                            futureAction.completeExceptionally(throwable1);
-                            return;
-                        }
-                        futureAction.complete(UUID.fromString(uuid));
-                        });
-            });
+                            .whenComplete((uuid, throwable1) -> {
+                                if (throwable1 != null) {
+                                    futureAction.completeExceptionally(throwable1);
+                                    return;
+                                }
+                                futureAction.complete(UUID.fromString(uuid));
+                            });
+                });
 
         return futureAction;
     }

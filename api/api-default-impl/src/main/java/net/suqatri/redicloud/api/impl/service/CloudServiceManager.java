@@ -1,10 +1,10 @@
 package net.suqatri.redicloud.api.impl.service;
 
+import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.impl.service.configuration.DefaultServiceStartConfiguration;
 import net.suqatri.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartPacket;
 import net.suqatri.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartResponseCloud;
-import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.impl.service.packet.stop.CloudFactoryServiceStopPacket;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
@@ -29,7 +29,7 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
     }
 
     @Override
-    public FutureAction<Set<String>> readAllFetcherKeysAsync(){
+    public FutureAction<Set<String>> readAllFetcherKeysAsync() {
         return new FutureAction<>(this.serviceIdFetcherMap.readAllKeySetAsync());
     }
 
@@ -75,7 +75,7 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
         this.containsKeyInFetcherAsync(name)
                 .onFailure(futureAction)
                 .onSuccess(contains -> {
-                    if(!contains) {
+                    if (!contains) {
                         futureAction.completeExceptionally(new IllegalArgumentException(name + " service not found"));
                         return;
                     }
@@ -84,7 +84,7 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
                             .onSuccess(serviceId -> getServiceAsync(serviceId)
                                     .onFailure(futureAction)
                                     .onSuccess(futureAction::complete));
-        });
+                });
 
         return futureAction;
     }
@@ -99,7 +99,7 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
 
     @Override
     public IRBucketHolder<ICloudService> getService(String name) {
-        if(!containsKeyInFetcher(name)) return null;
+        if (!containsKeyInFetcher(name)) return null;
         return getService(getServiceIdFromFetcher(name));
     }
 
@@ -141,7 +141,7 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
                     packet.getPacketData().waitForResponse()
                             .onFailure(futureAction)
                             .onSuccess(response -> {
-                                CloudAPI.getInstance().getServiceManager().getServiceAsync(((CloudFactoryServiceStartResponseCloud)response).getServiceId())
+                                CloudAPI.getInstance().getServiceManager().getServiceAsync(((CloudFactoryServiceStartResponseCloud) response).getServiceId())
                                         .onFailure(futureAction)
                                         .onSuccess(futureAction::complete);
                             });
@@ -177,14 +177,14 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
         IRBucketHolder<ICloudService> fallbackHolder = null;
         List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(holder -> holder.get().getUniqueId()).collect(Collectors.toList());
         for (IRBucketHolder<ICloudService> serviceHolder : getServices()) {
-            if(blackList.contains(serviceHolder.get().getUniqueId())) continue;
-            if(!serviceHolder.get().getConfiguration().isFallback()) continue;
-            if(serviceHolder.get().getOnlineCount() >= serviceHolder.get().getMaxPlayers()) continue;
-            if(fallbackHolder == null){
+            if (blackList.contains(serviceHolder.get().getUniqueId())) continue;
+            if (!serviceHolder.get().getConfiguration().isFallback()) continue;
+            if (serviceHolder.get().getOnlineCount() >= serviceHolder.get().getMaxPlayers()) continue;
+            if (fallbackHolder == null) {
                 fallbackHolder = serviceHolder;
                 continue;
             }
-            if(fallbackHolder.get().getOnlineCount() > serviceHolder.get().getOnlineCount()) {
+            if (fallbackHolder.get().getOnlineCount() > serviceHolder.get().getOnlineCount()) {
                 fallbackHolder = serviceHolder;
             }
         }

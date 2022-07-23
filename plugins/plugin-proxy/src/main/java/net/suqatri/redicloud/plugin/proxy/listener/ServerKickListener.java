@@ -11,9 +11,9 @@ import net.suqatri.redicloud.api.service.ICloudService;
 public class ServerKickListener implements Listener {
 
     @EventHandler
-    public void onServerKick(ServerKickEvent event){
+    public void onServerKick(ServerKickEvent event) {
         IRBucketHolder<ICloudService> fallbackHolder = CloudAPI.getInstance().getServiceManager().getFallbackService();
-        if(fallbackHolder == null){
+        if (fallbackHolder == null) {
             event.getPlayer().disconnect("Fallback service is not available.");
             return;
         }

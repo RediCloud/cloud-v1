@@ -2,11 +2,11 @@ package net.suqatri.redicloud.node.setup.version;
 
 import lombok.Getter;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
+import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.console.setup.Setup;
 import net.suqatri.redicloud.node.console.setup.SetupHeaderBehaviour;
 import net.suqatri.redicloud.node.console.setup.annotations.Question;
 import net.suqatri.redicloud.node.console.setup.annotations.RequiresEnum;
-import net.suqatri.redicloud.node.NodeLauncher;
 
 @Getter
 public class ServiceVersionSetup extends Setup<ServiceVersionSetup> {

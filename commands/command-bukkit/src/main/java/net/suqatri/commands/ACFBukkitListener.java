@@ -34,8 +34,8 @@ import org.bukkit.plugin.Plugin;
 import java.util.UUID;
 
 class ACFBukkitListener implements Listener {
-    private BukkitCommandManager manager;
     private final Plugin plugin;
+    private BukkitCommandManager manager;
 
     public ACFBukkitListener(BukkitCommandManager manager, Plugin plugin) {
         this.manager = manager;

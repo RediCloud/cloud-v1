@@ -10,10 +10,10 @@ public enum MinecraftMessageKeys implements MessageKeyProvider {
     IS_NOT_A_VALID_NAME,
     MULTIPLE_PLAYERS_MATCH,
     NO_PLAYER_FOUND_SERVER,
-    NO_PLAYER_FOUND
-    ;
+    NO_PLAYER_FOUND;
 
     private final MessageKey key = MessageKey.of("acf-minecraft." + this.name().toLowerCase(Locale.ENGLISH));
+
     public MessageKey getMessageKey() {
         return key;
     }

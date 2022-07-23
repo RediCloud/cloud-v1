@@ -9,12 +9,19 @@ import java.io.File;
 public interface ICloudServiceProcess {
 
     IRBucketHolder<ICloudService> getServiceHolder();
+
     void executeCommand(String command);
+
     boolean start() throws Exception;
+
     FutureAction<Boolean> stopAsync(boolean force);
+
     boolean isActive();
+
     File getServiceDirectory();
+
     int getPort();
+
     void setPort(int port);
 
 }

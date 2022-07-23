@@ -15,7 +15,7 @@ public class ProxyCloudPlugin extends Plugin {
 
     @Override
     public void onEnable() {
-        if(cloudAPI == null) throw new IllegalStateException("CloudAPI is not initialized yet!");
+        if (cloudAPI == null) throw new IllegalStateException("CloudAPI is not initialized yet!");
         cloudAPI.registerStartedService();
         cloudAPI.getService().setServiceState(ServiceState.RUNNING_UNDEFINED);
         cloudAPI.getService().setOnlineCount(ProxyServer.getInstance().getOnlineCount());

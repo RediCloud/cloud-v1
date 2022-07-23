@@ -34,7 +34,8 @@ public class NodeRunner {
             Class<?> clazz = urlClassLoader.loadClass("net.suqatri.redicloud.node.NodeLauncherMain");
             Method method = clazz.getMethod("main", String[].class);
             method.invoke(null, args);
-        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
+                 IllegalAccessException e) {
             e.printStackTrace();
         }
 

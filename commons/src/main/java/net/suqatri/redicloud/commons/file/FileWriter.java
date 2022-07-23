@@ -21,11 +21,11 @@ public class FileWriter {
         }
     }
 
-    public static void writeObject(Object object, File file) throws Exception{
+    public static void writeObject(Object object, File file) throws Exception {
         write(file, new JsonJacksonCodec().getObjectMapper().writeValueAsString(object));
     }
 
-    public static <T> T readObject(File file, Class<T> clazz) throws Exception{
+    public static <T> T readObject(File file, Class<T> clazz) throws Exception {
         return new JsonJacksonCodec().getObjectMapper().readValue(file, clazz);
     }
 

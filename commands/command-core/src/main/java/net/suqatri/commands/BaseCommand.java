@@ -557,8 +557,8 @@ public abstract class BaseCommand {
         return CommandManager.getCurrentCommandManager();
     }
 
-    private void executeCommand(CommandOperationContext commandOperationContext,
-                                CommandIssuer issuer, String[] args, RegisteredCommand cmd) {
+    private void executeCommand(CommandOperationContext<?> commandOperationContext,
+                                CommandIssuer issuer, String[] args, RegisteredCommand<?> cmd) {
         if (cmd.hasPermission(issuer)) {
             commandOperationContext.setRegisteredCommand(cmd);
             if (checkPrecommand(commandOperationContext, cmd, issuer, args)) {
@@ -574,9 +574,8 @@ public abstract class BaseCommand {
     /**
      * Please use command conditions for restricting execution
      *
-     * @param issuer
-     * @param cmd
-     * @return
+     * @param issuer The user who executed the command.
+     * @param cmd    The command that was executed.
      * @deprecated See {@link CommandConditions}
      */
     @SuppressWarnings("DeprecatedIsStillUsed")
@@ -696,7 +695,7 @@ public abstract class BaseCommand {
      * @param args                    The arguments the issuer provided.
      * @return Whether something went wrong.
      */
-    private boolean checkPrecommand(CommandOperationContext commandOperationContext, RegisteredCommand cmd, CommandIssuer issuer, String[] args) {
+    private boolean checkPrecommand(CommandOperationContext<?> commandOperationContext, RegisteredCommand<?> cmd, CommandIssuer issuer, String[] args) {
         Method pre = this.preCommandHandler;
         if (pre != null) {
             try {
@@ -809,9 +808,7 @@ public abstract class BaseCommand {
     }
 
     public List<RegisteredCommand> getRegisteredCommands() {
-        List<RegisteredCommand> registeredCommands = new ArrayList<>();
-        registeredCommands.addAll(this.subCommands.values());
-        return registeredCommands;
+        return new ArrayList<>(this.subCommands.values());
     }
 
     protected SetMultimap<String, RegisteredCommand> getSubCommands() {

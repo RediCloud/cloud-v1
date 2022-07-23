@@ -10,14 +10,15 @@ public class CloudNodeDisconnectListener {
     @CloudListener
     public void onCloudNodeDisconnect(CloudNodeDisconnectEvent event) {
         event.getCloudNodeAsync()
-            .whenComplete((nodeHolder, t) -> {
-               if(t != null){
-                   CloudAPI.getInstance().getConsole().error("Error while getting disconnected node information!", t);
-                   return;
-               }
-               if(nodeHolder.get().getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) return;
-               CloudAPI.getInstance().getConsole().info("Node %hc" + nodeHolder.get().getName() + " %tchas been disconnected from the cluster!");
-            });
+                .whenComplete((nodeHolder, t) -> {
+                    if (t != null) {
+                        CloudAPI.getInstance().getConsole().error("Error while getting disconnected node information!", t);
+                        return;
+                    }
+                    if (nodeHolder.get().getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId()))
+                        return;
+                    CloudAPI.getInstance().getConsole().info("Node %hc" + nodeHolder.get().getName() + " %tchas been disconnected from the cluster!");
+                });
     }
 
 }

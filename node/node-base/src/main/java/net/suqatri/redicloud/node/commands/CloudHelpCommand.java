@@ -9,7 +9,7 @@ import net.suqatri.commands.annotation.Default;
 public class CloudHelpCommand extends ConsoleCommand {
 
     @Default
-    public void onHelp(CommandSender commandSender){
+    public void onHelp(CommandSender commandSender) {
         commandSender.sendMessage("§8<------------|§7 %tcGeneral help §8|------------§8>");
         commandSender.sendMessage("%hccluster %tchelp §8| %tcHelp for the cluster command");
         commandSender.sendMessage("%hctemplate %tchelp §8| %tcHelp for the templates command");

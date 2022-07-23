@@ -20,8 +20,8 @@ import java.util.concurrent.atomic.AtomicLong;
 @Data
 public class FileTransferReceiveProcess implements IFileTransferReceiveProcess {
 
-    private INetworkComponentInfo senderNetworkComponentInfo;
     private final UUID transferId;
+    private INetworkComponentInfo senderNetworkComponentInfo;
     private int indexes;
     private TreeMap<Integer, byte[]> receivedFileData = new TreeMap<>();
 
@@ -36,7 +36,7 @@ public class FileTransferReceiveProcess implements IFileTransferReceiveProcess {
     public void process() {
         try {
             this.lastAction.set(System.currentTimeMillis());
-            if(this.receivedFileData.size() != this.indexes){
+            if (this.receivedFileData.size() != this.indexes) {
                 CloudAPI.getInstance().getConsole().error("§cFile-read-transfer data size is not equal to indexes for transfer " + this.transferId);
                 FileTransferReadFailedPacket packet = new FileTransferReadFailedPacket();
                 packet.setTransferId(this.transferId);
@@ -48,20 +48,20 @@ public class FileTransferReceiveProcess implements IFileTransferReceiveProcess {
                 return;
             }
 
-            if(this.targetFilePathToDelete != null){
+            if (this.targetFilePathToDelete != null) {
                 File file = new File(Files.CLOUD_FOLDER.getFile(), this.targetFilePathToDelete);
-                if(file.exists()) {
-                    if(file.isDirectory()){
+                if (file.exists()) {
+                    if (file.isDirectory()) {
                         org.apache.commons.io.FileUtils.deleteDirectory(file);
                         file.mkdirs();
-                    }else{
+                    } else {
                         file.delete();
                     }
                 }
             }
 
             File destinationFile = new File(Files.CLOUD_FOLDER.getFile(), this.destinationFilePath);
-            if(!destinationFile.exists()) destinationFile.mkdirs();
+            if (!destinationFile.exists()) destinationFile.mkdirs();
 
             byte[] bytes = FileUtils.mergeByteArrays(this.receivedFileData.values());
 
@@ -76,7 +76,7 @@ public class FileTransferReceiveProcess implements IFileTransferReceiveProcess {
             CloudAPI.getInstance().getConsole().debug("File-read-transfer " + this.transferId + " completed");
 
             FutureAction<Boolean> futureAction = NodeLauncher.getInstance().getFileTransferManager().getPullingRequest();
-            if(futureAction != null) futureAction.complete(true);
+            if (futureAction != null) futureAction.complete(true);
         } catch (IOException e) {
             CloudAPI.getInstance().getConsole().error("File-read-transfer process error", e);
             this.receivedFileData.clear();
@@ -86,8 +86,8 @@ public class FileTransferReceiveProcess implements IFileTransferReceiveProcess {
     @Override
     public void cancel() {
         this.receivedFileData.clear();
-        if(this.zipFile != null) {
-            if(this.zipFile.exists()) this.zipFile.delete();
+        if (this.zipFile != null) {
+            if (this.zipFile.exists()) this.zipFile.delete();
         }
     }
 

@@ -16,7 +16,7 @@ public class ProxyPingListener implements Listener {
     private long cacheTime = 0L;
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onPing(ProxyPingEvent event){
+    public void onPing(ProxyPingEvent event) {
         ServerPing serverPing = event.getResponse();
 
         if (serverPing.getDescription().contains("Another Bungee server") || serverPing.getDescription().contains("RediCloud")) {
@@ -29,7 +29,7 @@ public class ProxyPingListener implements Listener {
 
         event.setResponse(serverPing);
 
-        if((System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(2)) > cacheTime){
+        if ((System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(2)) > cacheTime) {
             CloudAPI.getInstance().getPlayerManager().getOnlineCount()
                     .onFailure(throwable -> event.completeIntent(ProxyCloudAPI.getInstance().getPlugin()))
                     .onSuccess(onlineCount -> cachedNetworkOnlineCount = onlineCount);

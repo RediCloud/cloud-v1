@@ -19,15 +19,16 @@ public interface ICloudService extends IRBucketObject {
     UUID getNodeId();
 
     boolean isFallback();
+
     void setFallback(boolean fallback);
 
     INetworkComponentInfo getNetworkComponentInfo();
 
-    default FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion(){
+    default FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion() {
         return CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(getConfiguration().getServiceVersionName());
     }
 
-    default ServiceEnvironment getEnvironment(){
+    default ServiceEnvironment getEnvironment() {
         return getConfiguration().getEnvironment();
     }
 
@@ -39,35 +40,41 @@ public interface ICloudService extends IRBucketObject {
         return getConfiguration().getName();
     }
 
-    default UUID getUniqueId() { return getConfiguration().getUniqueId(); }
+    default UUID getUniqueId() {
+        return getConfiguration().getUniqueId();
+    }
 
-    default int getId(){
+    default int getId() {
         return getConfiguration().getId();
     }
 
-    default String getGroupName(){
+    default String getGroupName() {
         return getConfiguration().isGroupBased() ? getConfiguration().getGroupName() : getConfiguration().getName();
     }
+
     default boolean isGroupBased() {
         return this.getConfiguration().isGroupBased();
     }
 
-    default FutureAction<IRBucketHolder<ICloudGroup>> getGroup(){
+    default FutureAction<IRBucketHolder<ICloudGroup>> getGroup() {
         return CloudAPI.getInstance().getGroupManager().getGroupAsync(getGroupName());
     }
 
     int getOnlineCount();
 
     String getMotd();
+
     void setMotd(String motd);
 
     ServiceState getServiceState();
+
     void setServiceState(ServiceState serviceState);
 
     int getMaxPlayers();
+
     void setMaxPlayers(int maxPlayers);
 
-    default boolean isStatic(){
+    default boolean isStatic() {
         return getConfiguration().isStatic();
     }
 
@@ -76,6 +83,7 @@ public interface ICloudService extends IRBucketObject {
     Collection<UUID> getConsoleNodeListenerIds();
 
     String getHostName();
+
     int getPort();
 
 }

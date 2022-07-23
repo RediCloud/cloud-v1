@@ -33,9 +33,9 @@ import java.lang.annotation.Target;
 
 /**
  * Provides configuration options for {@link ContextResolver}'s to change how they resolve context.
- *
+ * <p>
  * Example: Searching for a player, you might use @Flags("loose") to indicate a fuzzy match instead of an exact match.
- *
+ * <p>
  * If you want to restrict if an issuer can use the command, please use {@link CommandConditions.Condition} instead.
  */
 @Retention(RetentionPolicy.RUNTIME)

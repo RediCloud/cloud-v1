@@ -1,9 +1,9 @@
 package net.suqatri.redicloud.api.impl.event;
 
 import com.google.common.collect.ImmutableSet;
+import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.event.*;
 import net.suqatri.redicloud.api.impl.event.packet.GlobalEventPacket;
-import net.suqatri.redicloud.api.CloudAPI;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,7 +21,7 @@ public class CloudEventManager implements ICloudEventManager {
     private final Map<String, List<Consumer<? extends CloudEvent>>> consumers;
     private final Lock consumerLock;
 
-    public CloudEventManager(){
+    public CloudEventManager() {
         this.byListenerAndPriority = new HashMap<>();
         this.byEventBaked = new ConcurrentHashMap<>();
         this.listenerLock = new ReentrantLock();
@@ -118,7 +118,7 @@ public class CloudEventManager implements ICloudEventManager {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers(listener);
         this.listenerLock.lock();
         try {
-            for(Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet()) {
+            for (Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet()) {
                 Map<Byte, Map<Object, Method[]>> prioritiesMap = this.byListenerAndPriority.computeIfAbsent(e.getKey(), k -> new HashMap<>());
                 for (Map.Entry<Byte, Set<Method>> entry : e.getValue().entrySet()) {
                     Map<Object, Method[]> currentPriorityMap = prioritiesMap.computeIfAbsent(entry.getKey(), k -> new HashMap<>());
@@ -137,7 +137,7 @@ public class CloudEventManager implements ICloudEventManager {
         Map<Class<?>, Map<Byte, Set<Method>>> handler = findHandlers(listener);
         this.listenerLock.lock();
         try {
-            for(Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet()) {
+            for (Map.Entry<Class<?>, Map<Byte, Set<Method>>> e : handler.entrySet()) {
                 Map<Byte, Map<Object, Method[]>> prioritiesMap = this.byListenerAndPriority.get(e.getKey());
                 if (prioritiesMap != null) {
                     for (Byte priority : e.getValue().keySet()) {
@@ -188,7 +188,7 @@ public class CloudEventManager implements ICloudEventManager {
 
     private void bakeHandlers(Class<?> eventClass) {
         Map<Byte, Map<Object, Method[]>> handlersByPriority = this.byListenerAndPriority.get(eventClass);
-        if(handlersByPriority != null) {
+        if (handlersByPriority != null) {
             List<ICloudEventInvoker> handlersList = new ArrayList<>(handlersByPriority.size() * 2);
 
             byte value = Byte.MIN_VALUE;
@@ -198,7 +198,7 @@ public class CloudEventManager implements ICloudEventManager {
                     for (Map.Entry<Object, Method[]> listenerHandlers : handlersByListener.entrySet()) {
                         for (Method method : listenerHandlers.getValue()) {
                             ICloudEventInvoker ehm = new CloudEventInvoker(listenerHandlers.getKey(), method);
-                            handlersList.add( ehm );
+                            handlersList.add(ehm);
                         }
                     }
                 }

@@ -15,7 +15,7 @@ public class NetworkComponentInfo implements INetworkComponentInfo {
         this.type = type;
     }
 
-    public NetworkComponentInfo(){
+    public NetworkComponentInfo() {
         this.identifier = null;
         this.type = null;
     }

@@ -22,9 +22,9 @@ public class CloudDependency implements Serializable {
     }
 
     @Override
-    public boolean equals(Object dependency){
-        if(dependency == null) return false;
-        if(!(dependency instanceof CloudDependency)) return false;
+    public boolean equals(Object dependency) {
+        if (dependency == null) return false;
+        if (!(dependency instanceof CloudDependency)) return false;
         return this.groupId.equals(((CloudDependency) dependency).getGroupId())
                 && this.artifactId.equals(((CloudDependency) dependency).getArtifactId())
                 && this.version.equals(((CloudDependency) dependency).getVersion());

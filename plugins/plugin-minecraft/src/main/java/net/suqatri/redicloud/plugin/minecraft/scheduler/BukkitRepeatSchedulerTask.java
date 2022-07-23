@@ -33,7 +33,7 @@ public class BukkitRepeatSchedulerTask implements IRepeatScheduler<BukkitTask> {
 
     @Override
     public void cancel() {
-        if(this.task == null) return;
+        if (this.task == null) return;
         this.task.cancel();
     }
 

@@ -50,16 +50,14 @@ public final class ACFPatterns {
     public static final Pattern FORMATTER = Pattern.compile("<c(?<color>\\d+)>(?<msg>.*?)</c\\1>", Pattern.CASE_INSENSITIVE);
     public static final Pattern I18N_STRING = Pattern.compile("\\{@@(?<key>.+?)}", Pattern.CASE_INSENSITIVE);
     public static final Pattern REPLACEMENT_PATTERN = Pattern.compile("%\\{.[^\\s]*}");
-
-
-    private ACFPatterns() {
-    }
-
     static final Map<String, Pattern> patternCache = ExpiringMap.builder()
             .maxSize(200)
             .expiration(1, TimeUnit.HOURS)
             .expirationPolicy(ExpirationPolicy.ACCESSED)
             .build();
+
+    private ACFPatterns() {
+    }
 
     /**
      * Gets a pattern and compiles it.

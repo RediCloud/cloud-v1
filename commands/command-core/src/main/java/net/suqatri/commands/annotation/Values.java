@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
 
 /**
  * Specifies a list of values that the command input should be validated against, or else show an error.
- *
+ * <p>
  * You may also use {@link CommandCompletion} handler codes here to feed dynamic values and avoid repetition.
  */
 @Retention(RetentionPolicy.RUNTIME)

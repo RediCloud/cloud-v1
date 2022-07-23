@@ -7,7 +7,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-public interface DelegatingMap <K, V> extends Map<K, V> {
+public interface DelegatingMap<K, V> extends Map<K, V> {
     Map<K, V> delegate(boolean isReadOnly);
 
     @Override
@@ -35,7 +35,7 @@ public interface DelegatingMap <K, V> extends Map<K, V> {
         return delegate(true).get(key);
     }
 
-    
+
     @Override
     default V put(K key, V value) {
         return delegate(false).put(key, value);
@@ -56,19 +56,19 @@ public interface DelegatingMap <K, V> extends Map<K, V> {
         delegate(false).clear();
     }
 
-    
+
     @Override
     default Set<K> keySet() {
         return delegate(false).keySet();
     }
 
-    
+
     @Override
     default Collection<V> values() {
         return delegate(false).values();
     }
 
-    
+
     @Override
     default Set<Entry<K, V>> entrySet() {
         return delegate(false).entrySet();
@@ -89,7 +89,7 @@ public interface DelegatingMap <K, V> extends Map<K, V> {
         delegate(false).replaceAll(function);
     }
 
-    
+
     @Override
     default V putIfAbsent(K key, V value) {
         return delegate(false).putIfAbsent(key, value);
@@ -105,7 +105,7 @@ public interface DelegatingMap <K, V> extends Map<K, V> {
         return delegate(false).replace(key, oldValue, newValue);
     }
 
-    
+
     @Override
     default V replace(K key, V value) {
         return delegate(false).replace(key, value);

@@ -14,7 +14,7 @@ public class FileTransferBytesPacket extends FileTransferPacket {
 
     @Override
     public void receive() {
-        if(CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
+        if (CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
         IFileTransferReceiveProcess process = NodeLauncher.getInstance().getFileTransferManager().getWaitingReceiveProcesses().get(this.getTransferId());
         if (process == null) {
             CloudAPI.getInstance().getConsole().error("File-read-transfer process not found for transferId " + this.getTransferId() + "! Received bytes can´t be processed! ByteIndex#" + this.getIndexId());

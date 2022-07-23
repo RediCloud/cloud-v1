@@ -16,14 +16,14 @@ public class ScreenDestroyPacket extends CloudPacket {
     @Override
     public void receive() {
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(this.serviceId)
-            .onSuccess(exists -> {
-                if(!exists) return;
-                CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceId)
-                    .onSuccess(serviceHolder -> {
-                        IServiceScreen screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(serviceHolder);
-                        if(screen == null) return;
-                        NodeLauncher.getInstance().getScreenManager().leave(screen);
-                    });
-            });
+                .onSuccess(exists -> {
+                    if (!exists) return;
+                    CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceId)
+                            .onSuccess(serviceHolder -> {
+                                IServiceScreen screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(serviceHolder);
+                                if (screen == null) return;
+                                NodeLauncher.getInstance().getScreenManager().leave(screen);
+                            });
+                });
     }
 }

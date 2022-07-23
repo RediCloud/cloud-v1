@@ -14,8 +14,11 @@ public abstract class NodeCloudDefaultAPI extends CloudDefaultAPIImpl<CloudNode>
     }
 
     public abstract CloudNode getNode();
+
     public abstract IFileTransferManager getFileTransferManager();
+
     public abstract IServiceScreenManager getScreenManager();
+
     public abstract ITimeOutPollManager getTimeOutPollManager();
 
 }

@@ -8,7 +8,9 @@ import java.util.UUID;
 public interface ITimeOutPollManager {
 
     FutureAction<IRBucketHolder<ITimeOutPoll>> createPoll(ITimeOutPoll timeOutPool);
+
     FutureAction<IRBucketHolder<ITimeOutPoll>> getPoll(UUID pollId);
+
     FutureAction<Boolean> closePoll(IRBucketHolder<ITimeOutPoll> poolHolder);
 
 }

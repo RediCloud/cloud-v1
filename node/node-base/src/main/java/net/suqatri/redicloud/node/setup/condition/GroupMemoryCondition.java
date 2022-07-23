@@ -7,7 +7,7 @@ public class GroupMemoryCondition implements BiSupplier<String, Boolean> {
 
     @Override
     public Boolean supply(String s) {
-        if(!ConditionChecks.isInteger(s)) return false;
+        if (!ConditionChecks.isInteger(s)) return false;
         return Integer.parseInt(s) < 500;
     }
 }

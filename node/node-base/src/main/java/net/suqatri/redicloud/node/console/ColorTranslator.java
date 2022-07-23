@@ -37,7 +37,7 @@ public enum ColorTranslator {
         return message;
     }
 
-    public static String removeColorCodes(String value){
+    public static String removeColorCodes(String value) {
         String message = value;
         for (ColorTranslator ansiColorFactory : values()) {
             for (char replacement : new char[]{'§', '&'}) {

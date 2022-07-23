@@ -13,9 +13,10 @@ public class FutureAction<V> extends CompletableFuture<V> {
     private V result;
     private Throwable error;
 
-    public FutureAction() {}
+    public FutureAction() {
+    }
 
-    public FutureAction(Throwable t){
+    public FutureAction(Throwable t) {
         this.completeExceptionally(t);
     }
 
@@ -24,9 +25,9 @@ public class FutureAction<V> extends CompletableFuture<V> {
         this.complete(value);
     }
 
-    public FutureAction(CompletionStage<V> future){
+    public FutureAction(CompletionStage<V> future) {
         future.whenComplete((v, t) -> {
-            if(t != null) {
+            if (t != null) {
                 this.error = t;
                 this.completeExceptionally(t);
             } else {
@@ -40,7 +41,7 @@ public class FutureAction<V> extends CompletableFuture<V> {
         return this.isDone() || this.isCompletedExceptionally() || this.isCancelled();
     }
 
-    public V getBlockOrNull(){
+    public V getBlockOrNull() {
         try {
             this.result = this.get();
             return this.result;
@@ -53,7 +54,7 @@ public class FutureAction<V> extends CompletableFuture<V> {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                if(!isDone() && !isCancelled() && !isCompletedExceptionally()) {
+                if (!isDone() && !isCancelled() && !isCompletedExceptionally()) {
                     completeExceptionally(new TimeoutException());
                 }
             }
@@ -63,7 +64,7 @@ public class FutureAction<V> extends CompletableFuture<V> {
 
     public FutureAction<V> onFailure(FutureAction futureAction) {
         this.whenComplete((v, t) -> {
-            if(t != null) {
+            if (t != null) {
                 this.error = t;
                 futureAction.completeExceptionally(t);
             }
@@ -74,13 +75,13 @@ public class FutureAction<V> extends CompletableFuture<V> {
     public <R> FutureAction<R> map(FutureMapper<V, R> mapper, Class<R> clazz) {
         FutureAction<R> future = new FutureAction<>();
         this.whenComplete((v, t) -> {
-            if(t != null) {
+            if (t != null) {
                 this.error = t;
                 future.completeExceptionally(t);
             } else {
                 this.result = v;
                 R value = mapper.get(v);
-                if(value instanceof Throwable) {
+                if (value instanceof Throwable) {
                     future.completeExceptionally((Throwable) value);
                     return;
                 }
@@ -104,15 +105,15 @@ public class FutureAction<V> extends CompletableFuture<V> {
 
     public <R> FutureAction<R> map(FutureMapper<V, R> mapper) {
         FutureAction<R> future = new FutureAction<>();
-        if(this.isFinishedAnyway()){
-            if(this.error != null){
+        if (this.isFinishedAnyway()) {
+            if (this.error != null) {
                 future.completeExceptionally(this.error);
-            }else {
+            } else {
                 future.complete(mapper.get(this.result));
             }
         }
         this.whenComplete((v, t) -> {
-            if(t != null) {
+            if (t != null) {
                 this.error = t;
                 future.completeExceptionally(t);
             } else {
@@ -124,13 +125,13 @@ public class FutureAction<V> extends CompletableFuture<V> {
         return future;
     }
 
-    public FutureAction<V> onSuccess(Consumer<V> consumer){
-        if(isDone()) {
+    public FutureAction<V> onSuccess(Consumer<V> consumer) {
+        if (isDone()) {
             consumer.accept(this.result);
             return this;
         }
         this.whenComplete((v, t) -> {
-            if(t == null) {
+            if (t == null) {
                 this.result = v;
                 consumer.accept(v);
             }
@@ -138,13 +139,13 @@ public class FutureAction<V> extends CompletableFuture<V> {
         return this;
     }
 
-    public FutureAction<V> onFailure(Consumer<Exception> consumer){
-        if(isCancelled() || isCompletedExceptionally()){
+    public FutureAction<V> onFailure(Consumer<Exception> consumer) {
+        if (isCancelled() || isCompletedExceptionally()) {
             consumer.accept((Exception) this.error);
             return this;
         }
         this.whenComplete((v, t) -> {
-            if(t != null) {
+            if (t != null) {
                 this.error = t;
                 consumer.accept((Exception) t);
             }

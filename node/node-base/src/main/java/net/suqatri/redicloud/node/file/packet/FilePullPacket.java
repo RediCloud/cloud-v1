@@ -10,7 +10,8 @@ import net.suqatri.redicloud.node.NodeLauncher;
 import java.io.File;
 import java.util.UUID;
 
-@Setter @Getter
+@Setter
+@Getter
 public class FilePullPacket extends CloudPacket {
 
     private String originalFilePath;
@@ -19,9 +20,9 @@ public class FilePullPacket extends CloudPacket {
 
     @Override
     public void receive() {
-        if(CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
+        if (CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
         CloudAPI.getInstance().getNodeManager().getNodeAsync(UUID.fromString(this.getPacketData().getSender().getIdentifier()))
-            .onSuccess(nodeHolder -> NodeLauncher.getInstance().getFileTransferManager()
-            .transferFolderToNode(new File(this.originalFilePath), new File(this.destinationFilePath), this.targetFilePathToDelete, nodeHolder));
+                .onSuccess(nodeHolder -> NodeLauncher.getInstance().getFileTransferManager()
+                        .transferFolderToNode(new File(this.originalFilePath), new File(this.destinationFilePath), this.targetFilePathToDelete, nodeHolder));
     }
 }

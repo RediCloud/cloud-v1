@@ -1,5 +1,9 @@
 package net.suqatri.redicloud.node.commands;
 
+import net.suqatri.commands.CommandHelp;
+import net.suqatri.commands.CommandSender;
+import net.suqatri.commands.ConsoleCommand;
+import net.suqatri.commands.annotation.*;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersion;
@@ -8,10 +12,6 @@ import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.redicloud.api.service.version.ServiceVersionProperty;
 import net.suqatri.redicloud.node.console.setup.SetupControlState;
 import net.suqatri.redicloud.node.setup.version.ServiceVersionSetup;
-import net.suqatri.commands.CommandHelp;
-import net.suqatri.commands.CommandSender;
-import net.suqatri.commands.ConsoleCommand;
-import net.suqatri.commands.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -223,20 +223,20 @@ public class ServiceVersionCommand extends ConsoleCommand {
     @Syntax("<Name>")
     public void onDownload(CommandSender commandSender, String serviceVersionName) {
         CloudAPI.getInstance().getServiceVersionManager().existsServiceVersionAsync(serviceVersionName)
-            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while checking service version existence", t))
-            .onSuccess(exists -> {
-                if (!exists) {
-                    commandSender.sendMessage("Service version does not exist");
-                    return;
-                }
-                CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(serviceVersionName)
-                    .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while getting service version", t))
-                    .onSuccess(versionHolder -> {
-                        CloudAPI.getInstance().getServiceVersionManager().downloadAsync(versionHolder, true)
-                                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while downloading service version", t))
-                                .onSuccess(v -> commandSender.sendMessage("Service version downloaded"));
-                    });
-            });
+                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while checking service version existence", t))
+                .onSuccess(exists -> {
+                    if (!exists) {
+                        commandSender.sendMessage("Service version does not exist");
+                        return;
+                    }
+                    CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(serviceVersionName)
+                            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while getting service version", t))
+                            .onSuccess(versionHolder -> {
+                                CloudAPI.getInstance().getServiceVersionManager().downloadAsync(versionHolder, true)
+                                        .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while downloading service version", t))
+                                        .onSuccess(v -> commandSender.sendMessage("Service version downloaded"));
+                            });
+                });
     }
 
 }

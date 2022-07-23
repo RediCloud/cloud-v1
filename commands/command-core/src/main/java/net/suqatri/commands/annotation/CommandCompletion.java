@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
 /**
  * Many implementation platforms have a concept of "Tab Completions",
  * where pressing tab will give suggestions on what you can input.
- *
+ * <p>
  * This annotation specifies either static completion values,
  * or special @codes that let you define Completion Handlers to dynamically
  * populate completion values.

@@ -44,7 +44,12 @@ public class RegisteredCommand<CEC extends CommandExecutionContext<CEC, ? extend
     final CommandParameter<CEC>[] parameters;
     final CommandManager manager;
     final List<String> registeredSubcommands = new ArrayList<>();
-
+    final int requiredResolvers;
+    final int consumeInputResolvers;
+    final int doesNotConsumeInputResolvers;
+    final int optionalResolvers;
+    final Set<String> permissions = new HashSet<>();
+    public String helpSearchTags;
     String command;
     String prefSubCommand;
     String syntaxText;
@@ -52,16 +57,7 @@ public class RegisteredCommand<CEC extends CommandExecutionContext<CEC, ? extend
     String permission;
     String complete;
     String conditions;
-    public String helpSearchTags;
-
     boolean isPrivate;
-
-    final int requiredResolvers;
-    final int consumeInputResolvers;
-    final int doesNotConsumeInputResolvers;
-    final int optionalResolvers;
-
-    final Set<String> permissions = new HashSet<>();
 
     RegisteredCommand(BaseCommand scope, String command, Method method, String prefSubCommand) {
         this.scope = scope;

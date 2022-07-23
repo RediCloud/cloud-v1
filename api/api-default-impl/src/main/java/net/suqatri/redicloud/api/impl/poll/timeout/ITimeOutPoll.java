@@ -9,7 +9,9 @@ import java.util.UUID;
 public interface ITimeOutPoll extends Serializable {
 
     UUID getPollId();
+
     UUID getTimeOutTargetId();
+
     UUID getOpenerId();
 
     HashMap<UUID, TimeOutResult> getResults();

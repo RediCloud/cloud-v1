@@ -27,4 +27,5 @@ import net.suqatri.commands.CommandExecutionContext;
 import net.suqatri.commands.CommandIssuer;
 
 
-public interface IssuerAwareContextResolver<T, C extends CommandExecutionContext<?, ? extends CommandIssuer>> extends ContextResolver<T, C> {}
+public interface IssuerAwareContextResolver<T, C extends CommandExecutionContext<?, ? extends CommandIssuer>> extends ContextResolver<T, C> {
+}

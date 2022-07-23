@@ -13,7 +13,8 @@ import net.suqatri.redicloud.commons.function.future.FutureAction;
 import java.io.File;
 import java.io.IOException;
 
-@Setter @Getter
+@Setter
+@Getter
 public class CloudServiceVersion extends RBucketObject implements ICloudServiceVersion {
 
     private String name;
@@ -24,23 +25,23 @@ public class CloudServiceVersion extends RBucketObject implements ICloudServiceV
 
     @Override
     public File getFile(boolean forceGetExistFile) throws IOException, InterruptedException {
-        if(forceGetExistFile && !isDownloaded()) download();
+        if (forceGetExistFile && !isDownloaded()) download();
         return this.getFile();
     }
 
     @Override
-    public File getFile(){
+    public File getFile() {
         return new File(Files.VERSIONS_FOLDER.getFile(), getName() + ".jar");
     }
 
     @Override
     public FutureAction<File> getFileAsync(boolean forceGetExistFile) {
         FutureAction<File> futureAction = new FutureAction<>();
-        if(forceGetExistFile && !isDownloaded()){
+        if (forceGetExistFile && !isDownloaded()) {
             downloadAsync()
                     .onFailure(futureAction)
                     .onSuccess(b -> futureAction.complete(getFile()));
-        }else{
+        } else {
             futureAction.complete(getFile());
         }
         return futureAction;
@@ -48,17 +49,17 @@ public class CloudServiceVersion extends RBucketObject implements ICloudServiceV
 
     @Override
     public File getPatchedFile(boolean forceGetExistFile) throws InterruptedException, IOException {
-        if(forceGetExistFile){
-            if(!isDownloaded()) this.download();
-            if(!needPatch()) return getFile(true);
-            if(!isPatched()) this.patch();
+        if (forceGetExistFile) {
+            if (!isDownloaded()) this.download();
+            if (!needPatch()) return getFile(true);
+            if (!isPatched()) this.patch();
         }
         return this.getPatchedFile();
     }
 
     @Override
     public File getPatchedFile() {
-        if(!isPaperClip()) return getFile();
+        if (!isPaperClip()) return getFile();
         return new File(Files.VERSIONS_FOLDER.getFile(), getName() + ".patched.jar");
     }
 
@@ -66,24 +67,26 @@ public class CloudServiceVersion extends RBucketObject implements ICloudServiceV
     public FutureAction<File> getPatchedFileAsync(boolean forceGetExistFile) {
         FutureAction<File> futureAction = new FutureAction<>();
 
-        if(forceGetExistFile && !isPatched()){
+        if (forceGetExistFile && !isPatched()) {
             patchAsync()
                     .onFailure(futureAction)
                     .onSuccess(b -> futureAction.complete(getPatchedFile()));
-        }else{
+        } else {
             futureAction.complete(getPatchedFile());
         }
 
         return futureAction;
     }
 
-    @Override @JsonIgnore
+    @Override
+    @JsonIgnore
     public boolean isPatched() {
-        if(!isPaperClip()) return false;
+        if (!isPaperClip()) return false;
         return getPatchedFile().exists();
     }
 
-    @Override @JsonIgnore
+    @Override
+    @JsonIgnore
     public boolean isDownloaded() {
         return getFile().exists();
     }
@@ -101,7 +104,7 @@ public class CloudServiceVersion extends RBucketObject implements ICloudServiceV
         CloudAPI.getInstance().getServiceVersionManager().patch(this.getHolder(), true);
     }
 
-    public FutureAction<Boolean> patchAsync(){
+    public FutureAction<Boolean> patchAsync() {
         return CloudAPI.getInstance().getServiceVersionManager().patchAsync(this.getHolder(), true);
     }
 
@@ -109,7 +112,7 @@ public class CloudServiceVersion extends RBucketObject implements ICloudServiceV
         CloudAPI.getInstance().getServiceVersionManager().download(this.getHolder(), true);
     }
 
-    public FutureAction<Boolean> downloadAsync(){
+    public FutureAction<Boolean> downloadAsync() {
         return CloudAPI.getInstance().getServiceVersionManager().downloadAsync(this.getHolder(), true);
     }
 

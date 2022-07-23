@@ -15,7 +15,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Getter @Setter
+@Getter
+@Setter
 public class DefaultServiceStartConfiguration implements IServiceStartConfiguration {
 
     private ServiceEnvironment environment;
@@ -38,13 +39,7 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
     @JsonIgnore
     private FutureAction<IRBucketHolder<ICloudService>> startListener;
 
-    @Override
-    public void listenToStart() {
-        if(this.startListener != null) return;
-        this.startListener = new FutureAction<>();
-    }
-
-    public static FutureAction<DefaultServiceStartConfiguration> fromInterface(IServiceStartConfiguration interfaceConfig){
+    public static FutureAction<DefaultServiceStartConfiguration> fromInterface(IServiceStartConfiguration interfaceConfig) {
         FutureAction<DefaultServiceStartConfiguration> futureAction = new FutureAction<>();
         DefaultServiceStartConfiguration configuration = new DefaultServiceStartConfiguration();
         configuration.setEnvironment(interfaceConfig.getEnvironment());
@@ -61,17 +56,17 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
         configuration.setTemplateNames(interfaceConfig.getTemplateNames());
         configuration.setServiceVersionName(interfaceConfig.getServiceVersionName());
 
-        if(interfaceConfig.getGroupName() != null){
+        if (interfaceConfig.getGroupName() != null) {
             configuration.setHasGroup(true);
             configuration.setGroupName(interfaceConfig.getGroupName());
             CloudAPI.getInstance().getGroupManager().getGroupAsync(interfaceConfig.getGroupName())
-                        .onFailure(futureAction)
-                        .onSuccess(groupHolder -> {
-                            configuration.getTemplateNames().addAll(groupHolder.get().getTemplateNames());
-                            configuration.setFallback(groupHolder.get().isFallback());
-                            futureAction.complete(configuration);
-                        });
-        }else{
+                    .onFailure(futureAction)
+                    .onSuccess(groupHolder -> {
+                        configuration.getTemplateNames().addAll(groupHolder.get().getTemplateNames());
+                        configuration.setFallback(groupHolder.get().isFallback());
+                        futureAction.complete(configuration);
+                    });
+        } else {
             configuration.setHasGroup(false);
             configuration.setFallback(false);
             futureAction.complete(configuration);
@@ -80,6 +75,11 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
         return futureAction;
     }
 
+    @Override
+    public void listenToStart() {
+        if (this.startListener != null) return;
+        this.startListener = new FutureAction<>();
+    }
 
     @Override
     public boolean isGroupBased() {

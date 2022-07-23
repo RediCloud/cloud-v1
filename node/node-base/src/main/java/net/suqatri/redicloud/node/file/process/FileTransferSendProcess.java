@@ -37,9 +37,9 @@ public class FileTransferSendProcess implements IFileTransferSendProcess {
 
     @Override
     public void process() {
-        try{
+        try {
 
-            if(this.receiver.get().getNetworkComponentInfo().getType() == NetworkComponentType.SERVICE){
+            if (this.receiver.get().getNetworkComponentInfo().getType() == NetworkComponentType.SERVICE) {
                 this.futureAction.completeExceptionally(new IllegalArgumentException("Cannot send file to service!"));
                 return;
             }
@@ -53,7 +53,7 @@ public class FileTransferSendProcess implements IFileTransferSendProcess {
             byte[] sentData = FileUtils.fileToBytes(this.zipFile.getAbsolutePath());
             int size = sentData.length;
             int packetCount = size / FileTransferManager.BYTES_PER_PACKET;
-            if(size % FileTransferManager.BYTES_PER_PACKET != 0){
+            if (size % FileTransferManager.BYTES_PER_PACKET != 0) {
                 packetCount++;
             }
             FileTransferStartPacket startPacket = new FileTransferStartPacket();
@@ -69,17 +69,17 @@ public class FileTransferSendProcess implements IFileTransferSendProcess {
             int index = 0;
             int count = 0;
             int packetSize = FileTransferManager.BYTES_PER_PACKET;
-            while(count < sentData.length){
+            while (count < sentData.length) {
                 Thread.sleep(FileTransferManager.SLEEP_TIME_PER_PACKET);
                 byte[] data;
-                if(sentData.length - count < packetSize) {
+                if (sentData.length - count < packetSize) {
                     data = new byte[sentData.length - count];
                     System.arraycopy(sentData, count, data, 0, sentData.length - count);
-                }else{
+                } else {
                     data = new byte[packetSize];
                     System.arraycopy(sentData, count, data, 0, packetSize);
                 }
-                if(!this.receiver.get().isConnected()){
+                if (!this.receiver.get().isConnected()) {
                     cancel();
                     return;
                 }
@@ -104,18 +104,18 @@ public class FileTransferSendProcess implements IFileTransferSendProcess {
             this.zipFile.delete();
 
             this.futureAction.complete(this.originalFile);
-        }catch (Exception e){
+        } catch (Exception e) {
             this.futureAction.completeExceptionally(e);
         }
     }
 
     @Override
     public void cancel() {
-        if(this.zipFile != null) {
-            if(this.zipFile.exists()) this.zipFile.delete();
+        if (this.zipFile != null) {
+            if (this.zipFile.exists()) this.zipFile.delete();
         }
-        if(this.futureAction.isDone()) return;
-        if(!this.startPacketSent) return;
+        if (this.futureAction.isDone()) return;
+        if (!this.startPacketSent) return;
         FileTransferCancelPacket cancelPacket = new FileTransferCancelPacket();
         cancelPacket.setTransferId(this.transferId);
         cancelPacket.getPacketData().addReceiver(this.receiver.get().getNetworkComponentInfo());

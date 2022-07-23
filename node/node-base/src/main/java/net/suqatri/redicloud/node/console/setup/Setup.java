@@ -8,9 +8,9 @@ import net.suqatri.redicloud.api.console.IConsoleLineEntry;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
 import net.suqatri.redicloud.commons.function.BiSupplier;
 import net.suqatri.redicloud.commons.reflection.ReflectionUtils;
+import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.console.NodeConsole;
 import net.suqatri.redicloud.node.console.setup.annotations.*;
-import net.suqatri.redicloud.node.NodeLauncher;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -19,10 +19,6 @@ import java.util.function.Consumer;
 public abstract class Setup<T extends Setup<?>> {
 
     private static final Map<Class<?>, SetupInputParser<?>> inputTransformers = new HashMap<>();
-
-    public static <T> void registerTransformer(Class<T> clazz, SetupInputParser<T> supplier) {
-        inputTransformers.put(clazz, supplier);
-    }
 
     static {
 
@@ -57,12 +53,11 @@ public abstract class Setup<T extends Setup<?>> {
      * The setup parts
      */
     private final Map<Field, SetupEntry> map;
-
     /**
      * The console to display questions
      */
     private final NodeConsole console;
-
+    private final List<IServiceScreen> pausedScreens;
     /**
      * All lines of the console
      */
@@ -95,27 +90,7 @@ public abstract class Setup<T extends Setup<?>> {
      * The consumer when its finished
      */
     private SetupListener<T> setupListener;
-
-    /**
-     * If this setup is allowed to be cancelled
-     */
-    public abstract boolean isCancellable();
-
-    /**
-     * If a header should be printed
-     */
-    public abstract boolean shouldPrintHeader();
-
-    public String getPrefix(){
-        return "SETUP";
-    }
-
     private Consumer<String> inputConsumer;
-    private final List<IServiceScreen> pausedScreens;
-
-    public SetupHeaderBehaviour headerBehaviour() {
-        return SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES;
-    }
 
     public Setup(NodeConsole console) {
 
@@ -126,7 +101,7 @@ public abstract class Setup<T extends Setup<?>> {
         this.exitAfterAnswer = false;
         this.map = new HashMap<>();
         this.restoredLines = console.getLineEntries();
-        this.restoredLines = new ArrayList<>(this.restoredLines.size() < 80 ? this.restoredLines : this.restoredLines.subList(this.restoredLines.size()-80, this.restoredLines.size()));
+        this.restoredLines = new ArrayList<>(this.restoredLines.size() < 80 ? this.restoredLines : this.restoredLines.subList(this.restoredLines.size() - 80, this.restoredLines.size()));
         this.current = 1;
 
         this.loadSetupParts();
@@ -138,6 +113,28 @@ public abstract class Setup<T extends Setup<?>> {
         }
     }
 
+    public static <T> void registerTransformer(Class<T> clazz, SetupInputParser<T> supplier) {
+        inputTransformers.put(clazz, supplier);
+    }
+
+    /**
+     * If this setup is allowed to be cancelled
+     */
+    public abstract boolean isCancellable();
+
+    /**
+     * If a header should be printed
+     */
+    public abstract boolean shouldPrintHeader();
+
+    public String getPrefix() {
+        return "SETUP";
+    }
+
+    public SetupHeaderBehaviour headerBehaviour() {
+        return SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES;
+    }
+
     public void start(SetupListener<T> finishHandler) {
         this.setupListener = finishHandler;
 
@@ -146,9 +143,9 @@ public abstract class Setup<T extends Setup<?>> {
         this.printQuestion(this.setup.getValue());
 
         this.inputConsumer = input -> {
-            if(this.current < this.map.size() + 1) {
+            if (this.current < this.map.size() + 1) {
                 executeInput(input);
-            }else{
+            } else {
                 this.exit(true);
             }
         };
@@ -158,7 +155,7 @@ public abstract class Setup<T extends Setup<?>> {
     @SuppressWarnings("unchecked")
     private void exit(boolean success) {
 
-        if(this.inputConsumer != null){
+        if (this.inputConsumer != null) {
             this.console.removeInputHandler(this.inputConsumer);
         }
 
@@ -178,10 +175,10 @@ public abstract class Setup<T extends Setup<?>> {
         if (headerBehaviour() == SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES) {
             this.console.clearScreen();
             for (IConsoleLineEntry restoredLine : this.restoredLines) {
-                if(restoredLine instanceof IConsoleLine){
-                    ((IConsoleLine)restoredLine).setStored(false);
+                if (restoredLine instanceof IConsoleLine) {
+                    ((IConsoleLine) restoredLine).setStored(false);
                     ((IConsoleLine) restoredLine).println();
-                }else if(restoredLine instanceof IConsoleInput){
+                } else if (restoredLine instanceof IConsoleInput) {
                     ((IConsoleInput) restoredLine).logAsFake();
                 }
             }

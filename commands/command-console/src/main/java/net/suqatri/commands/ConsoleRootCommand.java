@@ -33,10 +33,10 @@ public class ConsoleRootCommand implements RootCommand {
 
     private final ConsoleCommandManager manager;
     private final String name;
+    boolean isRegistered = false;
     private BaseCommand defCommand;
     private SetMultimap<String, RegisteredCommand> subCommands = HashMultimap.create();
     private List<BaseCommand> children = new ArrayList<>();
-    boolean isRegistered = false;
 
     ConsoleRootCommand(ConsoleCommandManager manager, String name) {
         this.manager = manager;

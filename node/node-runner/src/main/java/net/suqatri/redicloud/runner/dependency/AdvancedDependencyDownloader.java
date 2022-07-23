@@ -17,13 +17,14 @@ public class AdvancedDependencyDownloader {
 
     public final List<String> repositories;
 
-    public void downloadFiles(AdvancedDependency dependency){
-        if(dependency.getDownloadedFile().exists()) return;
+    public void downloadFiles(AdvancedDependency dependency) {
+        if (dependency.getDownloadedFile().exists()) return;
         for (String repository : this.repositories) {
-            try{
+            try {
                 downloadAnyways(dependency, repository);
                 return;
-            }catch (Exception e){}
+            } catch (Exception e) {
+            }
         }
         throw new IllegalArgumentException("No valid repository was found for " + dependency.getName() + " repos: " + repositories);
     }
@@ -42,7 +43,7 @@ public class AdvancedDependencyDownloader {
             coreDependencies.add(cloudDependency);
         }
         File file = advancedDependency.getDownloadedInfoFile();
-        try{
+        try {
             FileOutputStream writeData = new FileOutputStream(file);
             ObjectOutputStream writeStream = new ObjectOutputStream(writeData);
 
@@ -50,7 +51,7 @@ public class AdvancedDependencyDownloader {
             writeStream.flush();
             writeStream.close();
 
-        }catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

@@ -41,10 +41,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     @Getter
     private static MinecraftCloudAPI instance;
-
-    private CloudService service;
     private final BukkitConsole console;
-    private RedisConnection redisConnection;
     private final JavaPlugin javaPlugin;
     private final BukkitScheduler scheduler;
     private final ICloudServiceManager serviceManager;
@@ -52,8 +49,10 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private final BukkitCloudCommandManager commandManager;
     private final CloudServiceTemplateManager serviceTemplateManager;
     private final CloudServiceVersionManager serviceVersionManager;
-    private BukkitTask updaterTask;
     private final CloudPlayerManager playerManager;
+    private CloudService service;
+    private RedisConnection redisConnection;
+    private BukkitTask updaterTask;
     @Setter
     private String chatPrefix = "§bRedi§3Cloud §8» §f";
     @Setter
@@ -86,7 +85,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(), this.javaPlugin);
     }
 
-    private void initThisService(){
+    private void initThisService() {
         this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_service_id"))).getImpl(CloudService.class);
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
@@ -94,7 +93,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service.getHolder()));
 
         this.updaterTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.javaPlugin, () -> {
-            if(this.service.getOnlineCount() != this.onlineCount) {
+            if (this.service.getOnlineCount() != this.onlineCount) {
                 this.service.setOnlineCount(this.onlineCount);
                 this.service.updateAsync();
             }
@@ -125,7 +124,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     @Override
     public void updateApplicationProperties(CloudService o) {
-        if(!o.getUniqueId().equals(this.service.getUniqueId())) return;
+        if (!o.getUniqueId().equals(this.service.getUniqueId())) return;
     }
 
     @Override
@@ -143,10 +142,11 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException ignored) {
+        }
 
-        if(this.updaterTask != null) this.updaterTask.cancel();
+        if (this.updaterTask != null) this.updaterTask.cancel();
 
-        if(this.redisConnection != null) this.redisConnection.getClient().shutdown();
+        if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
     }
 }

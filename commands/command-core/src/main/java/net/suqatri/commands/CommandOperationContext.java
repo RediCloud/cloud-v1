@@ -37,8 +37,8 @@ public class CommandOperationContext<I extends CommandIssuer> {
     private final String commandLabel;
     private final String[] args;
     private final boolean isAsync;
-    private RegisteredCommand registeredCommand;
     List<String> enumCompletionValues;
+    private RegisteredCommand registeredCommand;
 
     CommandOperationContext(CommandManager manager, I issuer, BaseCommand command, String commandLabel, String[] args, boolean isAsync) {
         this.manager = manager;
@@ -73,12 +73,12 @@ public class CommandOperationContext<I extends CommandIssuer> {
         return isAsync;
     }
 
-    public void setRegisteredCommand(RegisteredCommand registeredCommand) {
-        this.registeredCommand = registeredCommand;
-    }
-
     public RegisteredCommand getRegisteredCommand() {
         return registeredCommand;
+    }
+
+    public void setRegisteredCommand(RegisteredCommand registeredCommand) {
+        this.registeredCommand = registeredCommand;
     }
 
     /**

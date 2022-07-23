@@ -9,7 +9,7 @@ public class CloudServiceStartedEvent extends CloudServiceEvent {
         super(holder);
     }
 
-    public CloudServiceStartedEvent(){
+    public CloudServiceStartedEvent() {
         super();
     }
 }

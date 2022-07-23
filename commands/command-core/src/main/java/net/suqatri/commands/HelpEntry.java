@@ -55,12 +55,8 @@ public class HelpEntry {
         return translated != null ? translated : "";
     }
 
-    public String getDescription(){
+    public String getDescription() {
         return this.command.getHelpText();
-    }
-
-    public void setSearchScore(int searchScore) {
-        this.searchScore = searchScore;
     }
 
     public boolean shouldShow() {
@@ -69,6 +65,10 @@ public class HelpEntry {
 
     public int getSearchScore() {
         return searchScore;
+    }
+
+    public void setSearchScore(int searchScore) {
+        this.searchScore = searchScore;
     }
 
     public String getSearchTags() {

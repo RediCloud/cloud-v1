@@ -6,8 +6,9 @@ import java.io.InputStreamReader;
 public class IPUtils {
 
     private static String cachedIp;
+
     public static String getPublicIP() {
-        if(cachedIp != null) return cachedIp;
+        if (cachedIp != null) return cachedIp;
         try {
             cachedIp = new BufferedReader(new InputStreamReader(new java.net.URL("https://checkip.amazonaws.com").openConnection().getInputStream())).readLine();
             return cachedIp;

@@ -37,7 +37,8 @@ public class CloudService extends RBucketObject implements ICloudService {
 
     @Override
     public void merged() {
-        if(CloudAPI.getInstance().getApplicationType().getNetworkComponentType() != NetworkComponentType.SERVICE) return;
+        if (CloudAPI.getInstance().getApplicationType().getNetworkComponentType() != NetworkComponentType.SERVICE)
+            return;
         CloudDefaultAPIImpl.getInstance().updateApplicationProperties(this);
     }
 

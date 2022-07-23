@@ -7,7 +7,8 @@ import net.suqatri.redicloud.api.utils.ApplicationType;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.file.process.FileTransferReceiveProcess;
 
-@Setter @Getter
+@Setter
+@Getter
 public class FileTransferStartPacket extends FileTransferPacket {
 
     private String originalFilePath;
@@ -17,7 +18,7 @@ public class FileTransferStartPacket extends FileTransferPacket {
 
     @Override
     public void receive() {
-        if(CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
+        if (CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
         FileTransferReceiveProcess process = new FileTransferReceiveProcess(this.getTransferId());
         process.setDestinationFilePath(this.destinationFilePath);
         process.setOriginalFilePath(this.originalFilePath);

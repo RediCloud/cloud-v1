@@ -32,25 +32,25 @@ public enum Files {
 
     private final String path;
 
-    Files(String path){
+    Files(String path) {
         this.path = path.replaceAll("%version%", CloudAPI.getVersion());
     }
 
-    public File getFile(){
+    public File getFile() {
         return new File(path);
     }
 
-    public void createIfNotExists(){
-        if(!getFile().exists()){
+    public void createIfNotExists() {
+        if (!getFile().exists()) {
             getFile().mkdirs();
         }
     }
 
-    public boolean exists(){
+    public boolean exists() {
         return getFile().exists();
     }
 
-    public void downloadFromUrl(String url){
+    public void downloadFromUrl(String url) {
         //TODO
     }
 

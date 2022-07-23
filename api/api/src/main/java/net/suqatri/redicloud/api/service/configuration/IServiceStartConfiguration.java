@@ -14,23 +14,28 @@ public interface IServiceStartConfiguration {
     ServiceEnvironment getEnvironment();
 
     UUID getNodeId();
+
     void setNodeId(UUID nodeId);
 
     String getName();
+
     UUID getUniqueId();
 
     boolean isFallback();
+
     void setFallback(boolean fallback);
 
     String getServiceVersionName();
+
     void setServiceVersionName(String serviceVersionName);
 
     int getId();
+
     void setId(int id);
 
     int getMaxMemory();
 
-    default int getStartPort(){
+    default int getStartPort() {
         return getEnvironment() == ServiceEnvironment.MINECRAFT ? 49152 : 25565;
     }
 
@@ -43,12 +48,15 @@ public interface IServiceStartConfiguration {
     Collection<String> getTemplateNames();
 
     String getGroupName();
+
     boolean isGroupBased();
 
     List<String> getProcessParameters();
+
     List<String> getJvmArguments();
 
     FutureAction<IRBucketHolder<ICloudService>> getStartListener();
+
     void listenToStart();
 
 }

@@ -26,7 +26,7 @@ package net.suqatri.commands;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConditionContext <I extends CommandIssuer> {
+public class ConditionContext<I extends CommandIssuer> {
 
     private final I issuer;
     private final String config;
@@ -52,6 +52,7 @@ public class ConditionContext <I extends CommandIssuer> {
     public String getConfig() {
         return this.config;
     }
+
     public boolean hasConfig(String flag) {
         return configs.containsKey(flag);
     }

@@ -14,11 +14,11 @@ public class FileTransferReadFailedPacket extends FileTransferPacket {
 
     @Override
     public void receive() {
-        if(CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
+        if (CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
         CloudAPI.getInstance().getNodeManager().getNodeAsync(UUID.fromString(getPacketData().getSender().getIdentifier()))
-            .onSuccess(nodeHolder -> {
-                CloudAPI.getInstance().getConsole().error("§cNode §f" + nodeHolder.get().getName() + " §cfailed to read received file for transfer " + this.getTransferId() + "! (§f" + indexesReceived + "§c/§f" + indexesSent + "§c packets received)");
-            });
+                .onSuccess(nodeHolder -> {
+                    CloudAPI.getInstance().getConsole().error("§cNode §f" + nodeHolder.get().getName() + " §cfailed to read received file for transfer " + this.getTransferId() + "! (§f" + indexesReceived + "§c/§f" + indexesSent + "§c packets received)");
+                });
     }
 
 }

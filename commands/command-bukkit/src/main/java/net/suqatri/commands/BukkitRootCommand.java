@@ -37,10 +37,10 @@ public class BukkitRootCommand extends Command implements RootCommand, PluginIde
 
     private final BukkitCommandManager manager;
     private final String name;
+    boolean isRegistered = false;
     private BaseCommand defCommand;
     private SetMultimap<String, RegisteredCommand> subCommands = HashMultimap.create();
     private List<BaseCommand> children = new ArrayList<>();
-    boolean isRegistered = false;
 
     BukkitRootCommand(BukkitCommandManager manager, String name) {
         super(name);

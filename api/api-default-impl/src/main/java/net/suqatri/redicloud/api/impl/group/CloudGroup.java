@@ -57,7 +57,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> futureAction = new FutureAction<>();
 
         FutureActionCollection<String, IRBucketHolder<ICloudServiceTemplate>> futureActionCollection = new FutureActionCollection<>();
-        for(String templateName : templateNames) {
+        for (String templateName : templateNames) {
             futureActionCollection.addToProcess(templateName, CloudAPI.getInstance().getServiceTemplateManager().getTemplateAsync(templateName));
         }
         futureActionCollection.process()
@@ -147,6 +147,12 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     }
 
     @Override
+    public void setAssociatedNodes(Collection<ICloudNode> nodes) {
+        this.associatedNodeIds.clear();
+        this.associatedNodeIds.addAll(nodes.stream().map(ICloudNode::getUniqueId).collect(Collectors.toList()));
+    }
+
+    @Override
     public void addAssociatedNode(ICloudNode node) {
         this.associatedNodeIds.remove(node.getUniqueId());
     }
@@ -159,12 +165,6 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     @Override
     public boolean hasAssociatedNode(ICloudNode node) {
         return this.associatedNodeIds.contains(node.getUniqueId());
-    }
-
-    @Override
-    public void setAssociatedNodes(Collection<ICloudNode> nodes) {
-        this.associatedNodeIds.clear();
-        this.associatedNodeIds.addAll(nodes.stream().map(ICloudNode::getUniqueId).collect(Collectors.toList()));
     }
 
     //TODO improve this methode
@@ -180,15 +180,16 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
                         futureActionCollection.addToProcess(player.get().getUniqueId(), CloudAPI.getInstance().getServiceManager().getServiceAsync(player.get().getLastConnectedServerId()));
                     }
                     futureActionCollection.process()
-                        .onFailure(futureAction)
-                        .onSuccess(playersServers -> {
-                            List<IRBucketHolder<ICloudPlayer>> list = new ArrayList<>();
-                            for (IRBucketHolder<ICloudPlayer> player : players) {
-                                if(!playersServers.get(player.get().getUniqueId()).get().getName().equals(this.name)) continue;
-                                list.add(player);
-                            }
-                            futureAction.complete(list);
-                        });
+                            .onFailure(futureAction)
+                            .onSuccess(playersServers -> {
+                                List<IRBucketHolder<ICloudPlayer>> list = new ArrayList<>();
+                                for (IRBucketHolder<ICloudPlayer> player : players) {
+                                    if (!playersServers.get(player.get().getUniqueId()).get().getName().equals(this.name))
+                                        continue;
+                                    list.add(player);
+                                }
+                                futureAction.complete(list);
+                            });
                 });
 
         return futureAction;
@@ -200,7 +201,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         return getOnlineServices().map(services -> {
             int count = 0;
             for (IRBucketHolder<ICloudService> service : services) {
-                if(service.get().getName().equals(this.name)) count++;
+                if (service.get().getName().equals(this.name)) count++;
             }
             return count;
         });

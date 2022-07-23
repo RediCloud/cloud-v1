@@ -53,11 +53,11 @@ public abstract class CommandManager<
             return super.size() == 0 ? null : super.peek();
         }
     });
-    protected Map<String, RootCommand> rootCommands = new HashMap<>();
     protected final CommandReplacements replacements = new CommandReplacements(this);
     protected final CommandConditions<I, CEC, CC> conditions = new CommandConditions<>(this);
+    public Map<UUID, Locale> issuersLocale = new ConcurrentHashMap<>();
+    protected Map<String, RootCommand> rootCommands = new HashMap<>();
     protected ExceptionHandler defaultExceptionHandler = null;
-    boolean logUnhandledExceptions = true;
     protected Table<Class<?>, String, Object> dependencies = new Table<>();
     protected CommandHelpFormatter helpFormatter = new CommandHelpFormatter(this);
 
@@ -67,9 +67,7 @@ public abstract class CommandManager<
     protected Map<MessageType, MF> formatters = new IdentityHashMap<>();
     protected MF defaultFormatter;
     protected int defaultHelpPerPage = 10;
-
-    public Map<UUID, Locale> issuersLocale = new ConcurrentHashMap<>();
-
+    boolean logUnhandledExceptions = true;
     private Set<String> unstableAPIs = new HashSet<>();
 
     private Annotations annotations = new Annotations<>(this);
@@ -209,8 +207,8 @@ public abstract class CommandManager<
      */
     @Deprecated
     @UnstableAPI
-    public void setHelpFormatter(CommandHelpFormatter helpFormatter) {
-        this.helpFormatter = helpFormatter;
+    public CommandHelpFormatter getHelpFormatter() {
+        return helpFormatter;
     }
 
     /**
@@ -218,8 +216,8 @@ public abstract class CommandManager<
      */
     @Deprecated
     @UnstableAPI
-    public CommandHelpFormatter getHelpFormatter() {
-        return helpFormatter;
+    public void setHelpFormatter(CommandHelpFormatter helpFormatter) {
+        this.helpFormatter = helpFormatter;
     }
 
     CommandRouter getRouter() {
@@ -325,18 +323,6 @@ public abstract class CommandManager<
     }
 
     /**
-     * Sets the default {@link ExceptionHandler} that is called when an exception occurs while executing a command, if the command doesn't have its own exception handler registered.
-     *
-     * @param exceptionHandler the handler that should handle uncaught exceptions.  May not be null if logExceptions is false
-     */
-    public void setDefaultExceptionHandler(ExceptionHandler exceptionHandler) {
-        if (exceptionHandler == null && !this.logUnhandledExceptions) {
-            throw new IllegalArgumentException("You may not disable the default exception handler and have logging of unhandled exceptions disabled");
-        }
-        defaultExceptionHandler = exceptionHandler;
-    }
-
-    /**
      * Sets the default {@link ExceptionHandler} that is called when an exception occurs while executing a command, if the command doesn't have its own exception handler registered, and lets you control if ACF should also log the exception still.
      * <p>
      * If you disable logging, you need to log it yourself in your handler.
@@ -363,6 +349,18 @@ public abstract class CommandManager<
      */
     public ExceptionHandler getDefaultExceptionHandler() {
         return defaultExceptionHandler;
+    }
+
+    /**
+     * Sets the default {@link ExceptionHandler} that is called when an exception occurs while executing a command, if the command doesn't have its own exception handler registered.
+     *
+     * @param exceptionHandler the handler that should handle uncaught exceptions.  May not be null if logExceptions is false
+     */
+    public void setDefaultExceptionHandler(ExceptionHandler exceptionHandler) {
+        if (exceptionHandler == null && !this.logUnhandledExceptions) {
+            throw new IllegalArgumentException("You may not disable the default exception handler and have logging of unhandled exceptions disabled");
+        }
+        defaultExceptionHandler = exceptionHandler;
     }
 
     protected boolean handleUncaughtException(BaseCommand scope, RegisteredCommand registeredCommand, CommandIssuer sender, List<String> args, Throwable t) {
@@ -401,7 +399,7 @@ public abstract class CommandManager<
 
         //MessageFormatter formatter = formatters.getOrDefault(type, defaultFormatter);
         //if (formatter != null) {
-         //   message = formatter.format(message);
+        //   message = formatter.format(message);
         //}
         return message;
     }

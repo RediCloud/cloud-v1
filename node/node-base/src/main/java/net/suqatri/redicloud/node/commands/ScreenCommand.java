@@ -1,12 +1,12 @@
 package net.suqatri.redicloud.node.commands;
 
-import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
-import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.commands.CommandHelp;
 import net.suqatri.commands.CommandSender;
 import net.suqatri.commands.ConsoleCommand;
 import net.suqatri.commands.annotation.*;
+import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
+import net.suqatri.redicloud.node.NodeLauncher;
 
 @CommandAlias("screen|scr")
 public class ScreenCommand extends ConsoleCommand {
@@ -24,31 +24,31 @@ public class ScreenCommand extends ConsoleCommand {
     @HelpCommand
     @Description("Show help for this command")
     @Syntax("[Page]")
-    public void onHelp(CommandHelp commandHelp){
+    public void onHelp(CommandHelp commandHelp) {
         commandHelp.showHelp();
     }
 
     @Subcommand("toggle")
     @Description("Toggle the screen of a service")
     @Syntax("<Service>")
-    public void onToggle(CommandSender commandSender, String serviceName){
+    public void onToggle(CommandSender commandSender, String serviceName) {
         CloudAPI.getInstance().getConsole().trace("Check existences of screen " + serviceName);
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking if service exists", e))
                 .onSuccess(exists -> {
-                   if(!exists){
-                       commandSender.sendMessage("Service " + serviceName + " does not exist");
-                       return;
-                   }
+                    if (!exists) {
+                        commandSender.sendMessage("Service " + serviceName + " does not exist");
+                        return;
+                    }
                     CloudAPI.getInstance().getConsole().trace("Get service of screen " + serviceName);
-                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
+                    CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting service", e))
                             .onSuccess(service -> {
                                 IServiceScreen serviceScreen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(service);
-                                if(NodeLauncher.getInstance().getScreenManager().isActive(serviceScreen)){
+                                if (NodeLauncher.getInstance().getScreenManager().isActive(serviceScreen)) {
                                     NodeLauncher.getInstance().getScreenManager().leave(serviceScreen);
                                     commandSender.sendMessage("Screen " + serviceName + " left!");
-                                }else{
+                                } else {
                                     commandSender.sendMessage("Joining screen " + serviceName + "...");
                                     NodeLauncher.getInstance().getScreenManager().join(serviceScreen)
                                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to join screen " + serviceName + "!", e))
@@ -61,41 +61,41 @@ public class ScreenCommand extends ConsoleCommand {
     @Subcommand("join")
     @Description("Join a screen")
     @Syntax("<Service>")
-    public void onJoin(CommandSender commandSender, String serviceName){
+    public void onJoin(CommandSender commandSender, String serviceName) {
         CloudAPI.getInstance().getConsole().trace("Check existences of screen " + serviceName);
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking service existence!", e))
                 .onSuccess(exists -> {
-                    if(!exists){
+                    if (!exists) {
                         commandSender.sendMessage("Screen " + serviceName + " does not exist!");
                         return;
                     }
                     CloudAPI.getInstance().getConsole().trace("Get service of screen " + serviceName);
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
-                        .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to join screen " + serviceName + "!", e))
-                        .onSuccess(serviceHolder -> {
-                            IServiceScreen serviceScreen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(serviceHolder);
-                            if(NodeLauncher.getInstance().getScreenManager().isActive(serviceScreen)) {
-                                commandSender.sendMessage("Screen " + serviceName + " is already active!");
-                                return;
-                            }
-                            commandSender.sendMessage("Joining screen " + serviceName + "...");
-                            NodeLauncher.getInstance().getScreenManager().join(serviceScreen)
-                                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to join screen " + serviceName + "!", e))
-                                .onSuccess(s -> commandSender.sendMessage("Screen " + serviceName + " joined!"));
-                        });
+                            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to join screen " + serviceName + "!", e))
+                            .onSuccess(serviceHolder -> {
+                                IServiceScreen serviceScreen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(serviceHolder);
+                                if (NodeLauncher.getInstance().getScreenManager().isActive(serviceScreen)) {
+                                    commandSender.sendMessage("Screen " + serviceName + " is already active!");
+                                    return;
+                                }
+                                commandSender.sendMessage("Joining screen " + serviceName + "...");
+                                NodeLauncher.getInstance().getScreenManager().join(serviceScreen)
+                                        .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to join screen " + serviceName + "!", e))
+                                        .onSuccess(s -> commandSender.sendMessage("Screen " + serviceName + " joined!"));
+                            });
                 });
     }
 
     @Subcommand("leave")
     @Description("Leave a screen")
     @Syntax("<Service>")
-    public void onLeave(CommandSender commandSender, String serviceName){
+    public void onLeave(CommandSender commandSender, String serviceName) {
         CloudAPI.getInstance().getConsole().trace("Check existences of screen " + serviceName);
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking service existence!", e))
                 .onSuccess(exists -> {
-                    if(!exists){
+                    if (!exists) {
                         commandSender.sendMessage("Screen " + serviceName + " is not active!");
                         return;
                     }
@@ -104,7 +104,7 @@ public class ScreenCommand extends ConsoleCommand {
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to leave screen " + serviceName + "!", e))
                             .onSuccess(serviceHolder -> {
                                 IServiceScreen serviceScreen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(serviceHolder);
-                                if(!NodeLauncher.getInstance().getScreenManager().isActive(serviceScreen)) {
+                                if (!NodeLauncher.getInstance().getScreenManager().isActive(serviceScreen)) {
                                     commandSender.sendMessage("Screen " + serviceName + " is not active!");
                                     return;
                                 }
@@ -116,20 +116,20 @@ public class ScreenCommand extends ConsoleCommand {
 
     @Subcommand("actives")
     @Description("Show active screens")
-    public void onActives(CommandSender commandSender){
-        if(NodeLauncher.getInstance().getScreenManager().getActiveScreens().isEmpty()){
+    public void onActives(CommandSender commandSender) {
+        if (NodeLauncher.getInstance().getScreenManager().getActiveScreens().isEmpty()) {
             commandSender.sendMessage("No active screens!");
             return;
         }
         commandSender.sendMessage("Active screens §8(%hc" + NodeLauncher.getInstance().getScreenManager().getActiveScreens().size() + "§8)%tc:");
-        for(IServiceScreen serviceScreen : NodeLauncher.getInstance().getScreenManager().getActiveScreens()){
+        for (IServiceScreen serviceScreen : NodeLauncher.getInstance().getScreenManager().getActiveScreens()) {
             commandSender.sendMessage("§8 » %tc" + serviceScreen.getService().get().getServiceName());
         }
     }
 
     @Subcommand("leaveall")
     @Description("Leave all screens")
-    public void onLeaveAll(CommandSender commandSender){
+    public void onLeaveAll(CommandSender commandSender) {
         for (IServiceScreen activeScreen : NodeLauncher.getInstance().getScreenManager().getActiveScreens()) {
             NodeLauncher.getInstance().getScreenManager().leave(activeScreen);
         }

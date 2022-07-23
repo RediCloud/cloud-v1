@@ -16,20 +16,17 @@ public class DependencyLoader {
 
     @Getter
     private static DependencyLoader loader;
-
+    private final List<AdvancedDependency> resolvedDependencies;
+    private final List<AdvancedDependency> installedDependencies;
+    private final List<AdvancedDependency> injectedDependencies;
+    private final List<AdvancedDependency> queuedDependencies;
+    private final List<String> queuedRepositories;
     private File dependencyFolder;
     private File repositoryFolder;
     private File infoFolder;
     private File blackListFolder;
 
-    private final List<AdvancedDependency> resolvedDependencies;
-    private final List<AdvancedDependency> installedDependencies;
-    private final List<AdvancedDependency> injectedDependencies;
-
-    private final List<AdvancedDependency> queuedDependencies;
-    private final List<String> queuedRepositories;
-
-    public DependencyLoader(File dependencyFolder, File repositoryFolder, File infoFolder, File blackListFolder){
+    public DependencyLoader(File dependencyFolder, File repositoryFolder, File infoFolder, File blackListFolder) {
         loader = this;
         this.blackListFolder = blackListFolder;
         this.resolvedDependencies = new ArrayList<>();
@@ -42,38 +39,41 @@ public class DependencyLoader {
         this.infoFolder = infoFolder;
     }
 
-    public void reset(){
+    private static int getJavaVersion() {
+        String version = System.getProperty("java.version");
+        if (version.startsWith("1.")) {
+            version = version.substring(2, 3);
+        } else {
+            int dot = version.indexOf(".");
+            if (dot != -1) {
+                version = version.substring(0, dot);
+            }
+        }
+        return Integer.parseInt(version);
+    }
+
+    public void reset() {
         resolvedDependencies.clear();
     }
 
-    public void loadDependencies(){
+    public void loadDependencies() {
         this.loadDependencies(queuedRepositories, queuedDependencies);
         this.queuedDependencies.clear();
         this.queuedRepositories.clear();
         this.queuedRepositories.addAll(Arrays.stream(Repository.values()).parallel().map(Repository::getUrl).collect(Collectors.toList()));
     }
 
-    public void addDependency(AdvancedDependency advancedDependency, String url){
+    public void addDependency(AdvancedDependency advancedDependency, String url) {
         this.queuedRepositories.add(url);
         this.queuedDependencies.add(advancedDependency);
     }
 
-    public void addDependency(AdvancedDependency advancedDependency){
+    public void addDependency(AdvancedDependency advancedDependency) {
         this.queuedDependencies.add(advancedDependency);
     }
 
-    private static int getJavaVersion() {
-        String version = System.getProperty("java.version");
-        if(version.startsWith("1.")) {
-            version = version.substring(2, 3);
-        } else {
-            int dot = version.indexOf(".");
-            if(dot != -1) { version = version.substring(0, dot); }
-        } return Integer.parseInt(version);
-    }
-
-    public List<File> loadDependencies(List<String> repositories, List<AdvancedDependency> dependencies){
-        if(dependencies.isEmpty()) return Collections.emptyList();
+    public List<File> loadDependencies(List<String> repositories, List<AdvancedDependency> dependencies) {
+        if (dependencies.isEmpty()) return Collections.emptyList();
         List<String> dependenciesString = dependencies.parallelStream().map(dependency -> dependency.getName()).collect(Collectors.toList());
         for (String s : dependenciesString) {
             System.out.println("- " + s);
@@ -90,10 +90,10 @@ public class DependencyLoader {
         return dependencyFiles;
     }
 
-    private List<AdvancedDependency> collectSubdependencies(AdvancedDependency advancedDependency, List<String> repositories, List<AdvancedDependency> list){
+    private List<AdvancedDependency> collectSubdependencies(AdvancedDependency advancedDependency, List<String> repositories, List<AdvancedDependency> list) {
         File blacklistFile = new File(this.blackListFolder, advancedDependency.getArtifactId() + "-" + advancedDependency.getVersion() + ".blacklist");
-        if(blacklistFile.exists()) return list;
-        if(this.resolvedDependencies.contains(advancedDependency)) return list;
+        if (blacklistFile.exists()) return list;
+        if (this.resolvedDependencies.contains(advancedDependency)) return list;
         this.resolvedDependencies.add(advancedDependency);
         list.add(advancedDependency);
         resolveDependencyFilesIfNotExist(advancedDependency, repositories);
@@ -105,16 +105,16 @@ public class DependencyLoader {
         return list;
     }
 
-    private void resolveDependencyFilesIfNotExist(AdvancedDependency advancedDependency, List<String> repositories){
-        if(!advancedDependency.getDownloadedInfoFile().exists()){
+    private void resolveDependencyFilesIfNotExist(AdvancedDependency advancedDependency, List<String> repositories) {
+        if (!advancedDependency.getDownloadedInfoFile().exists()) {
             new AdvancedDependencyDownloader(repositories).downloadFiles(advancedDependency);
         }
     }
 
-    private List<AdvancedDependency> getSubDependenciesOfDependency(AdvancedDependency advancedDependency){
+    private List<AdvancedDependency> getSubDependenciesOfDependency(AdvancedDependency advancedDependency) {
         File infoFile = advancedDependency.getDownloadedInfoFile();
 
-        try{
+        try {
             FileInputStream readData = new FileInputStream(infoFile);
             ObjectInputStream readStream = new ObjectInputStream(readData);
 
@@ -131,7 +131,7 @@ public class DependencyLoader {
                                     cloudDependency.getArtifactId(),
                                     cloudDependency.getVersion()))
                     .collect(Collectors.toList());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

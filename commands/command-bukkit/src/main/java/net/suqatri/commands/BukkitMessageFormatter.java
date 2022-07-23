@@ -23,7 +23,6 @@
 
 package net.suqatri.commands;
 
-import net.suqatri.commands.MessageFormatter;
 import org.bukkit.ChatColor;
 
 public class BukkitMessageFormatter extends MessageFormatter<ChatColor> {

@@ -49,14 +49,14 @@ class CommandRouter {
                 Optional<RegisteredCommand> optCmd = cmds.stream()
                         .filter(c -> isProbableMatch(c, args, completion))
                         .min((c1, c2) -> {
-                    int a = c1.consumeInputResolvers;
-                    int b = c2.consumeInputResolvers;
+                            int a = c1.consumeInputResolvers;
+                            int b = c2.consumeInputResolvers;
 
-                    if (a == b) {
-                        return 0;
-                    }
-                    return a < b ? 1 : -1;
-                });
+                            if (a == b) {
+                                return 0;
+                            }
+                            return a < b ? 1 : -1;
+                        });
                 if (optCmd.isPresent()) {
                     return new CommandRouteResult(optCmd.get(), search);
                 }

@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 public class CloudPacketData implements ICloudPacketData {
 
     private final Collection<INetworkComponentInfo> receivers = new ArrayList<>();
+    private final UUID packetId = UUID.randomUUID();
     private INetworkComponentInfo sender;
     private boolean allowSenderAsReceiver = false;
-    private final UUID packetId = UUID.randomUUID();
     @JsonIgnore
     private FutureAction<ICloudPacketResponse> responseAction;
     @Setter

@@ -9,7 +9,6 @@ import net.suqatri.redicloud.api.console.IConsoleLineEntry;
 import net.suqatri.redicloud.api.console.LogLevel;
 import net.suqatri.redicloud.node.console.setup.Setup;
 import org.fusesource.jansi.Ansi;
-
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Terminal;
@@ -28,26 +27,25 @@ import java.util.function.Consumer;
 @Getter
 public class NodeConsole implements IConsole {
 
-    @Setter
-    private boolean cleanConsoleMode = true;
     private final CommandConsoleManager consoleManager;
-    private LogLevel logLevel = LogLevel.INFO;
     private final NodeConsoleThread thread;
     private final InputStream inputStream;
     private final OutputStream outputStream;
-    private Terminal terminal;
     private final LineReader lineReader;
+    private final List<IConsoleLineEntry> lineEntries;
+    private final Collection<Consumer<String>> inputHandler;
+    private final String textColor = "§b";
+    private final String highlightColor = "§f";
+    @Setter
+    private boolean cleanConsoleMode = true;
+    private LogLevel logLevel = LogLevel.INFO;
+    private Terminal terminal;
     private ConsoleCompleter consoleCompleter;
     @Setter
     private Setup currentSetup;
-    private final List<IConsoleLineEntry> lineEntries;
     @Getter
     private String prefix = translateColorCodes("§b" + System.getProperty("user.name") + "§a@§cUnknownNode §f=> ");
     private String mainPrefix;
-    private final Collection<Consumer<String>> inputHandler;
-
-    private final String textColor = "§b";
-    private final String highlightColor = "§f";
     private boolean colorsEnabled = true;
 
     public NodeConsole(CommandConsoleManager consoleManager) throws IOException {
@@ -60,10 +58,10 @@ public class NodeConsole implements IConsole {
         this.inputHandler = new ArrayList<>();
         this.mainPrefix = prefix;
         this.startThread();
-        if(this.logLevel.getId() <= LogLevel.DEBUG.getId()) this.cleanConsoleMode = false;
+        if (this.logLevel.getId() <= LogLevel.DEBUG.getId()) this.cleanConsoleMode = false;
     }
 
-    public void printCloudHeader(boolean printWarning){
+    public void printCloudHeader(boolean printWarning) {
         log(new ConsoleLine("", "     ").setPrintPrefix(false).setPrintTimestamp(false));
         log(new ConsoleLine("", "§f     _______                 __   _      ______  __                         __  ").setPrintPrefix(false).setPrintTimestamp(false));
         log(new ConsoleLine("", "§f    |_   __ \\               |  ] (_)   .' ___  |[  |                       |  ] ").setPrintPrefix(false).setPrintTimestamp(false));
@@ -73,9 +71,9 @@ public class NodeConsole implements IConsole {
         log(new ConsoleLine("", "§f    |____| |___|'.__.' '.__.;__][___]  `.____ .'[___]'.__.'  '.__.'_/ '.__.;__] ").setPrintPrefix(false).setPrintTimestamp(false));
         log(new ConsoleLine("", "").setPrintPrefix(false).setPrintTimestamp(false));
         log(new ConsoleLine("", this.textColor + "    A redis based cluster cloud system for Minecraft").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "    §8» " + this.textColor + "Version: " + this.highlightColor + CloudAPI.getVersion() + " §8| " + this.textColor + "Discord: " + this.highlightColor +"https://discord.gg/g2HV52VV4G").setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "    §8» " + this.textColor + "Version: " + this.highlightColor + CloudAPI.getVersion() + " §8| " + this.textColor + "Discord: " + this.highlightColor + "https://discord.gg/g2HV52VV4G").setPrintPrefix(false).setPrintTimestamp(false));
         log(new ConsoleLine("", "     ").setPrintPrefix(false).setPrintTimestamp(false));
-        if(this.cleanConsoleMode && printWarning){
+        if (this.cleanConsoleMode && printWarning) {
             warn("§cClean console mode is enabled! Stacktraces will not be printed, only the message.");
             warn("§cTo disable this mode, set the property 'cleanConsoleMode' to false.");
         }
@@ -89,7 +87,7 @@ public class NodeConsole implements IConsole {
         this.inputHandler.remove(inputHandler);
     }
 
-    public void resetPrefix(){
+    public void resetPrefix() {
         this.prefix = this.mainPrefix;
         this.redisplay();
     }
@@ -123,22 +121,22 @@ public class NodeConsole implements IConsole {
                 .build();
     }
 
-    private void startThread(){
+    private void startThread() {
         this.thread.start();
     }
 
-    public void stopThread(){
-        if(this.lineReader != null){
+    public void stopThread() {
+        if (this.lineReader != null) {
             this.lineReader.getTerminal().reader().shutdown();
             this.lineReader.getTerminal().pause();
         }
-        if(this.thread != null){
+        if (this.thread != null) {
             this.thread.interrupt();
         }
     }
 
-    public void printForce(String prefix, String message){
-        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+    public void printForce(String prefix, String message) {
+        if (!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
 
         message = message.replaceAll("%tc", this.textColor)
                 .replaceAll("%hc", this.highlightColor);
@@ -155,25 +153,25 @@ public class NodeConsole implements IConsole {
     }
 
     @Override
-    public void log(IConsoleLine consoleLine){
+    public void log(IConsoleLine consoleLine) {
         String message = consoleLine.getMessage();
-        if(!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
+        if (!message.endsWith(System.lineSeparator())) message += System.lineSeparator();
 
-        if(consoleLine.isStored()) this.lineEntries.add(consoleLine);
+        if (consoleLine.isStored()) this.lineEntries.add(consoleLine);
 
-        if(!canLog(consoleLine)) return;
+        if (!canLog(consoleLine)) return;
 
         message = message.replaceAll("%tc", this.textColor)
                 .replaceAll("%hc", this.highlightColor);
 
         String dateTime = "";
-        if(consoleLine.printTimestamp()) {
+        if (consoleLine.printTimestamp()) {
             long time = consoleLine.getTime();
             dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli(time), java.time.ZoneId.systemDefault()));
             dateTime = "§7[§f" + dateTime + "§7] ";
         }
         String prefix = "";
-        if(consoleLine.printPrefix()){
+        if (consoleLine.printPrefix()) {
             prefix = "§f" + consoleLine.getPrefix() + "§7: " + (logLevel == LogLevel.INFO ? this.textColor : Ansi.ansi().a(Ansi.Attribute.RESET).fgRgb(consoleLine.getLogLevel().getColor().getRed(), consoleLine.getLogLevel().getColor().getGreen(), consoleLine.getLogLevel().getColor().getBlue()).toString());
         }
 
@@ -185,7 +183,7 @@ public class NodeConsole implements IConsole {
         this.redisplay();
     }
 
-    public void log(LogLevel level, String message){
+    public void log(LogLevel level, String message) {
         this.log(new ConsoleLine(level, message));
     }
 
@@ -199,7 +197,7 @@ public class NodeConsole implements IConsole {
     @Override
     public void error(String message, Throwable throwable) {
         this.log(LogLevel.ERROR, message);
-        if(this.cleanConsoleMode) return;
+        if (this.cleanConsoleMode) return;
         this.log(LogLevel.ERROR, throwable.getClass().getSimpleName() + ": " + throwable.getMessage());
         for (StackTraceElement element : throwable.getStackTrace()) {
             this.log(LogLevel.ERROR, element.toString());
@@ -241,19 +239,20 @@ public class NodeConsole implements IConsole {
     }
 
     @Override
-    public void setLogLevel(LogLevel level) {
-        this.logLevel = level;
-        if(level.getId() <= LogLevel.DEBUG.getId()) this.cleanConsoleMode = false;
-    }
-
-    @Override
     public LogLevel getLogLevel() {
         return this.logLevel;
     }
 
     @Override
+    public void setLogLevel(LogLevel level) {
+        this.logLevel = level;
+        if (level.getId() <= LogLevel.DEBUG.getId()) this.cleanConsoleMode = false;
+    }
+
+    @Override
     public boolean canLog(IConsoleLine line) {
-        if(this.currentSetup != null && (line.getLogLevel() != LogLevel.ERROR || line.getLogLevel() != LogLevel.FATAL)) return false;
+        if (this.currentSetup != null && (line.getLogLevel() != LogLevel.ERROR || line.getLogLevel() != LogLevel.FATAL))
+            return false;
         return IConsole.super.canLog(line);
     }
 
@@ -263,7 +262,7 @@ public class NodeConsole implements IConsole {
         this.terminal.flush();
     }
 
-    public void setCommandInput(String input){
+    public void setCommandInput(String input) {
         this.lineReader.getBuffer().write(input);
     }
 

@@ -16,7 +16,8 @@ public class FileEditor {
     private final String splitter;
     private final HashMap<String, String> keyValues;
 
-    public FileEditor(Type type){;
+    public FileEditor(Type type) {
+        ;
         this.splitter = type.splitter;
         this.lines = new ArrayList<>();
         this.keyValues = new HashMap<>();
@@ -47,15 +48,15 @@ public class FileEditor {
         writer.close();
     }
 
-    private void loadMap(){
-        for(String line : this.lines){
-            if(line.contains(" - ")) continue;
-            if(line.contains("- ")) continue;
-            if(line.endsWith(":")) continue;
-            if(line.startsWith("#")) continue;
+    private void loadMap() {
+        for (String line : this.lines) {
+            if (line.contains(" - ")) continue;
+            if (line.contains("- ")) continue;
+            if (line.endsWith(":")) continue;
+            if (line.startsWith("#")) continue;
             String key = "";
             if (!line.contains(this.splitter) || line.split(this.splitter).length < 2) {
-                if(line.startsWith(" ")){
+                if (line.startsWith(" ")) {
                     int count = getAmountOfStartSpacesInLine(key);
                     key = key.substring(count);
                 }
@@ -68,29 +69,29 @@ public class FileEditor {
             }
             try {
                 String[] keyValue = line.split(this.splitter);
-                if(keyValue[0].startsWith(" ")){
+                if (keyValue[0].startsWith(" ")) {
                     int count = getAmountOfStartSpacesInLine(keyValue[0]);
                     key = keyValue[0].substring(count);
-                }else{
+                } else {
                     key = keyValue[0];
                 }
                 this.keyValues.put(key, keyValue[1]);
-            }catch (IndexOutOfBoundsException e){
+            } catch (IndexOutOfBoundsException e) {
                 throw new IndexOutOfBoundsException("Invalid line: " + line);
             }
         }
     }
 
-    public void setValue(String key, String value){
-        if(!this.keyValues.containsKey(key)) throw new IllegalArgumentException("Key " + key + " not found");
+    public void setValue(String key, String value) {
+        if (!this.keyValues.containsKey(key)) throw new IllegalArgumentException("Key " + key + " not found");
         this.keyValues.put(key, value);
     }
 
-    public String getValue(String key){
+    public String getValue(String key) {
         return this.keyValues.get(key);
     }
 
-    public List<String> newLine(){
+    public List<String> newLine() {
         List<String> list = new ArrayList<>(this.lines);
         this.keyValues.forEach((key, value) -> {
             int lineIndex = getLineIndexByKey(key);
@@ -100,16 +101,16 @@ public class FileEditor {
         return list;
     }
 
-    public String constructNewLine(String key, String value, int lineIndex){
+    public String constructNewLine(String key, String value, int lineIndex) {
         String lineWithoutSpaces = key + this.splitter + value;
         int amountOfStartSpaces = getAmountOfStartSpacesInLine(this.lines.get(lineIndex));
         String spacesString = getStringWithSpaces(amountOfStartSpaces);
         return spacesString + lineWithoutSpaces;
     }
 
-    public String getStringWithSpaces(int amount){
+    public String getStringWithSpaces(int amount) {
         String spacesString = "";
-        for(int i = 0; i < amount; i++){
+        for (int i = 0; i < amount; i++) {
             spacesString += " ";
         }
         return spacesString;
@@ -120,10 +121,10 @@ public class FileEditor {
         return line.substring(amountOfSpaces);
     }
 
-    public int getAmountOfStartSpacesInLine(String line){
+    public int getAmountOfStartSpacesInLine(String line) {
         int amountOfSpaces = 0;
-        for(int i = 0; i < line.length(); i++){
-            if(line.charAt(i) == ' '){
+        for (int i = 0; i < line.length(); i++) {
+            if (line.charAt(i) == ' ') {
                 amountOfSpaces++;
                 continue;
             }
@@ -132,18 +133,19 @@ public class FileEditor {
         return amountOfSpaces;
     }
 
-    public int getLineIndexByKey(String key){
+    public int getLineIndexByKey(String key) {
         String match = key + this.splitter;
-        for(int i = 0; i < this.lines.size(); i++){
-            if(this.lines.get(i).contains(match)){
+        for (int i = 0; i < this.lines.size(); i++) {
+            if (this.lines.get(i).contains(match)) {
                 return i;
             }
         }
         return -1;
     }
 
-    @AllArgsConstructor @Getter
-    public static enum Type{
+    @AllArgsConstructor
+    @Getter
+    public static enum Type {
         YML(": "),
         PROPERTIES("=");
         private String splitter;

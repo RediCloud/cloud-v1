@@ -14,8 +14,8 @@ public class FileDeletePacket extends CloudPacket {
 
     @Override
     public void receive() {
-        if(CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
+        if (CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
         File file = new File(this.path);
-        if(file.exists()) file.delete();
+        if (file.exists()) file.delete();
     }
 }

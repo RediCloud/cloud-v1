@@ -6,11 +6,11 @@ import java.util.*;
 import java.util.function.Function;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class LocaleManager <T> {
+public class LocaleManager<T> {
     //private volatile Reflections resourceScanner;
     private final Function<T, Locale> localeMapper;
-    private Locale defaultLocale;
     private final Map<Locale, LanguageTable> tables = new HashMap<>();
+    private Locale defaultLocale;
 
     LocaleManager(Function<T, Locale> localeMapper, Locale defaultLocale) {
         this.localeMapper = localeMapper;
@@ -18,19 +18,17 @@ public class LocaleManager <T> {
     }
 
     /**
-     *
      * @param localeMapper Mapper to map a context to Locale
-     * @param <T> Context Class Type
+     * @param <T>          Context Class Type
      */
     public static <T> LocaleManager<T> create(@NotNull Function<T, Locale> localeMapper) {
         return new LocaleManager<>(localeMapper, Locale.ENGLISH);
     }
 
     /**
-     *
-     * @param localeMapper Mapper to map a context to Locale
+     * @param localeMapper  Mapper to map a context to Locale
      * @param defaultLocale Default Locale
-     * @param <T> Context Class Type
+     * @param <T>           Context Class Type
      */
     public static <T> LocaleManager<T> create(@NotNull Function<T, Locale> localeMapper, Locale defaultLocale) {
         return new LocaleManager<>(localeMapper, defaultLocale);
@@ -56,7 +54,7 @@ public class LocaleManager <T> {
 
     public boolean addMessageBundle(@NotNull ClassLoader classLoader, @NotNull String bundleName, @NotNull Locale... locales) {
         if (locales.length == 0) {
-            locales = new Locale[] {defaultLocale};
+            locales = new Locale[]{defaultLocale};
         }
         boolean found = false;
         for (Locale locale : locales) {

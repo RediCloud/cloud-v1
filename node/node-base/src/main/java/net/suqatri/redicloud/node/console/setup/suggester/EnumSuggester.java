@@ -14,7 +14,7 @@ public class EnumSuggester implements SetupSuggester {
     @Override
     public List<String> suggest(Setup<?> setup, SetupEntry entry) {
         RequiresEnum requiresEnum = entry.getRequiresEnum();
-        if(requiresEnum == null) return new ArrayList<>();
+        if (requiresEnum == null) return new ArrayList<>();
         Class<? extends Enum<?>> value = requiresEnum.value();
         return Arrays.stream(value.getEnumConstants()).map(Enum::name).collect(Collectors.toList());
     }

@@ -14,13 +14,13 @@ public class SchedulerTask implements ISchedulerTask<TimerTask> {
     private int id;
 
     @Override
-    public void setTask(TimerTask task) {
-        this.task = task;
+    public TimerTask getTask() {
+        return this.task;
     }
 
     @Override
-    public TimerTask getTask() {
-        return this.task;
+    public void setTask(TimerTask task) {
+        this.task = task;
     }
 
     @Override

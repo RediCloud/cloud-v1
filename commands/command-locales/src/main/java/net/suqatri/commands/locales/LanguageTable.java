@@ -43,7 +43,7 @@ public class LanguageTable {
     }
 
     public boolean addResourceBundle(ResourceBundle bundle) {
-        for(String key: bundle.keySet()) {
+        for (String key : bundle.keySet()) {
             addMessage(MessageKey.of(key), bundle.getString(key));
         }
 

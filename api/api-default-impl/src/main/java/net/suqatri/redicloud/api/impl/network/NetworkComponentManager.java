@@ -53,20 +53,24 @@ public class NetworkComponentManager implements INetworkComponentManager {
 
     @Override
     public INetworkComponentInfo getComponentInfo(NetworkComponentType type, String identifier) {
-        if(type == NetworkComponentType.NODE && this.cachedNodes.containsKey(identifier)) return this.cachedNodes.get(identifier);
-        if(type == NetworkComponentType.SERVICE && this.cachedServices.containsKey(identifier)) return this.cachedServices.get(identifier);
+        if (type == NetworkComponentType.NODE && this.cachedNodes.containsKey(identifier))
+            return this.cachedNodes.get(identifier);
+        if (type == NetworkComponentType.SERVICE && this.cachedServices.containsKey(identifier))
+            return this.cachedServices.get(identifier);
         return new NetworkComponentInfo(type, identifier);
     }
 
     @Override
     public INetworkComponentInfo getComponentInfo(ICloudNode node) {
-        if(this.cachedNodes.containsKey(node.getUniqueId().toString())) return this.cachedNodes.get(node.getUniqueId().toString());
+        if (this.cachedNodes.containsKey(node.getUniqueId().toString()))
+            return this.cachedNodes.get(node.getUniqueId().toString());
         return new NetworkComponentInfo(NetworkComponentType.NODE, node.getUniqueId().toString());
     }
 
     @Override
     public INetworkComponentInfo getComponentInfo(ICloudService service) {
-        if(this.cachedServices.containsKey(service.getUniqueId().toString())) return this.cachedServices.get(service.getUniqueId().toString());
+        if (this.cachedServices.containsKey(service.getUniqueId().toString()))
+            return this.cachedServices.get(service.getUniqueId().toString());
         return new NetworkComponentInfo(NetworkComponentType.SERVICE, service.getUniqueId().toString());
     }
 
@@ -77,13 +81,13 @@ public class NetworkComponentManager implements INetworkComponentManager {
         CloudAPI.getInstance().getNodeManager().getNodesAsync()
                 .onFailure(futureAction)
                 .onSuccess(nodes -> {
-                    for(IRBucketHolder<ICloudNode> node : nodes) {
+                    for (IRBucketHolder<ICloudNode> node : nodes) {
                         this.cachedNodes.put(node.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.NODE, node.get().getUniqueId().toString()));
                     }
                     CloudAPI.getInstance().getServiceManager().getServicesAsync()
                             .onFailure(futureAction)
                             .onSuccess(services -> {
-                                for(IRBucketHolder<ICloudService> service : services) {
+                                for (IRBucketHolder<ICloudService> service : services) {
                                     this.cachedServices.put(service.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.SERVICE, service.get().getUniqueId().toString()));
                                 }
                                 List<INetworkComponentInfo> infos = new ArrayList<>();
@@ -100,12 +104,12 @@ public class NetworkComponentManager implements INetworkComponentManager {
     public Collection<INetworkComponentInfo> getAllComponentInfo() {
         Collection<IRBucketHolder<ICloudNode>> nodes = CloudAPI.getInstance().getNodeManager().getNodes();
 
-        for(IRBucketHolder<ICloudNode> node : nodes) {
+        for (IRBucketHolder<ICloudNode> node : nodes) {
             this.cachedNodes.put(node.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.NODE, node.get().getUniqueId().toString()));
         }
 
         Collection<IRBucketHolder<ICloudService>> services = CloudAPI.getInstance().getServiceManager().getServices();
-        for(IRBucketHolder<ICloudService> service : services) {
+        for (IRBucketHolder<ICloudService> service : services) {
             this.cachedServices.put(service.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.SERVICE, service.get().getUniqueId().toString()));
         }
 

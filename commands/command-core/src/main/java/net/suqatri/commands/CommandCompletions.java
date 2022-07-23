@@ -64,6 +64,11 @@ public class CommandCompletions<C extends CommandCompletionContext> {
         });
     }
 
+    @NotNull
+    private static String prepareCompletionId(String id) {
+        return (id.startsWith("@") ? "" : "@") + id.toLowerCase(Locale.ENGLISH);
+    }
+
     /**
      * Registr a completion handler to provide command completions based on the user input.
      *
@@ -163,11 +168,6 @@ public class CommandCompletions<C extends CommandCompletionContext> {
         for (Class clazz : classes) {
             defaultCompletions.put(clazz, id);
         }
-    }
-
-    @NotNull
-    private static String prepareCompletionId(String id) {
-        return (id.startsWith("@") ? "" : "@") + id.toLowerCase(Locale.ENGLISH);
     }
 
     @NotNull

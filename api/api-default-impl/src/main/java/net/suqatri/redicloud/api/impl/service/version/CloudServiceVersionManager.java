@@ -61,12 +61,13 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
     public boolean deleteServiceVersion(String name) {
         StringBuilder builder = new StringBuilder();
         for (IRBucketHolder<ICloudGroup> holder : CloudAPI.getInstance().getGroupManager().getGroups()) {
-            if(holder.get().getServiceVersionName().equalsIgnoreCase(name)) {
-                if(!builder.toString().isEmpty()) builder.append(", ");
+            if (holder.get().getServiceVersionName().equalsIgnoreCase(name)) {
+                if (!builder.toString().isEmpty()) builder.append(", ");
                 builder.append(holder.get().getName());
             }
         }
-        if(!builder.toString().isEmpty()) throw new IllegalStateException("Service version " + name + " is still in use by groups: " + builder.toString());
+        if (!builder.toString().isEmpty())
+            throw new IllegalStateException("Service version " + name + " is still in use by groups: " + builder.toString());
         return this.deleteBucket(name);
     }
 
@@ -76,14 +77,14 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
         CloudAPI.getInstance().getGroupManager().getGroupsAsync()
                 .onFailure(futureAction)
                 .onSuccess(holders -> {
-                   StringBuilder builder = new StringBuilder();
-                     for (IRBucketHolder<ICloudGroup> holder : holders) {
-                          if(holder.get().getServiceVersionName().equalsIgnoreCase(name)) {
-                            if(!builder.toString().isEmpty()) builder.append(", ");
+                    StringBuilder builder = new StringBuilder();
+                    for (IRBucketHolder<ICloudGroup> holder : holders) {
+                        if (holder.get().getServiceVersionName().equalsIgnoreCase(name)) {
+                            if (!builder.toString().isEmpty()) builder.append(", ");
                             builder.append(holder.get().getName());
-                          }
-                     }
-                    if(!builder.toString().isEmpty()) {
+                        }
+                    }
+                    if (!builder.toString().isEmpty()) {
                         futureAction.completeExceptionally(new IllegalStateException("Service version " + name + " is still in use by groups: " + builder.toString()));
                         return;
                     }

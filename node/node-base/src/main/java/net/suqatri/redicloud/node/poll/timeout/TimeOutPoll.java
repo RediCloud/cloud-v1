@@ -18,7 +18,10 @@ import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.node.packet.NodePingPacket;
 import net.suqatri.redicloud.node.poll.timeout.packet.TimeOutPollResultPacket;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -28,49 +31,48 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
 
     public static final long PACKET_RESPONSE_TIMEOUT = 5000;
     public static final long NODE_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
-
+    @JsonIgnore
+    private final HashMap<UUID, TimeOutResult> results = new HashMap<>();
     private UUID pollId;
     private UUID timeOutTargetId;
     private UUID openerId;
-    @JsonIgnore
-    private final HashMap<UUID, TimeOutResult> results = new HashMap<>();
 
     @Override
     public FutureAction<TimeOutResult> decide() {
         FutureAction<TimeOutResult> futureAction = new FutureAction<>();
 
         CloudAPI.getInstance().getNodeManager().getNodeAsync(this.timeOutTargetId)
-            .onFailure(futureAction)
-            .onSuccess(nodeHolder -> {
-                if(!nodeHolder.get().isConnected()){
-                    TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
-                    resultPacket.setPollID(this.pollId);
-                    resultPacket.setResult(TimeOutResult.CONNECTED);
-                    resultPacket.getPacketData().addReceiver(resultPacket.getPacketData().getSender());
-                    resultPacket.publishAsync();
-                    return;
-                }
-                NodePingPacket packet = new NodePingPacket();
-                packet.getPacketData().waitForResponse()
-                        .orTimeout(PACKET_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)
-                        .onFailure(e -> {
-                            TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
-                            resultPacket.setPollID(this.pollId);
-                            resultPacket.setResult(e instanceof TimeoutException ? TimeOutResult.FAILED : TimeOutResult.ERROR);
-                            resultPacket.getPacketData().addReceiver(resultPacket.getPacketData().getSender());
-                            resultPacket.publishAsync();
-                        })
-                        .onSuccess(response -> {
-                            TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
-                            resultPacket.setPollID(this.pollId);
-                            resultPacket.setResult(TimeOutResult.PASSED);
-                            resultPacket.getPacketData().addReceiver(resultPacket.getPacketData().getSender());
-                            resultPacket.publishAsync();
-                        });
-                packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                        .getComponentInfo(NetworkComponentType.NODE, this.timeOutTargetId.toString()));
-                packet.publishAsync();
-            });
+                .onFailure(futureAction)
+                .onSuccess(nodeHolder -> {
+                    if (!nodeHolder.get().isConnected()) {
+                        TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
+                        resultPacket.setPollID(this.pollId);
+                        resultPacket.setResult(TimeOutResult.CONNECTED);
+                        resultPacket.getPacketData().addReceiver(resultPacket.getPacketData().getSender());
+                        resultPacket.publishAsync();
+                        return;
+                    }
+                    NodePingPacket packet = new NodePingPacket();
+                    packet.getPacketData().waitForResponse()
+                            .orTimeout(PACKET_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)
+                            .onFailure(e -> {
+                                TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
+                                resultPacket.setPollID(this.pollId);
+                                resultPacket.setResult(e instanceof TimeoutException ? TimeOutResult.FAILED : TimeOutResult.ERROR);
+                                resultPacket.getPacketData().addReceiver(resultPacket.getPacketData().getSender());
+                                resultPacket.publishAsync();
+                            })
+                            .onSuccess(response -> {
+                                TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
+                                resultPacket.setPollID(this.pollId);
+                                resultPacket.setResult(TimeOutResult.PASSED);
+                                resultPacket.getPacketData().addReceiver(resultPacket.getPacketData().getSender());
+                                resultPacket.publishAsync();
+                            });
+                    packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
+                            .getComponentInfo(NetworkComponentType.NODE, this.timeOutTargetId.toString()));
+                    packet.publishAsync();
+                });
 
         return futureAction;
     }
@@ -86,82 +88,82 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
         int min = this.results.size() / 2;
 
         CloudAPI.getInstance().getNodeManager().getNodeAsync(this.timeOutTargetId)
-            .onFailure(e -> {
-                CloudAPI.getInstance().getConsole().error("Error while getting timeouted node " + this.timeOutTargetId + "!");
-            })
-            .onSuccess(nodeHolder -> {
-               if(!nodeHolder.get().isConnected()) {
-                   NodeLauncher.getInstance().getTimeOutPollManager().closePoll(this.getHolder());
-                   return;
-               }
-               if(failed >= min){
-                   nodeHolder.get().setTimeOut(System.currentTimeMillis() + NODE_TIMEOUT);
-                   nodeHolder.get().updateAsync();
+                .onFailure(e -> {
+                    CloudAPI.getInstance().getConsole().error("Error while getting timeouted node " + this.timeOutTargetId + "!");
+                })
+                .onSuccess(nodeHolder -> {
+                    if (!nodeHolder.get().isConnected()) {
+                        NodeLauncher.getInstance().getTimeOutPollManager().closePoll(this.getHolder());
+                        return;
+                    }
+                    if (failed >= min) {
+                        nodeHolder.get().setTimeOut(System.currentTimeMillis() + NODE_TIMEOUT);
+                        nodeHolder.get().updateAsync();
 
-                   NodeTimeOutedEvent event = new NodeTimeOutedEvent(this.timeOutTargetId, passed, failed, error, total, connected, unknown, min);
-                   CloudAPI.getInstance().getEventManager().postGlobalAsync(event);
+                        NodeTimeOutedEvent event = new NodeTimeOutedEvent(this.timeOutTargetId, passed, failed, error, total, connected, unknown, min);
+                        CloudAPI.getInstance().getEventManager().postGlobalAsync(event);
 
-                   NodeLauncher.getInstance().getTimeOutPollManager().closePoll(this.getHolder());
+                        NodeLauncher.getInstance().getTimeOutPollManager().closePoll(this.getHolder());
 
-                   nodeHolder.get().getStartedServices()
-                       .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting started services of node " + this.timeOutTargetId + "!", e))
-                       .onSuccess(serviceHolders -> {
-                           this.movePlayers(serviceHolders)
-                               .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while moving players to node " + this.timeOutTargetId + "!", e))
-                               .onSuccess(b1 -> this.stopServices(nodeHolder, serviceHolders)
-                                   .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while stopping services on timeouted node " + this.timeOutTargetId + "!"))
-                                   .onSuccess(b2 -> {
+                        nodeHolder.get().getStartedServices()
+                                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting started services of node " + this.timeOutTargetId + "!", e))
+                                .onSuccess(serviceHolders -> {
+                                    this.movePlayers(serviceHolders)
+                                            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while moving players to node " + this.timeOutTargetId + "!", e))
+                                            .onSuccess(b1 -> this.stopServices(nodeHolder, serviceHolders)
+                                                    .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while stopping services on timeouted node " + this.timeOutTargetId + "!"))
+                                                    .onSuccess(b2 -> {
 
-                                   }));
-                       });
-               }
-            });
+                                                    }));
+                                });
+                    }
+                });
     }
 
-    private FutureAction<Boolean> movePlayers(Collection<IRBucketHolder<ICloudService>> serviceHolders){
+    private FutureAction<Boolean> movePlayers(Collection<IRBucketHolder<ICloudService>> serviceHolders) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
 
-       List<IRBucketHolder<ICloudService>> fallBacks = serviceHolders
-              .parallelStream()
-              .filter(h -> !h.get().getNodeId().equals(this.timeOutTargetId))
-              .filter(h -> h.get().isFallback())
-              .collect(Collectors.toList());
+        List<IRBucketHolder<ICloudService>> fallBacks = serviceHolders
+                .parallelStream()
+                .filter(h -> !h.get().getNodeId().equals(this.timeOutTargetId))
+                .filter(h -> h.get().isFallback())
+                .collect(Collectors.toList());
 
-       CloudAPI.getInstance().getPlayerManager().getConnectedPlayers()
-           .onFailure(futureAction)
-           .onSuccess(playerHolders -> {
-                if(fallBacks.isEmpty()){
-                    for (IRBucketHolder<ICloudPlayer> playerHolder : playerHolders) {
-                        playerHolder.get().disconnect("You have been disconnected because the node of your connected service has been timeouted!");
+        CloudAPI.getInstance().getPlayerManager().getConnectedPlayers()
+                .onFailure(futureAction)
+                .onSuccess(playerHolders -> {
+                    if (fallBacks.isEmpty()) {
+                        for (IRBucketHolder<ICloudPlayer> playerHolder : playerHolders) {
+                            playerHolder.get().disconnect("You have been disconnected because the node of your connected service has been timeouted!");
+                        }
+                        futureAction.complete(false);
+                        return;
                     }
-                    futureAction.complete(false);
-                    return;
-                }
-               for (IRBucketHolder<ICloudPlayer> playerHolder : playerHolders) {
-                   IRBucketHolder<ICloudService> fallBack = getFallback(fallBacks);
-                   if(fallBack == null){
-                       playerHolder.get().disconnect("You have been disconnected because the node of your connected service has been timeouted!");
-                       continue;
-                   }
-                   playerHolder.get().connect(fallBack);
-                   playerHolder.get().sendMessage("You have been connected to a fallback service because the node of your connected service has been timeouted!");
-               }
-               futureAction.complete(true);
-       });
+                    for (IRBucketHolder<ICloudPlayer> playerHolder : playerHolders) {
+                        IRBucketHolder<ICloudService> fallBack = getFallback(fallBacks);
+                        if (fallBack == null) {
+                            playerHolder.get().disconnect("You have been disconnected because the node of your connected service has been timeouted!");
+                            continue;
+                        }
+                        playerHolder.get().connect(fallBack);
+                        playerHolder.get().sendMessage("You have been connected to a fallback service because the node of your connected service has been timeouted!");
+                    }
+                    futureAction.complete(true);
+                });
 
         return futureAction;
     }
 
-    private IRBucketHolder<ICloudService> getFallback(Collection<IRBucketHolder<ICloudService>> collection){
+    private IRBucketHolder<ICloudService> getFallback(Collection<IRBucketHolder<ICloudService>> collection) {
         IRBucketHolder<ICloudService> fallBack = null;
 
         for (IRBucketHolder<ICloudService> serviceHolder : collection) {
-            if(serviceHolder.get().getOnlineCount() < serviceHolder.get().getMaxPlayers()) continue;
-            if(fallBack == null){
+            if (serviceHolder.get().getOnlineCount() < serviceHolder.get().getMaxPlayers()) continue;
+            if (fallBack == null) {
                 fallBack = serviceHolder;
                 continue;
             }
-            if(serviceHolder.get().getMaxPlayers() < fallBack.get().getOnlineCount()){
+            if (serviceHolder.get().getMaxPlayers() < fallBack.get().getOnlineCount()) {
                 fallBack = serviceHolder;
             }
         }
@@ -169,7 +171,7 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
         return fallBack;
     }
 
-    private FutureAction<Boolean> stopServices(IRBucketHolder<ICloudNode> nodeHolder, Collection<IRBucketHolder<ICloudService>> serviceHolders){
+    private FutureAction<Boolean> stopServices(IRBucketHolder<ICloudNode> nodeHolder, Collection<IRBucketHolder<ICloudService>> serviceHolders) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
         FutureActionCollection<UUID, Boolean> futureActionCollection = new FutureActionCollection<>();
         for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
@@ -178,23 +180,23 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
                     NodeLauncher.getInstance().getServiceManager().deleteBucketAsync(serviceHolder.getIdentifier()));
         }
         futureActionCollection.process()
-            .onFailure(futureAction)
-            .onSuccess(s -> {
-                CloudAPI.getInstance().getNodeManager().getNodeAsync(this.timeOutTargetId)
-                    .onFailure(e ->
-                            CloudAPI.getInstance().getConsole().error("Error while getting time outed node "
-                                    + this.timeOutTargetId + "!"))
-                    .onSuccess(nodeHolder2 -> {
+                .onFailure(futureAction)
+                .onSuccess(s -> {
+                    CloudAPI.getInstance().getNodeManager().getNodeAsync(this.timeOutTargetId)
+                            .onFailure(e ->
+                                    CloudAPI.getInstance().getConsole().error("Error while getting time outed node "
+                                            + this.timeOutTargetId + "!"))
+                            .onSuccess(nodeHolder2 -> {
 
-                    });
-            });
+                            });
+                });
         return futureAction;
     }
 
     @Override
     public void manageResult(TimeOutResult result, UUID nodeId) {
         this.results.put(nodeId, result);
-        if(this.results.values().parallelStream().anyMatch(r -> r == TimeOutResult.UNKNOWN)) return;
+        if (this.results.values().parallelStream().anyMatch(r -> r == TimeOutResult.UNKNOWN)) return;
         close();
     }
 

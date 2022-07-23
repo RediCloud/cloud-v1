@@ -6,10 +6,10 @@ import java.io.InputStream;
 public class StreamUtils {
 
     public static boolean isOpen(InputStream stream) {
-        if(stream == null) return false;
+        if (stream == null) return false;
         try {
-           stream.available();
-           return true;
+            stream.available();
+            return true;
         } catch (IOException e) {
             return false;
         }

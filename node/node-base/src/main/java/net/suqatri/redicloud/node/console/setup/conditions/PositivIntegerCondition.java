@@ -9,7 +9,7 @@ public class PositivIntegerCondition implements BiSupplier<String, Boolean> {
         try {
             int i = Integer.parseInt(s);
             return i < 0;
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }

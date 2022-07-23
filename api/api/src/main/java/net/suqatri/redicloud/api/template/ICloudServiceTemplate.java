@@ -8,7 +8,9 @@ import java.io.File;
 public interface ICloudServiceTemplate extends IRBucketObject {
 
     String getName();
+
     File getTemplateFolder();
+
     String getTemplatePath(ICloudNode node);
 
 }

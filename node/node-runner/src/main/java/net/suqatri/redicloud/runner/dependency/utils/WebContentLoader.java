@@ -7,7 +7,7 @@ import java.net.URL;
 
 public class WebContentLoader {
 
-    public static String loadContent(String urlString){
+    public static String loadContent(String urlString) {
         try {
             URL url = new URL(urlString);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -15,7 +15,7 @@ public class WebContentLoader {
             connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0");
             connection.connect();
             int code = connection.getResponseCode();
-            if(code != 200){
+            if (code != 200) {
                 connection.disconnect();
                 return null;
             }
@@ -25,7 +25,7 @@ public class WebContentLoader {
             bufferedReader.close();
             connection.disconnect();
             return builder.toString();
-        }catch (Exception e){
+        } catch (Exception e) {
             return null;
         }
     }

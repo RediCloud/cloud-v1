@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class Table <R, C, V> {
+public class Table<R, C, V> {
 
     private final Map<R, Map<C, V>> rowMap;
     private final Function<R, Map<C, V>> colMapSupplier;
@@ -46,7 +46,7 @@ public class Table <R, C, V> {
         return colMap.containsKey(col);
     }
 
-    
+
     public V put(R row, C col, V val) {
         return getColMapForWrite(row).put(col, val);
     }
@@ -146,7 +146,7 @@ public class Table <R, C, V> {
         return rowMap.remove(col);
     }
 
-    
+
     public V replace(R row, C col, V val) {
         Map<C, V> rowMap = getColMapIfExists(row);
         if (rowMap == null) {
@@ -159,7 +159,6 @@ public class Table <R, C, V> {
     }
 
 
-    
     public boolean replace(R row, C col, V old, V val) {
         Map<C, V> rowMap = getColMapIfExists(row);
         if (rowMap == null) {
@@ -220,16 +219,6 @@ public class Table <R, C, V> {
     }
     // Other stuff
 
-    public interface TablePredicate<R, C, V> {
-        boolean test(R row, C col, V val);
-    }
-    public interface TableFunction<R, C, V, RETURN> {
-        RETURN compose(R row, C col, V val);
-    }
-    public interface TableConsumer<R, C, V> {
-        void accept(R row, C col, V val);
-    }
-
     private V getIfExists(R row, C col) {
         Map<C, V> colMap = getColMapIfExists(row);
         if (colMap == null) {
@@ -258,14 +247,29 @@ public class Table <R, C, V> {
         }
     }
 
-    public interface Entry <R, C, V> {
+    public interface TablePredicate<R, C, V> {
+        boolean test(R row, C col, V val);
+    }
+
+    public interface TableFunction<R, C, V, RETURN> {
+        RETURN compose(R row, C col, V val);
+    }
+
+    public interface TableConsumer<R, C, V> {
+        void accept(R row, C col, V val);
+    }
+
+    public interface Entry<R, C, V> {
         R getRow();
+
         C getCol();
+
         V getValue();
+
         V setValue(V value);
     }
 
-    private class Node implements Entry <R, C, V> {
+    private class Node implements Entry<R, C, V> {
 
         private final Map.Entry<R, Map<C, V>> rowEntry;
         private final Map.Entry<C, V> colEntry;

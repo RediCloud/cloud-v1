@@ -12,21 +12,31 @@ import java.util.UUID;
 public interface ICloudServiceManager {
 
     FutureAction<Set<String>> readAllFetcherKeysAsync();
+
     void putInFetcher(String serviceName, UUID serviceId);
+
     void removeFromFetcher(String serviceName);
+
     void removeFromFetcher(String serviceName, UUID serviceId);
+
     boolean containsKeyInFetcher(String serviceName);
+
     FutureAction<Boolean> containsKeyInFetcherAsync(String serviceName);
+
     FutureAction<UUID> getServiceIdFromFetcherAsync(String serviceName);
+
     UUID getServiceIdFromFetcher(String serviceName);
 
     FutureAction<IRBucketHolder<ICloudService>> getServiceAsync(String name);
+
     FutureAction<IRBucketHolder<ICloudService>> getServiceAsync(UUID uniqueId);
 
     IRBucketHolder<ICloudService> getService(String name);
+
     IRBucketHolder<ICloudService> getService(UUID uniqueId);
 
     FutureAction<Collection<IRBucketHolder<ICloudService>>> getServicesAsync();
+
     Collection<IRBucketHolder<ICloudService>> getServices();
 
     FutureAction<Boolean> stopServiceAsync(UUID uniqueId, boolean force);
@@ -35,11 +45,14 @@ public interface ICloudServiceManager {
 
     ICloudServiceFactory getServiceFactory();
 
-    IRBucketHolder<ICloudService> getFallbackService(IRBucketHolder<ICloudService> ... blacklist);
+    IRBucketHolder<ICloudService> getFallbackService(IRBucketHolder<ICloudService>... blacklist);
 
     boolean existsService(String name);
+
     boolean existsService(UUID uniqueId);
+
     FutureAction<Boolean> existsServiceAsync(String name);
+
     FutureAction<Boolean> existsServiceAsync(UUID uniqueId);
 
 }

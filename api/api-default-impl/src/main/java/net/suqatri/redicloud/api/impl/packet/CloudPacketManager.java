@@ -1,9 +1,9 @@
 package net.suqatri.redicloud.api.impl.packet;
 
-import net.suqatri.redicloud.api.impl.event.packet.GlobalEventPacket;
 import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.CloudDefaultAPIImpl;
+import net.suqatri.redicloud.api.impl.event.packet.GlobalEventPacket;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.packet.ICloudPacket;
 import net.suqatri.redicloud.api.packet.ICloudPacketData;
@@ -24,13 +24,13 @@ import java.util.stream.Collectors;
 public class CloudPacketManager implements ICloudPacketManager {
 
     private final Collection<Class<? extends ICloudPacket>> packets;
-    private CloudPacketReceiver receiver;
-    private RTopic topic;
     private final List<Class<? extends ICloudPacket>> packetWaitingList;
     @Getter
     private final ConcurrentHashMap<UUID, ICloudPacketData> waitingForResponse;
+    private CloudPacketReceiver receiver;
+    private RTopic topic;
 
-    public CloudPacketManager(){
+    public CloudPacketManager() {
         this.packets = new ArrayList<>();
         this.packetWaitingList = new ArrayList<>();
         this.waitingForResponse = new ConcurrentHashMap<>();
@@ -55,9 +55,9 @@ public class CloudPacketManager implements ICloudPacketManager {
     public void registerPacket(Class<? extends ICloudPacket> packet) {
         CloudAPI.getInstance().getConsole().debug("Registering packet: " + packet.getName());
         this.packets.add(packet);
-        if(this.receiver != null){
+        if (this.receiver != null) {
             this.receiver.connectPacketListener(packet);
-        }else {
+        } else {
             this.packetWaitingList.add(packet);
         }
     }
@@ -66,9 +66,9 @@ public class CloudPacketManager implements ICloudPacketManager {
     public void unregisterPacket(Class<? extends ICloudPacket> packet) {
         CloudAPI.getInstance().getConsole().debug("Unregistering packet: " + packet.getName());
         this.packets.remove(packet);
-        if(this.receiver != null){
+        if (this.receiver != null) {
             this.receiver.disconnectPacketListener(packet);
-        }else{
+        } else {
             this.packetWaitingList.remove(packet);
         }
     }
@@ -90,22 +90,23 @@ public class CloudPacketManager implements ICloudPacketManager {
 
     @Override
     public void publish(ICloudPacket packet) {
-        if(this.topic == null) {
+        if (this.topic == null) {
             CloudAPI.getInstance().getConsole().warn("Cannot publish packet " + packet.getClass().getSimpleName() + " because topic is not connected.");
             return;
         }
         CloudAPI.getInstance().getConsole().trace("Publishing packet " + packet.getClass().getName() + " to [" + packet.getPacketData().getReceivers().parallelStream().map(INetworkComponentInfo::getKey).collect(Collectors.joining(", ")) + "]");
         this.topic.publish(packet);
-        if(!this.isRegisteredPacket(packet.getClass())){
+        if (!this.isRegisteredPacket(packet.getClass())) {
             CloudAPI.getInstance().getConsole().warn("The published packet " + packet.getClass().getSimpleName() + " is not registered.");
         }
     }
 
     @Override
     public FutureAction<Long> publishAsync(ICloudPacket packet) {
-        if(this.topic == null) return new FutureAction<>(new NullPointerException("Cannot publish packet " + packet.getClass().getSimpleName() + " because topic is not connected."));
+        if (this.topic == null)
+            return new FutureAction<>(new NullPointerException("Cannot publish packet " + packet.getClass().getSimpleName() + " because topic is not connected."));
         CloudAPI.getInstance().getConsole().trace("Publishing packet " + packet.getClass().getName() + " to [" + packet.getPacketData().getReceivers().parallelStream().map(INetworkComponentInfo::getKey).collect(Collectors.joining(", ")) + "]");
-        if(!this.isRegisteredPacket(packet.getClass())){
+        if (!this.isRegisteredPacket(packet.getClass())) {
             CloudAPI.getInstance().getConsole().warn("The published packet " + packet.getClass().getSimpleName() + " is not registered.");
         }
         return new FutureAction<>(this.topic.publishAsync(packet));

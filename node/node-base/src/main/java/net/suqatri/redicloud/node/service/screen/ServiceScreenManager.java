@@ -49,6 +49,9 @@ public class ServiceScreenManager implements IServiceScreenManager {
             futureAction.complete(serviceScreen);
             return futureAction;
         }
+        if(this.activeScreens.size() >= 2){
+            CloudAPI.getInstance().getConsole().warn("Its recommended to have at most 2 screens open at once because of the performance issues!");
+        }
         this.activeScreens.add(serviceScreen);
 
         serviceScreen.getLines().readAllAsync().whenComplete((lines, e) -> {

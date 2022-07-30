@@ -57,6 +57,11 @@ public class SetupEntry {
     private final AnswerCompleter completer;
 
     /**
+     * Accept empty answer (optional)
+     */
+    private final AcceptEmptyInput acceptEmptyInput;
+
+    /**
      * Checks if a provided answer causes a {@link Setup} to exit
      *
      * @param answer the provided answer

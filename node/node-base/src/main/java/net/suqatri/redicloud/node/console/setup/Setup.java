@@ -194,7 +194,7 @@ public abstract class Setup<T extends Setup<?>> {
     /**
      * Handles the current question with a given input
      * It checks if the answer should exit after or jump
-     * to a other question and then set the current part higher
+     * to an other question and then set the current part higher
      * <p>
      * Checks for disallowed answers or only allowed answers
      *
@@ -204,7 +204,7 @@ public abstract class Setup<T extends Setup<?>> {
         if (this.setup != null) {
 
             //No input provided
-            if (input.trim().isEmpty()) {
+            if (input.trim().isEmpty() && this.setup.getValue().getAcceptEmptyInput() == null) {
                 this.console.printForce(getPrefix(), "§cPlease do not enter empty input!");
                 return;
             }
@@ -348,7 +348,8 @@ public abstract class Setup<T extends Setup<?>> {
                         field.getAnnotation(SuggestedAnswer.class),
                         field.getAnnotation(QuestionTip.class),
                         field.getAnnotation(ConditionChecker.class),
-                        field.getAnnotation(AnswerCompleter.class)
+                        field.getAnnotation(AnswerCompleter.class),
+                        field.getAnnotation(AcceptEmptyInput.class)
                 );
 
                 this.map.put(field, setupEntry);
@@ -383,7 +384,7 @@ public abstract class Setup<T extends Setup<?>> {
 
     /**
      * Prints the header with its information
-     * <p>
+     *
      * > If its cancellable
      * > Current Question ID
      * > Setup-Name

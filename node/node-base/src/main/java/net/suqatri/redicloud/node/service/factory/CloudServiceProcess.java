@@ -205,8 +205,10 @@ public class CloudServiceProcess implements ICloudServiceProcess {
     @Override
     public FutureAction<Boolean> stopAsync(boolean force) {
         FutureAction<Boolean> futureAction = this.stopFuture != null ? this.stopFuture : new FutureAction<>();
+        this.stopFuture = futureAction;
 
         this.stopProcess(force);
+
 
         return futureAction;
     }

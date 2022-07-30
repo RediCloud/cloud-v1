@@ -92,7 +92,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
         this.thread = new Thread(() -> {
             try {
-                RateLimiter rate = RateLimiter.create(15, 5, TimeUnit.SECONDS);
+                RateLimiter rate = RateLimiter.create(30, 5, TimeUnit.SECONDS);
                 screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(this.serviceHolder);
                 InputStreamReader inputStreamReader = new InputStreamReader(this.process.getInputStream());
                 BufferedReader reader = new BufferedReader(inputStreamReader);

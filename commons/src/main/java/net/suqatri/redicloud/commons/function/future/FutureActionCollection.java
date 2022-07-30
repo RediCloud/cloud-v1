@@ -15,20 +15,6 @@ public class FutureActionCollection<K, T> {
         this.toProcess = new HashMap<>();
     }
 
-    /**
-     * Create a new future action collection from a list of actions without an identifier.
-     *
-     * @param futureActions The future action to add to the collection.
-     * @param <R>           The type of the result of the future action collection.
-     * @return The future action collection.
-     */
-    public static <R> FutureActionCollection<String, R> withoutIdentifier(FutureAction<R>... futureActions) {
-        FutureActionCollection<String, R> collection = new FutureActionCollection<>();
-        for (FutureAction<R> futureAction : futureActions) {
-            collection.addToProcess(StringUtils.randomString(StringUtils.ALL, 5), futureAction);
-        }
-        return collection;
-    }
 
     /**
      * Create a new future action collection from a list of actions with an identifier.

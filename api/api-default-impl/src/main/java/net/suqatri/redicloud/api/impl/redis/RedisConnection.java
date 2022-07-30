@@ -10,6 +10,7 @@ import net.suqatri.redicloud.api.redis.event.RedisDisconnectedEvent;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.redisson.config.SingleServerConfig;
 
 @Getter
 public class RedisConnection implements IRedisConnection {
@@ -44,8 +45,10 @@ public class RedisConnection implements IRedisConnection {
                 .setConnectionMinimumIdleSize(this.connectionMinimumIdleSize)
                 .setConnectionPoolSize(this.connectionPoolSize)
                 .setAddress("redis://" + this.redisCredentials.getHostname() + ":" + this.redisCredentials.getPort())
-                .setPassword(this.redisCredentials.getPassword())
                 .setDatabase(this.redisCredentials.getDatabaseId());
+        if(this.redisCredentials.getPassword() != null) {
+            config.useSingleServer().setPassword(this.redisCredentials.getPassword());
+        }
         this.client = Redisson.create(config);
 
         RedisConnectedEvent redisConnectedEvent = new RedisConnectedEvent(this);

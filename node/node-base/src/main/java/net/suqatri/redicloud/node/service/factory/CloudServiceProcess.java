@@ -251,8 +251,10 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         this.factory.getPortManager().unUsePort(this);
 
         if (!isActive()) {
-            if (!this.stopFuture.isFinishedAnyway()) {
-                this.stopFuture.complete(true);
+            if(this.stopFuture != null){
+                if (!this.stopFuture.isFinishedAnyway()) {
+                    this.stopFuture.complete(true);
+                }
             }
             return;
         }

@@ -264,6 +264,12 @@ public class CloudServiceProcess implements ICloudServiceProcess {
             CloudServiceInitStopPacket packet = new CloudServiceInitStopPacket();
             packet.getPacketData().addReceiver(this.serviceHolder.get().getNetworkComponentInfo());
             packet.publishAsync();
+            CloudAPI.getInstance().getScheduler().runTaskLaterAsync(() -> { // service crashed, force stop
+                if(this.serviceHolder.get().getServiceState() == ServiceState.RUNNING_DEFINED
+                        || this.serviceHolder.get().getServiceState() == ServiceState.RUNNING_UNDEFINED) {
+                    this.process.destroy();
+                }
+            }, 1500, TimeUnit.MILLISECONDS);
         }
     }
 

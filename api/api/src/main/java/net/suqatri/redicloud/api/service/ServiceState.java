@@ -6,6 +6,7 @@ public enum ServiceState {
     STARTING,
     RUNNING_UNDEFINED,
     RUNNING_DEFINED,
+    STOPPING,
     UNKNOWN,
     OFFLINE;
 

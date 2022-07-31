@@ -139,9 +139,16 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         if(this.isShutdownInitiated) return;
         this.isShutdownInitiated = true;
 
+        this.service.setServiceState(ServiceState.STOPPING);
+        this.service.update();
+
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             IRBucketHolder<ICloudPlayer> cloudPlayer = getPlayerManager().getPlayer(onlinePlayer.getUniqueId());
-            cloudPlayer.get().connect(getServiceManager().getFallbackService());
+            if(this.serviceManager != null) {
+                cloudPlayer.get().connect(this.serviceManager.getFallbackService());
+            }else{
+                onlinePlayer.kickPlayer("CloudService shutdown");
+            }
         }
 
         try {

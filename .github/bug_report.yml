@@ -1,0 +1,78 @@
+name: Bug Report
+description: Report a bug or console error
+labels: [Unconfirmed, Bug]
+
+body:
+  - type: textarea
+    attributes:
+      label: Console Error
+      description: |
+        If you encounter warnings/errors in your console, **paste them with https://paste.gg/ and put the paste link here**.
+        If the error is small/less than 10 lines, you may put it directly into this field.
+      value: |
+        ```
+        Put the paste.gg link or text here.
+        ```
+      placeholder: Please do not remove the grave accents; simply replace the line of text in the middle.
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Bug Description
+      description: |
+        Describe the unexpected behavior.
+        If you want to attach screenshots, use the comment field at the bottom of the page.
+      placeholder: |
+        Example: "Can´t change the version of a group"
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        List the steps on how we can reproduce the issue. Make sure we can easily understand what you mean with each step.
+      placeholder: |
+        Example:
+        1. Start the cloud
+        2. run following command: `group edit Test service_version PAPER_1_8`
+        3. Nothing happens and the version is not changed
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: |
+        Describe what exactly you expected to happen.
+      placeholder: |
+        Example: "Service version of the group should be changed to PAPER_1_8"
+    validations:
+      required: true
+
+  - type: textarea
+      attributes:
+        label: Software/Hardware
+        description: |
+          What software/hardware is used?
+        placeholder: |
+          Example:
+          Java Version: 1.8.0_151
+          OS: Debian 10
+          RAM: 8 GB
+          CPU: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
+      validations:
+        required: true
+
+  - type: textarea
+      attributes:
+        label: Cloud-Version
+        description: |
+          What version of the cloud is used?
+        placeholder: |
+          Example:
+          Git-Hash: 2bcc83206afbe9638dfb1871de38085afb111802
+          Git-Version: 1.0-SNAPSHOT
+      validations:
+        required: true

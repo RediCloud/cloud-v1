@@ -15,13 +15,15 @@ pipeline {
         }
         stage("Create zip") {
             steps {
-                sh "mkdir build/"
-                sh "cd build/"
-                sh "cp ../test/node-1/storage/ storage/"
-                sh "cp ../node/node-base/build/libs/*"
-                sh "cp ../plugins/plugin-minecraft/build/libs/* storage/"
-                sh "cp ../plugins/plugin-proxy/build/libs/* storage/"
-                sh "zip -r redi-cloud.zip *";
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh "mkdir build/"
+                    sh "cd build/"
+                    sh "cp ../test/node-1/storage/ storage/"
+                    sh "cp ../node/node-base/build/libs/*"
+                    sh "cp ../plugins/plugin-minecraft/build/libs/* storage/"
+                    sh "cp ../plugins/plugin-proxy/build/libs/* storage/"
+                    sh "zip -r redi-cloud.zip *";
+                }
             }
             post {
                 success {

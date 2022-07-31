@@ -20,8 +20,7 @@ pipeline {
         }
         stage("Create zip") {
             steps {
-                sh "cd test/node-1";
-                sh "zip -r redi-cloud.zip *";
+                sh "cd test/node-1/; zip -r redi-cloud.zip *";
             }
             post {
                 success {

@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.api.impl.group;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.redicloud.api.CloudAPI;
@@ -137,6 +138,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         return this.staticGroup;
     }
 
+    @JsonIgnore
     @Override
     public void setStatic(boolean staticGroup) {
         this.staticGroup = staticGroup;

@@ -258,14 +258,14 @@ public class GroupCommand extends ConsoleCommand {
                                             break;
                                         case "SERVICE_VERSION":
                                             CloudAPI.getInstance().getServiceVersionManager().existsServiceVersionAsync(value)
-                                                .onFailure(e3 -> commandSender.sendMessage("§cFailed to edit group " + name))
+                                                .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to check existence of service version " + value, e3))
                                                 .onSuccess(existsVersion -> {
                                                     if(!existsVersion) {
                                                         commandSender.sendMessage("Service version %hc" + value + "%tc does not exist");
                                                         return;
                                                     }
                                                     CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(value)
-                                                        .onFailure(e4 -> commandSender.sendMessage("§cFailed to edit group " + name))
+                                                        .onFailure(e4 -> CloudAPI.getInstance().getConsole().error("Failed to get service version " + value, e4))
                                                         .onSuccess(serviceVersionHolder -> {
                                                             holder.get().setServiceVersion(serviceVersionHolder);
                                                             holder.get().updateAsync();
@@ -279,7 +279,7 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             holder.get().getOnlineServiceCount()
-                                                    .onFailure(e3 -> commandSender.sendMessage("§cFailed to edit group " + name))
+                                                    .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to edit group " + name, e3))
                                                     .onSuccess(count -> {
                                                         if (count > 0) {
                                                             commandSender.sendMessage("§cCannot edit static property of group %hc" + name + "%tc while it has a connected services");

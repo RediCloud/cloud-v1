@@ -147,9 +147,9 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                     reader.close();
                 }
 
-                if (this.serviceDirectory.exists() && !this.serviceHolder.get().isStatic())
+                if (this.serviceDirectory.exists() && !this.serviceHolder.get().isStatic()) {
                     FileUtils.deleteDirectory(this.serviceDirectory);
-
+                }
                 CloudAPI.getInstance().getConsole().debug("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped");
 
                 CloudAPI.getInstance().getConsole().trace("Call stopping future action: " + this.stopFuture + " for service " + this.serviceHolder.get().getServiceName());

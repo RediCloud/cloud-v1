@@ -9,5 +9,6 @@ public enum GroupProperty {
     FALLBACK,
     MAINTENANCE;
     //TODO SERVICE VERSION
+    //TODO STATIC
 
 }

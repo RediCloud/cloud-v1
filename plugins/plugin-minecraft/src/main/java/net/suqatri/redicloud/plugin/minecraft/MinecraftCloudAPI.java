@@ -14,6 +14,7 @@ import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.redis.RedisCredentials;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ICloudServiceManager;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.event.CloudServiceStartedEvent;
@@ -145,7 +146,12 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             IRBucketHolder<ICloudPlayer> cloudPlayer = getPlayerManager().getPlayer(onlinePlayer.getUniqueId());
             if(this.serviceManager != null) {
-                cloudPlayer.get().connect(this.serviceManager.getFallbackService());
+                IRBucketHolder<ICloudService> serviceHolder = this.serviceManager.getFallbackService();
+                if(serviceHolder == null) {
+                    onlinePlayer.kickPlayer("CloudService shutdown");
+                    continue;
+                }
+                cloudPlayer.get().connect(serviceHolder);
             }else{
                 onlinePlayer.kickPlayer("CloudService shutdown");
             }

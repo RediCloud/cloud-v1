@@ -7,6 +7,7 @@ group 'net.suqatri.redicloud'
 jar {
     manifest {
         attributes 'Main-Class': 'net.suqatri.redicloud.node.NodeLauncherMain'
+        attributes 'Commit-Hash': ''
     }
 }
 
@@ -30,9 +31,29 @@ task createProperties(dependsOn: processResources) {
         new File("$buildDir/resources/main/redicloud.properties").withWriter { w ->
             Properties p = new Properties()
             p['version'] = project.version.toString()
+            p['git-commit'] = getCommitHash()
+            p['git-branch-name'] = getCurrentBrancheName()
             p.store w, null
         }
     }
+}
+
+def getCommitHash() {
+    def git = new ProcessBuilder('git', 'rev-parse', 'HEAD').directory(project.projectDir).start()
+    def inputStream = git.getInputStream();
+    def reader = new BufferedReader(new InputStreamReader(inputStream))
+    def commitHash = reader.readLine()
+    git.waitFor()
+    return commitHash
+}
+
+def getCurrentBrancheName(){
+    def git = new ProcessBuilder('git', 'symbolic-ref', '--short', '-q', 'HEAD').directory(project.projectDir).start()
+    def inputStream = git.getInputStream();
+    def reader = new BufferedReader(new InputStreamReader(inputStream))
+    def branchName = reader.readLine()
+    git.waitFor()
+    return branchName
 }
 
 classes {

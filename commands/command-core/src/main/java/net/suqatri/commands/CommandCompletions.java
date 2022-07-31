@@ -36,7 +36,7 @@ import java.util.stream.IntStream;
 public class CommandCompletions<C extends CommandCompletionContext> {
     private static final String DEFAULT_ENUM_ID = "@__defaultenum__";
     private final CommandManager manager;
-    // TODO: use a CompletionProvider that can return a delegated Id or provide values such as enum support
+    // use a CompletionProvider that can return a delegated Id or provide values such as enum support
     private Map<String, CommandCompletionHandler> completionMap = new HashMap<>();
     private Map<Class, String> defaultCompletions = new HashMap<>();
 

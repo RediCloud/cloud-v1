@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.api.impl.service;
 
+import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.impl.service.configuration.DefaultServiceStartConfiguration;

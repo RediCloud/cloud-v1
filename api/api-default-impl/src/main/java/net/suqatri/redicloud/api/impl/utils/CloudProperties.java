@@ -32,4 +32,9 @@ public class CloudProperties implements ICloudProperties {
     public String getGitBrancheName() {
         return this.properties.getProperty("git-branch", "unknown");
     }
+
+    @Override
+    public String getGitCommitMessage() {
+        return this.properties.getProperty("git-commit-message", "unknown");
+    }
 }

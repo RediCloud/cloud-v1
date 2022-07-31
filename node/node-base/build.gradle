@@ -33,6 +33,7 @@ task createProperties(dependsOn: processResources) {
             p['version'] = project.version.toString()
             p['git-hash'] = getCommitHash()
             p['git-branche'] = getCurrentBrancheName()
+            p['git-commit-message'] = getCommitMessage()
             p.store w, null
         }
     }
@@ -47,7 +48,17 @@ def getCommitHash() {
     return commitHash
 }
 
-def getCurrentBrancheName(){
+def getCommitMessage() {
+    def hash = getCommitHash()
+    def git = new ProcessBuilder('git', 'log', '-1', '--pretty=%B', hash).directory(project.projectDir).start()
+    def inputStream = git.getInputStream();
+    def reader = new BufferedReader(new InputStreamReader(inputStream))
+    def commitMessage = reader.readLine()
+    git.waitFor()
+    return commitMessage
+}
+
+def getCurrentBrancheName() {
     def git = new ProcessBuilder('git', 'symbolic-ref', '--short', '-q', 'HEAD').directory(project.projectDir).start()
     def inputStream = git.getInputStream();
     def reader = new BufferedReader(new InputStreamReader(inputStream))

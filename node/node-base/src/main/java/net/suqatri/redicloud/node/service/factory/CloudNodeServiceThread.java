@@ -192,13 +192,12 @@ public class CloudNodeServiceThread extends Thread {
             }else if(existsService){
                 cloudService = CloudAPI.getInstance().getServiceManager().getService(configuration.getUniqueId())
                         .getImpl(CloudService.class);
-            }
-
-            if (!cloudService.isStatic() && cloudService.getNodeId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) {
-                configuration.getStartListener().completeExceptionally(
-                        new IllegalArgumentException("Can´t start static service how is stored on node "
-                                + CloudAPI.getInstance().getNodeManager().getNode(cloudService.getNodeId()).get().getName()));
-                return;
+                if (!cloudService.isStatic() && cloudService.getNodeId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) {
+                    configuration.getStartListener().completeExceptionally(
+                            new IllegalArgumentException("Can´t start static service how is stored on node "
+                                    + CloudAPI.getInstance().getNodeManager().getNode(cloudService.getNodeId()).get().getName()));
+                    return;
+                }
             }
         } else {
             configuration.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());

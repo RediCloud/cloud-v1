@@ -18,13 +18,17 @@ import net.suqatri.redicloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.redicloud.api.impl.redis.bucket.packet.BucketDeletePacket;
 import net.suqatri.redicloud.api.impl.redis.bucket.packet.BucketUpdatePacket;
 import net.suqatri.redicloud.api.impl.service.packet.command.CloudServiceConsoleCommandPacket;
+import net.suqatri.redicloud.api.impl.utils.CloudProperties;
 import net.suqatri.redicloud.api.network.INetworkComponentManager;
 import net.suqatri.redicloud.api.node.ICloudNodeManager;
 import net.suqatri.redicloud.api.packet.ICloudPacketManager;
 import net.suqatri.redicloud.api.player.ICloudPlayerManager;
 import net.suqatri.redicloud.api.redis.IRedisConnection;
 import net.suqatri.redicloud.api.utils.ApplicationType;
+import org.redisson.codec.JsonJacksonCodec;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,10 +45,12 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     private final ICloudGroupManager groupManager;
     private final ExecutorService executorService;
     private final ICloudPlayerManager playerManager;
+    private CloudProperties properties;
 
     public CloudDefaultAPIImpl(ApplicationType type) {
         super(type);
         instance = this;
+        this.loadProperties();
         this.executorService = Executors.newCachedThreadPool();
         this.eventManager = new CloudEventManager();
         this.packetManager = new CloudPacketManager();
@@ -52,6 +58,14 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
         this.nodeManager = new CloudNodeManager();
         this.groupManager = new CloudGroupManager();
         this.playerManager = new CloudPlayerManager();
+    }
+
+    private void loadProperties(){
+        try {
+            this.properties = new CloudProperties(this.getClass().getResourceAsStream("redicloud.properties"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void registerInternalListeners() {

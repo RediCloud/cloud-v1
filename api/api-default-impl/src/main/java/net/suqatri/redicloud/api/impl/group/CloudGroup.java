@@ -75,18 +75,18 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     }
 
     @Override
-    public void addTemplate(ICloudServiceTemplate template) {
-        this.templateNames.add(template.getName());
+    public void addTemplate(IRBucketHolder<ICloudServiceTemplate> template) {
+        this.templateNames.add(template.get().getName());
     }
 
     @Override
-    public void removeTemplate(ICloudServiceTemplate template) {
-        this.templateNames.remove(template.getName());
+    public void removeTemplate(IRBucketHolder<ICloudServiceTemplate> template) {
+        this.templateNames.remove(template.get().getName());
     }
 
     @Override
-    public boolean hasTemplate(ICloudServiceTemplate template) {
-        return this.templateNames.contains(template.getName());
+    public boolean hasTemplate(IRBucketHolder<ICloudServiceTemplate> template) {
+        return this.templateNames.contains(template.get().getName());
     }
 
     @Override
@@ -96,6 +96,11 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
                         .parallelStream()
                         .filter(name -> name.startsWith(this.getName().toLowerCase() + "-"))
                         .count());
+    }
+
+    @Override
+    public boolean hasTemplate(String templateName) {
+        return this.templateNames.contains(templateName);
     }
 
     @Override

@@ -40,6 +40,82 @@ public class GroupCommand extends ConsoleCommand {
         commandHelp.showHelp();
     }
 
+    @Subcommand("template add")
+    @Syntax("<Group> <Template>")
+    @Description("Add a template to a group")
+    public void onTemplateAdd(CommandSender commandSender, String groupName, String templateName){
+        CloudAPI.getInstance().getConsole().trace("Checking existence of group " + groupName + "...");
+        CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
+                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking existence of group " + groupName, e))
+                .onSuccess(existsGroup -> {
+                    if(!existsGroup){
+                        commandSender.sendMessage("Group does not exist");
+                        return;
+                    }
+                    CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
+                            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting group " + groupName, e))
+                            .onSuccess(groupHolder -> {
+                                if(groupHolder.get().getTemplateNames().contains(templateName)){
+                                    commandSender.sendMessage("Template is already added to this group!");
+                                    return;
+                                }
+                                CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync(templateName)
+                                        .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking existence of template " + templateName, e))
+                                        .onSuccess(existsTemplate -> {
+                                            if(!existsTemplate){
+                                                commandSender.sendMessage("Template does not exist");
+                                                return;
+                                            }
+                                            CloudAPI.getInstance().getServiceTemplateManager().getTemplateAsync(templateName)
+                                                    .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting template " + templateName, e))
+                                                    .onSuccess(templateHolder -> {
+                                                        groupHolder.get().addTemplate(templateHolder);
+                                                        groupHolder.get().updateAsync();
+                                                        commandSender.sendMessage("Template added to group");
+                                                    });
+                                        });
+                            });
+                });
+    }
+
+    @Subcommand("template remove")
+    @Syntax("<Group> <Template>")
+    @Description("Remove a template to a group")
+    public void onTemplateRemove(CommandSender commandSender, String groupName, String templateName){
+        CloudAPI.getInstance().getConsole().trace("Checking existence of group " + groupName + "...");
+        CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
+                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking existence of group " + groupName, e))
+                .onSuccess(existsGroup -> {
+                    if(!existsGroup){
+                        commandSender.sendMessage("Group does not exist");
+                        return;
+                    }
+                    CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
+                            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting group " + groupName, e))
+                            .onSuccess(groupHolder -> {
+                                if(!groupHolder.get().getTemplateNames().contains(templateName)){
+                                    commandSender.sendMessage("Template is not added to this group!");
+                                    return;
+                                }
+                                CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync(templateName)
+                                        .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking existence of template " + templateName, e))
+                                        .onSuccess(existsTemplate -> {
+                                            if(!existsTemplate){
+                                                commandSender.sendMessage("Template does not exist");
+                                                return;
+                                            }
+                                            CloudAPI.getInstance().getServiceTemplateManager().getTemplateAsync(templateName)
+                                                    .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting template " + templateName, e))
+                                                    .onSuccess(templateHolder -> {
+                                                        groupHolder.get().removeTemplate(templateHolder);
+                                                        groupHolder.get().updateAsync();
+                                                        commandSender.sendMessage("Template added to group");
+                                                    });
+                                        });
+                            });
+                });
+    }
+
     @Subcommand("info")
     @Description("Show information about a group")
     @Syntax("<Name>")

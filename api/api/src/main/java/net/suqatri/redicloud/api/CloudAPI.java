@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutorService;
 public abstract class CloudAPI {
 
     @Getter
-    private static final String version = "1.0-BETA";
+    private static final String version = "1.1-BETA";
 
     @Getter
     private static CloudAPI instance;

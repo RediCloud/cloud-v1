@@ -3,4 +3,3 @@ plugins {
 }
 
 group 'net.suqatri.redicloud'
-version '1.0-BETA'

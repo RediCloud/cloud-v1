@@ -256,6 +256,40 @@ public class GroupCommand extends ConsoleCommand {
                                             holder.get().setStartPriority(intValue);
                                             commandSender.sendMessage("Group %hc" + name + "%tc start priority set to %hc" + intValue);
                                             break;
+                                        case "SERVICE_VERSION":
+                                            CloudAPI.getInstance().getServiceVersionManager().existsServiceVersionAsync(value)
+                                                .onFailure(e3 -> commandSender.sendMessage("§cFailed to edit group " + name))
+                                                .onSuccess(existsVersion -> {
+                                                    if(!existsVersion) {
+                                                        commandSender.sendMessage("Service version %hc" + value + "%tc does not exist");
+                                                        return;
+                                                    }
+                                                    CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(value)
+                                                        .onFailure(e4 -> commandSender.sendMessage("§cFailed to edit group " + name))
+                                                        .onSuccess(serviceVersionHolder -> {
+                                                            holder.get().setServiceVersion(serviceVersionHolder);
+                                                            holder.get().updateAsync();
+                                                            commandSender.sendMessage("Group %hc" + name + "%tc service version set to %hc" + value);
+                                                        });
+                                                });
+                                            break;
+                                        case "STATIC":
+                                            if(!ConditionChecks.isBoolean(value)){
+                                                commandSender.sendMessage("Value must be a boolean");
+                                                return;
+                                            }
+                                            holder.get().getOnlineServiceCount()
+                                                    .onFailure(e3 -> commandSender.sendMessage("§cFailed to edit group " + name))
+                                                    .onSuccess(count -> {
+                                                        if (count > 0) {
+                                                            commandSender.sendMessage("§cCannot edit static property of group %hc" + name + "%tc while it has a connected services");
+                                                            return;
+                                                        }
+                                                        holder.get().setStatic(Boolean.parseBoolean(value));
+                                                        holder.get().updateAsync();
+                                                        commandSender.sendMessage("Group %hc" + name + "%tc static set to %hc" + Boolean.parseBoolean(value));
+                                                    });
+                                            break;
                                     }
                                     holder.get().updateAsync();
                                 } catch (Exception e) {

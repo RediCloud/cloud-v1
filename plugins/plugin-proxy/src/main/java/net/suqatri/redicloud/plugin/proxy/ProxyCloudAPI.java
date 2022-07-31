@@ -29,6 +29,7 @@ import net.suqatri.redicloud.plugin.proxy.command.BungeeCloudCommandManager;
 import net.suqatri.redicloud.plugin.proxy.console.ProxyConsole;
 import net.suqatri.redicloud.plugin.proxy.listener.*;
 import net.suqatri.redicloud.plugin.proxy.scheduler.BungeeScheduler;
+import net.suqatri.redicloud.plugin.proxy.service.CloudProxyServiceManager;
 
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -43,7 +44,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     private final Plugin plugin;
     private final CloudServiceFactory serviceFactory;
-    private final CloudServiceManager serviceManager;
+    private final CloudProxyServiceManager serviceManager;
     private final CloudServiceVersionManager serviceVersionManager;
     private final CloudServiceTemplateManager serviceTemplateManager;
     private final ProxyConsole console;
@@ -64,7 +65,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.plugin = plugin;
         this.scheduler = new BungeeScheduler(this.plugin);
         this.console = new ProxyConsole(this.plugin.getLogger());
-        this.serviceManager = new CloudServiceManager();
+        this.serviceManager = new CloudProxyServiceManager();
         this.serviceFactory = new CloudServiceFactory(this.serviceManager);
         this.serviceVersionManager = new CloudServiceVersionManager();
         this.serviceTemplateManager = new CloudServiceTemplateManager();

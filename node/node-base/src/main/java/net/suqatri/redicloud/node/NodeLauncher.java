@@ -42,8 +42,10 @@ import net.suqatri.redicloud.node.setup.redis.RedisSetup;
 import net.suqatri.redicloud.node.template.NodeCloudServiceTemplateManager;
 import org.apache.commons.io.FileUtils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -264,22 +266,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.node.setHostname(this.hostName);
             this.node.setFilePath(Files.CLOUD_FOLDER.getFile().getAbsolutePath());
 
-            if (!this.serviceManager.getServices().isEmpty()) {
-                this.console.warn("It seems that the node was not correctly shut down last time!");
-                int count = 0;
-                for (IRBucketHolder<ICloudService> service : this.serviceManager.getServices()) {
-                    if (!service.get().getNodeId().equals(this.node.getUniqueId())) continue;
-                    count++;
-                    this.console.warn("Service " + service.get().getServiceName() + " is still registered in redi!");
-                    this.serviceManager.deleteBucketAsync(service.getIdentifier());
-                    this.serviceManager.removeFromFetcher(service.get().getServiceName(), service.get().getUniqueId());
-                    if (this.redisConnection.getClient().getList("screen-log@" + service.get().getUniqueId()).isExists()) {
-                        this.redisConnection.getClient().getList("screen-log@" + service.get().getUniqueId()).deleteAsync();
-                    }
-                }
-                this.console.warn("Removed " + count + " services from redis!");
-                this.console.warn("Please check if there are any service processes running in the background!");
-            }
+            this.serviceManager.checkOldService(this.node.getUniqueId());
 
             runnable.run();
 
@@ -444,10 +431,10 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         Files.MODULES_FOLDER.createIfNotExists();
         Files.STORAGE_FOLDER.createIfNotExists();
         if (!Files.MINECRAFT_PLUGIN_JAR.exists()) {
-            Files.MINECRAFT_PLUGIN_JAR.downloadFromUrl("");
+            throw new FileNotFoundException("Minecraft plugin jar not found!");
         }
         if (!Files.PROXY_PLUGIN_JAR.exists()) {
-            Files.PROXY_PLUGIN_JAR.downloadFromUrl("");
+            throw new FileNotFoundException("Proxy plugin jar not found!");
         }
         Files.LIBS_FOLDER.createIfNotExists();
         Files.LIBS_BLACKLIST_FOLDER.createIfNotExists();
@@ -493,8 +480,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     stopCount++;
                     try {
                         this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), false).get(10, TimeUnit.SECONDS);
-                        if (this.console != null)
-                            this.console.info("Stopped service " + serviceHolders.get().getServiceName());
                     } catch (InterruptedException | ExecutionException | TimeoutException e) {
                         try {
                             if (this.console != null)
@@ -564,7 +549,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     @Override
     public void updateApplicationProperties(CloudNode object) {
         if (!object.getNetworkComponentInfo().equals(this.networkComponentInfo)) return;
-        //TODO: Update application properties
+
     }
 
     @Override

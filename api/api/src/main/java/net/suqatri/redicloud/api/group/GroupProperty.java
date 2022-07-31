@@ -7,7 +7,8 @@ public enum GroupProperty {
     MAX_MEMORY,
     START_PRIORITY,
     FALLBACK,
-    MAINTENANCE;
-    //TODO SERVICE VERSION
+    MAINTENANCE,
+    SERVICE_VERSION,
+    STATIC;
 
 }

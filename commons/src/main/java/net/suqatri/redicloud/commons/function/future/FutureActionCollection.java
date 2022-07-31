@@ -15,27 +15,11 @@ public class FutureActionCollection<K, T> {
         this.toProcess = new HashMap<>();
     }
 
-
-    /**
-     * Create a new future action collection from a list of actions with an identifier.
-     *
-     * @param futureActions The future action to add to the collection.
-     * @param <R>           The type of the result of the future action collection.
-     * @return A future action collection with an identifier.
-     */
-    public static <R> FutureActionCollection<String, R> withoutIdentifier(List<FutureAction<R>> futureActions) {
-        FutureActionCollection<String, R> collection = new FutureActionCollection<>();
-        for (FutureAction<R> futureAction : futureActions) {
-            collection.addToProcess(StringUtils.randomString(StringUtils.ALL, 5), futureAction);
-        }
-        return collection;
-    }
-
     /**
      * Add an action to the collection.
      *
-     * @param identifier
-     * @param futureAction
+     * @param identifier The identifier of the action.
+     * @param futureAction The action to add.
      */
     public void addToProcess(K identifier, FutureAction<T> futureAction) {
         this.toProcess.put(identifier, futureAction);
@@ -82,6 +66,37 @@ public class FutureActionCollection<K, T> {
             processNext(futureAction, results);
         });
         return futureAction;
+    }
+
+    /**
+     * Create a new future action collection from a list of actions without an identifier.
+     *
+     * @param futureActions The future action to add to the collection.
+     * @param <R>           The type of the result of the future action collection.
+     * @return The future action collection.
+     */
+    @SafeVarargs
+    public static <R> FutureActionCollection<String, R> withoutIdentifier(FutureAction<R>... futureActions) {
+        FutureActionCollection<String, R> collection = new FutureActionCollection<>();
+        for (FutureAction<R> futureAction : futureActions) {
+            collection.addToProcess(StringUtils.randomString(StringUtils.ALL, 5), futureAction);
+        }
+        return collection;
+    }
+
+    /**
+     * Create a new future action collection from a list of actions with an identifier.
+     *
+     * @param futureActions The future action to add to the collection.
+     * @param <R>           The type of the result of the future action collection.
+     * @return A future action collection with an identifier.
+     */
+    public static <R> FutureActionCollection<String, R> withoutIdentifier(List<FutureAction<R>> futureActions) {
+        FutureActionCollection<String, R> collection = new FutureActionCollection<>();
+        for (FutureAction<R> futureAction : futureActions) {
+            collection.addToProcess(StringUtils.randomString(StringUtils.ALL, 5), futureAction);
+        }
+        return collection;
     }
 
 }

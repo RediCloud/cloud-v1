@@ -10,6 +10,7 @@ import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.commons.ConditionChecks;
 import net.suqatri.redicloud.commons.function.future.FutureActionCollection;
+import net.suqatri.redicloud.node.NodeLauncher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +100,7 @@ public class ServiceCommand extends ConsoleCommand {
                             return;
                         }
                         commandSender.sendMessage((force ? "Force stopping" : "Stopping") + " service " + serviceHolder.get().getServiceName() + "...");
-                        CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId(), force)
+                        NodeLauncher.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId(), force)
                                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to stop service", t))
                                 .onSuccess(b -> commandSender.sendMessage("Stopped service " + serviceHolder.get().getServiceName()));
                     });

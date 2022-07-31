@@ -236,7 +236,7 @@ public abstract class CommandManager<
 
     public abstract boolean isCommandIssuer(Class<?> type);
 
-    // TODO: Change this to IT if we make a breaking change
+    // Change this to IT if we make a breaking change
     public abstract I getCommandIssuer(Object issuer);
 
     public abstract RootCommand createRootCommand(String cmd);
@@ -532,7 +532,7 @@ public abstract class CommandManager<
                         field.set(baseCommand, object);
                         field.setAccessible(accessible);
                     } catch (IllegalAccessException e) {
-                        e.printStackTrace(); //TODO should we print our own exception here to make a more descriptive error?
+                        e.printStackTrace(); // should we print our own exception here to make a more descriptive error?
                     }
                 }
             }

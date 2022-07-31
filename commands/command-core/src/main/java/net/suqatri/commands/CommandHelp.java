@@ -153,7 +153,7 @@ public class CommandHelp {
             results = helpEntries.iterator();
         }
         this.totalResults = helpEntries.size();
-        int min = (this.page - 1) * this.perPage; // TODO: per page configurable?
+        int min = (this.page - 1) * this.perPage; // per page configurable?
         int max = min + this.perPage;
         this.totalPages = (int) Math.ceil((float) totalResults / (float) this.perPage);
         int i = 0;

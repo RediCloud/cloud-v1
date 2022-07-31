@@ -81,7 +81,7 @@ public class CloudNodePortManager implements ICloudPortManager {
 
     public void unUsePort(ICloudServiceProcess process) {
         this.usedPort.remove(process);
-        this.blockedPorts.remove(process.getPort());
+        this.blockedPorts.removeIf(port -> port == process.getPort());
     }
 
     public void addBlockedPort(int port) {

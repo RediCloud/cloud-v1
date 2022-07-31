@@ -28,12 +28,10 @@ public class ServiceScreen implements IServiceScreen {
     private final IRBucketHolder<ICloudService> service;
     private final RList<IScreenLine> lines;
     private int current = 0;
-    private RateLimiter limiter;
 
     public ServiceScreen(IRBucketHolder<ICloudService> service) {
         this.service = service;
         this.lines = CloudDefaultAPIImpl.getInstance().getRedisConnection().getClient().getList("screen-log@" + this.service.get().getUniqueId(), new JsonJacksonCodec());
-        this.limiter = RateLimiter.create(MAX_LINES_PER_SECOND);
     }
 
     @Override

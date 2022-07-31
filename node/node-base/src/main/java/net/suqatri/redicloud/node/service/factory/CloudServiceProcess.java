@@ -42,13 +42,12 @@ public class CloudServiceProcess implements ICloudServiceProcess {
     private Process process;
     private int port;
     private Thread thread;
-    private FutureAction<Boolean> stopFuture;
+    private final FutureAction<Boolean> stopFuture = new FutureAction<>();
     private IServiceScreen screen;
 
-    //TODO create packet for service
     @Override
     public void executeCommand(String command) {
-
+        CloudAPI.getInstance().getServiceManager().executeCommand(this.serviceHolder, command);
     }
 
     @Override
@@ -92,7 +91,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
         this.thread = new Thread(() -> {
             try {
-                RateLimiter rate = RateLimiter.create(15, 5, TimeUnit.SECONDS);
+                RateLimiter rate = RateLimiter.create(30, 5, TimeUnit.SECONDS);
                 screen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(this.serviceHolder);
                 InputStreamReader inputStreamReader = new InputStreamReader(this.process.getInputStream());
                 BufferedReader reader = new BufferedReader(inputStreamReader);
@@ -113,6 +112,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                         //stream closed...
                     }
                 }
+                CloudAPI.getInstance().getConsole().trace("Closed stream for service " + this.serviceHolder.get().getServiceName());
 
                 NodeLauncher.getInstance().getNode().setMemoryUsage(NodeLauncher.getInstance().getNode().getMemoryUsage()
                         - this.serviceHolder.get().getConfiguration().getMaxMemory());
@@ -131,12 +131,19 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                             .deleteBucket(this.serviceHolder.get().getUniqueId().toString());
 
                 if (StreamUtils.isOpen(this.process.getErrorStream())) {
+                    CloudAPI.getInstance().getConsole().trace("Read error stream for service " + this.serviceHolder.get().getServiceName());
                     reader = new BufferedReader(new InputStreamReader(this.process.getErrorStream()));
-                    while (StreamUtils.isOpen(this.process.getErrorStream())) {
+                    while (
+                            StreamUtils.isOpen(this.process.getErrorStream())
+                            && Thread.currentThread().isAlive()
+                            && !Thread.currentThread().isInterrupted()
+                            && reader.ready()
+                    ) {
                         String line = reader.readLine();
                         if (line == null) continue;
                         CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN-ERROR [" + this.serviceHolder.get().getServiceName() + "]", line));
                     }
+                    CloudAPI.getInstance().getConsole().trace("Closed error stream for service " + this.serviceHolder.get().getServiceName());
                     reader.close();
                 }
 
@@ -145,19 +152,15 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
                 CloudAPI.getInstance().getConsole().debug("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped");
 
-                if (this.stopFuture != null) {
-                    if (!this.stopFuture.isFinishedAnyway()) {
-                        this.stopFuture.complete(true);
-                    }
+                CloudAPI.getInstance().getConsole().trace("Call stopping future action: " + this.stopFuture + " for service " + this.serviceHolder.get().getServiceName());
+                if (!this.stopFuture.isFinishedAnyway()) {
+                    this.stopFuture.complete(true);
                 }
 
             } catch (Exception e) {
 
-                if (this.stopFuture != null) {
-                    this.stopFuture.completeExceptionally(e);
-                } else {
-                    CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped exceptionally!", e);
-                }
+                this.stopFuture.completeExceptionally(e);
+                CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped exceptionally!", e);
 
                 this.destroyScreen();
                 if (!this.serviceHolder.get().isStatic()) {
@@ -204,11 +207,9 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
     @Override
     public FutureAction<Boolean> stopAsync(boolean force) {
-        FutureAction<Boolean> futureAction = this.stopFuture != null ? this.stopFuture : new FutureAction<>();
-
         this.stopProcess(force);
 
-        return futureAction;
+        return this.stopFuture;
     }
 
     @Override

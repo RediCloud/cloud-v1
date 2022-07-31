@@ -46,6 +46,7 @@ public class FutureAction<V> extends CompletableFuture<V> {
             this.result = this.get();
             return this.result;
         } catch (Exception e) {
+            this.error = e;
             return null;
         }
     }

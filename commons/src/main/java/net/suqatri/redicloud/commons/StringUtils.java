@@ -12,8 +12,8 @@ public class StringUtils {
 
     public static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     public static final String LOWER = UPPER.toLowerCase(Locale.ROOT);
-    public static final String ALL = UPPER + LOWER + NUMBERS;
     public static final String NUMBERS = "0123456789";
+    public static final String ALL = UPPER + LOWER + NUMBERS;
     public static final SecureRandom secureRandom = new SecureRandom();
 
     /**

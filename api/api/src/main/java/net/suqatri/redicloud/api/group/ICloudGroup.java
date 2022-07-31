@@ -51,11 +51,13 @@ public interface ICloudGroup extends IRBucketObject {
 
     Collection<String> getTemplateNames();
 
-    void addTemplate(ICloudServiceTemplate template);
+    void addTemplate(IRBucketHolder<ICloudServiceTemplate> template);
 
-    void removeTemplate(ICloudServiceTemplate template);
+    void removeTemplate(IRBucketHolder<ICloudServiceTemplate> template);
 
-    boolean hasTemplate(ICloudServiceTemplate template);
+    boolean hasTemplate(IRBucketHolder<ICloudServiceTemplate> template);
+
+    boolean hasTemplate(String templateName);
 
     FutureAction<Integer> getOnlineServiceCount();
 

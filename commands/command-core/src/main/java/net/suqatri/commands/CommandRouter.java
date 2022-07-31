@@ -70,7 +70,7 @@ class CommandRouter {
      * @param args
      * @param completion
      * @return
-     * @TODO: Improve this to be more accurate like @Default handling.
+     * Improve this to be more accurate like @Default handling.
      */
     private boolean isProbableMatch(RegisteredCommand c, String[] args, boolean completion) {
         int required = c.requiredResolvers;

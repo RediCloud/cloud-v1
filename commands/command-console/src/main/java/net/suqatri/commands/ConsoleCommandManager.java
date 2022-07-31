@@ -153,7 +153,7 @@ public class ConsoleCommandManager extends CommandManager<
 
     @Override
     public void log(LogLevel level, String message, Throwable throwable) {
-        Logger logger = Logger.getGlobal(); //TODO
+        Logger logger = Logger.getGlobal();
         Level logLevel = level == LogLevel.INFO ? Level.INFO : Level.SEVERE;
         logger.log(logLevel, LogLevel.LOG_PREFIX + message);
         if (throwable != null) {

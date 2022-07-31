@@ -7,7 +7,7 @@ group 'net.suqatri.redicloud'
 jar {
     manifest {
         attributes 'Main-Class': 'net.suqatri.redicloud.node.NodeLauncherMain'
-        attributes 'Commit-Hash': ''
+
     }
 }
 

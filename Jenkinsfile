@@ -7,30 +7,30 @@ pipeline {
     }
 
     stages {
-        stage("Clean") {
-            steps {
-                sh "chmod +x ./gradlew";
-                sh "./gradlew clean";
-            }
-        }
         stage("Build") {
             steps {
-                sh "./gradlew buildAndCopy";
+                sh "./gradlew projectBuild";
             }
         }
         stage("Create zip") {
             steps {
-                sh "cd test/node-1/; zip -r redi-cloud.zip *";
+                sh "mkdir build/"
+                sh "cd build"
+                sh "cp ../test/node-1/storage/ storage/"
+                sh "cp ../node/node-base/build/libs/*"
+                sh "cp ../plugins/plugin-minecraft/build/libs/* storage/"
+                sh "cp ../plugins/plugin-proxy/build/libs/* storage/"
+                sh "zip -r redi-cloud.zip *";
             }
             post {
                 success {
-                    archiveArtifacts artifacts: 'test/node-1/redi-cloud.zip', fingerprint: true
+                    archiveArtifacts artifacts: 'build/redi-cloud.zip', fingerprint: true
                 }
             }
         }
-        stage("Delete zip") {
+        stage("Delete temp files") {
             steps {
-                sh "rm test/node-1/redi-cloud.zip";
+                sh "rm -r build"
             }
         }
     }

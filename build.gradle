@@ -8,6 +8,7 @@ version '1.2.0-BETA'
 
 tasks.register('buildAndCopy', Copy) {
     dependsOn projectBuild
+    finalizedBy ':copyToTest'
 }
 
 tasks.register('copyToTest') {
@@ -42,8 +43,6 @@ tasks.register('projectBuild') {
 
     dependsOn ':plugins:plugin-minecraft:build'
     dependsOn ':plugins:plugin-proxy:build'
-
-    finalizedBy ':copyToTest'
 }
 
 tasks.register('copyNodeBase', Copy) {
@@ -109,6 +108,7 @@ allprojects {
     tasks.jar.dependsOn tasks.shadowJar
 
     shadowJar {
+        archiveFileName.set("${project.name}.jar")
         dependencies {
             configurations = [project.configurations.runtimeClasspath]
         }

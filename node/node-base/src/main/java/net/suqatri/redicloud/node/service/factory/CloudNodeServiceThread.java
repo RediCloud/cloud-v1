@@ -183,9 +183,17 @@ public class CloudNodeServiceThread extends Thread {
             throw new Exception("Service version " + configuration.getServiceVersionName() + " not found");
 
         CloudService cloudService = null;
-        if (CloudAPI.getInstance().getServiceManager().existsService(configuration.getUniqueId()) || configuration.isStatic()) {
-            cloudService = CloudAPI.getInstance().getServiceManager().getService(configuration.getUniqueId())
-                    .getImpl(CloudService.class);
+        boolean existsService = CloudAPI.getInstance().getServiceManager().existsService(configuration.getUniqueId());
+        if (existsService || configuration.isStatic()) {
+
+            if(existsService && !configuration.isStatic()) {
+                NodeLauncher.getInstance().getServiceManager().removeFromFetcher(configuration.getName() + "-" + configuration.getId(), configuration.getUniqueId());
+                NodeLauncher.getInstance().getServiceManager().deleteBucket(configuration.getUniqueId().toString());
+            }else{
+                cloudService = CloudAPI.getInstance().getServiceManager().getService(configuration.getUniqueId())
+                        .getImpl(CloudService.class);
+            }
+
             if (!cloudService.isStatic() && cloudService.getNodeId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) {
                 configuration.getStartListener().completeExceptionally(
                         new IllegalArgumentException("Can´t start static service how is stored on node "
@@ -212,7 +220,7 @@ public class CloudNodeServiceThread extends Thread {
             }
         }
 
-        cloudService = new CloudService();
+        if(cloudService == null) cloudService = new CloudService();
         cloudService.setConfiguration(configuration);
         cloudService.setFallback(configuration.isFallback());
         cloudService.setServiceState(ServiceState.PREPARE);

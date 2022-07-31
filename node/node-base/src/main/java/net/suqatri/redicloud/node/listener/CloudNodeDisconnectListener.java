@@ -5,6 +5,8 @@ import net.suqatri.redicloud.api.event.CloudListener;
 import net.suqatri.redicloud.api.node.event.CloudNodeDisconnectEvent;
 import net.suqatri.redicloud.node.NodeLauncher;
 
+import java.util.concurrent.TimeUnit;
+
 public class CloudNodeDisconnectListener {
 
     @CloudListener
@@ -18,6 +20,9 @@ public class CloudNodeDisconnectListener {
                     if (nodeHolder.get().getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId()))
                         return;
                     CloudAPI.getInstance().getConsole().info("Node %hc" + nodeHolder.get().getName() + " %tchas been disconnected from the cluster!");
+                    CloudAPI.getInstance().getScheduler().runTaskLaterAsync(
+                            () -> NodeLauncher.getInstance().getServiceManager().checkOldService(nodeHolder.get().getUniqueId()),
+                            3, TimeUnit.SECONDS);
                 });
     }
 

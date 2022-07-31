@@ -44,6 +44,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -264,28 +265,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.node.setHostname(this.hostName);
             this.node.setFilePath(Files.CLOUD_FOLDER.getFile().getAbsolutePath());
 
-            if (!this.serviceManager.getServices().isEmpty()) {
-                this.console.warn("It seems that the node was not correctly shut down last time!");
-                int count = 0;
-                for (IRBucketHolder<ICloudService> service : this.serviceManager.getServices()) {
-                    if (!service.get().getNodeId().equals(this.node.getUniqueId())) continue;
-                    count++;
-                    this.console.warn("Service " + service.get().getServiceName() + " is still registered in redis!");
-                    this.serviceManager.deleteBucketAsync(service.getIdentifier());
-                    this.serviceManager.removeFromFetcher(service.get().getServiceName(), service.get().getUniqueId());
-                    if (this.redisConnection.getClient().getList("screen-log@" + service.get().getUniqueId()).isExists()) {
-                        this.redisConnection.getClient().getList("screen-log@" + service.get().getUniqueId()).deleteAsync();
-                    }
-                }
-                this.console.warn("Removed " + count + " services from redis!");
-                this.console.warn("Please check if there are any service processes running in the background!");
-            }
-            for (String s : this.serviceManager.readAllFetcherKeysAsync().getBlockOrNull()) {
-                if(!this.serviceManager.existsService(s)) continue;
-                IRBucketHolder<ICloudService> serviceHolder = this.serviceManager.getService(s);
-                if(!serviceHolder.get().getNodeId().equals(this.node.getUniqueId())) continue;
-                this.serviceManager.removeFromFetcher(serviceHolder.getIdentifier());
-            }
+            this.serviceManager.checkOldService(this.node.getUniqueId());
 
             runnable.run();
 

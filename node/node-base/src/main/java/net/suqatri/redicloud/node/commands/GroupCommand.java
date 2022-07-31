@@ -70,6 +70,8 @@ public class GroupCommand extends ConsoleCommand {
                                             commandSender.sendMessage("  Process-Arguments: %hc" + Arrays.toString(groupHolder.get().getProcessParameters()));
                                             commandSender.sendMessage("  Environment: %hc" + groupHolder.get().getServiceEnvironment().name());
                                             commandSender.sendMessage("  Services: %hc" + builder.toString());
+                                            commandSender.sendMessage("  Min. Services: %hc" + groupHolder.get().getMinServices());
+                                            commandSender.sendMessage("  Max. Services: %hc" + groupHolder.get().getMaxServices());
                                         });
                             });
                 });
@@ -255,7 +257,8 @@ public class GroupCommand extends ConsoleCommand {
                                 } catch (Exception e) {
                                     StringBuilder builder = new StringBuilder();
                                     for (GroupProperty property : GroupProperty.values()) {
-                                        if (!builder.toString().isEmpty()) builder.append("§8, %hc");
+                                        if (!builder.toString().isEmpty()) builder.append("§8, ");
+                                        builder.append("%hc");
                                         builder.append(property.name());
                                     }
                                     commandSender.sendMessage("§cInvalid property! Properties: " + builder);

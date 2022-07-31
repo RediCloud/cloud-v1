@@ -33,11 +33,11 @@ public class CloudNodeServiceThread extends Thread {
     private final ConcurrentHashMap<UUID, CloudServiceProcess> processes;
     @Getter
     private final List<UUID> waitForRemove = new ArrayList<>();
-    private int checkServiceCount = Integer.MAX_VALUE;
-    private int memoryWarningCount = Integer.MAX_VALUE;
-    private int maxServiceOnNodeCount = Integer.MAX_VALUE;
-    private int maxServiceOfGroupCount = Integer.MAX_VALUE;
-    private int currentValueCount = Integer.MAX_VALUE;
+    private int checkServiceCount = Integer.MAX_VALUE-1;
+    private int memoryWarningCount = Integer.MAX_VALUE-1;
+    private int maxServiceOnNodeCount = Integer.MAX_VALUE-1;
+    private int maxServiceOfGroupCount = Integer.MAX_VALUE-1;
+    private int currentValueCount = Integer.MAX_VALUE-1;
     private CloudNode node;
 
     public CloudNodeServiceThread(NodeCloudServiceFactory factory) {

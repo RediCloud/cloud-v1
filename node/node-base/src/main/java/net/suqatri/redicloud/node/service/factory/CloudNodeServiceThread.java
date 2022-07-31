@@ -60,12 +60,13 @@ public class CloudNodeServiceThread extends Thread {
             int maxStartSize = NodeLauncher.getInstance().getNode().getMaxParallelStartingServiceCount();
 
             this.checkServiceCount++;
-            if (this.checkServiceCount == checkServiceInterval) {
+            if (this.checkServiceCount >= checkServiceInterval) {
                 this.checkServiceCount = 0;
                 for (IRBucketHolder<ICloudGroup> groupHolder : CloudAPI.getInstance().getGroupManager().getGroups()) {
                     int count = groupHolder.get().getOnlineServiceCount().getBlockOrNull();
                     int min = groupHolder.get().getMinServices();
                     if (count < min) {
+                        CloudAPI.getInstance().getConsole().trace("Group " + groupHolder.get().getName() + " need to start " + (min - count) + " services");
                         for (int i = count; i <= min; i++) {
                             IServiceStartConfiguration configuration = groupHolder.get().createServiceConfiguration();
                             if ((this.node.getFreeMemory() - configuration.getMaxMemory()) < 0) {

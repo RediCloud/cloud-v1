@@ -195,6 +195,7 @@ public class CloudNodeServiceThread extends Thread {
                 configuration.setId(getNextId(configuration.getName(), configuration.isStatic(), serviceHolders));
             }
             String serviceName = configuration.getName() + "-" + configuration.getId();
+            CloudAPI.getInstance().getConsole().trace("Checking if service " + serviceName + " exists...");
             if(CloudAPI.getInstance().getServiceManager().existsService(serviceName)){
                 cloudService = CloudAPI.getInstance().getServiceManager().getService(serviceName).getImpl(CloudService.class);
                 configuration.setUniqueId(cloudService.getUniqueId());

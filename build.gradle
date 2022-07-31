@@ -8,6 +8,7 @@ version '1.2-BETA'
 
 tasks.register('buildAndCopy', Copy) {
     dependsOn projectBuild
+    new File(projectDir, "version.txt").text = project.version
 }
 
 tasks.register('copyToTest') {

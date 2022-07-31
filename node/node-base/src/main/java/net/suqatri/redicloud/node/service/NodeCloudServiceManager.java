@@ -29,6 +29,7 @@ public class NodeCloudServiceManager extends CloudServiceManager {
             for (IRBucketHolder<ICloudService> service : getServices()) {
                 if (!service.get().getNodeId().equals(nodeIdToCheck)) continue;
                 count++;
+                if(service.get().isStatic()) continue;
                 CloudAPI.getInstance().getConsole().warn("Service " + service.get().getServiceName() + " is still registered in redis!");
                 deleteBucketAsync(service.getIdentifier());
                 removeFromFetcher(service.get().getServiceName(), service.get().getUniqueId());

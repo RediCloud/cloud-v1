@@ -1,1 +1,1 @@
-java -jar node-base-1.1-BETA.jar
+java -jar node-base-1.2-BETA.jar

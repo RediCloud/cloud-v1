@@ -31,8 +31,8 @@ task createProperties(dependsOn: processResources) {
         new File("$buildDir/resources/main/redicloud.properties").withWriter { w ->
             Properties p = new Properties()
             p['version'] = project.version.toString()
-            p['git-commit'] = getCommitHash()
-            p['git-branch-name'] = getCurrentBrancheName()
+            p['git-hash'] = getCommitHash()
+            p['git-branche'] = getCurrentBrancheName()
             p.store w, null
         }
     }

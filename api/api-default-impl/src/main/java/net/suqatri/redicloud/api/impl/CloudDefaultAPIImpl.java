@@ -17,6 +17,7 @@ import net.suqatri.redicloud.api.impl.player.CloudPlayerManager;
 import net.suqatri.redicloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.redicloud.api.impl.redis.bucket.packet.BucketDeletePacket;
 import net.suqatri.redicloud.api.impl.redis.bucket.packet.BucketUpdatePacket;
+import net.suqatri.redicloud.api.impl.service.packet.command.CloudServiceConsoleCommandPacket;
 import net.suqatri.redicloud.api.network.INetworkComponentManager;
 import net.suqatri.redicloud.api.node.ICloudNodeManager;
 import net.suqatri.redicloud.api.packet.ICloudPacketManager;
@@ -63,6 +64,7 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     public void registerInternalPackets() {
         CloudAPI.getInstance().getPacketManager().registerPacket(BucketUpdatePacket.class);
         CloudAPI.getInstance().getPacketManager().registerPacket(BucketDeletePacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudServiceConsoleCommandPacket.class);
     }
 
     @Override

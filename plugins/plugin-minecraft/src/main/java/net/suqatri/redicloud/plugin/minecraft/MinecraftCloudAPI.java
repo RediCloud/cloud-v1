@@ -28,6 +28,7 @@ import net.suqatri.redicloud.plugin.minecraft.listener.PlayerKickListener;
 import net.suqatri.redicloud.plugin.minecraft.listener.PlayerQuitListener;
 import net.suqatri.redicloud.plugin.minecraft.listener.ServerListPingListener;
 import net.suqatri.redicloud.plugin.minecraft.scheduler.BukkitScheduler;
+import net.suqatri.redicloud.plugin.minecraft.service.CloudMinecraftServiceManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -44,7 +45,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private final BukkitConsole console;
     private final JavaPlugin javaPlugin;
     private final BukkitScheduler scheduler;
-    private final ICloudServiceManager serviceManager;
+    private final CloudMinecraftServiceManager serviceManager;
     private final ICloudServiceFactory serviceFactory;
     private final BukkitCloudCommandManager commandManager;
     private final CloudServiceTemplateManager serviceTemplateManager;
@@ -64,7 +65,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.javaPlugin = javaPlugin;
         this.console = new BukkitConsole(this.javaPlugin.getLogger());
         this.scheduler = new BukkitScheduler(this.javaPlugin);
-        this.serviceManager = new CloudServiceManager();
+        this.serviceManager = new CloudMinecraftServiceManager();
         this.serviceFactory = new CloudServiceFactory(this.serviceManager);
         this.commandManager = new BukkitCloudCommandManager(this.javaPlugin);
         this.serviceTemplateManager = new CloudServiceTemplateManager();

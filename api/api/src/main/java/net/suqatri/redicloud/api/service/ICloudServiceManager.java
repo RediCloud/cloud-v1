@@ -55,4 +55,6 @@ public interface ICloudServiceManager {
 
     FutureAction<Boolean> existsServiceAsync(UUID uniqueId);
 
+    boolean executeCommand(IRBucketHolder<ICloudService> serviceHolder, String command);
+
 }

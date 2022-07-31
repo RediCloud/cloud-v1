@@ -1,9 +1,9 @@
 package net.suqatri.redicloud.api.impl.service;
 
-import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.impl.service.configuration.DefaultServiceStartConfiguration;
+import net.suqatri.redicloud.api.impl.service.packet.command.CloudServiceConsoleCommandPacket;
 import net.suqatri.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartPacket;
 import net.suqatri.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartResponseCloud;
 import net.suqatri.redicloud.api.impl.service.packet.stop.CloudFactoryServiceStopPacket;
@@ -19,7 +19,7 @@ import org.redisson.api.RMap;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CloudServiceManager extends RedissonBucketManager<CloudService, ICloudService> implements ICloudServiceManager {
+public abstract class CloudServiceManager extends RedissonBucketManager<CloudService, ICloudService> implements ICloudServiceManager {
 
     private RMap<String, String> serviceIdFetcherMap;
 
@@ -213,5 +213,18 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
     @Override
     public FutureAction<Boolean> existsServiceAsync(UUID uniqueId) {
         return this.existsBucketAsync(uniqueId.toString());
+    }
+
+    @Override
+    public boolean executeCommand(IRBucketHolder<ICloudService> serviceHolder, String command) {
+        if(!serviceHolder.get().getNetworkComponentInfo().equals(CloudAPI.getInstance().getNetworkComponentInfo())) {
+            CloudServiceConsoleCommandPacket packet = new CloudServiceConsoleCommandPacket();
+            packet.setServiceId(serviceHolder.get().getUniqueId());
+            packet.setCommand(command);
+            packet.getPacketData().addReceiver(serviceHolder.get().getNetworkComponentInfo());
+            packet.publishAsync();
+            return true;
+        }
+        return false;
     }
 }

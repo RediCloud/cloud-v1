@@ -15,8 +15,9 @@ pipeline {
         }
         stage("Create zip") {
             steps {
+                sh "rm -r build/"
                 sh "mkdir build/"
-                sh "cd build"
+                sh "cd build/"
                 sh "cp ../test/node-1/storage/ storage/"
                 sh "cp ../node/node-base/build/libs/*"
                 sh "cp ../plugins/plugin-minecraft/build/libs/* storage/"

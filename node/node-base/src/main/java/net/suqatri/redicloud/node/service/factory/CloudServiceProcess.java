@@ -131,14 +131,20 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                     ((NodeCloudServiceManager) this.factory.getServiceManager())
                             .deleteBucket(this.serviceHolder.get().getUniqueId().toString());
 
-                CloudAPI.getInstance().getConsole().trace("Read error stream for service " + this.serviceHolder.get().getServiceName());
                 if (StreamUtils.isOpen(this.process.getErrorStream())) {
+                    CloudAPI.getInstance().getConsole().trace("Read error stream for service " + this.serviceHolder.get().getServiceName());
                     reader = new BufferedReader(new InputStreamReader(this.process.getErrorStream()));
-                    while (StreamUtils.isOpen(this.process.getErrorStream())) {
+                    while (
+                            StreamUtils.isOpen(this.process.getErrorStream())
+                            && Thread.currentThread().isAlive()
+                            && !Thread.currentThread().isInterrupted()
+                            && reader.ready()
+                    ) {
                         String line = reader.readLine();
                         if (line == null) continue;
                         CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN-ERROR [" + this.serviceHolder.get().getServiceName() + "]", line));
                     }
+                    CloudAPI.getInstance().getConsole().trace("Closed error stream for service " + this.serviceHolder.get().getServiceName());
                     reader.close();
                 }
 

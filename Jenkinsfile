@@ -20,11 +20,12 @@ pipeline {
         }
         stage("Create zip") {
             steps {
-                sh "zip -r redi-cloud.zip test/node-1/*";
+                sh "cd test/node-1";
+                sh "zip -r redi-cloud.zip *";
             }
             post {
                 success {
-                    archiveArtifacts artifacts: 'redi-cloud.zip', fingerprint: true
+                    archiveArtifacts artifacts: 'test/node-1/redi-cloud.zip', fingerprint: true
                 }
             }
         }

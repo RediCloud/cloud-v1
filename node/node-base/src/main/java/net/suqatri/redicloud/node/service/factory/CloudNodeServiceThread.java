@@ -210,9 +210,11 @@ public class CloudNodeServiceThread extends Thread {
             configuration.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
         }
 
-        for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-            if (serviceHolder.get().getServiceName().equalsIgnoreCase(configuration.getName() + "-" + configuration.getId())) {
-                throw new IllegalArgumentException("Service " + configuration.getName() + "-" + configuration.getId() + " already exists");
+        if(!configuration.isStatic()){
+            for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
+                if (serviceHolder.get().getServiceName().equalsIgnoreCase(configuration.getName() + "-" + configuration.getId())) {
+                    throw new IllegalArgumentException("Service " + configuration.getName() + "-" + configuration.getId() + " already exists");
+                }
             }
         }
 

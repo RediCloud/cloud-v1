@@ -2,8 +2,10 @@ package net.suqatri.redicloud.api.utils;
 
 import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.commons.file.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 @Getter
 public enum Files {
@@ -48,10 +50,6 @@ public enum Files {
 
     public boolean exists() {
         return getFile().exists();
-    }
-
-    public void downloadFromUrl(String url) {
-        //TODO
     }
 
 }

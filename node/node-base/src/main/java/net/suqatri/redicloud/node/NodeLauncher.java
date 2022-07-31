@@ -42,6 +42,7 @@ import net.suqatri.redicloud.node.setup.redis.RedisSetup;
 import net.suqatri.redicloud.node.template.NodeCloudServiceTemplateManager;
 import org.apache.commons.io.FileUtils;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -430,10 +431,10 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         Files.MODULES_FOLDER.createIfNotExists();
         Files.STORAGE_FOLDER.createIfNotExists();
         if (!Files.MINECRAFT_PLUGIN_JAR.exists()) {
-            Files.MINECRAFT_PLUGIN_JAR.downloadFromUrl("");
+            throw new FileNotFoundException("Minecraft plugin jar not found!");
         }
         if (!Files.PROXY_PLUGIN_JAR.exists()) {
-            Files.PROXY_PLUGIN_JAR.downloadFromUrl("");
+            throw new FileNotFoundException("Proxy plugin jar not found!");
         }
         Files.LIBS_FOLDER.createIfNotExists();
         Files.LIBS_BLACKLIST_FOLDER.createIfNotExists();

@@ -28,3 +28,4 @@ test/node-2/storage/plugin-minecraft-*.jar
 
 test/node-1/storage/plugin-proxy-*.jar
 test/node-2/storage/plugin-proxy-*.jar
+version.txt

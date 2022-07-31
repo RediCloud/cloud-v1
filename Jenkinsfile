@@ -9,7 +9,6 @@ pipeline {
     stages {
         stage("Permission") {
             steps {
-                sh "chmod -R 777 ${WORKSPACE}"
                 sh "su jenkins"
                 sh "chmod +x ./gradlew";
             }

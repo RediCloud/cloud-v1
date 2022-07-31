@@ -548,7 +548,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     @Override
     public void updateApplicationProperties(CloudNode object) {
         if (!object.getNetworkComponentInfo().equals(this.networkComponentInfo)) return;
-        //TODO: Update application properties
+
     }
 
     @Override

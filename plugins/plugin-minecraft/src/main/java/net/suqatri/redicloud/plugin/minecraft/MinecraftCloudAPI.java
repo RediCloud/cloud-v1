@@ -58,6 +58,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private String chatPrefix = "§bRedi§3Cloud §8» §f";
     @Setter
     private int onlineCount = 0;
+    private boolean isShutdownInitiated = false;
 
     public MinecraftCloudAPI(JavaPlugin javaPlugin) {
         super(ApplicationType.SERVICE_MINECRAFT);
@@ -135,6 +136,8 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     @Override
     public void shutdown(boolean fromHook) {
+        if(this.isShutdownInitiated) return;
+        this.isShutdownInitiated = true;
 
         for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             IRBucketHolder<ICloudPlayer> cloudPlayer = getPlayerManager().getPlayer(onlinePlayer.getUniqueId());
@@ -149,5 +152,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         if (this.updaterTask != null) this.updaterTask.cancel();
 
         if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
+
+        Bukkit.shutdown();
     }
 }

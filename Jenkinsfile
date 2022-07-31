@@ -17,7 +17,7 @@ pipeline {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     sh "mkdir build/"
-                    sh "cp test/node-1/storage/ build/storage/"
+                    sh "cp -r test/node-1/storage/ build/storage/"
                     sh "cp node/node-base/build/libs/* build/"
                     sh "cp plugins/plugin-minecraft/build/libs/* build/storage/"
                     sh "cp plugins/plugin-proxy/build/libs/* build/storage/"

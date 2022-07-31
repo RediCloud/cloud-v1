@@ -3,7 +3,6 @@ plugins {
 }
 
 group 'net.suqatri.redicloud'
-version '1.0-BETA'
 
 dependencies {
     implementation('co.aikar:minecraft-timings:1.0.4')

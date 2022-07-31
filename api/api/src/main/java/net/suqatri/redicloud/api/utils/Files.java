@@ -35,7 +35,7 @@ public enum Files {
     private final String path;
 
     Files(String path) {
-        this.path = path.replaceAll("%version%", CloudAPI.getVersion());
+        this.path = path.replaceAll("%version%", CloudAPI.getInstance().getProperties().getVersion());
     }
 
     public File getFile() {

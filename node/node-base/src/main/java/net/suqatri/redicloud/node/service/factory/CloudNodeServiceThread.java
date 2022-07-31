@@ -189,7 +189,7 @@ public class CloudNodeServiceThread extends Thread {
             if(existsService && !configuration.isStatic()) {
                 NodeLauncher.getInstance().getServiceManager().removeFromFetcher(configuration.getName() + "-" + configuration.getId(), configuration.getUniqueId());
                 NodeLauncher.getInstance().getServiceManager().deleteBucket(configuration.getUniqueId().toString());
-            }else{
+            }else if(existsService){
                 cloudService = CloudAPI.getInstance().getServiceManager().getService(configuration.getUniqueId())
                         .getImpl(CloudService.class);
             }

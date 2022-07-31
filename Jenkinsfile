@@ -7,9 +7,12 @@ pipeline {
     }
 
     stages {
+        stage("Permission") {
+            sh "su jenkins"
+            sh "chmod +x ./gradlew";
+        }
         stage("Clean") {
             steps {
-                sh "chmod +x ./gradlew";
                 sh "./gradlew clean";
             }
         }

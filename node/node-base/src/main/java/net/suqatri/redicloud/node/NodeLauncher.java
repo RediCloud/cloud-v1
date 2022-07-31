@@ -270,7 +270,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                 for (IRBucketHolder<ICloudService> service : this.serviceManager.getServices()) {
                     if (!service.get().getNodeId().equals(this.node.getUniqueId())) continue;
                     count++;
-                    this.console.warn("Service " + service.get().getServiceName() + " is still registered in redi!");
+                    this.console.warn("Service " + service.get().getServiceName() + " is still registered in redis!");
                     this.serviceManager.deleteBucketAsync(service.getIdentifier());
                     this.serviceManager.removeFromFetcher(service.get().getServiceName(), service.get().getUniqueId());
                     if (this.redisConnection.getClient().getList("screen-log@" + service.get().getUniqueId()).isExists()) {
@@ -279,6 +279,12 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                 }
                 this.console.warn("Removed " + count + " services from redis!");
                 this.console.warn("Please check if there are any service processes running in the background!");
+            }
+            for (String s : this.serviceManager.readAllFetcherKeysAsync().getBlockOrNull()) {
+                if(!this.serviceManager.existsService(s)) continue;
+                IRBucketHolder<ICloudService> serviceHolder = this.serviceManager.getService(s);
+                if(!serviceHolder.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                this.serviceManager.removeFromFetcher(serviceHolder.getIdentifier());
             }
 
             runnable.run();

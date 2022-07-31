@@ -17,12 +17,11 @@ pipeline {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     sh "mkdir build/"
-                    sh "cd build/"
-                    sh "cp ../test/node-1/storage/ storage/"
-                    sh "cp ../node/node-base/build/libs/*"
-                    sh "cp ../plugins/plugin-minecraft/build/libs/* storage/"
-                    sh "cp ../plugins/plugin-proxy/build/libs/* storage/"
-                    sh "zip -r redi-cloud.zip *";
+                    sh "cp test/node-1/storage/ build/storage/"
+                    sh "cp node/node-base/build/libs/* build/"
+                    sh "cp plugins/plugin-minecraft/build/libs/* build/storage/"
+                    sh "cp plugins/plugin-proxy/build/libs/* build/storage/"
+                    sh "cd build/; zip -r redi-cloud.zip *";
                 }
             }
             post {

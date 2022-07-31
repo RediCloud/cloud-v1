@@ -4,9 +4,9 @@ labels: [Unconfirmed, Bug]
 
 body:
   - type: markdown
-   attributes:
-     value: |
-       Report a bug or console error
+    attributes:
+      value: |
+        Report a bug or console error
 
   - type: textarea
     attributes:

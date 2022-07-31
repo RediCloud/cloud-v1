@@ -7,6 +7,7 @@ import net.suqatri.commands.annotation.*;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
+import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.commons.ConditionChecks;
 import net.suqatri.redicloud.commons.function.future.FutureActionCollection;
@@ -119,12 +120,15 @@ public class ServiceCommand extends ConsoleCommand {
                         return;
                     }
                     List<String> lines = new ArrayList<>();
+                    int amount = 0;
                     for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
+                        if(serviceHolder.get().getServiceState() == ServiceState.OFFLINE) continue;
+                        amount++;
                         lines.add("§8 » %tc" + serviceHolder.get().getServiceName() + " §8| %hc" + serviceHolder.get().getOnlineCount() + "§8/%tc" + serviceHolder.get().getMaxPlayers());
                     }
 
                     commandSender.sendMessage("");
-                    commandSender.sendMessage("%tcServices §8(%hc" + serviceHolders.size() + "§8)%tc:");
+                    commandSender.sendMessage("%tcServices §8(%hc" + amount + "§8)%tc:");
                     for (String s : lines.parallelStream().sorted().collect(Collectors.toList())) {
                         commandSender.sendMessage(s);
                     }

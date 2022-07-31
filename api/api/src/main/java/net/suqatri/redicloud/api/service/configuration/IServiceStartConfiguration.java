@@ -20,6 +20,7 @@ public interface IServiceStartConfiguration {
     String getName();
 
     UUID getUniqueId();
+    void setUniqueId(UUID uniqueId);
 
     boolean isFallback();
 

@@ -36,16 +36,19 @@ public class CloudServiceManager extends RedissonBucketManager<CloudService, ICl
 
     @Override
     public void putInFetcher(String serviceName, UUID serviceId) {
+        CloudAPI.getInstance().getConsole().trace("Putting service " + serviceName + " in fetcher");
         this.serviceIdFetcherMap.putAsync(serviceName.toLowerCase(), serviceId.toString());
     }
 
     @Override
     public void removeFromFetcher(String serviceName) {
+        CloudAPI.getInstance().getConsole().trace("Removing service " + serviceName + " from fetcher");
         this.serviceIdFetcherMap.removeAsync(serviceName.toLowerCase());
     }
 
     @Override
     public void removeFromFetcher(String serviceName, UUID serviceId) {
+        CloudAPI.getInstance().getConsole().trace("Removing service " + serviceName + "|" + serviceId + " from fetcher");
         this.serviceIdFetcherMap.removeAsync(serviceName.toLowerCase(), serviceId.toString());
     }
 

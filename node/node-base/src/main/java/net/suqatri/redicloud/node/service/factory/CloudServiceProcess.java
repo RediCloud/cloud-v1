@@ -45,10 +45,9 @@ public class CloudServiceProcess implements ICloudServiceProcess {
     private final FutureAction<Boolean> stopFuture = new FutureAction<>();
     private IServiceScreen screen;
 
-    //TODO create packet for service
     @Override
     public void executeCommand(String command) {
-
+        CloudAPI.getInstance().getServiceManager().executeCommand(this.serviceHolder, command);
     }
 
     @Override

@@ -17,6 +17,7 @@ import net.suqatri.redicloud.node.console.setup.SetupControlState;
 import net.suqatri.redicloud.node.setup.group.GroupSetup;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.UUID;
 
 @CommandAlias("group|groups")
@@ -184,9 +185,9 @@ public class GroupCommand extends ConsoleCommand {
                             .onFailure(e2 -> commandSender.sendMessage("§cFailed to edit group " + name))
                             .onSuccess(holder -> {
                                 try {
-                                    GroupProperty property = GroupProperty.valueOf(key);
-                                    switch (property) {
-                                        case MAX_MEMORY:
+                                    switch (value.toUpperCase()) {
+                                        case "MAX_MEMORY":
+                                        case "MEMORY":
                                             if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
@@ -199,7 +200,8 @@ public class GroupCommand extends ConsoleCommand {
                                             holder.get().setMaxMemory(intValue);
                                             commandSender.sendMessage("Group %hc" + name + "%tc max memory set to %hc" + intValue);
                                             break;
-                                        case FALLBACK:
+                                        case "FALLBACK":
+                                        case "LOBBY_SERIVCE":
                                             if (!ConditionChecks.isBoolean(value)) {
                                                 commandSender.sendMessage("Value must be a boolean");
                                                 return;
@@ -208,7 +210,7 @@ public class GroupCommand extends ConsoleCommand {
                                             holder.get().setFallback(boolValue);
                                             commandSender.sendMessage("Group %hc" + name + "%tc fallback set to %hc" + boolValue);
                                             break;
-                                        case MAINTENANCE:
+                                        case "MAINTENANCE":
                                             if (!ConditionChecks.isBoolean(value)) {
                                                 commandSender.sendMessage("Value must be a boolean");
                                                 return;
@@ -217,7 +219,8 @@ public class GroupCommand extends ConsoleCommand {
                                             holder.get().setMaintenance(boolValue);
                                             commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
                                             break;
-                                        case MAX_SERVICES:
+                                        case "MAX_SERVICES":
+                                        case "MAX_SERVICE":
                                             if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
@@ -230,7 +233,8 @@ public class GroupCommand extends ConsoleCommand {
                                             holder.get().setMaxServices(intValue);
                                             commandSender.sendMessage("Group %hc" + name + "%tc max services set to %hc" + intValue);
                                             break;
-                                        case MIN_SERVICES:
+                                        case "MIN_SERVICES":
+                                        case "MIN_SERVICE":
                                             if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
@@ -243,7 +247,7 @@ public class GroupCommand extends ConsoleCommand {
                                             holder.get().setMinServices(intValue);
                                             commandSender.sendMessage("Group %hc" + name + "%tc min services set to %hc" + intValue);
                                             break;
-                                        case START_PRIORITY:
+                                        case "START_PRIORITY":
                                             if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;

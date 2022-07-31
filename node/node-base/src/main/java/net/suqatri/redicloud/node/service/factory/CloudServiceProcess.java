@@ -209,7 +209,6 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
         this.stopProcess(force);
 
-
         return futureAction;
     }
 

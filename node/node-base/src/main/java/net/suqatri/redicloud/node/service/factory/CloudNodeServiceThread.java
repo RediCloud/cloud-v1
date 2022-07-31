@@ -67,7 +67,7 @@ public class CloudNodeServiceThread extends Thread {
                     int min = groupHolder.get().getMinServices();
                     if (count < min) {
                         CloudAPI.getInstance().getConsole().trace("Group " + groupHolder.get().getName() + " need to start " + (min - count) + " services");
-                        for (int i = count; i <= min; i++) {
+                        for (int i = count; i < min; i++) {
                             IServiceStartConfiguration configuration = groupHolder.get().createServiceConfiguration();
                             if ((this.node.getFreeMemory() - configuration.getMaxMemory()) < 0) {
                                 memoryWarningCount++;

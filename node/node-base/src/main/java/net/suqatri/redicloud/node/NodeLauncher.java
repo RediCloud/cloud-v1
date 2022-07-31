@@ -479,8 +479,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     stopCount++;
                     try {
                         this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), false).get(10, TimeUnit.SECONDS);
-                        if (this.console != null)
-                            this.console.info("Stopped service " + serviceHolders.get().getServiceName());
                     } catch (InterruptedException | ExecutionException | TimeoutException e) {
                         try {
                             if (this.console != null)

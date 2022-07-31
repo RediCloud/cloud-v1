@@ -143,17 +143,23 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.service.setServiceState(ServiceState.STOPPING);
         this.service.update();
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            IRBucketHolder<ICloudPlayer> cloudPlayer = getPlayerManager().getPlayer(onlinePlayer.getUniqueId());
-            if(this.serviceManager != null) {
-                IRBucketHolder<ICloudService> serviceHolder = this.serviceManager.getFallbackService();
-                if(serviceHolder == null) {
-                    onlinePlayer.kickPlayer("CloudService shutdown");
-                    continue;
+        if(this.playerManager != null){
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                try {
+                    IRBucketHolder<ICloudPlayer> cloudPlayer = this.playerManager.getPlayer(onlinePlayer.getUniqueId());
+                    if (this.serviceManager != null) {
+                        IRBucketHolder<ICloudService> serviceHolder = this.serviceManager.getFallbackService();
+                        if (serviceHolder == null) {
+                            onlinePlayer.kickPlayer("CloudService shutdown");
+                            continue;
+                        }
+                        cloudPlayer.get().connect(serviceHolder);
+                    } else {
+                        onlinePlayer.kickPlayer("CloudService shutdown");
+                    }
+                }catch (Exception e){
+                    this.console.error("Failed to disconnect player " + onlinePlayer.getName() + " from service", e);
                 }
-                cloudPlayer.get().connect(serviceHolder);
-            }else{
-                onlinePlayer.kickPlayer("CloudService shutdown");
             }
         }
 

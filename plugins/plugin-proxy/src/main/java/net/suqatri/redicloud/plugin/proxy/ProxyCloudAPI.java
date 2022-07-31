@@ -21,6 +21,7 @@ import net.suqatri.redicloud.api.redis.RedisCredentials;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
+import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.event.CloudServiceStartedEvent;
 import net.suqatri.redicloud.api.utils.ApplicationType;
 import net.suqatri.redicloud.api.utils.Files;
@@ -58,6 +59,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private String chatPrefix = "§bRedi§3Cloud §8» §f";
     @Setter
     private int onlineCount = 0;
+    private boolean isShutdownInitiated = false;
 
     public ProxyCloudAPI(Plugin plugin) {
         super(ApplicationType.SERVICE_PROXY);
@@ -170,6 +172,12 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     @Override
     public void shutdown(boolean fromHook) {
+        if(this.isShutdownInitiated) return;
+        this.isShutdownInitiated = true;
+
+        this.service.setServiceState(ServiceState.STOPPING);
+        this.service.update();
+
         for (ProxiedPlayer onlinePlayer : ProxyServer.getInstance().getPlayers()) {
             onlinePlayer.disconnect("§cServer is shutting down.");
         }
@@ -182,5 +190,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         if (this.updaterTask != null) this.updaterTask.cancel();
 
         if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
+
+        ProxyServer.getInstance().stop();
     }
 }

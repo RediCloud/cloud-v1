@@ -14,6 +14,7 @@ import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.redis.RedisCredentials;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ICloudServiceManager;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.event.CloudServiceStartedEvent;
@@ -58,6 +59,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private String chatPrefix = "§bRedi§3Cloud §8» §f";
     @Setter
     private int onlineCount = 0;
+    private boolean isShutdownInitiated = false;
 
     public MinecraftCloudAPI(JavaPlugin javaPlugin) {
         super(ApplicationType.SERVICE_MINECRAFT);
@@ -135,10 +137,30 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     @Override
     public void shutdown(boolean fromHook) {
+        if(this.isShutdownInitiated) return;
+        this.isShutdownInitiated = true;
 
-        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-            IRBucketHolder<ICloudPlayer> cloudPlayer = getPlayerManager().getPlayer(onlinePlayer.getUniqueId());
-            cloudPlayer.get().connect(getServiceManager().getFallbackService());
+        this.service.setServiceState(ServiceState.STOPPING);
+        this.service.update();
+
+        if(this.playerManager != null){
+            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                try {
+                    IRBucketHolder<ICloudPlayer> cloudPlayer = this.playerManager.getPlayer(onlinePlayer.getUniqueId());
+                    if (this.serviceManager != null) {
+                        IRBucketHolder<ICloudService> serviceHolder = this.serviceManager.getFallbackService();
+                        if (serviceHolder == null) {
+                            onlinePlayer.kickPlayer("CloudService shutdown");
+                            continue;
+                        }
+                        cloudPlayer.get().connect(serviceHolder);
+                    } else {
+                        onlinePlayer.kickPlayer("CloudService shutdown");
+                    }
+                }catch (Exception e){
+                    this.console.error("Failed to disconnect player " + onlinePlayer.getName() + " from service", e);
+                }
+            }
         }
 
         try {
@@ -149,5 +171,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         if (this.updaterTask != null) this.updaterTask.cancel();
 
         if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
+
+        Bukkit.shutdown();
     }
 }

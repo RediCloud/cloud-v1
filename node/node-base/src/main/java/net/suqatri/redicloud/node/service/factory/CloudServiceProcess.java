@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import lombok.Data;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.service.CloudService;
+import net.suqatri.redicloud.api.impl.service.packet.stop.CloudServiceInitStopPacket;
 import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.node.service.factory.ICloudServiceProcess;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
@@ -147,9 +148,9 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                     reader.close();
                 }
 
-                if (this.serviceDirectory.exists() && !this.serviceHolder.get().isStatic())
+                if (this.serviceDirectory.exists() && !this.serviceHolder.get().isStatic()) {
                     FileUtils.deleteDirectory(this.serviceDirectory);
-
+                }
                 CloudAPI.getInstance().getConsole().debug("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped");
 
                 CloudAPI.getInstance().getConsole().trace("Call stopping future action: " + this.stopFuture + " for service " + this.serviceHolder.get().getServiceName());
@@ -258,9 +259,17 @@ public class CloudServiceProcess implements ICloudServiceProcess {
             return;
         }
         if (force) {
-            this.process.destroyForcibly();
-        } else {
             this.process.destroy();
+        } else {
+            CloudServiceInitStopPacket packet = new CloudServiceInitStopPacket();
+            packet.getPacketData().addReceiver(this.serviceHolder.get().getNetworkComponentInfo());
+            packet.publishAsync();
+            CloudAPI.getInstance().getScheduler().runTaskLaterAsync(() -> { // service crashed, force stop
+                if(this.serviceHolder.get().getServiceState() == ServiceState.RUNNING_DEFINED
+                        || this.serviceHolder.get().getServiceState() == ServiceState.RUNNING_UNDEFINED) {
+                    this.process.destroy();
+                }
+            }, 1500, TimeUnit.MILLISECONDS);
         }
     }
 

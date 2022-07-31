@@ -16,14 +16,12 @@ import net.suqatri.redicloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.redicloud.api.service.version.ICloudServiceVersionManager;
 import net.suqatri.redicloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.redicloud.api.utils.ApplicationType;
+import net.suqatri.redicloud.api.utils.ICloudProperties;
 
 import java.util.concurrent.ExecutorService;
 
 @Getter
 public abstract class CloudAPI {
-
-    @Getter
-    private static final String version = "1.1-BETA";
 
     @Getter
     private static CloudAPI instance;
@@ -40,6 +38,8 @@ public abstract class CloudAPI {
     public abstract ExecutorService getExecutorService();
 
     public abstract IScheduler getScheduler();
+
+    public abstract ICloudProperties getProperties();
 
     public abstract IConsole getConsole();
 

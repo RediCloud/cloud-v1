@@ -183,18 +183,6 @@ public class CloudNodeServiceThread extends Thread {
             throw new Exception("Service version " + configuration.getServiceVersionName() + " not found");
 
         CloudService cloudService = null;
-        if (CloudAPI.getInstance().getServiceManager().existsService(configuration.getUniqueId()) || configuration.isStatic()) {
-            cloudService = CloudAPI.getInstance().getServiceManager().getService(configuration.getUniqueId())
-                    .getImpl(CloudService.class);
-            if (!cloudService.isStatic() && cloudService.getNodeId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) {
-                configuration.getStartListener().completeExceptionally(
-                        new IllegalArgumentException("Can´t start static service how is stored on node "
-                                + CloudAPI.getInstance().getNodeManager().getNode(cloudService.getNodeId()).get().getName()));
-                return;
-            }
-        } else {
-            configuration.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
-        }
 
         IRBucketHolder<ICloudServiceVersion> versionHolder = CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(configuration.getServiceVersionName());
         if (!versionHolder.get().isDownloaded()) versionHolder.getImpl(CloudServiceVersion.class).download();
@@ -202,28 +190,55 @@ public class CloudNodeServiceThread extends Thread {
 
         Collection<IRBucketHolder<ICloudService>> serviceHolders = this.factory.getServiceManager().getServices();
 
-        if (configuration.getId() < 1) {
-            configuration.setId(this.getNextId(configuration.getName(), serviceHolders));
+        if(configuration.isStatic()){
+            if(configuration.getId() < 1){
+                configuration.setId(getNextId(configuration.getName(), configuration.isStatic(), serviceHolders));
+            }
+            String serviceName = configuration.getName() + "-" + configuration.getId();
+            CloudAPI.getInstance().getConsole().trace("Checking if service " + serviceName + " exists...");
+            if(CloudAPI.getInstance().getServiceManager().existsService(serviceName)){
+                cloudService = CloudAPI.getInstance().getServiceManager().getService(serviceName).getImpl(CloudService.class);
+                configuration.setUniqueId(cloudService.getUniqueId());
+            }
+        }else{
+            if (CloudAPI.getInstance().getServiceManager().existsService(configuration.getUniqueId())) {
+                NodeLauncher.getInstance().getServiceManager().removeFromFetcher(configuration.getName() + "-" + configuration.getId(), configuration.getUniqueId());
+                NodeLauncher.getInstance().getServiceManager().deleteBucket(configuration.getUniqueId().toString());
+            }
+            if(configuration.getId() < 1){
+                configuration.setId(this.getNextId(configuration.getName(), configuration.isStatic(), serviceHolders));
+            }
+            configuration.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
         }
 
-        for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-            if (serviceHolder.get().getServiceName().equalsIgnoreCase(configuration.getName() + "-" + configuration.getId())) {
-                throw new IllegalArgumentException("Service " + configuration.getName() + "-" + configuration.getId() + " already exists");
+        if(!configuration.isStatic()){
+            for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
+                if (serviceHolder.get().getServiceName().equalsIgnoreCase(configuration.getName() + "-" + configuration.getId())) {
+                    throw new IllegalArgumentException("Service " + configuration.getName() + "-" + configuration.getId() + " already exists");
+                }
             }
         }
 
-        cloudService = new CloudService();
-        cloudService.setConfiguration(configuration);
-        cloudService.setFallback(configuration.isFallback());
-        cloudService.setServiceState(ServiceState.PREPARE);
-        cloudService.setMaxPlayers(50);
-        if (configuration.getEnvironment() == ServiceEnvironment.PROXY) {
-            cloudService.setMotd("§7•§8● §bRedi§3Cloud §8» §fA §bredis §fbased §bcluster §fcloud system§r\n    §b§l§8× §fDiscord §8➜ §3https://discord.gg/g2HV52VV4G");
-        } else {
-            cloudService.setMotd("§bRedi§3Cloud§7-§fService");
+        IRBucketHolder<ICloudService> holder = null;
+        if(cloudService == null) {
+            cloudService = new CloudService();
+            cloudService.setFallback(configuration.isFallback());
+            cloudService.setServiceState(ServiceState.PREPARE);
+            cloudService.setMaxPlayers(50);
+            if (configuration.getEnvironment() == ServiceEnvironment.PROXY) {
+                cloudService.setMotd("§7•§8● §bRedi§3Cloud §8» §fA §bredis §fbased §bcluster §fcloud system§r\n    §b§l§8× §fDiscord §8➜ §3https://discord.gg/g2HV52VV4G");
+            } else {
+                cloudService.setMotd("§bRedi§3Cloud§7-§fService");
+            }
+            cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
+            cloudService.setConfiguration(configuration);
+            holder = this.factory.getServiceManager().createBucket(cloudService.getUniqueId().toString(), cloudService);
+        }else{
+            holder = cloudService.getHolder();
+            holder.get().setServiceState(ServiceState.PREPARE);
+            holder.getImpl(CloudService.class).setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
+            holder.get().update();
         }
-        cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
-        IRBucketHolder<ICloudService> holder = this.factory.getServiceManager().createBucket(cloudService.getUniqueId().toString(), cloudService);
         this.factory.getServiceManager().putInFetcher(cloudService.getServiceName(), cloudService.getUniqueId());
 
         CloudServiceProcess process = new CloudServiceProcess(this.factory, holder);
@@ -233,10 +248,11 @@ public class CloudNodeServiceThread extends Thread {
         CloudAPI.getInstance().getConsole().debug("Started service process for " + cloudService.getServiceName() + " successfully");
     }
 
-    private int getNextId(String groupName, Collection<IRBucketHolder<ICloudService>> servicesHolders) {
+    private int getNextId(String groupName, boolean staticService, Collection<IRBucketHolder<ICloudService>> servicesHolders) {
         int i = 1;
         List<Integer> ids = new ArrayList<>();
         for (IRBucketHolder<ICloudService> serviceHolder : servicesHolders) {
+            if(serviceHolder.get().getServiceState() == ServiceState.OFFLINE && staticService) continue;
             if (serviceHolder.get().getGroupName().equalsIgnoreCase(groupName)) {
                 ids.add(serviceHolder.get().getId());
             }

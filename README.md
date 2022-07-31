@@ -13,7 +13,7 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 - [Commands](#commands)
 - [Requirements](#requirements)
 - [Installation](#installation)
-  <br>
+<br>
 
 ### What is RediCloud?
 

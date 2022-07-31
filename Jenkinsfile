@@ -28,5 +28,10 @@ pipeline {
                 }
             }
         }
+        stage("Delete zip") {
+            steps {
+                sh "rm test/node-1/redi-cloud.zip";
+            }
+        }
     }
 }

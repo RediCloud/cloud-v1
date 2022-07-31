@@ -17,11 +17,14 @@ test/node-2/storage/versions/
 **/build/
 .gradle/
 
-test/node-1/node-base-*.jar
-test/node-2/node-base-*.jar
+test/node-1/node.json
+test/node-2/node.json
 
 test/node-1/static/
 test/node-2/static/
+
+test/node-1/node-base-*.jar
+test/node-2/node-base-*.jar
 
 test/node-1/storage/plugin-minecraft-*.jar
 test/node-2/storage/plugin-minecraft-*.jar

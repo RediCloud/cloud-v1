@@ -62,7 +62,7 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
 
     private void loadProperties(){
         try {
-            this.properties = new CloudProperties(this.getClass().getResourceAsStream("redicloud.properties"));
+            this.properties = new CloudProperties(this.getClass().getClassLoader().getResourceAsStream("redicloud.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }

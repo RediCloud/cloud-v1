@@ -86,8 +86,8 @@ Please note that this project is still work in progress and not stable yet
 <details>
   <summary>Generell help</summary>
   <picture>
-    <source srcset=asd media="(min-width: 600px)">
-    <img src=asd>
+    <source srcset="https://user-images.githubusercontent.com/44299323/182188868-0af2454b-0e33-40aa-a73a-afbf2230a907.png" media="(min-width: 600px)">
+    <img src="https://user-images.githubusercontent.com/44299323/182188868-0af2454b-0e33-40aa-a73a-afbf2230a907.png">
   </picture>
 </details>
 
@@ -95,8 +95,8 @@ Please note that this project is still work in progress and not stable yet
 <details>
   <summary>Cluster help</summary>
   <picture>
-    <source srcset="https://user-images.githubusercontent.com/44299323/182188783-ba7b37aa-d8b1-4b8a-93cd-0e44b60cd815.png" media="(min-width: 600px)">
-    <img src="https://user-images.githubusercontent.com/44299323/182188783-ba7b37aa-d8b1-4b8a-93cd-0e44b60cd815.png">
+    <source srcset="https://user-images.githubusercontent.com/44299323/182185673-7e7e0b15-36e9-4e71-8f35-6e1ca23841f5.png" media="(min-width: 600px)">
+    <img src="https://user-images.githubusercontent.com/44299323/182185673-7e7e0b15-36e9-4e71-8f35-6e1ca23841f5.png">
   </picture>
 </details>
 

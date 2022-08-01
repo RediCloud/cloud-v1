@@ -272,7 +272,7 @@ public class GroupCommand extends ConsoleCommand {
                             .onFailure(e2 -> commandSender.sendMessage("§cFailed to edit group " + name))
                             .onSuccess(holder -> {
                                 try {
-                                    switch (value.toUpperCase()) {
+                                    switch (key.toUpperCase()) {
                                         case "PERCENT_TO_START_NEW_SERVICE":
                                             if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
@@ -396,6 +396,15 @@ public class GroupCommand extends ConsoleCommand {
                                                         holder.get().updateAsync();
                                                         commandSender.sendMessage("Group %hc" + name + "%tc static set to %hc" + Boolean.parseBoolean(value));
                                                     });
+                                            break;
+                                        default:
+                                            StringBuilder builder = new StringBuilder();
+                                            for (GroupProperty property : GroupProperty.values()) {
+                                                if (!builder.toString().isEmpty()) builder.append("§8, ");
+                                                builder.append("%hc");
+                                                builder.append(property.name());
+                                            }
+                                            commandSender.sendMessage("§cInvalid property! Properties: " + builder);
                                             break;
                                     }
                                 } catch (Exception e) {

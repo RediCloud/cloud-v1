@@ -23,6 +23,9 @@ public interface ICloudGroup extends IRBucketObject {
 
     String getName();
 
+    int getPercentToStartNewService();
+    void setPercentToStartNewService(int percentToStartNewService);
+
     String[] getProcessParameters();
 
     void setProcessParameters(String[] processParameters);

@@ -13,6 +13,8 @@ test/node-1/storage/libs/
 test/node-2/storage/libs/
 test/node-1/storage/versions/
 test/node-2/storage/versions/
+test/node-1/external/
+test/node-2/external/
 
 **/build/
 .gradle/

@@ -65,15 +65,9 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
                                 - serviceHolder.get().getConfiguration().getMaxMemory());
                         NodeLauncher.getInstance().getNode().updateAsync();
 
-                        //Destroy screen
-
                         CloudAPI.getInstance().getServiceManager().removeFromFetcher(serviceHolder.get().getServiceName());
 
                         CloudAPI.getInstance().getEventManager().postGlobalAsync(new CloudServiceStoppedEvent(serviceHolder));
-
-                        ((RedissonBucketManager) getServiceManager()).deleteBucketAsync(serviceHolder.get().getUniqueId().toString())
-                                .onFailure(futureAction)
-                                .onSuccess(v -> futureAction.complete(true));
                         return;
                     }
                     if (!serviceHolder.get().getNodeId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) {

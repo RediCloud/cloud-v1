@@ -1,4 +1,7 @@
 ![img](https://wakatime.com/badge/github/InkaruNET/cloud.svg)
+![img](https://img.shields.io/nexus/r/net.suqatri.redicloud.api/api?label=release&nexusVersion=3&server=http%3A%2F%2Frepo.suqatri.net%3A8081%2F)
+![img](https://img.shields.io/nexus/s/net.suqatri.redicloud.api/api?label=snapshot&server=http%3A%2F%2Frepo.suqatri.net%3A8081)
+![img](https://img.shields.io/github/downloads/RediCloud/cloud/total)
 
 # RediCloud (WIP⚒️)
 
@@ -93,3 +96,41 @@ Please note that this project is still work in progress and not stable yet
 ### Installation
 
 - Not done yet
+
+### Build
+
+Last Build: [Jetkins](http://jetkins.suqatri.net:8443/job/redi-cloud/)
+
+Linux / OSX
+```
+git clone https://github.com/RediCloud/cloud
+cd cloud
+./gradlew build
+```
+
+Windows
+```
+git clone https://github.com/RediCloud/cloud
+cd cloud
+gradlew.bat
+```
+
+### API
+
+Repository
+```
+maven {
+    url = "http://repo.suqatri.net:8081/repository/maven-snapshots/"
+    allowInsecureProtocol = true
+}
+
+maven {
+    url = "http://repo.suqatri.net:8081/repository/maven-releases/"
+    allowInsecureProtocol = true
+}
+```
+
+Dependencies
+```
+implementation('net.suqatri.redicloud.api:api:VERSION')
+```

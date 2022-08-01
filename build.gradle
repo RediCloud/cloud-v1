@@ -143,9 +143,11 @@ allprojects {
     publishing {
         publications {
             maven(MavenPublication) {
-                artifact('build/libs/redicloud-${project.name}.jar') {
+                artifact("build/libs/redicloud-${project.name}.jar") {
                     extension 'jar'
-                }}}
+                }
+            }
+        }
         repositories {
             maven {
                 name 'nexus'

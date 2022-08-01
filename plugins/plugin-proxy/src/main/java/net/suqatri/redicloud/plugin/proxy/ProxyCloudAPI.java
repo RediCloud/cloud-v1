@@ -84,8 +84,8 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
             this.shutdown(false);
             return;
         }
-        if(!hasServiceId()){
-            this.console.fatal("Service id is not set as environment variable!", null);
+        if(!hasGroupId()){
+            this.console.fatal("Group id is not set as environment variable!", null);
             this.shutdown(false);
             return;
         }
@@ -176,9 +176,9 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private void initThisService() {
 
         this.service = null;
-        if(!this.serviceManager.existsService(getServiceId())){
-            this.runningExternal = true;
 
+        if(!hasServiceId()){
+            this.runningExternal = true;
             if(this.getGroupManager().existsGroup(getGroupId())){
                 IServiceStartConfiguration startConfiguration = this.getGroupManager()
                         .getGroup(this.getGroupId()).getImpl(CloudGroup.class).createServiceConfiguration();
@@ -198,7 +198,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         }else{
             service = this.serviceManager.getService(getServiceId()).getImpl(CloudService.class);
             if(service.getServiceState() == ServiceState.RUNNING_DEFINED || service.getServiceState() == ServiceState.RUNNING_UNDEFINED){
-                this.runningExternal = service.isExternal();
+                this.runningExternal = true;
                 this.console.fatal("Can´t run external service because " + getServiceId() + " is already running!", null);
                 shutdown(false);
                 return;

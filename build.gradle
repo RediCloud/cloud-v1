@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'net.suqatri.redicloud'
-version '1.1.0-' + getCommitHash() + '-SNAPSHOT'
+version '1.1.1-' + getCommitHash() + '-SNAPSHOT'
 
 tasks.register('buildAndCopy', Copy) {
     dependsOn projectBuild
@@ -15,9 +15,9 @@ tasks.register('buildAndCopy', Copy) {
 tasks.register('copyToTest') {
     println 'Deleting test files'
     project.delete(
-            file("${rootDir}/test/node-1/node-base-${project.version}.jar"),
-            file("${rootDir}/test/node-1/storage/plugin-proxy-${project.version}.jar"),
-            file("${rootDir}/test/node-1/storage/plugin-minecraft-${project.version}.jar")
+            file("${rootDir}/test/node-1/redicloud-node-base.jar"),
+            file("${rootDir}/test/node-1/storage/redicloud-plugin-proxy.jar"),
+            file("${rootDir}/test/node-1/storage/redicloud-plugin-minecraft.jar")
     )
     println 'Copying files'
     dependsOn copyNodeBase
@@ -47,21 +47,21 @@ tasks.register('projectBuild') {
 }
 
 tasks.register('copyNodeBase', Copy) {
-    from "node/node-base/build/libs/node-base-${project.version}-all.jar"
+    from "node/node-base/build/libs/redicloud-node-base.jar"
     into 'test/node-1'
-    rename "node-base-${project.version}-all.jar", "node-base-${project.version}.jar"
+    rename "node-base-${project.version}-all.jar", "redicloud-node-base.jar"
 }
 
 tasks.register('copyMinecraftPlugin', Copy) {
-    from "plugins/plugin-minecraft/build/libs/plugin-minecraft-${project.version}-all.jar"
+    from "plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar"
     into 'test/node-1/storage'
-    rename "plugin-minecraft-${project.version}-all.jar", "plugin-minecraft-${project.version}.jar"
+    rename "plugin-minecraft-${project.version}-all.jar", "redicloud-plugin-minecraft.jar"
 }
 
 tasks.register('copyProxyPlugin', Copy) {
-    from "plugins/plugin-proxy/build/libs/plugin-proxy-${project.version}-all.jar"
+    from "plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar"
     into 'test/node-1/storage'
-    rename "plugin-proxy-${project.version}-all.jar", "plugin-proxy-${project.version}.jar"
+    rename "plugin-proxy-${project.version}-all.jar", "redicloud-plugin-proxy.jar"
 }
 
 tasks.register('publishToRepository') {
@@ -91,7 +91,7 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
 
-    version '1.1.0-' + getCommitHash() + '-SNAPSHOT'
+    version '1.1.1-' + getCommitHash() + '-SNAPSHOT'
 
     sourceCompatibility = '1.8'
 
@@ -138,6 +138,18 @@ allprojects {
             configurations = [project.configurations.runtimeClasspath]
         }
         relocate 'io.netty', 'net.suqatri.redicloud.libs.io.netty'
+    }
+
+    task createProperties(dependsOn: processResources) {
+        def file = new File("$projectDir/src/main/resources/redicloud.properties")
+        if(!file.exists()) return
+        file.withWriter { w ->
+            Properties p = new Properties()
+            p['version'] = project.version.toString()
+            p['git-hash'] = getCommitHash()
+            p['git-branch-name'] = getCurrentBrancheName()
+            p.store w, null
+        }
     }
 
     publishing {
@@ -192,4 +204,8 @@ def getCurrentBrancheName(){
     def branchName = reader.readLine()
     git.waitFor()
     return branchName
+}
+
+classes {
+    dependsOn createProperties
 }

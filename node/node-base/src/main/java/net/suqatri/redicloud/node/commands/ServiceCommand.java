@@ -163,6 +163,7 @@ public class ServiceCommand extends ConsoleCommand {
                                             commandSender.sendMessage("§8 »%tc State: %hc" + serviceHolder.get().getServiceState().name());
                                             commandSender.sendMessage("§8 »%tc Players: %hc" + serviceHolder.get().getOnlineCount() + "§8/%hc" + serviceHolder.get().getMaxPlayers());
                                             commandSender.sendMessage("§8 »%tc RAM: %hc" + serviceHolder.get().getMaxRam() + " MB");
+                                            commandSender.sendMessage("§8 »%tc External: %hc" + serviceHolder.get().isExternal());
                                             StringBuilder templateBuilder = new StringBuilder();
                                             for (String templateName : serviceHolder.get().getConfiguration().getTemplateNames()) {
                                                 if (!templateBuilder.toString().isEmpty())

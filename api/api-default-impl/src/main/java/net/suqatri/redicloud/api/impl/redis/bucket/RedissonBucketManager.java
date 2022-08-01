@@ -148,6 +148,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
         if (!this.isBucketHolderCached(identifier)) return;
         CloudAPI.getInstance().getConsole().trace("Updating bucket: " + getRedisKey(identifier));
         IRBucketHolder<T> bucketHolder = this.cachedBucketHolders.get(identifier);
+        if(bucketHolder == null) return; //bucket was deleted while updating
         bucketHolder.mergeChanges(json);
     }
 

@@ -18,9 +18,15 @@ public interface ICloudService extends IRBucketObject {
 
     UUID getNodeId();
 
-    boolean isFallback();
+    default boolean isFallback() {
+        return getConfiguration().isFallback();
+    }
 
-    void setFallback(boolean fallback);
+    boolean isExternal();
+
+    default void setFallback(boolean fallback) {
+        getConfiguration().setFallback(fallback);
+    }
 
     INetworkComponentInfo getNetworkComponentInfo();
 

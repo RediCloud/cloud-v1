@@ -222,7 +222,7 @@ public class CloudNodeServiceThread extends Thread {
         IRBucketHolder<ICloudService> holder = null;
         if(cloudService == null) {
             cloudService = new CloudService();
-            cloudService.setFallback(configuration.isFallback());
+            cloudService.setConfiguration(configuration);
             cloudService.setExternal(false);
             cloudService.setServiceState(ServiceState.PREPARE);
             cloudService.setMaxPlayers(50);
@@ -232,7 +232,6 @@ public class CloudNodeServiceThread extends Thread {
                 cloudService.setMotd("§bRedi§3Cloud§7-§fService");
             }
             cloudService.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
-            cloudService.setConfiguration(configuration);
             holder = this.factory.getServiceManager().createBucket(cloudService.getUniqueId().toString(), cloudService);
         }else{
             holder = cloudService.getHolder();

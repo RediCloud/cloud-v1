@@ -38,6 +38,7 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
     private UUID nodeId;
     @JsonIgnore
     private FutureAction<IRBucketHolder<ICloudService>> startListener;
+    private int percentToStartNewService;
 
     public static FutureAction<DefaultServiceStartConfiguration> fromInterface(IServiceStartConfiguration interfaceConfig) {
         FutureAction<DefaultServiceStartConfiguration> futureAction = new FutureAction<>();
@@ -55,6 +56,7 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
         configuration.setJvmArguments(interfaceConfig.getJvmArguments());
         configuration.setTemplateNames(interfaceConfig.getTemplateNames());
         configuration.setServiceVersionName(interfaceConfig.getServiceVersionName());
+        configuration.setPercentToStartNewService(interfaceConfig.getPercentToStartNewService());
 
         if (interfaceConfig.getGroupName() != null) {
             configuration.setHasGroup(true);
@@ -64,6 +66,7 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
                     .onSuccess(groupHolder -> {
                         configuration.getTemplateNames().addAll(groupHolder.get().getTemplateNames());
                         configuration.setFallback(groupHolder.get().isFallback());
+                        configuration.setPercentToStartNewService(groupHolder.get().getPercentToStartNewService());
                         futureAction.complete(configuration);
                     });
         } else {

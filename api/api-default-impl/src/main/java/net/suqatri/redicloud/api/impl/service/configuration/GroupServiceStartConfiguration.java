@@ -38,6 +38,7 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
     private boolean fallback = false;
     @JsonIgnore
     private FutureAction<IRBucketHolder<ICloudService>> startListener;
+    private int percentToStartNewService;
 
     @Override
     public void listenToStart() {
@@ -55,6 +56,7 @@ public class GroupServiceStartConfiguration implements IServiceStartConfiguratio
         CloudGroup group = holder.getImpl(CloudGroup.class);
         this.environment = group.getServiceEnvironment();
         this.name = group.getName();
+        this.percentToStartNewService = group.getPercentToStartNewService();
         this.maxMemory = group.getMaxMemory();
         this.possibleNodeIds = group.getAssociatedNodeIds();
         this.startPriority = group.getStartPriority();

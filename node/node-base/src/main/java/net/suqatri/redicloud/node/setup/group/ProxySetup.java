@@ -29,11 +29,14 @@ public class ProxySetup extends Setup<ProxySetup> {
     @Question(id = 4, question = "What is the start priority of the group?")
     private int startPriority;
 
-    @Question(id = 5, question = "Should the group a static group?")
+    @Question(id = 5, question = "What percentage does a server need to be full for a new one to start? (-1 = disable)")
+    private int percentToStartNewService;
+
+    @Question(id = 6, question = "Should the group a static group?")
     @AnswerCompleter(value = BooleanSuggester.class)
     private boolean staticGroup;
 
-    @Question(id = 6, question = "What service version should be used for the group?")
+    @Question(id = 7, question = "What service version should be used for the group?")
     @ConditionChecker(value = ServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
     private String serviceVersionName;
 

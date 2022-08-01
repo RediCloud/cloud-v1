@@ -79,6 +79,7 @@ Please note that this project is still work in progress and not stable yet
 - java start command is customizable for each service version ✅
 - modify programm arguments and jvm flags for each group ✅
 - external proxy services (start external proxy services and connect cloud services to them) ✅
+- offline/online player support at the same time ❌
   <br>
 
 ## Commands

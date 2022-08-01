@@ -17,12 +17,18 @@ tasks.register('copyToTest') {
     project.delete(
             file("${rootDir}/test/node-1/redicloud-node-base.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-proxy.jar"),
-            file("${rootDir}/test/node-1/storage/redicloud-plugin-minecraft.jar")
+            file("${rootDir}/test/node-1/storage/redicloud-plugin-minecraft.jar"),
+            file("${rootDir}/test/node-2/redicloud-node-base.jar"),
+            file("${rootDir}/test/node-2/storage/redicloud-plugin-proxy.jar"),
+            file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar")
     )
     println 'Copying files'
-    dependsOn copyNodeBase
-    dependsOn copyMinecraftPlugin
-    dependsOn copyProxyPlugin
+    dependsOn copyNodeBaseToNode1
+    dependsOn copyNodeBaseToNode2
+    dependsOn copyMinecraftPluginToNode1
+    dependsOn copyMinecraftPluginToNode2
+    dependsOn copyProxyPluginToNode1
+    dependsOn copyProxyPluginToNode2
 }
 
 tasks.register('projectBuild') {
@@ -46,21 +52,39 @@ tasks.register('projectBuild') {
     dependsOn ':plugins:plugin-proxy:build'
 }
 
-tasks.register('copyNodeBase', Copy) {
+tasks.register('copyNodeBaseToNode1', Copy) {
     from "node/node-base/build/libs/redicloud-node-base.jar"
     into 'test/node-1'
     rename "node-base-${project.version}-all.jar", "redicloud-node-base.jar"
 }
 
-tasks.register('copyMinecraftPlugin', Copy) {
+tasks.register('copyMinecraftPluginToNode1', Copy) {
     from "plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar"
     into 'test/node-1/storage'
     rename "plugin-minecraft-${project.version}-all.jar", "redicloud-plugin-minecraft.jar"
 }
 
-tasks.register('copyProxyPlugin', Copy) {
+tasks.register('copyProxyPluginToNode1', Copy) {
     from "plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar"
     into 'test/node-1/storage'
+    rename "plugin-proxy-${project.version}-all.jar", "redicloud-plugin-proxy.jar"
+}
+
+tasks.register('copyNodeBaseToNode2', Copy) {
+    from "node/node-base/build/libs/redicloud-node-base.jar"
+    into 'test/node-2'
+    rename "node-base-${project.version}-all.jar", "redicloud-node-base.jar"
+}
+
+tasks.register('copyMinecraftPluginToNode2', Copy) {
+    from "plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar"
+    into 'test/node-2/storage'
+    rename "plugin-minecraft-${project.version}-all.jar", "redicloud-plugin-minecraft.jar"
+}
+
+tasks.register('copyProxyPluginToNode2', Copy) {
+    from "plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar"
+    into 'test/node-2/storage'
     rename "plugin-proxy-${project.version}-all.jar", "redicloud-plugin-proxy.jar"
 }
 

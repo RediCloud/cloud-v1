@@ -180,7 +180,6 @@ def getCommitHash() {
     def reader = new BufferedReader(new InputStreamReader(inputStream))
     def commitHash = reader.readLine()
     git.waitFor()
-    println("Commit hash: " + commitHash)
     return commitHash
 }
 
@@ -190,6 +189,5 @@ def getCurrentBrancheName(){
     def reader = new BufferedReader(new InputStreamReader(inputStream))
     def branchName = reader.readLine()
     git.waitFor()
-    println('Current branch: ' + branchName)
     return branchName
 }

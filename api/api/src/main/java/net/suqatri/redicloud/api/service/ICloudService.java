@@ -18,7 +18,7 @@ public interface ICloudService extends IRBucketObject {
 
     UUID getNodeId();
 
-    default boolean isFallback( {
+    default boolean isFallback() {
         return getConfiguration().isFallback();
     }
 

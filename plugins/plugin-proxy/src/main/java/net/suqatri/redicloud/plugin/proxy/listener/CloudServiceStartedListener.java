@@ -28,6 +28,7 @@ public class CloudServiceStartedListener {
                     ProxyServer.getInstance().getServers().put(serverInfo.getName(), serverInfo);
                     CloudAPI.getInstance().getConsole().debug("Registered service: " + serviceHolder.get().getServiceName());
 
+                    if(event.isExternal()) return;
                     CloudAPI.getInstance().getNodeManager().getNodeAsync(serviceHolder.get().getNodeId())
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node!", e))
                             .onSuccess(nodeHolder -> {

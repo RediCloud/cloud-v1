@@ -1,0 +1,1 @@
+java -jar redicloud-node-base.jar --host=127.0.0.1 --test

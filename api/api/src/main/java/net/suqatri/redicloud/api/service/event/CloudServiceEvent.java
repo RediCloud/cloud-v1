@@ -15,17 +15,20 @@ public class CloudServiceEvent extends CloudGlobalEvent {
     private final UUID serverId;
     private final String serviceName;
     private final UUID nodeId;
+    private final boolean external;
 
     public CloudServiceEvent(IRBucketHolder<ICloudService> holder) {
         this.serverId = holder.get().getUniqueId();
         this.serviceName = holder.get().getServiceName();
         this.nodeId = holder.get().getNodeId();
+        this.external = this.nodeId == null;
     }
 
     public CloudServiceEvent() {
         this.serverId = null;
         this.serviceName = null;
         this.nodeId = null;
+        this.external = false;
     }
 
     public IRBucketHolder<ICloudService> getService() {

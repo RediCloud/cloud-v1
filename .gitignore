@@ -13,6 +13,8 @@ test/node-1/storage/libs/
 test/node-2/storage/libs/
 test/node-1/storage/versions/
 test/node-2/storage/versions/
+test/node-1/external/
+test/node-2/external/
 
 **/build/
 .gradle/
@@ -28,9 +30,7 @@ test/node-2/node-base-*.jar
 
 gradle.properties
 
-test/node-1/storage/plugin-minecraft-*.jar
-test/node-2/storage/plugin-minecraft-*.jar
+redicloud-*.jar
+redicloud-*.jar
 
-test/node-1/storage/plugin-proxy-*.jar
-test/node-2/storage/plugin-proxy-*.jar
 version.txt

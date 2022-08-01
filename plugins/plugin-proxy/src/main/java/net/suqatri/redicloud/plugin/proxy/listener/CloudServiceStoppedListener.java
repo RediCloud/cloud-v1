@@ -17,6 +17,7 @@ public class CloudServiceStoppedListener {
             ProxyServer.getInstance().getServers().remove(serverInfo.getName());
             CloudAPI.getInstance().getConsole().debug("Unregistered service: " + event.getServiceName());
         }
+        if(event.isExternal()) return;
         CloudAPI.getInstance().getNodeManager().getNodeAsync(event.getNodeId())
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to unregister service: " + event.getServiceName(), e))
                 .onSuccess(nodeHolder -> {

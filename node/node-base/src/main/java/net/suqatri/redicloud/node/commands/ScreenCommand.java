@@ -31,6 +31,7 @@ public class ScreenCommand extends ConsoleCommand {
     @Subcommand("toggle")
     @Description("Toggle the screen of a service")
     @Syntax("<Service>")
+    @CommandCompletion("@running_services")
     public void onToggle(CommandSender commandSender, String serviceName) {
         CloudAPI.getInstance().getConsole().trace("Check existences of screen " + serviceName);
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)
@@ -65,6 +66,7 @@ public class ScreenCommand extends ConsoleCommand {
     @Subcommand("join")
     @Description("Join a screen")
     @Syntax("<Service>")
+    @CommandCompletion("@running_services")
     public void onJoin(CommandSender commandSender, String serviceName) {
         CloudAPI.getInstance().getConsole().trace("Check existences of screen " + serviceName);
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)
@@ -98,6 +100,7 @@ public class ScreenCommand extends ConsoleCommand {
     @Subcommand("leave")
     @Description("Leave a screen")
     @Syntax("<Service>")
+    @CommandCompletion("@running_services")
     public void onLeave(CommandSender commandSender, String serviceName) {
         CloudAPI.getInstance().getConsole().trace("Check existences of screen " + serviceName);
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)

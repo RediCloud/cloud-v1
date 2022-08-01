@@ -71,6 +71,7 @@ public class CloudNodeServiceThread extends Thread {
                                 if(holder.get().getPercentToStartNewService() == -1) return true;
                                 int percent = ((int)(100 / ((double)holder.get().getMaxPlayers())) * holder.get().getOnlineCount());
                                 if(percent >= holder.get().getPercentToStartNewService()) return false;
+                                if(holder.get().getMaxPlayers() == -1) return true;
                                 return holder.get().getOnlineCount() >= holder.get().getMaxPlayers();
                             })
                             .count();

@@ -28,10 +28,9 @@ test/node-2/node-base-*.jar
 
 gradle.properties
 
-test/node-1/storage/plugin-minecraft-*.jar
-test/node-2/storage/plugin-minecraft-*.jar
-
-test/node-1/storage/plugin-proxy-*.jar
-test/node-2/storage/plugin-proxy-*.jar
 test/node-1/storage/redicloud-*.jar
+test/node-2/storage/redicloud-*.jar
+test/node-1/redicloud-*.jar
+test/node-2/redicloud-*.jar
+
 version.txt

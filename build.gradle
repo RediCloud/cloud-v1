@@ -175,7 +175,7 @@ def getRepoUrl(){
 }
 
 def getCommitHash() {
-    def git = new ProcessBuilder('git', 'rev-parse', getCurrentBrancheName()).directory(project.projectDir).start()
+    def git = new ProcessBuilder('git', 'rev-parse', '--short', getCurrentBrancheName()).directory(project.projectDir).start()
     def inputStream = git.getInputStream();
     def reader = new BufferedReader(new InputStreamReader(inputStream))
     def commitHash = reader.readLine()

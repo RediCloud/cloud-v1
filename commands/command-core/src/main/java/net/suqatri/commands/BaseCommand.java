@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 
 /**
  * A Base command is defined as a command group of related commands.
- * A BaseCommand does not imply nor enforce that they use the same root command.
+ * A BaseCommand doesn't imply nor enforce that they use the same root command.
  * <p>
  * It is up to the end user how to organize their command. you could use 1 base command per
  * command in your application.

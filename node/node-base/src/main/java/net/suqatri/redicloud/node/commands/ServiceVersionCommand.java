@@ -94,7 +94,7 @@ public class ServiceVersionCommand extends ConsoleCommand {
                             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while checking service version existence", t))
                             .onSuccess(exists -> {
                                 if (!exists) {
-                                    CloudAPI.getInstance().getConsole().error("Service version does not exist");
+                                    CloudAPI.getInstance().getConsole().error("Service version doesn't exist");
                                 } else {
                                     CloudAPI.getInstance().getServiceVersionManager().deleteServiceVersionAsync(name)
                                             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while deleting service version", t))
@@ -129,7 +129,7 @@ public class ServiceVersionCommand extends ConsoleCommand {
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while checking service version existence", t))
                 .onSuccess(exists -> {
                     if (!exists) {
-                        CloudAPI.getInstance().getConsole().error("Service version does not exist");
+                        CloudAPI.getInstance().getConsole().error("Service version doesn't exist");
                         return;
                     }
                     CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(name)
@@ -201,7 +201,7 @@ public class ServiceVersionCommand extends ConsoleCommand {
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while checking service version existence", t))
                 .onSuccess(exists -> {
                     if (!exists) {
-                        commandSender.sendMessage("Service version does not exist");
+                        commandSender.sendMessage("Service version doesn't exist");
                         return;
                     }
                     CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(serviceVersionName)
@@ -226,7 +226,7 @@ public class ServiceVersionCommand extends ConsoleCommand {
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while checking service version existence", t))
                 .onSuccess(exists -> {
                     if (!exists) {
-                        commandSender.sendMessage("Service version does not exist");
+                        commandSender.sendMessage("Service version doesn't exist");
                         return;
                     }
                     CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(serviceVersionName)

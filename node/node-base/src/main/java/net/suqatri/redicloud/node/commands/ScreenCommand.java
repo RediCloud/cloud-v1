@@ -37,7 +37,7 @@ public class ScreenCommand extends ConsoleCommand {
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking if service exists", e))
                 .onSuccess(exists -> {
                     if (!exists) {
-                        commandSender.sendMessage("Service " + serviceName + " does not exist");
+                        commandSender.sendMessage("Service " + serviceName + " doesn't exist");
                         return;
                     }
                     CloudAPI.getInstance().getConsole().trace("Get service of screen " + serviceName);
@@ -71,7 +71,7 @@ public class ScreenCommand extends ConsoleCommand {
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking service existence!", e))
                 .onSuccess(exists -> {
                     if (!exists) {
-                        commandSender.sendMessage("Screen " + serviceName + " does not exist!");
+                        commandSender.sendMessage("Screen " + serviceName + " doesn't exist!");
                         return;
                     }
                     CloudAPI.getInstance().getConsole().trace("Get service of screen " + serviceName);

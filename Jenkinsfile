@@ -10,27 +10,39 @@ pipeline {
         stage("Clean") {
             steps {
                 sh "chmod +x ./gradlew";
-                sh "./gradlew clean";
+                sh "./gradlew clean --stacktrace";
             }
         }
         stage("Build") {
             steps {
-                sh "./gradlew buildAndCopy";
+                sh "./gradlew projectBuild --stacktrace";
             }
         }
         stage("Create zip") {
             steps {
-                sh "cd test/node-1/; zip -r redi-cloud.zip *";
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh "mkdir build/"
+                    sh "cp -r test/node-1/storage/ build/storage/"
+                    sh "cp node/node-base/build/libs/redicloud-node-base.jar build/"
+                    sh "cp plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar build/storage/"
+                    sh "cp plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar build/storage/"
+                    sh "cd build/; zip -r redi-cloud.zip *";
+                }
             }
             post {
                 success {
-                    archiveArtifacts artifacts: 'test/node-1/redi-cloud.zip', fingerprint: true
+                    archiveArtifacts artifacts: 'build/redi-cloud.zip', fingerprint: true
                 }
             }
         }
-        stage("Delete zip") {
+        stage("Publishing") {
             steps {
-                sh "rm test/node-1/redi-cloud.zip";
+                sh "./gradlew publishToRepository --stacktrace";
+            }
+        }
+        stage("Delete temp files") {
+            steps {
+                sh "rm -r build"
             }
         }
     }

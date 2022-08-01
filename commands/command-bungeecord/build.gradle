@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud'
+group 'net.suqatri.redicloud.commands.bungeecord'
 
 dependencies {
     implementation project(':commands:command-core');

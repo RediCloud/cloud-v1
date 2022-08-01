@@ -2,12 +2,12 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud'
+group 'net.suqatri.redicloud.node'
 
 jar {
     manifest {
         attributes 'Main-Class': 'net.suqatri.redicloud.node.NodeLauncherMain'
-        attributes 'Commit-Hash': ''
+
     }
 }
 

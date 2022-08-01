@@ -78,9 +78,68 @@ Please note that this project is still work in progress and not stable yet
 - custom service versions ✅
 - java start command is customizable for each service version ✅
 - modify programm arguments and jvm flags for each group ✅
+- external proxy services (start external proxy services and connect cloud services to them) ✅
   <br>
 
 ## Commands
+
+<details>
+  <summary>Generell help</summary>
+  <picture>
+    <source srcset="https://user-images.githubusercontent.com/44299323/182188868-0af2454b-0e33-40aa-a73a-afbf2230a907.png" media="(min-width: 600px)">
+    <img src="https://user-images.githubusercontent.com/44299323/182188868-0af2454b-0e33-40aa-a73a-afbf2230a907.png">
+  </picture>
+</details>
+
+
+<details>
+  <summary>Cluster help</summary>
+  <picture>
+    <source srcset="https://user-images.githubusercontent.com/44299323/182185673-7e7e0b15-36e9-4e71-8f35-6e1ca23841f5.png" media="(min-width: 600px)">
+    <img src="https://user-images.githubusercontent.com/44299323/182185673-7e7e0b15-36e9-4e71-8f35-6e1ca23841f5.png">
+  </picture>
+</details>
+
+<details>
+  <summary>Template help</summary>
+  <picture>
+    <source srcset="https://user-images.githubusercontent.com/44299323/182185726-c3108728-b2ea-4c85-9ca2-fd3bf82a8a55.png" media="(min-width: 600px)">
+    <img src="https://user-images.githubusercontent.com/44299323/182185726-c3108728-b2ea-4c85-9ca2-fd3bf82a8a55.png">
+  </picture>
+</details>
+
+<details>
+  <summary>Group help</summary>
+  <picture>
+    <source srcset="https://user-images.githubusercontent.com/44299323/182185775-892ef2de-aec5-47fd-92ee-3b7739ff1bea.png" media="(min-width: 600px)">
+    <img src="https://user-images.githubusercontent.com/44299323/182185775-892ef2de-aec5-47fd-92ee-3b7739ff1bea.png">
+  </picture>
+</details>
+
+<details>
+  <summary>Service verison help</summary>
+  <picture>
+    <source srcset="https://user-images.githubusercontent.com/44299323/182185840-a14821df-79db-4ee8-821a-0dcff5fdc188.png" media="(min-width: 600px)">
+    <img src="https://user-images.githubusercontent.com/44299323/182185840-a14821df-79db-4ee8-821a-0dcff5fdc188.png">
+  </picture>
+</details>
+
+<details>
+  <summary>Service help</summary>
+  <picture>
+    <source srcset="https://user-images.githubusercontent.com/44299323/182185923-c8c1532e-58ba-43fd-992b-2714839011ee.png" media="(min-width: 600px)">
+    <img src="https://user-images.githubusercontent.com/44299323/182185923-c8c1532e-58ba-43fd-992b-2714839011ee.png">
+  </picture>
+</details>
+
+
+<details>
+  <summary>Screen help</summary>
+  <picture>
+    <source srcset="https://user-images.githubusercontent.com/44299323/182185958-e310bfc5-51ad-413b-8a5f-6426a76eed5d.png" media="(min-width: 600px)">
+    <img src="https://user-images.githubusercontent.com/44299323/182185958-e310bfc5-51ad-413b-8a5f-6426a76eed5d.png">
+  </picture>
+</details>
 
 <br>
 
@@ -95,6 +154,7 @@ Please note that this project is still work in progress and not stable yet
 ### Installation
 
 - Not done yet
+<br>
 
 ### Build
 
@@ -113,6 +173,7 @@ git clone https://github.com/RediCloud/cloud
 cd cloud
 gradlew.bat
 ```
+<br>
 
 ### API
 

@@ -146,7 +146,7 @@ allprojects {
         file.withWriter { w ->
             Properties p = new Properties()
             p['version'] = project.version.toString()
-            p['git-commit'] = getCommitHash()
+            p['git-hash'] = getCommitHash()
             p['git-branch-name'] = getCurrentBrancheName()
             p.store w, null
         }

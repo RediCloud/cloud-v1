@@ -223,6 +223,7 @@ public class CloudNodeServiceThread extends Thread {
         if(cloudService == null) {
             cloudService = new CloudService();
             cloudService.setFallback(configuration.isFallback());
+            cloudService.setExternal(false);
             cloudService.setServiceState(ServiceState.PREPARE);
             cloudService.setMaxPlayers(50);
             if (configuration.getEnvironment() == ServiceEnvironment.PROXY) {
@@ -235,6 +236,7 @@ public class CloudNodeServiceThread extends Thread {
             holder = this.factory.getServiceManager().createBucket(cloudService.getUniqueId().toString(), cloudService);
         }else{
             holder = cloudService.getHolder();
+            holder.getImpl(CloudService.class).setExternal(false);
             holder.get().setServiceState(ServiceState.PREPARE);
             holder.getImpl(CloudService.class).setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
             holder.get().update();

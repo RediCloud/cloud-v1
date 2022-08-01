@@ -46,6 +46,7 @@ public class GroupCommand extends ConsoleCommand {
     @Subcommand("template add")
     @Syntax("<Group> <Template>")
     @Description("Add a template to a group")
+    @CommandCompletion("@groups @service_templates")
     public void onTemplateAdd(CommandSender commandSender, String groupName, String templateName){
         CloudAPI.getInstance().getConsole().trace("Checking existence of group " + groupName + "...");
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
@@ -84,6 +85,7 @@ public class GroupCommand extends ConsoleCommand {
     @Subcommand("template remove")
     @Syntax("<Group> <Template>")
     @Description("Remove a template to a group")
+    @CommandCompletion("@groups @service_templates")
     public void onTemplateRemove(CommandSender commandSender, String groupName, String templateName){
         CloudAPI.getInstance().getConsole().trace("Checking existence of group " + groupName + "...");
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
@@ -122,6 +124,7 @@ public class GroupCommand extends ConsoleCommand {
     @Subcommand("info")
     @Description("Show information about a group")
     @Syntax("<Name>")
+    @CommandCompletion("@groups")
     public void onInfo(CommandSender commandSender, String groupName) {
         CloudAPI.getInstance().getConsole().trace("Checking existence of group " + groupName + "... ");
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
@@ -255,7 +258,7 @@ public class GroupCommand extends ConsoleCommand {
 
     @Subcommand("edit")
     @Syntax("<Group> <Key> <Value>")
-    @CommandCompletion("@groups @group_keys @group_values")
+    @CommandCompletion("@groups @properties")
     @Description("Edit a group property")
     public void onEdit(CommandSender commandSender, String name, String key, String value) {
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(name)

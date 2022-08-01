@@ -10,21 +10,3 @@ dependencies {
     implementation project(':commands:command-locales')
     compileOnly('org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT')
 }
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifact('build/libs/redicloud-command-bukkit.jar') {
-                extension 'jar'
-            }}}
-    repositories {
-        maven {
-            name 'nexus'
-            url 'http://repo.suqatri.net:8081/repository/maven-releases/'
-            allowInsecureProtocol true
-            credentials {
-                username project.repoUser
-                password project.repoPassword
-            }
-        }
-    }
-}

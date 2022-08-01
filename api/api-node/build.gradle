@@ -9,22 +9,3 @@ dependencies {
     implementation project(':api:api-default-impl')
     implementation project(':commons')
 }
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifact('build/libs/redicloud-api-node.jar') {
-                extension 'jar'
-            }}}
-    repositories {
-        maven {
-            name 'nexus'
-            url 'http://repo.suqatri.net:8081/repository/maven-releases/'
-            allowInsecureProtocol true
-            credentials {
-                username project.repoUser
-                password project.repoPassword
-            }
-        }
-    }
-}

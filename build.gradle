@@ -140,6 +140,24 @@ allprojects {
         relocate 'io.netty', 'net.suqatri.redicloud.libs.io.netty'
     }
 
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                artifact('build/libs/redicloud-${project.name}.jar') {
+                    extension 'jar'
+                }}}
+        repositories {
+            maven {
+                name 'nexus'
+                url 'http://repo.suqatri.net:8081/repository/maven-releases/'
+                allowInsecureProtocol true
+                credentials {
+                    username project.repoUser
+                    password project.repoPassword
+                }
+            }
+        }
+    }
 }
 
 def getCommitHash() {

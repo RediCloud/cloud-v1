@@ -84,10 +84,10 @@ public class CommandCompletions<C extends CommandCompletionContext> {
      * Registr a completion handler to provide command completions based on the user input.
      * This handler is declared to be safe to be executed asynchronously.
      * <p>
-     * Not all platforms support this, so if the platform does not support asynchronous execution,
+     * Not all platforms support this, so if the platform doesn't support asynchronous execution,
      * your handler will be executed on the main thread.
      * <p>
-     * Use this anytime your handler does not need to access state that is not considered thread safe.
+     * Use this anytime your handler doesn't need to access state that is not considered thread safe.
      * <p>
      * Use context.isAsync() to determine if you are async or not.
      *

@@ -8,6 +8,7 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.group.GroupProperty;
 import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.impl.group.CloudGroup;
+import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersion;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
@@ -15,9 +16,11 @@ import net.suqatri.redicloud.commons.ConditionChecks;
 import net.suqatri.redicloud.commons.function.future.FutureActionCollection;
 import net.suqatri.redicloud.node.console.setup.SetupControlState;
 import net.suqatri.redicloud.node.setup.group.GroupSetup;
+import net.suqatri.redicloud.node.setup.group.MinecraftSetup;
+import net.suqatri.redicloud.node.setup.group.ProxySetup;
+import net.suqatri.redicloud.node.setup.version.ServiceVersionSetup;
 
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.UUID;
 
 @CommandAlias("group|groups")
@@ -49,7 +52,7 @@ public class GroupCommand extends ConsoleCommand {
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking existence of group " + groupName, e))
                 .onSuccess(existsGroup -> {
                     if(!existsGroup){
-                        commandSender.sendMessage("Group does not exist");
+                        commandSender.sendMessage("Group doesn't exist");
                         return;
                     }
                     CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
@@ -63,7 +66,7 @@ public class GroupCommand extends ConsoleCommand {
                                         .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking existence of template " + templateName, e))
                                         .onSuccess(existsTemplate -> {
                                             if(!existsTemplate){
-                                                commandSender.sendMessage("Template does not exist");
+                                                commandSender.sendMessage("Template doesn't exist");
                                                 return;
                                             }
                                             CloudAPI.getInstance().getServiceTemplateManager().getTemplateAsync(templateName)
@@ -87,7 +90,7 @@ public class GroupCommand extends ConsoleCommand {
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking existence of group " + groupName, e))
                 .onSuccess(existsGroup -> {
                     if(!existsGroup){
-                        commandSender.sendMessage("Group does not exist");
+                        commandSender.sendMessage("Group doesn't exist");
                         return;
                     }
                     CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
@@ -101,7 +104,7 @@ public class GroupCommand extends ConsoleCommand {
                                         .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking existence of template " + templateName, e))
                                         .onSuccess(existsTemplate -> {
                                             if(!existsTemplate){
-                                                commandSender.sendMessage("Template does not exist");
+                                                commandSender.sendMessage("Template doesn't exist");
                                                 return;
                                             }
                                             CloudAPI.getInstance().getServiceTemplateManager().getTemplateAsync(templateName)
@@ -125,7 +128,7 @@ public class GroupCommand extends ConsoleCommand {
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
                 .onSuccess(exists -> {
                     if (!exists) {
-                        commandSender.sendMessage("Group " + groupName + " does not exist");
+                        commandSender.sendMessage("Group " + groupName + " doesn't exist");
                         return;
                     }
 
@@ -165,30 +168,35 @@ public class GroupCommand extends ConsoleCommand {
                     if (exists) {
                         commandSender.sendMessage("§cGroup " + name + " already exists");
                     } else {
-                        new GroupSetup().start((groupSetup, setupControlState) -> {
-                            if (setupControlState == SetupControlState.FINISHED) {
-
-                                CloudGroup cloudGroup = new CloudGroup();
-                                cloudGroup.setUniqueId(UUID.randomUUID());
-                                cloudGroup.setName(name);
-                                cloudGroup.setStartPort(groupSetup.getEnvironment() == ServiceEnvironment.MINECRAFT ? 49152 : 25565);
-                                cloudGroup.setMinServices(groupSetup.getMinServices());
-                                cloudGroup.setMaxServices(groupSetup.getMaxServices());
-                                cloudGroup.setStaticGroup(groupSetup.isStaticGroup());
-                                cloudGroup.setMaintenance(true);
-                                cloudGroup.setFallback(groupSetup.isFallback());
-                                cloudGroup.setMaxMemory(groupSetup.getMaxMemory());
-                                cloudGroup.setStartPriority(groupSetup.getStartPriority());
-                                cloudGroup.setServiceVersionName(groupSetup.getServiceVersionName());
-                                cloudGroup.setServiceEnvironment(groupSetup.getEnvironment());
-
-                                CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
-                                        .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))
-                                        .onSuccess(holder -> commandSender.sendMessage("Group %hc" + name + "%tc created"));
-                            } else if (setupControlState == SetupControlState.CANCELLED) {
+                        new GroupSetup().start(((groupSetup, groupSetupControlState) -> {
+                            if (groupSetupControlState == SetupControlState.FINISHED) {
+                                boolean foundServiceVersion = CloudAPI.getInstance().getServiceVersionManager().getServiceVersions().stream().anyMatch(iCloudServiceVersionIRBucketHolder -> iCloudServiceVersionIRBucketHolder.get().getEnvironmentType().equals(groupSetup.getEnvironment()));
+                                if (!foundServiceVersion) {
+                                    new ServiceVersionSetup().start((setup, state) -> {
+                                        if (state == SetupControlState.CANCELLED) {
+                                            commandSender.sendMessage("Setup cancelled!");
+                                            return;
+                                        }
+                                        CloudServiceVersion serviceVersion = new CloudServiceVersion();
+                                        serviceVersion.setName(name);
+                                        serviceVersion.setJavaCommand(setup.getJavaCommand());
+                                        serviceVersion.setDownloadUrl(setup.getDownloadUrl());
+                                        serviceVersion.setEnvironmentType(setup.getEnvironment());
+                                        serviceVersion.setPaperClip(setup.isPaperClip());
+                                        CloudAPI.getInstance().getServiceVersionManager().createServiceVersionAsync(serviceVersion)
+                                                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to create service version!", t))
+                                                .onSuccess(versionHolder -> {
+                                                    commandSender.sendMessage("Service version created!");
+                                                    createGroup(groupSetup, commandSender, name);
+                                                });
+                                    });
+                                    return;
+                                }
+                                createGroup(groupSetup, commandSender, name);
+                            } else if (groupSetupControlState == SetupControlState.CANCELLED) {
                                 commandSender.sendMessage("§cGroup creation cancelled");
                             }
-                        });
+                        }));
                     }
                 });
     }
@@ -202,7 +210,7 @@ public class GroupCommand extends ConsoleCommand {
                 .onFailure(e -> commandSender.sendMessage("§cFailed to delete group " + name))
                 .onSuccess(exists -> {
                     if (!exists) {
-                        commandSender.sendMessage("Group %hc" + name + "%tc does not exist");
+                        commandSender.sendMessage("Group %hc" + name + "%tc doesn't exist");
                     } else {
                         CloudAPI.getInstance().getGroupManager().getGroupAsync(name)
                                 .onFailure(e2 -> commandSender.sendMessage("§cFailed to delete group " + name))
@@ -254,7 +262,7 @@ public class GroupCommand extends ConsoleCommand {
                 .onFailure(e -> commandSender.sendMessage("§cFailed to edit group " + name))
                 .onSuccess(exists -> {
                     if (!exists) {
-                        commandSender.sendMessage("Group %hc" + name + "%tc does not exist");
+                        commandSender.sendMessage("Group %hc" + name + "%tc doesn't exist");
                         return;
                     }
                     CloudAPI.getInstance().getGroupManager().getGroupAsync(name)
@@ -337,7 +345,7 @@ public class GroupCommand extends ConsoleCommand {
                                                 .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to check existence of service version " + value, e3))
                                                 .onSuccess(existsVersion -> {
                                                     if(!existsVersion) {
-                                                        commandSender.sendMessage("Service version %hc" + value + "%tc does not exist");
+                                                        commandSender.sendMessage("Service version %hc" + value + "%tc doesn't exist");
                                                         return;
                                                     }
                                                     CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(value)
@@ -379,5 +387,61 @@ public class GroupCommand extends ConsoleCommand {
                                 }
                             });
                 });
+    }
+
+    private void createGroup(GroupSetup groupSetup, CommandSender commandSender, String name) {
+        if (groupSetup.getEnvironment().equals(ServiceEnvironment.MINECRAFT)) {
+            new MinecraftSetup().start((mineCraftSetup, mineCraftSetupControlState) -> {
+                if (mineCraftSetupControlState == SetupControlState.FINISHED) {
+                    CloudGroup cloudGroup = new CloudGroup();
+                    cloudGroup.setUniqueId(UUID.randomUUID());
+                    cloudGroup.setName(name);
+                    cloudGroup.setStartPort(49152);
+                    cloudGroup.setMinServices(mineCraftSetup.getMinServices());
+                    cloudGroup.setMaxServices(mineCraftSetup.getMaxServices());
+                    cloudGroup.setStaticGroup(mineCraftSetup.isStaticGroup());
+                    cloudGroup.setMaintenance(true);
+                    cloudGroup.setFallback(mineCraftSetup.isFallback());
+                    cloudGroup.setMaxMemory(mineCraftSetup.getMaxMemory());
+                    cloudGroup.setStartPriority(mineCraftSetup.getStartPriority());
+                    cloudGroup.setServiceVersionName(mineCraftSetup.getServiceVersionName());
+                    cloudGroup.setServiceEnvironment(ServiceEnvironment.MINECRAFT);
+
+                    CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
+                            .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))
+                            .onSuccess(holder -> commandSender.sendMessage("Group %hc" + name + "%tc created"));
+                } else if (mineCraftSetupControlState == SetupControlState.CANCELLED) {
+                    commandSender.sendMessage("§cMinecraft Group creation cancelled");
+                }
+            });
+            return;
+        }
+
+        if (groupSetup.getEnvironment().equals(ServiceEnvironment.PROXY)) {
+            new ProxySetup().start((proxySetup, proxySetupControlState) -> {
+                if (proxySetupControlState == SetupControlState.FINISHED) {
+
+                    CloudGroup cloudGroup = new CloudGroup();
+                    cloudGroup.setUniqueId(UUID.randomUUID());
+                    cloudGroup.setName(name);
+                    cloudGroup.setStartPort(25565);
+                    cloudGroup.setMinServices(proxySetup.getMinServices());
+                    cloudGroup.setMaxServices(proxySetup.getMaxServices());
+                    cloudGroup.setStaticGroup(proxySetup.isStaticGroup());
+                    cloudGroup.setMaintenance(true);
+                    cloudGroup.setFallback(false);
+                    cloudGroup.setMaxMemory(proxySetup.getMaxMemory());
+                    cloudGroup.setStartPriority(proxySetup.getStartPriority());
+                    cloudGroup.setServiceVersionName(proxySetup.getServiceVersionName());
+                    cloudGroup.setServiceEnvironment(ServiceEnvironment.PROXY);
+
+                    CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
+                            .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))
+                            .onSuccess(holder -> commandSender.sendMessage("Group %hc" + name + "%tc created"));
+                } else if (proxySetupControlState == SetupControlState.CANCELLED) {
+                    commandSender.sendMessage("§cProxy Group creation cancelled");
+                }
+            });
+        }
     }
 }

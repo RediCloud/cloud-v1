@@ -226,7 +226,7 @@ public class RegisteredCommand<CEC extends CommandExecutionContext<CEC, ? extend
                     }
 
                     if (value == null && parameter.getClass().isPrimitive()) {
-                        throw new IllegalStateException("Parameter " + parameter.getName() + " is primitive and does not support Optional.");
+                        throw new IllegalStateException("Parameter " + parameter.getName() + " is primitive and doesn't support Optional.");
                     }
                     //noinspection unchecked
                     this.manager.getCommandConditions().validateConditions(context, value);

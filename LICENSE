@@ -108,7 +108,7 @@ above, provided that you also meet all of these conditions:
     a warranty) and that users may redistribute the program under
     these conditions, and telling the user how to view a copy of this
     License.  (Exception: if the Program itself is interactive but
-    does not normally print such an announcement, your work based on
+    doesn't normally print such an announcement, your work based on
     the Program is not required to print an announcement.)
 
 These requirements apply to the modified work as a whole.  If
@@ -128,7 +128,7 @@ collective works based on the Program.
 
 In addition, mere aggregation of another work not based on the Program
 with the Program (or with a work based on the Program) on a volume of
-a storage or distribution medium does not bring the other work under
+a storage or distribution medium doesn't bring the other work under
 the scope of this License.
 
   3. You may copy and distribute the Program (or a work based on it,
@@ -243,7 +243,7 @@ Each version is given a distinguishing version number.  If the Program
 specifies a version number of this License which applies to it and "any
 later version", you have the option of following the terms and conditions
 either of that version or of any later version published by the Free
-Software Foundation.  If the Program does not specify a version number of
+Software Foundation.  If the Program doesn't specify a version number of
 this License, you may choose any version ever published by the Free Software
 Foundation.
 
@@ -332,7 +332,7 @@ necessary.  Here is a sample; alter the names:
   <signature of Ty Coon>, 1 April 1989
   Ty Coon, President of Vice
 
-This General Public License does not permit incorporating your program into
+This General Public License doesn't permit incorporating your program into
 proprietary programs.  If your program is a subroutine library, you may
 consider it more useful to permit linking proprietary applications with the
 library.  If this is what you want to do, use the GNU Lesser General

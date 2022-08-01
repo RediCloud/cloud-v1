@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'net.suqatri.redicloud'
-version '1.0.2-' + getCommitHash() + '-SNAPSHOT'
+version '1.0.3-' + getCommitHash() + '-SNAPSHOT'
 
 tasks.register('buildAndCopy', Copy) {
     dependsOn projectBuild
@@ -91,7 +91,7 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
 
-    version '1.0.2-' + getCommitHash() + '-SNAPSHOT'
+    version '1.0.3-' + getCommitHash() + '-SNAPSHOT'
 
     sourceCompatibility = '1.8'
 
@@ -141,24 +141,26 @@ allprojects {
     }
 
     publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact("build/libs/${project.name}-${project.version}.jar") {
-                    extension 'jar'
+        try{
+            publications {
+                maven(MavenPublication) {
+                    artifact("build/libs/${project.name}-${project.version}.jar") {
+                        extension 'jar'
+                    }
                 }
             }
-        }
-        repositories {
-            maven {
-                name 'nexus'
-                url getRepoUrl()
-                allowInsecureProtocol true
-                credentials {
-                    username project.repoUser
-                    password project.repoPassword
+            repositories {
+                maven {
+                    name 'nexus'
+                    url getRepoUrl()
+                    allowInsecureProtocol true
+                    credentials {
+                        username project.repoUser == null
+                        password project.repoPassword == null
+                    }
                 }
             }
-        }
+        }catch(ignored) {}
     }
 }
 
@@ -180,7 +182,6 @@ def getCommitHash() {
     def reader = new BufferedReader(new InputStreamReader(inputStream))
     def commitHash = reader.readLine()
     git.waitFor()
-    println("Commit hash: " + commitHash)
     return commitHash
 }
 
@@ -190,6 +191,5 @@ def getCurrentBrancheName(){
     def reader = new BufferedReader(new InputStreamReader(inputStream))
     def branchName = reader.readLine()
     git.waitFor()
-    println('Current branch: ' + branchName)
     return branchName
 }

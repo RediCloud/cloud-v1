@@ -274,11 +274,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                 Files.NODE_JSON.getFile().createNewFile();
             } catch (IOException e) {
                 this.console.fatal("Failed to create node.json file", e);
-                this.console.info("Stopping node in 5 seconds...");
+                this.console.info("Stopping node in 10 seconds...");
                 this.scheduler.runTaskLater(() -> {
                     this.console.info("Stopping node...");
                     this.shutdown(false);
-                }, 5, TimeUnit.SECONDS);
+                }, 10, TimeUnit.SECONDS);
                 return;
             }
             new NodeConnectionDataSetup().start((setup, state) -> {
@@ -289,11 +289,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     if (getNodeManager().existsNode(connectionInformation.getUniqueId())) {
                         this.console.error("A Node with the same name already exists!");
                         this.console.error("Please choose a different name!");
-                        this.console.info("Restarting cluster connection setup in 5 seconds...");
+                        this.console.info("Restarting cluster connection setup in 10 seconds...");
                         this.scheduler.runTaskLater(() -> {
                             Files.NODE_JSON.getFile().delete();
                             this.initClusterConnection(consumer);
-                        }, 5, TimeUnit.SECONDS);
+                        }, 10, TimeUnit.SECONDS);
                         return;
                     }
 
@@ -325,11 +325,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             connectionInformation = FileWriter.readObject(Files.NODE_JSON.getFile(), ClusterConnectionInformation.class);
         } catch (Exception e) {
             this.console.error("Failed to read node.json file, but it's not the first cluster connection!");
-            this.console.error("Starting cluster connection setup in 5 seconds...");
+            this.console.error("Starting cluster connection setup in 10 seconds...");
             this.scheduler.runTaskLater(() -> {
                 Files.NODE_JSON.getFile().delete();
                 this.initClusterConnection(consumer);
-            }, 5, TimeUnit.SECONDS);
+            }, 10, TimeUnit.SECONDS);
             return;
         }
 
@@ -370,11 +370,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         consumer.accept(this.redisConnection);
                     } catch (Exception e) {
                         this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
-                        this.console.info("Restarting redis setup in 5 seconds...");
+                        this.console.info("Restarting redis setup in 10 seconds...");
                         this.scheduler.runTaskLater(() -> {
                             Files.REDIS_CONFIG.getFile().delete();
                             initRedis(consumer);
-                        }, 5, TimeUnit.SECONDS);
+                        }, 10, TimeUnit.SECONDS);
                     }
                 }
             }));
@@ -384,11 +384,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                 credentials = FileWriter.readObject(Files.REDIS_CONFIG.getFile(), RedisCredentials.class);
             } catch (Exception e) {
                 this.console.error("Failed to read redis.json file! Please check your credentials.");
-                this.console.error("Restarting redis setup in 5 seconds...");
+                this.console.error("Restarting redis setup in 10 seconds...");
                 this.scheduler.runTaskLater(() -> {
                     Files.REDIS_CONFIG.getFile().delete();
                     initRedis(consumer);
-                }, 5, TimeUnit.SECONDS);
+                }, 10, TimeUnit.SECONDS);
                 return;
             }
             this.redisConnection = new RedisConnection(credentials);
@@ -398,10 +398,10 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                 consumer.accept(this.redisConnection);
             } catch (Exception e) {
                 this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
-                this.console.info("Trying to reconnect in 5 seconds...");
+                this.console.info("Trying to reconnect in 10 seconds...");
                 this.scheduler.runTaskLater(() -> {
                     initRedis(consumer);
-                }, 5, TimeUnit.SECONDS);
+                }, 10, TimeUnit.SECONDS);
             }
         }
     }

@@ -23,9 +23,9 @@ pipeline {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     sh "mkdir build/"
                     sh "cp -r test/node-1/storage/ build/storage/"
-                    sh "cp node/node-base/build/libs/* build/"
-                    sh "cp plugins/plugin-minecraft/build/libs/* build/storage/"
-                    sh "cp plugins/plugin-proxy/build/libs/* build/storage/"
+                    sh "cp node/node-base/build/libs/redicloud-node-base.jar build/"
+                    sh "cp plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar build/storage/"
+                    sh "cp plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar build/storage/"
                     sh "cd build/; zip -r redi-cloud.zip *";
                 }
             }

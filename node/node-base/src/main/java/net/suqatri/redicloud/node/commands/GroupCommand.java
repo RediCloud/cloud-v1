@@ -257,8 +257,8 @@ public class GroupCommand extends ConsoleCommand {
     }
 
     @Subcommand("edit")
-    @Syntax("<Group> <Key> <Value>")
-    @CommandCompletion("@groups @properties")
+    @Syntax("<Group> <Property> <Value>")
+    @CommandCompletion("@groups @group_properties")
     @Description("Edit a group property")
     public void onEdit(CommandSender commandSender, String name, String key, String value) {
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(name)

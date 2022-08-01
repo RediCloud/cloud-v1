@@ -248,8 +248,10 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         if(this.isShutdownInitiated) return;
         this.isShutdownInitiated = true;
 
-        this.service.setServiceState(ServiceState.STOPPING);
-        this.service.update();
+        if(this.service != null){
+            this.service.setServiceState(ServiceState.STOPPING);
+            this.service.update();
+        }
 
         for (ProxiedPlayer onlinePlayer : ProxyServer.getInstance().getPlayers()) {
             onlinePlayer.disconnect("§cServer is shutting down.");

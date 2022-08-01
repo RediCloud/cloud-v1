@@ -7,12 +7,13 @@ import net.suqatri.redicloud.node.console.setup.SetupSuggester;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ServiceEnvironmentSuggester implements SetupSuggester {
 
     @Override
     public List<String> suggest(Setup<?> setup, SetupEntry entry) {
-        return Arrays.stream(ServiceEnvironment.values()).parallel().map(ServiceEnvironment::name).collect(java.util.stream.Collectors.toList());
+        return Arrays.stream(ServiceEnvironment.values()).parallel().map(ServiceEnvironment::name).collect(Collectors.toList());
     }
 
 }

@@ -63,8 +63,20 @@ public class CloudNodeServiceThread extends Thread {
             if (this.checkServiceCount >= checkServiceInterval) {
                 this.checkServiceCount = 0;
                 for (IRBucketHolder<ICloudGroup> groupHolder : CloudAPI.getInstance().getGroupManager().getGroups()) {
-                    int count = groupHolder.get().getOnlineServiceCount().getBlockOrNull();
+
+                    int count = (int) groupHolder.get().getOnlineServices().getBlockOrNull().parallelStream()
+                            .filter(holder -> holder.get().getServiceState() != ServiceState.RUNNING_DEFINED)
+                            .filter(holder -> holder.get().getServiceState() != ServiceState.OFFLINE)
+                            .filter(holder -> {
+                                if(holder.get().getPercentToStartNewService() == -1) return true;
+                                int percent = ((int)(100 / ((double)holder.get().getMaxPlayers())) * holder.get().getOnlineCount());
+                                if(percent >= holder.get().getPercentToStartNewService()) return false;
+                                return holder.get().getOnlineCount() >= holder.get().getMaxPlayers();
+                            })
+                            .count();
+
                     int min = groupHolder.get().getMinServices();
+
                     if (count < min) {
                         CloudAPI.getInstance().getConsole().trace("Group " + groupHolder.get().getName() + " need to start " + (min - count) + " services");
                         for (int i = count; i < min; i++) {

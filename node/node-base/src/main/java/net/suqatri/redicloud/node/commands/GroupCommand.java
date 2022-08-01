@@ -396,6 +396,7 @@ public class GroupCommand extends ConsoleCommand {
                     CloudGroup cloudGroup = new CloudGroup();
                     cloudGroup.setUniqueId(UUID.randomUUID());
                     cloudGroup.setName(name);
+                    cloudGroup.setPercentToStartNewService(mineCraftSetup.getPercentToStartNewService());
                     cloudGroup.setStartPort(49152);
                     cloudGroup.setMinServices(mineCraftSetup.getMinServices());
                     cloudGroup.setMaxServices(mineCraftSetup.getMaxServices());
@@ -424,6 +425,7 @@ public class GroupCommand extends ConsoleCommand {
                     CloudGroup cloudGroup = new CloudGroup();
                     cloudGroup.setUniqueId(UUID.randomUUID());
                     cloudGroup.setName(name);
+                    cloudGroup.setPercentToStartNewService(proxySetup.getPercentToStartNewService());
                     cloudGroup.setStartPort(25565);
                     cloudGroup.setMinServices(proxySetup.getMinServices());
                     cloudGroup.setMaxServices(proxySetup.getMaxServices());

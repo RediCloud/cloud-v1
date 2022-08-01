@@ -18,6 +18,7 @@ public class CloudHelpCommand extends ConsoleCommand {
         commandSender.sendMessage("%hcclear §8| %tcClear the console");
         commandSender.sendMessage("%hcserviceversions %tchelp §8| %tcHelp for the service versions command");
         commandSender.sendMessage("%hcservice %tchelp §8| %tcHelp for the service command");
+        commandSender.sendMessage("%hcscreen %tchelp §8| %tcHelp for the screen command");
 
     }
 

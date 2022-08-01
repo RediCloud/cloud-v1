@@ -74,6 +74,13 @@ public interface ICloudService extends IRBucketObject {
 
     ServiceState getServiceState();
 
+    default int getPercentToStartNewService(){
+        return getConfiguration().getPercentToStartNewService();
+    }
+    default void setPercentToStartNewService(int percentToStartNewService){
+        getConfiguration().setPercentToStartNewService(percentToStartNewService);
+    }
+
     void setServiceState(ServiceState serviceState);
 
     int getMaxPlayers();

@@ -59,7 +59,7 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
                     if(serviceHolder.get().isExternal()){
                         CloudServiceInitStopPacket packet = new CloudServiceInitStopPacket();
                         packet.getPacketData().addReceiver(serviceHolder.get().getNetworkComponentInfo());
-                        packet.publishAllAsync();
+                        packet.publishAsync();
 
                         NodeLauncher.getInstance().getNode().setMemoryUsage(NodeLauncher.getInstance().getNode().getMemoryUsage()
                                 - serviceHolder.get().getConfiguration().getMaxMemory());

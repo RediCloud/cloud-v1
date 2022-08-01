@@ -167,8 +167,8 @@ allprojects {
                     url getRepoUrl()
                     allowInsecureProtocol true
                     credentials {
-                        username project.repoUser == null
-                        password project.repoPassword == null
+                        username project.repoUser
+                        password project.repoPassword
                     }
                 }
             }

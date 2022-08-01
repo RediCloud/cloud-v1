@@ -141,24 +141,26 @@ allprojects {
     }
 
     publishing {
-        publications {
-            maven(MavenPublication) {
-                artifact("build/libs/${project.name}-${project.version}.jar") {
-                    extension 'jar'
+        try{
+            publications {
+                maven(MavenPublication) {
+                    artifact("build/libs/${project.name}-${project.version}.jar") {
+                        extension 'jar'
+                    }
                 }
             }
-        }
-        repositories {
-            maven {
-                name 'nexus'
-                url getRepoUrl()
-                allowInsecureProtocol true
-                credentials {
-                    username project.repoUser
-                    password project.repoPassword
+            repositories {
+                maven {
+                    name 'nexus'
+                    url getRepoUrl()
+                    allowInsecureProtocol true
+                    credentials {
+                        username project.repoUser == null
+                        password project.repoPassword == null
+                    }
                 }
             }
-        }
+        }catch(ignored) {}
     }
 }
 

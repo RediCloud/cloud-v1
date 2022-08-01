@@ -270,28 +270,44 @@ public class GroupCommand extends ConsoleCommand {
                             .onSuccess(holder -> {
                                 try {
                                     switch (value.toUpperCase()) {
+                                        case "PERCENT_TO_START_NEW_SERVICE":
+                                            if (!ConditionChecks.isInteger(value)) {
+                                                commandSender.sendMessage("Value must be an integer");
+                                                return;
+                                            }
+                                            int intValue = Integer.parseInt(value);
+                                            if(intValue != -1 && (intValue < 0 || intValue > 100)) {
+                                                commandSender.sendMessage("Value must be greater than 400");
+                                                return;
+                                            }
+                                            holder.get().setPercentToStartNewService(intValue);
+                                            holder.get().updateAsync();
+                                            commandSender.sendMessage("Percent to start new service set to " + intValue);
+                                            break;
                                         case "MAX_MEMORY":
                                         case "MEMORY":
                                             if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
                                             }
-                                            int intValue = Integer.parseInt(value);
+                                            intValue = Integer.parseInt(value);
                                             if (intValue < 400) {
                                                 commandSender.sendMessage("Value must be greater than 400");
                                                 return;
                                             }
                                             holder.get().setMaxMemory(intValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc max memory set to %hc" + intValue);
                                             break;
                                         case "FALLBACK":
-                                        case "LOBBY_SERIVCE":
+                                        case "LOBBY_SERVICE":
                                             if (!ConditionChecks.isBoolean(value)) {
                                                 commandSender.sendMessage("Value must be a boolean");
                                                 return;
                                             }
                                             boolean boolValue = Boolean.parseBoolean(value);
                                             holder.get().setFallback(boolValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc fallback set to %hc" + boolValue);
                                             break;
                                         case "MAINTENANCE":
@@ -301,6 +317,7 @@ public class GroupCommand extends ConsoleCommand {
                                             }
                                             boolValue = Boolean.parseBoolean(value);
                                             holder.get().setMaintenance(boolValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
                                             break;
                                         case "MAX_SERVICES":
@@ -315,6 +332,7 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             holder.get().setMaxServices(intValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc max services set to %hc" + intValue);
                                             break;
                                         case "MIN_SERVICES":
@@ -329,6 +347,7 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             holder.get().setMinServices(intValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc min services set to %hc" + intValue);
                                             break;
                                         case "START_PRIORITY":
@@ -338,6 +357,7 @@ public class GroupCommand extends ConsoleCommand {
                                             }
                                             intValue = Integer.parseInt(value);
                                             holder.get().setStartPriority(intValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc start priority set to %hc" + intValue);
                                             break;
                                         case "SERVICE_VERSION":
@@ -375,7 +395,6 @@ public class GroupCommand extends ConsoleCommand {
                                                     });
                                             break;
                                     }
-                                    holder.get().updateAsync();
                                 } catch (Exception e) {
                                     StringBuilder builder = new StringBuilder();
                                     for (GroupProperty property : GroupProperty.values()) {

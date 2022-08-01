@@ -1,8 +1,12 @@
 package net.suqatri.redicloud.node;
 
 import lombok.Getter;
+import net.suqatri.commands.CommandCompletions;
+import net.suqatri.commands.ConsoleCommandCompletionContext;
+import net.suqatri.commands.InvalidCommandArgument;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.console.LogLevel;
+import net.suqatri.redicloud.api.group.GroupProperty;
 import net.suqatri.redicloud.api.impl.node.CloudNode;
 import net.suqatri.redicloud.api.impl.poll.timeout.ITimeOutPollManager;
 import net.suqatri.redicloud.api.impl.redis.RedisConnection;
@@ -17,6 +21,7 @@ import net.suqatri.redicloud.api.redis.RedisCredentials;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceState;
+import net.suqatri.redicloud.api.service.version.ServiceVersionProperty;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.connection.IPUtils;
 import net.suqatri.redicloud.commons.file.FileWriter;
@@ -44,12 +49,12 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Getter
 public class NodeLauncher extends NodeCloudDefaultAPI {
@@ -207,6 +212,42 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     private void registerCommands() {
         this.console.info("Registering cloud commands for the console...");
+
+        this.commandManager.getCommandCompletions().registerCompletion("services", context ->
+                this.serviceManager.getServices().parallelStream()
+                        .map(holder -> holder.get().getServiceName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("running_services", context ->
+                this.serviceManager.getServices().parallelStream()
+                        .filter(holder -> holder.get().getServiceState() != ServiceState.STOPPING)
+                        .map(holder -> holder.get().getServiceName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("groups", context ->
+                this.getGroupManager().getGroups().parallelStream()
+                        .map(holder -> holder.get().getName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("service_versions", context ->
+                this.getServiceVersionManager().getServiceVersions().parallelStream()
+                        .map(holder -> holder.get().getName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("service_templates", context ->
+                this.getServiceTemplateManager().getAllTemplates().parallelStream()
+                        .map(holder -> holder.get().getName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("nodes", context ->
+                this.getNodeManager().getNodes().parallelStream()
+                        .map(holder -> holder.get().getName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("connected_nodes", context ->
+                this.getNodeManager().getNodes().parallelStream()
+                        .filter(holder -> holder.get().isConnected())
+                        .map(holder -> holder.get().getName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerAsyncCompletion("group_properties", context ->
+                Arrays.stream(GroupProperty.values()).parallel().map(Enum::name).collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerAsyncCompletion("service_version_properties", context ->
+                Arrays.stream(ServiceVersionProperty.values()).parallel().map(Enum::name).collect(Collectors.toList()));
+
         if (CloudAPI.getInstance().getConsole().getLogLevel().getId() <= LogLevel.DEBUG.getId())
             this.commandManager.registerCommand(new DebugCommand());
         this.commandManager.registerCommand(new ClearCommand());

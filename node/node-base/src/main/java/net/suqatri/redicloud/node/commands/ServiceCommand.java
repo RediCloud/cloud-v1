@@ -32,6 +32,7 @@ public class ServiceCommand extends ConsoleCommand {
     @Subcommand("start")
     @Description("Start a amount of services")
     @Syntax("<Gruppe> [Amount]")
+    @CommandCompletion("@groups")
     public void onStart(CommandSender commandSender, String name, @Optional String amountString) {
         AtomicInteger amount = new AtomicInteger(1);
         if (amountString != null) {
@@ -68,7 +69,7 @@ public class ServiceCommand extends ConsoleCommand {
     @Subcommand("stop")
     @Description("Stop a service")
     @Syntax("<Service> --force")
-    @CommandCompletion("@service --force")
+    @CommandCompletion("@running_services --force")
     public void onStop(CommandSender commandSender, String serviceName, @Optional String arg) {
         boolean force = arg != null && arg.equalsIgnoreCase("--force");
         if (serviceName.endsWith("-*")) {
@@ -139,7 +140,7 @@ public class ServiceCommand extends ConsoleCommand {
     @Subcommand("info")
     @Description("Get info about a service")
     @Syntax("<Service>")
-    @CommandCompletion("@service")
+    @CommandCompletion("@services")
     public void onInfo(CommandSender commandSender, String serviceName) {
         CloudAPI.getInstance().getConsole().trace("Checking service existence...");
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)

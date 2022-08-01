@@ -60,4 +60,7 @@ public interface IServiceStartConfiguration {
 
     void listenToStart();
 
+    int getPercentToStartNewService();
+    void setPercentToStartNewService(int percentToStartNewService);
+
 }

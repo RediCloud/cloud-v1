@@ -2,11 +2,30 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud'
+group 'net.suqatri.redicloud.api.minecraft'
 
 dependencies {
     implementation project(':api:api')
     implementation project(':api:api-default-impl')
     compileOnly('org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT')
     implementation project(':commands:command-bukkit')
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact('build/libs/redicloud-api-minecraft.jar') {
+                extension 'jar'
+            }}}
+    repositories {
+        maven {
+            name 'nexus'
+            url 'http://repo.suqatri.net:8081/repository/maven-releases/'
+            allowInsecureProtocol true
+            credentials {
+                username project.repoUser
+                password project.repoPassword
+            }
+        }
+    }
 }

@@ -2,9 +2,27 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud'
+group 'net.suqatri.redicloud.commands.core'
 
 dependencies {
     implementation project(':commands:command-locales')
     implementation('net.jodah:expiringmap:0.5.10')
+}
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact('build/libs/redicloud-command-core.jar') {
+                extension 'jar'
+            }}}
+    repositories {
+        maven {
+            name 'nexus'
+            url 'http://repo.suqatri.net:8081/repository/maven-releases/'
+            allowInsecureProtocol true
+            credentials {
+                username project.repoUser
+                password project.repoPassword
+            }
+        }
+    }
 }

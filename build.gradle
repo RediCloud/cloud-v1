@@ -1,10 +1,11 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'maven-publish'
 }
 
 group 'net.suqatri.redicloud'
-version '1.2.0-BETA'
+version '1.2.1-' + getCommitHash() + '-BETA'
 
 tasks.register('buildAndCopy', Copy) {
     dependsOn projectBuild
@@ -63,12 +64,36 @@ tasks.register('copyProxyPlugin', Copy) {
     rename "plugin-proxy-${project.version}-all.jar", "plugin-proxy-${project.version}.jar"
 }
 
+tasks.register('publishToRepository') {
+    dependsOn ':commons:publish'
+    dependsOn ':api:api:publish'
+    dependsOn ':api:api-default-impl:publish'
+
+    dependsOn ':commands:command-locales:publish'
+    dependsOn ':commands:command-core:publish'
+    dependsOn ':commands:command-bukkit:publish'
+    dependsOn ':commands:command-bungeecord:publish'
+
+    dependsOn ':api:api-node:publish'
+    dependsOn ':api:api-minecraft:publish'
+    dependsOn ':api:api-proxy:publish'
+
+    dependsOn ':node:node-base:publish'
+    dependsOn ':node:node-runner:publish'
+
+    dependsOn ':plugins:plugin-minecraft:publish'
+    dependsOn ':plugins:plugin-proxy:publish'
+}
+
 allprojects {
 
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'maven-publish'
 
-    version '1.2.0-BETA'
+    version '1.2.1-' + getCommitHash() + '-BETA'
+
+    sourceCompatibility = '1.8'
 
     compileJava {
         options.encoding = 'UTF-8'
@@ -108,11 +133,29 @@ allprojects {
     tasks.jar.dependsOn tasks.shadowJar
 
     shadowJar {
-        archiveFileName.set("${project.name}.jar")
+        archiveFileName.set("redicloud-${project.name}.jar")
         dependencies {
             configurations = [project.configurations.runtimeClasspath]
         }
         relocate 'io.netty', 'net.suqatri.redicloud.libs.io.netty'
     }
 
+}
+
+def getCommitHash() {
+    def git = new ProcessBuilder('git', 'rev-parse', getCurrentBrancheName()).directory(project.projectDir).start()
+    def inputStream = git.getInputStream();
+    def reader = new BufferedReader(new InputStreamReader(inputStream))
+    def commitHash = reader.readLine()
+    git.waitFor()
+    return commitHash
+}
+
+def getCurrentBrancheName(){
+    def git = new ProcessBuilder('git', 'symbolic-ref', '--short', '-q', 'HEAD').directory(project.projectDir).start()
+    def inputStream = git.getInputStream();
+    def reader = new BufferedReader(new InputStreamReader(inputStream))
+    def branchName = reader.readLine()
+    git.waitFor()
+    return branchName
 }

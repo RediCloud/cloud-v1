@@ -14,3 +14,23 @@ dependencies {
     implementation('cglib:cglib:3.3.0')
     implementation('com.fasterxml.jackson.core:jackson-databind:2.13.3')
 }
+
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact('build/libs/redicloud-node-runner.jar') {
+                extension 'jar'
+            }}}
+    repositories {
+        maven {
+            name 'nexus'
+            url 'http://repo.suqatri.net:8081/repository/maven-releases/'
+            allowInsecureProtocol true
+            credentials {
+                username project.repoUser
+                password project.repoPassword
+            }
+        }
+    }
+}

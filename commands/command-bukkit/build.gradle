@@ -2,11 +2,29 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud'
+group 'net.suqatri.redicloud.commands.bukkit'
 
 dependencies {
     implementation('co.aikar:minecraft-timings:1.0.4')
     implementation project(':commands:command-core')
     implementation project(':commands:command-locales')
     compileOnly('org.spigotmc:spigot-api:1.12-R0.1-SNAPSHOT')
+}
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact('build/libs/redicloud-command-bukkit.jar') {
+                extension 'jar'
+            }}}
+    repositories {
+        maven {
+            name 'nexus'
+            url 'http://repo.suqatri.net:8081/repository/maven-releases/'
+            allowInsecureProtocol true
+            credentials {
+                username project.repoUser
+                password project.repoPassword
+            }
+        }
+    }
 }

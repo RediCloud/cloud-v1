@@ -2,8 +2,27 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud'
+group 'net.suqatri.redicloud.api'
 
 dependencies {
     implementation project(':commons')
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact('build/libs/redicloud-api.jar') {
+                extension 'jar'
+            }}}
+    repositories {
+        maven {
+            name 'nexus'
+            url 'http://repo.suqatri.net:8081/repository/maven-releases/'
+            allowInsecureProtocol true
+            credentials {
+                username project.repoUser
+                password project.repoPassword
+            }
+        }
+    }
 }

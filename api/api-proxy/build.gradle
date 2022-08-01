@@ -2,9 +2,28 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud'
+group 'net.suqatri.redicloud.api.proxy'
 
 dependencies {
     compileOnly('net.md-5:bungeecord-api:1.19-R0.1-SNAPSHOT')
     implementation project(':api:api-default-impl')
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact('build/libs/redicloud-api-proxy.jar') {
+                extension 'jar'
+            }}}
+    repositories {
+        maven {
+            name 'nexus'
+            url 'http://repo.suqatri.net:8081/repository/maven-releases/'
+            allowInsecureProtocol true
+            credentials {
+                username project.repoUser
+                password project.repoPassword
+            }
+        }
+    }
 }

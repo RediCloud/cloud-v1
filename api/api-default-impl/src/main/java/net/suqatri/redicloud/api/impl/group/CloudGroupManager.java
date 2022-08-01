@@ -109,7 +109,7 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
         getGroupAsync(uniqueId)
                 .onFailure(futureAction)
                 .onSuccess(groupHolder -> {
-                    groupHolder.get().getOnlineServices()
+                    groupHolder.get().getConnectedServices()
                             .onFailure(futureAction)
                             .onSuccess(serviceHolders -> {
                                 FutureActionCollection<UUID, Boolean> futureActionFutureAction = new FutureActionCollection<>();

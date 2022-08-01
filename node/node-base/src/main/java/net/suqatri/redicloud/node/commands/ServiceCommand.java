@@ -81,7 +81,7 @@ public class ServiceCommand extends ConsoleCommand {
                             return;
                         }
                         commandSender.sendMessage((force ? "Force stopping" : "Stopping") + " all service of group " + groupHolder.get().getName() + "...");
-                        groupHolder.get().getOnlineServices()
+                        groupHolder.get().getConnectedServices()
                                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get services", t))
                                 .onSuccess(serviceHolders -> {
                                     FutureActionCollection<IServiceStartConfiguration, Boolean> futureActionCollection = new FutureActionCollection();

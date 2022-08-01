@@ -64,7 +64,7 @@ public class CloudNodeServiceThread extends Thread {
                 this.checkServiceCount = 0;
                 for (IRBucketHolder<ICloudGroup> groupHolder : CloudAPI.getInstance().getGroupManager().getGroups()) {
 
-                    int count = (int) groupHolder.get().getOnlineServices().getBlockOrNull().parallelStream()
+                    int count = (int) groupHolder.get().getConnectedServices().getBlockOrNull().parallelStream()
                             .filter(holder -> holder.get().getServiceState() != ServiceState.RUNNING_DEFINED)
                             .filter(holder -> holder.get().getServiceState() != ServiceState.OFFLINE)
                             .filter(holder -> {

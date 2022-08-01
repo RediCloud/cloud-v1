@@ -138,7 +138,7 @@ public class GroupCommand extends ConsoleCommand {
                     CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
                             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
                             .onSuccess(groupHolder -> {
-                                groupHolder.get().getOnlineServices()
+                                groupHolder.get().getConnectedServices()
                                         .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
                                         .onSuccess(services -> {
                                             StringBuilder builder = new StringBuilder();

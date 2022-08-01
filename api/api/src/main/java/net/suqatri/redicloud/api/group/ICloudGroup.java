@@ -66,9 +66,9 @@ public interface ICloudGroup extends IRBucketObject {
 
     FutureAction<Integer> getServicesCount(ServiceState serviceState);
 
-    FutureAction<Collection<IRBucketHolder<ICloudService>>> getOnlineServices();
+    FutureAction<Collection<IRBucketHolder<ICloudService>>> getConnectedServices();
 
-    FutureAction<Collection<IRBucketHolder<ICloudService>>> getOnlineServices(ServiceState serviceState);
+    FutureAction<Collection<IRBucketHolder<ICloudService>>> getServices(ServiceState serviceState);
 
     boolean isStatic();
 

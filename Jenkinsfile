@@ -10,12 +10,12 @@ pipeline {
         stage("Clean") {
             steps {
                 sh "chmod +x ./gradlew";
-                sh "./gradlew clean";
+                sh "./gradlew clean --stacktrace";
             }
         }
         stage("Build") {
             steps {
-                sh "./gradlew projectBuild";
+                sh "./gradlew projectBuild --stacktrace";
             }
         }
         stage("Create zip") {
@@ -37,7 +37,7 @@ pipeline {
         }
         stage("Publishing") {
             steps {
-                sh "./gradlew publishToRepository";
+                sh "./gradlew publishToRepository --stacktrace";
             }
         }
         stage("Delete temp files") {

@@ -135,6 +135,18 @@ allprojects {
         relocate 'io.netty', 'net.suqatri.redicloud.libs.io.netty'
     }
 
+    task createProperties(dependsOn: processResources) {
+        def file = new File("$projectDir/src/main/resources/redicloud.properties")
+        if(!file.exists()) return
+        file.withWriter { w ->
+            Properties p = new Properties()
+            p['version'] = project.version.toString()
+            p['git-commit'] = getCommitHash()
+            p['git-branch-name'] = getCurrentBrancheName()
+            p.store w, null
+        }
+    }
+
     publishing {
         try{
             publications {
@@ -187,4 +199,8 @@ def getCurrentBrancheName(){
     def branchName = reader.readLine()
     git.waitFor()
     return branchName
+}
+
+classes {
+    dependsOn createProperties
 }

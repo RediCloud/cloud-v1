@@ -17,6 +17,7 @@ import net.suqatri.redicloud.node.service.NodeCloudServiceManager;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class CloudNodeServiceThread extends Thread {
 
@@ -25,6 +26,7 @@ public class CloudNodeServiceThread extends Thread {
     private static final int maxServiceOnNodeInterval = 35;
     private static final int maxServiceOfGroupInterval = 25;
     private static final int valueCheckInterval = 300;
+    private static final int debugMinServiceCheckInterval = 6;
 
     @Getter
     private final PriorityQueue<IServiceStartConfiguration> queue;
@@ -38,6 +40,7 @@ public class CloudNodeServiceThread extends Thread {
     private int maxServiceOnNodeCount = Integer.MAX_VALUE-1;
     private int maxServiceOfGroupCount = Integer.MAX_VALUE-1;
     private int currentValueCount = Integer.MAX_VALUE-1;
+    private int debugMinServiceCount = Integer.MAX_VALUE-1;
     private CloudNode node;
 
     public CloudNodeServiceThread(NodeCloudServiceFactory factory) {
@@ -64,19 +67,39 @@ public class CloudNodeServiceThread extends Thread {
                 this.checkServiceCount = 0;
                 for (IRBucketHolder<ICloudGroup> groupHolder : CloudAPI.getInstance().getGroupManager().getGroups()) {
 
-                    int count = (int) groupHolder.get().getConnectedServices().getBlockOrNull().parallelStream()
-                            .filter(holder -> holder.get().getServiceState() != ServiceState.RUNNING_DEFINED)
-                            .filter(holder -> holder.get().getServiceState() != ServiceState.OFFLINE)
+                    CloudAPI.getInstance().getConsole().trace("Checking group " + groupHolder.get().getName());
+                    int count = (int) (int) groupHolder.get().getConnectedServices()
+                            .getBlockOrNull()
+                            .parallelStream()
                             .filter(holder -> {
-                                if(holder.get().getPercentToStartNewService() == -1) return true;
-                                int percent = ((int)(100 / ((double)holder.get().getMaxPlayers())) * holder.get().getOnlineCount());
-                                if(percent >= holder.get().getPercentToStartNewService()) return false;
-                                if(holder.get().getMaxPlayers() == -1) return true;
-                                return holder.get().getOnlineCount() >= holder.get().getMaxPlayers();
+                                if (holder.get().getServiceState() == ServiceState.OFFLINE) {
+                                    CloudAPI.getInstance().getConsole().trace("Remove service " + holder.get().getServiceName() + " because it is not running");
+                                }
+                                return holder.get().getServiceState() != ServiceState.OFFLINE;
                             })
-                            .count();
-
+                            .filter(holder -> {
+                                if (holder.get().getServiceState() == ServiceState.RUNNING_DEFINED) {
+                                    CloudAPI.getInstance().getConsole().trace("Remove service " + holder.get().getServiceName() + " because service running defined state");
+                                }
+                                return holder.get().getServiceState() != ServiceState.RUNNING_DEFINED;
+                            })
+                            .filter(holder -> {
+                                if (holder.get().getMaxPlayers() == -1) return true;
+                                if (holder.get().getPercentToStartNewService() == -1) return true;
+                                int percent = ((int) (100 / ((double) holder.get().getMaxPlayers())) * holder.get().getOnlineCount());
+                                if (percent >= holder.get().getPercentToStartNewService()) {
+                                    CloudAPI.getInstance().getConsole().trace("Remove service "
+                                            + holder.get().getServiceName() + " because percent to start new service is "
+                                            + percent + " and percent to start new service is " + holder.get().getPercentToStartNewService());
+                                    return false;
+                                }
+                                return holder.get().getOnlineCount() >= holder.get().getMaxPlayers();
+                            }).count();
                     int min = groupHolder.get().getMinServices();
+
+                    if(this.debugMinServiceCount >= debugMinServiceCheckInterval){
+                        CloudAPI.getInstance().getConsole().trace("Group " + groupHolder.get().getName() + " has " + count + " services running, min is " + min);
+                    }
 
                     if (count < min) {
                         CloudAPI.getInstance().getConsole().trace("Group " + groupHolder.get().getName() + " need to start " + (min - count) + " services");

@@ -133,7 +133,7 @@ Please note that this project is still work in progress and not stable yet
 
 
 <details>
-  <summary>Screen help/summary>
+  <summary>Screen help</summary>
   <picture>
     <source srcset="https://user-images.githubusercontent.com/44299323/182185958-e310bfc5-51ad-413b-8a5f-6426a76eed5d.png" media="(min-width: 600px)">
     <img src="https://user-images.githubusercontent.com/44299323/182185958-e310bfc5-51ad-413b-8a5f-6426a76eed5d.png">

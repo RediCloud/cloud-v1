@@ -9,6 +9,8 @@ import net.suqatri.redicloud.node.console.setup.annotations.ConditionChecker;
 import net.suqatri.redicloud.node.console.setup.annotations.Question;
 import net.suqatri.redicloud.node.console.setup.conditions.PositivIntegerCondition;
 import net.suqatri.redicloud.node.console.setup.suggester.BooleanSuggester;
+import net.suqatri.redicloud.node.console.setup.suggester.IntegerSuggester;
+import net.suqatri.redicloud.node.console.setup.suggester.MemorySuggester;
 import net.suqatri.redicloud.node.setup.condition.GroupMemoryCondition;
 import net.suqatri.redicloud.node.setup.condition.ServiceVersionExistsCondition;
 
@@ -23,10 +25,12 @@ public class MinecraftSetup extends Setup<MinecraftSetup> {
     private int maxServices;
 
     @Question(id = 3, question = "How much memory should be allocated to each service?")
+    @AnswerCompleter(value = MemorySuggester.class)
     @ConditionChecker(value = GroupMemoryCondition.class, message = "The memory must be higher than 500")
     private int maxMemory;
 
     @Question(id = 4, question = "What is the start priority of the group?")
+    @AnswerCompleter(value = IntegerSuggester.class)
     private int startPriority;
 
     @Question(id = 5, question = "Should the group a static group?")

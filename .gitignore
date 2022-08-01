@@ -16,6 +16,8 @@ test/node-2/storage/versions/
 test/node-1/external/
 test/node-2/external/
 
+redicloud.properties
+
 **/build/
 .gradle/
 

@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'net.suqatri.redicloud'
-version '1.2.1-' + getCommitHash() + '-BETA'
+version '1.0.1-' + getCommitHash() + '-SNAPSHOT'
 
 tasks.register('buildAndCopy', Copy) {
     dependsOn projectBuild
@@ -91,7 +91,7 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
 
-    version '1.2.1-' + getCommitHash() + '-BETA'
+    version '1.0.1-' + getCommitHash() + '-SNAPSHOT'
 
     sourceCompatibility = '1.8'
 
@@ -151,7 +151,7 @@ allprojects {
         repositories {
             maven {
                 name 'nexus'
-                url 'http://repo.suqatri.net:8081/repository/maven-releases/'
+                url getRepoUrl()
                 allowInsecureProtocol true
                 credentials {
                     username project.repoUser
@@ -159,6 +159,18 @@ allprojects {
                 }
             }
         }
+    }
+}
+
+def isRelease() {
+    return project.version.contains('-RELEASE')
+}
+
+def getRepoUrl(){
+    if(isRelease()){
+        return 'http://repo.suqatri.net:8081/repository/maven-releases/'
+    }else{
+        return 'http://repo.suqatri.net:8081/repository/maven-snapshots/'
     }
 }
 

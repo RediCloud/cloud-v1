@@ -159,7 +159,7 @@ Please note that this project is still work in progress and not stable yet
 
 ### Build
 
-Last Build: [Jetkins](http://jetkins.suqatri.net:8443/job/redi-cloud/)
+Last Build: [jenkins](http://jetkins.suqatri.net:8443/job/redi-cloud/)
 
 Linux / OSX
 ```

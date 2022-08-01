@@ -32,7 +32,7 @@ public class ProxySetup extends Setup<ProxySetup> {
     @Question(id = 5, question = "What percentage does a server need to be full for a new one to start? (-1 = disable)")
     private int percentToStartNewService;
 
-    @Question(id = 6 question = "Should the group a static group?")
+    @Question(id = 6, question = "Should the group a static group?")
     @AnswerCompleter(value = BooleanSuggester.class)
     private boolean staticGroup;
 

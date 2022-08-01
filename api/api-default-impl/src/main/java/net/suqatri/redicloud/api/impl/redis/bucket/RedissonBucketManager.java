@@ -65,7 +65,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
                 .onFailure(futureAction)
                 .onSuccess(exists -> {
                     if (!exists) {
-                        futureAction.completeExceptionally(new NullPointerException("Bucket[" + identifier + "] does not exist"));
+                        futureAction.completeExceptionally(new NullPointerException("Bucket[" + identifier + "] doesn't exist"));
                         return;
                     }
                     RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
@@ -94,7 +94,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
         if (this.isBucketHolderCached(identifier)) return (IRBucketHolder<I>) this.cachedBucketHolders.get(identifier);
         RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
         if (!bucket.isExists())
-            throw new NullPointerException("Bucket[" + getRedisKey(identifier) + "] does not exist");
+            throw new NullPointerException("Bucket[" + getRedisKey(identifier) + "] doesn't exist");
         T object = bucket.get();
         IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, (RBucketObject) object);
         this.cachedBucketHolders.put(identifier, bucketHolder);
@@ -148,6 +148,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
         if (!this.isBucketHolderCached(identifier)) return;
         CloudAPI.getInstance().getConsole().trace("Updating bucket: " + getRedisKey(identifier));
         IRBucketHolder<T> bucketHolder = this.cachedBucketHolders.get(identifier);
+        if(bucketHolder == null) return; //bucket was deleted while updating
         bucketHolder.mergeChanges(json);
     }
 

@@ -34,7 +34,7 @@ public class ProxySetup extends Setup<ProxySetup> {
     private boolean staticGroup;
 
     @Question(id = 6, question = "What service version should be used for the group?")
-    @ConditionChecker(value = ServiceVersionExistsCondition.class, message = "Service version does not exist.")
+    @ConditionChecker(value = ServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
     private String serviceVersionName;
 
     public ProxySetup() {

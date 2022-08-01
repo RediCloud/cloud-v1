@@ -21,7 +21,8 @@ public class ProxyConsole implements IConsole {
     public ProxyConsole(Logger logger) {
         this.logger = logger;
         this.lineEntries = new ArrayList<>();
-        this.logLevel = LogLevel.valueOf(System.getenv("redicloud_log_level"));
+        this.logLevel = LogLevel.valueOf(System.getenv().containsKey("redicloud_log_level")
+                ? System.getenv("redicloud_log_level") : "DEBUG");
     }
 
     @Override

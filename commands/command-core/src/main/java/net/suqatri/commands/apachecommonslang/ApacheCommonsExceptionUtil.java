@@ -899,7 +899,7 @@ public class ApacheCommonsExceptionUtil {
          * @param index the index of the <code>Throwable</code> in the chain of
          *              <code>Throwable</code>s
          * @return the error message, or null if the <code>Throwable</code> at the
-         * specified index in the chain does not contain a message
+         * specified index in the chain doesn't contain a message
          * @throws IndexOutOfBoundsException if the <code>index</code> argument is
          *                                   negative or not less than the count of <code>Throwable</code>s in the
          *                                   chain

@@ -38,7 +38,7 @@ public class MinecraftSetup extends Setup<MinecraftSetup> {
     private boolean fallback;
 
     @Question(id = 7, question = "What service version should be used for the group?")
-    @ConditionChecker(value = ServiceVersionExistsCondition.class, message = "Service version does not exist.")
+    @ConditionChecker(value = ServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
     private String serviceVersionName;
 
     public MinecraftSetup() {

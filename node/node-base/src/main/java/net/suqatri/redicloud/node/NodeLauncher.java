@@ -453,11 +453,17 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             if (this.console != null) this.console.info("Disconnecting from cluster...");
 
             if (this.serviceManager != null) {
+
                 int stopCount = 0;
+                boolean isLastNode = this.getNodeManager().getNodes().parallelStream()
+                        .filter(nodeHolder -> nodeHolder.get().isConnected())
+                        .count() == 1;
+
                 if (this.console != null) this.console.info("Stopping services...");
                 ((NodeCloudServiceFactory) this.serviceFactory).getThread().interrupt();
                 for (IRBucketHolder<ICloudService> serviceHolders : this.serviceManager.getServices()) {
-                    if (!serviceHolders.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    //TODO create event for cluster shutdown
+                    if(serviceHolders.get().isExternal() && !isLastNode) continue;
                     if (serviceHolders.get().getServiceState() == ServiceState.OFFLINE) continue;
                     if (!this.serviceManager.existsService(serviceHolders.get().getUniqueId())) continue;
                     stopCount++;

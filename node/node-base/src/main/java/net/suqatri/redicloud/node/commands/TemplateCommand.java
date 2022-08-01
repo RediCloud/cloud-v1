@@ -93,7 +93,7 @@ public class TemplateCommand extends ConsoleCommand {
                                 .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while deleting template!", throwable))
                                 .onSuccess(s -> commandSender.sendMessage("Template deleted with name %hc" + name));
                     } else {
-                        commandSender.sendMessage("Template does not exist!");
+                        commandSender.sendMessage("Template doesn't exist!");
                     }
                 });
     }
@@ -125,7 +125,7 @@ public class TemplateCommand extends ConsoleCommand {
                                             });
                                 });
                     } else {
-                        commandSender.sendMessage("Template does not exist!");
+                        commandSender.sendMessage("Template doesn't exist!");
                     }
                 });
     }
@@ -204,7 +204,7 @@ public class TemplateCommand extends ConsoleCommand {
                 .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while checking node existence!", throwable))
                 .onSuccess(exists -> {
                     if (!exists) {
-                        commandSender.sendMessage("Node does not exist!");
+                        commandSender.sendMessage("Node doesn't exist!");
                         return;
                     }
                     CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)

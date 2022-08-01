@@ -64,7 +64,7 @@ public final class ACFPatterns {
      * If the pattern is stored already in {@link #patternCache}, it will simply fetch it from there.
      * If it is not, it will store it there for further use.
      * <p>
-     * The {@link #patternCache} does not contain the constant patterns defined in this class.
+     * The {@link #patternCache} doesn't contain the constant patterns defined in this class.
      *
      * @param pattern The raw pattern in a String.
      * @return The pattern which has been cached.

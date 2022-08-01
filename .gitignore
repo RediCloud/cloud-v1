@@ -28,9 +28,7 @@ test/node-2/node-base-*.jar
 
 gradle.properties
 
-test/node-1/storage/redicloud-*.jar
-test/node-2/storage/redicloud-*.jar
-test/node-1/redicloud-*.jar
-test/node-2/redicloud-*.jar
+redicloud-*.jar
+redicloud-*.jar
 
 version.txt

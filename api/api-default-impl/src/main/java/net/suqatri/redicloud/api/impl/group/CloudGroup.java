@@ -110,7 +110,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(services -> (int) services
                         .parallelStream()
-                        .filter(holder -> holder.get().getGroup() != null)
+                        .filter(holder -> holder.get().isGroupBased())
                         .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(this.name))
                         .filter(service -> service.get().getServiceState() == serviceState)
                         .count());
@@ -121,7 +121,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(holders -> holders
                         .parallelStream()
-                        .filter(holder -> holder.get().getGroup() != null)
+                        .filter(holder -> holder.get().isGroupBased())
                         .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(this.name))
                         .filter(holder -> holder.get().getServiceState() != ServiceState.OFFLINE)
                         .collect(Collectors.toList())
@@ -133,7 +133,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(holders -> holders
                         .parallelStream()
-                        .filter(holder -> holder.get().getGroup() != null)
+                        .filter(holder -> holder.get().isGroupBased())
                         .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(this.name))
                         .filter(holder -> holder.get().getServiceState() == serviceState)
                         .collect(Collectors.toList()));

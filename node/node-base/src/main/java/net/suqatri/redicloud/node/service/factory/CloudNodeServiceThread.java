@@ -17,7 +17,6 @@ import net.suqatri.redicloud.node.service.NodeCloudServiceManager;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 public class CloudNodeServiceThread extends Thread {
 
@@ -242,7 +241,7 @@ public class CloudNodeServiceThread extends Thread {
             cloudService.setExternal(false);
             cloudService.setServiceState(ServiceState.PREPARE);
             cloudService.setMaxPlayers(50);
-            if (configuration.getEnvironment() == ServiceEnvironment.PROXY) {
+            if (configuration.getEnvironment() == ServiceEnvironment.BUNGEECORD || configuration.getEnvironment() == ServiceEnvironment.VELOCITY) {
                 cloudService.setMotd("§7•§8● §bRedi§3Cloud §8» §fA §bredis §fbased §bcluster §fcloud system§r\n    §b§l§8× §fDiscord §8➜ §3https://discord.gg/g2HV52VV4G");
             } else {
                 cloudService.setMotd("§bRedi§3Cloud§7-§fService");

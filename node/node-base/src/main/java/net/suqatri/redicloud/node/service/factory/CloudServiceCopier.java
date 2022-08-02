@@ -41,7 +41,10 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                     if (existsGlobal) {
                         futureActionCollection.addToProcess("global-all", this.templateManager.getTemplateAsync("global-all"));
                     }
-                    String globalEnvironmentTemplate = process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.PROXY ? "global-proxy" : "global-minecraft";
+                    String globalEnvironmentTemplate =
+                            process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.BUNGEECORD
+                            || process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY
+                            ? "global-proxy" : "global-minecraft";
                     this.templateManager.existsTemplateAsync(globalEnvironmentTemplate)
                             .onFailure(futureAction)
                             .onSuccess(existsGlobalEnvironment -> {
@@ -79,10 +82,14 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                                         configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "server.properties"));
                                                                         break;
 
-                                                                    case PROXY:
+                                                                    case BUNGEECORD:
                                                                         FileUtils.copyFileToDirectory(Files.PROXY_PLUGIN_JAR.getFile(), pluginFolder);
                                                                         configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "config.yml"));
                                                                         break;
+                                                                        case VELOCITY:
+                                                                            FileUtils.copyFileToDirectory(Files.VELOCITY_PLUGIN_JAR.getFile(), pluginFolder);
+                                                                            //TODO velocity config file
+                                                                            break;
                                                                 }
 
                                                                 if (Files.SERVER_ICON.exists())
@@ -130,7 +137,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
             folders.add(this.templateManager.getTemplate("global-all").get().getTemplateFolder());
         }
 
-        String globalEnvironmentTemplate = process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.PROXY ? "global-proxy" : "global-minecraft";
+        String globalEnvironmentTemplate = process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.BUNGEECORD ? "global-proxy" : "global-minecraft";
         if (this.templateManager.existsTemplate(globalEnvironmentTemplate)) {
             folders.add(this.templateManager.getTemplate(globalEnvironmentTemplate).get().getTemplateFolder());
         }
@@ -156,9 +163,13 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                 configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "server.properties"));
                 break;
 
-            case PROXY:
+            case BUNGEECORD:
                 FileUtils.copyFileToDirectory(Files.PROXY_PLUGIN_JAR.getFile(), pluginFolder);
                 configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "config.yml"));
+                break;
+            case VELOCITY:
+                FileUtils.copyFileToDirectory(Files.VELOCITY_PLUGIN_JAR.getFile(), pluginFolder);
+                //TODO velocity config file
                 break;
         }
 
@@ -186,7 +197,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                 editProperties(new File(this.getServiceDirectory(), "server.properties"));
                 break;
 
-            case PROXY:
+            case BUNGEECORD:
                 editConfig(new File(this.getServiceDirectory(), "config.yml"));
                 break;
         }

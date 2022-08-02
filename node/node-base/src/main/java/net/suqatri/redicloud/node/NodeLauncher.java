@@ -467,6 +467,9 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         if (!Files.PROXY_PLUGIN_JAR.exists()) {
             throw new FileNotFoundException("Proxy plugin jar not found!");
         }
+        if(!Files.VELOCITY_PLUGIN_JAR.exists()){
+            throw new FileNotFoundException("Velocity plugin jar not found!");
+        }
         Files.LIBS_FOLDER.createIfNotExists();
         Files.LIBS_BLACKLIST_FOLDER.createIfNotExists();
         Files.LIBS_REPO_FOLDER.createIfNotExists();

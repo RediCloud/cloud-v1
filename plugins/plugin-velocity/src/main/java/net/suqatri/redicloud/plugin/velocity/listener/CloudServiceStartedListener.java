@@ -2,7 +2,6 @@ package net.suqatri.redicloud.plugin.velocity.listener;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.ServerInfo;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.event.CloudListener;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
@@ -19,7 +18,8 @@ public class CloudServiceStartedListener {
         event.getServiceAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to register service!", e))
                 .onSuccess(serviceHolder -> {
-                    if (serviceHolder.get().getEnvironment() == ServiceEnvironment.PROXY) return;
+                    if (serviceHolder.get().getEnvironment() == ServiceEnvironment.BUNGEECORD) return;
+                    if (serviceHolder.get().getEnvironment() == ServiceEnvironment.VELOCITY) return;
 
                     ServerInfo serverInfo = new ServerInfo(
                             serviceHolder.get().getServiceName(),

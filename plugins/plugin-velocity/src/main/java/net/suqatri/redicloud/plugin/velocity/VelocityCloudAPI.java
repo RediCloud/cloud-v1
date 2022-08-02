@@ -126,7 +126,8 @@ public class VelocityCloudAPI extends CloudDefaultAPIImpl<CloudService> {
                     }
 
                     for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                        if (serviceHolder.get().getEnvironment() == ServiceEnvironment.PROXY) continue;
+                        if (serviceHolder.get().getEnvironment() == ServiceEnvironment.BUNGEECORD) continue;
+                        if(serviceHolder.get().getEnvironment() == ServiceEnvironment.VELOCITY) continue;
                         ServerInfo serverInfo = new ServerInfo(serviceHolder.get().getServiceName(),
                                 new InetSocketAddress(serviceHolder.get().getHostName(), serviceHolder.get().getPort()));
                         this.proxyServer.registerServer(serverInfo);

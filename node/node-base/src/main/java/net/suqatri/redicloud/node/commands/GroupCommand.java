@@ -452,7 +452,7 @@ public class GroupCommand extends ConsoleCommand {
             return;
         }
 
-        if (groupSetup.getEnvironment().equals(ServiceEnvironment.PROXY)) {
+        if (groupSetup.getEnvironment() == ServiceEnvironment.BUNGEECORD || groupSetup.getEnvironment() == ServiceEnvironment.VELOCITY) {
             new ProxySetup().start((proxySetup, proxySetupControlState) -> {
                 if (proxySetupControlState == SetupControlState.FINISHED) {
 
@@ -469,7 +469,7 @@ public class GroupCommand extends ConsoleCommand {
                     cloudGroup.setMaxMemory(proxySetup.getMaxMemory());
                     cloudGroup.setStartPriority(proxySetup.getStartPriority());
                     cloudGroup.setServiceVersionName(proxySetup.getServiceVersionName());
-                    cloudGroup.setServiceEnvironment(ServiceEnvironment.PROXY);
+                    cloudGroup.setServiceEnvironment(groupSetup.getEnvironment());
 
                     CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
                             .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))

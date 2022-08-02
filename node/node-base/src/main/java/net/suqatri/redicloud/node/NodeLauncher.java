@@ -36,6 +36,7 @@ import net.suqatri.redicloud.node.listener.CloudServiceStartedListener;
 import net.suqatri.redicloud.node.listener.CloudServiceStoppedListener;
 import net.suqatri.redicloud.node.node.ClusterConnectionInformation;
 import net.suqatri.redicloud.node.node.packet.NodePingPacket;
+import net.suqatri.redicloud.node.node.packet.NodePingPacketResponse;
 import net.suqatri.redicloud.node.poll.timeout.TimeOutPollManager;
 import net.suqatri.redicloud.node.scheduler.Scheduler;
 import net.suqatri.redicloud.node.service.NodeCloudServiceManager;
@@ -264,6 +265,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     private void registerPackets() {
         this.getPacketManager().registerPacket(NodePingPacket.class);
+        this.getPacketManager().registerPacket(NodePingPacketResponse.class);
     }
 
     private void registerListeners() {
@@ -510,7 +512,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                 for (IRBucketHolder<ICloudService> serviceHolder : this.serviceManager.getServices()) {
                     //TODO create event for cluster shutdown
                     if(serviceHolder.get().isExternal() && !isLastNode) continue;
-                    if(serviceHolder.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    if(!serviceHolder.get().getNodeId().equals(this.node.getUniqueId())) continue;
                     if (serviceHolder.get().getServiceState() == ServiceState.OFFLINE) continue;
                     if (!this.serviceManager.existsService(serviceHolder.get().getUniqueId())) continue;
                     stopCount++;

@@ -60,48 +60,40 @@ tasks.register('projectBuild') {
 tasks.register('copyNodeBaseToNode1', Copy) {
     from "node/node-base/build/libs/redicloud-node-base.jar"
     into 'test/node-1'
-    rename "node-base-${project.version}-all.jar", "redicloud-node-base.jar"
 }
 
 tasks.register('copyMinecraftPluginToNode1', Copy) {
     from "plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar"
     into 'test/node-1/storage'
-    rename "plugin-minecraft-${project.version}-all.jar", "redicloud-plugin-minecraft.jar"
 }
 
 tasks.register('copyProxyPluginToNode1', Copy) {
     from "plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar"
     into 'test/node-1/storage'
-    rename "plugin-proxy-${project.version}-all.jar", "redicloud-plugin-proxy.jar"
 }
 
 tasks.register('copyNodeBaseToNode2', Copy) {
     from "node/node-base/build/libs/redicloud-node-base.jar"
     into 'test/node-2'
-    rename "node-base-${project.version}-all.jar", "redicloud-node-base.jar"
 }
 
 tasks.register('copyMinecraftPluginToNode2', Copy) {
     from "plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar"
     into 'test/node-2/storage'
-    rename "plugin-minecraft-${project.version}-all.jar", "redicloud-plugin-minecraft.jar"
 }
 
 tasks.register('copyProxyPluginToNode2', Copy) {
     from "plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar"
     into 'test/node-2/storage'
-    rename "plugin-proxy-${project.version}-all.jar", "redicloud-plugin-proxy.jar"
 }
 tasks.register('copyVelocityPluginToNode1', Copy) {
     from "plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar"
-    into 'test/node-2/storage'
-    rename "plugin-velocity-${project.version}-all.jar", "redicloud-plugin-velocity.jar"
+    into 'test/node-1/storage'
 }
 
 tasks.register('copyVelocityPluginToNode2', Copy) {
     from "plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar"
     into 'test/node-2/storage'
-    rename "plugin-velocity-${project.version}-all.jar", "redicloud-plugin-velocity.jar"
 }
 
 tasks.register('publishToRepository') {

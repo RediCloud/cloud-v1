@@ -133,13 +133,13 @@ public class FileEditor {
             }
             break;
         }
-        System.out.println("Spaces " + amountOfSpaces + ": " + line);
         return amountOfSpaces;
     }
 
     public int getLineIndexByKey(String key) {
         String match = key + this.splitter;
         for (int i = 0; i < this.lines.size(); i++) {
+            if(getStringWithoutStartSpaces(this.lines.get(i)).startsWith("#")) continue;
             if (this.lines.get(i).contains(match)) {
                 return i;
             }

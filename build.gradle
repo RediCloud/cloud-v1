@@ -166,7 +166,18 @@ allprojects {
 
     task createProperties(dependsOn: processResources) {
         def file = new File("$projectDir/src/main/resources/redicloud.properties")
-        if(!file.exists()) return
+
+        def parentFile = file.getParentFile()
+        while(!parentFile.exists()) {
+            parentFile.mkdirs()
+            parentFile = parentFile.getParentFile()
+        }
+        def version = "version=" + project.version.toString()
+        def gitHash = "gitHash=" + getCommitHash()
+        def gitBranch = "gitBranch=" + getCurrentBrancheName()
+        List<String> props = [version, gitHash, gitBranch]
+        file.text = props.join("\n")
+        /*
         file.withWriter { w ->
             Properties p = new Properties()
             p['version'] = project.version.toString()
@@ -174,6 +185,7 @@ allprojects {
             p['git-branch-name'] = getCurrentBrancheName()
             p.store w, null
         }
+         */
     }
 
     publishing {

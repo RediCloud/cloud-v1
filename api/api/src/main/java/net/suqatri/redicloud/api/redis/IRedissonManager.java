@@ -12,7 +12,7 @@ public interface IRedissonManager {
     String getRedisPrefix();
 
     default String getRedisKey(String identifier) {
-        return getRedisPrefix() + "@" + identifier;
+        return getRedisPrefix() + ":" + identifier;
     }
 
 }

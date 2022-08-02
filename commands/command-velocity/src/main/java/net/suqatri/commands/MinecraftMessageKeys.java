@@ -1,7 +1,8 @@
 package net.suqatri.commands;
 
-import co.aikar.locales.MessageKey;
-import co.aikar.locales.MessageKeyProvider;
+
+import net.suqatri.commands.locales.MessageKey;
+import net.suqatri.commands.locales.MessageKeyProvider;
 
 import java.util.Locale;
 

@@ -507,22 +507,23 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
                 if (this.console != null) this.console.info("Stopping services...");
                 ((NodeCloudServiceFactory) this.serviceFactory).getThread().interrupt();
-                for (IRBucketHolder<ICloudService> serviceHolders : this.serviceManager.getServices()) {
+                for (IRBucketHolder<ICloudService> serviceHolder : this.serviceManager.getServices()) {
                     //TODO create event for cluster shutdown
-                    if(serviceHolders.get().isExternal() && !isLastNode) continue;
-                    if (serviceHolders.get().getServiceState() == ServiceState.OFFLINE) continue;
-                    if (!this.serviceManager.existsService(serviceHolders.get().getUniqueId())) continue;
+                    if(serviceHolder.get().isExternal() && !isLastNode) continue;
+                    if(serviceHolder.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    if (serviceHolder.get().getServiceState() == ServiceState.OFFLINE) continue;
+                    if (!this.serviceManager.existsService(serviceHolder.get().getUniqueId())) continue;
                     stopCount++;
                     try {
-                        this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), false).get(10, TimeUnit.SECONDS);
+                        this.serviceManager.stopServiceAsync(serviceHolder.get().getUniqueId(), false).get(10, TimeUnit.SECONDS);
                     } catch (InterruptedException | ExecutionException | TimeoutException e) {
                         try {
                             if (this.console != null)
-                                this.console.warn("Failed to stop service " + serviceHolders.get().getServiceName() + "! Try to force stop...");
-                            this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), true).get(5, TimeUnit.SECONDS);
+                                this.console.warn("Failed to stop service " + serviceHolder.get().getServiceName() + "! Try to force stop...");
+                            this.serviceManager.stopServiceAsync(serviceHolder.get().getUniqueId(), true).get(5, TimeUnit.SECONDS);
                         } catch (InterruptedException | ExecutionException | TimeoutException e1) {
                             if (this.console != null) {
-                                this.console.error("Failed to stop service " + serviceHolders.get().getServiceName(), e1);
+                                this.console.error("Failed to stop service " + serviceHolder.get().getServiceName(), e1);
                             } else {
                                 e1.printStackTrace();
                             }

@@ -23,9 +23,9 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     public CloudPlayerManager() {
         super("player", ICloudPlayer.class);
         CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event -> {
-            this.connectedList = event.getConnection().getClient().getList("players@connected", getObjectCodec());
-            this.registeredList = event.getConnection().getClient().getList("players@registered", getObjectCodec());
-            this.nameFetcherMap = event.getConnection().getClient().getMap("players@nameFetcher", getObjectCodec());
+            this.connectedList = event.getConnection().getClient().getList("fetcher:player_connected", getObjectCodec());
+            this.registeredList = event.getConnection().getClient().getList("fetcher:player_registered", getObjectCodec());
+            this.nameFetcherMap = event.getConnection().getClient().getMap("fetcher:player_nameFetcher", getObjectCodec());
         });
     }
 

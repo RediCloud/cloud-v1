@@ -45,4 +45,6 @@ include 'plugins:plugin-proxy'
 findProject(':plugins:plugin-proxy')?.name = 'plugin-proxy'
 include 'plugins:plugin-velocity'
 findProject(':plugins:plugin-velocity')?.name = 'plugin-velocity'
+include 'commands:command-velocity'
+findProject(':commands:command-velocity')?.name = 'command-velocity'
 

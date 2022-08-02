@@ -12,7 +12,7 @@ dependencies {
     implementation project(':commons')
     implementation project(':api:api')
     implementation project(':api:api-default-impl')
-    implementation project(':commands:command-bungeecord')
+    implementation project(':commands:command-velocity')
     implementation project(':commands:command-core')
     implementation project(':commands:command-locales')
     compileOnly('com.velocitypowered:velocity-api:3.1.1')

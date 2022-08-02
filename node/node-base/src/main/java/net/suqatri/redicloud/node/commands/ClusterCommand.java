@@ -69,9 +69,9 @@ public class ClusterCommand extends ConsoleCommand {
                                 packet.getPacketData().waitForResponse()
                                         .onFailure(e -> {
                                             if (e instanceof TimeoutException) {
-                                                CloudAPI.getInstance().getConsole().error("Ping timeout after 30 seconds for node " + nodeName, e);
-                                            } else {
                                                 CloudAPI.getInstance().getConsole().error("Ping timeout after 30 seconds for node " + nodeName);
+                                            } else {
+                                                CloudAPI.getInstance().getConsole().error("Ping timeout after 30 seconds for node " + nodeName, e);
                                             }
                                         })
                                         .onSuccess(response -> {

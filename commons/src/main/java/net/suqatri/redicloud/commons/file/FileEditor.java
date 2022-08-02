@@ -17,7 +17,6 @@ public class FileEditor {
     private final HashMap<String, String> keyValues;
 
     public FileEditor(Type type) {
-        ;
         this.splitter = type.splitter;
         this.lines = new ArrayList<>();
         this.keyValues = new HashMap<>();
@@ -55,8 +54,6 @@ public class FileEditor {
             if (line.endsWith(":")) continue;
             if (getStringWithoutStartSpaces(line).startsWith("#")) continue;
             if(getStringWithoutStartSpaces(line).startsWith("[")) continue;
-
-            System.out.println("Result: " + getStringWithoutStartSpaces(line));
 
             String key = "";
             if (!line.contains(this.splitter) || line.split(this.splitter).length < 2) {
@@ -98,10 +95,8 @@ public class FileEditor {
     }
 
     public List<String> newLine() {
-        System.out.println("NewLIne: ");
         List<String> list = new ArrayList<>(this.lines);
         this.keyValues.forEach((key, value) -> {
-            System.out.println(key + " - " + value);
             int lineIndex = getLineIndexByKey(key);
             String newLine = constructNewLine(key, value, lineIndex);
             list.set(lineIndex, newLine);

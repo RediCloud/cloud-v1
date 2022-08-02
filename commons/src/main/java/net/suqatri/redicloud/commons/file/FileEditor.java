@@ -147,6 +147,7 @@ public class FileEditor {
     @Getter
     public static enum Type {
         YML(": "),
+        TOML(" = "),
         PROPERTIES("=");
         private String splitter;
     }

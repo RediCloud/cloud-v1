@@ -86,10 +86,10 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                                         FileUtils.copyFileToDirectory(Files.PROXY_PLUGIN_JAR.getFile(), pluginFolder);
                                                                         configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "config.yml"));
                                                                         break;
-                                                                        case VELOCITY:
-                                                                            FileUtils.copyFileToDirectory(Files.VELOCITY_PLUGIN_JAR.getFile(), pluginFolder);
-                                                                            //TODO velocity config file
-                                                                            break;
+                                                                    case VELOCITY:
+                                                                        FileUtils.copyFileToDirectory(Files.VELOCITY_PLUGIN_JAR.getFile(), pluginFolder);
+                                                                        configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "velocity.toml"));
+                                                                        break;
                                                                 }
 
                                                                 if (Files.SERVER_ICON.exists())
@@ -169,7 +169,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                 break;
             case VELOCITY:
                 FileUtils.copyFileToDirectory(Files.VELOCITY_PLUGIN_JAR.getFile(), pluginFolder);
-                //TODO velocity config file
+                configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "velocity.toml"));
                 break;
         }
 
@@ -200,6 +200,9 @@ public class CloudServiceCopier implements ICloudServiceCopier {
             case BUNGEECORD:
                 editConfig(new File(this.getServiceDirectory(), "config.yml"));
                 break;
+            case VELOCITY:
+                editVelocity(new File(this.getServiceDirectory(), "velocity.toml"));
+                break;
         }
     }
 
@@ -213,6 +216,13 @@ public class CloudServiceCopier implements ICloudServiceCopier {
         fileEditor.setValue("motd", this.process.getServiceHolder().get().getMotd());
         fileEditor.setValue("server-name", this.process.getServiceHolder().get().getServiceName());
         fileEditor.save(properties);
+    }
+
+    private void editVelocity(File config) throws IOException {
+        FileEditor fileEditor = new FileEditor(FileEditor.Type.TOML);
+        fileEditor.setValue("bind", "\"0.0.0.0:" + this.process.getPort() + "\"");
+        fileEditor.setValue("show-max-players", String.valueOf(this.process.getServiceHolder().get().getMaxPlayers()));
+        fileEditor.save(config);
     }
 
     private void editConfig(File config) throws IOException {

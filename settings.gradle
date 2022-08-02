@@ -43,3 +43,6 @@ findProject(':plugins:plugin-minecraft')?.name = 'plugin-minecraft'
 
 include 'plugins:plugin-proxy'
 findProject(':plugins:plugin-proxy')?.name = 'plugin-proxy'
+include 'plugins:plugin-velocity'
+findProject(':plugins:plugin-velocity')?.name = 'plugin-velocity'
+

@@ -23,13 +23,13 @@
 
 package net.suqatri.commands;
 
-import co.aikar.commands.apachecommonslang.ApacheCommonsLangUtil;
 import com.velocitypowered.api.command.CommandSource;
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.format.TextFormat;
+import net.suqatri.commands.apachecommonslang.ApacheCommonsLangUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;

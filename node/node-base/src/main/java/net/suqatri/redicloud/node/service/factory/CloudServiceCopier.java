@@ -220,6 +220,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
 
     private void editVelocity(File config) throws IOException {
         FileEditor fileEditor = new FileEditor(FileEditor.Type.TOML);
+        fileEditor.read(config);
         fileEditor.setValue("bind", "\"0.0.0.0:" + this.process.getPort() + "\"");
         fileEditor.setValue("show-max-players", String.valueOf(this.process.getServiceHolder().get().getMaxPlayers()));
         fileEditor.save(config);

@@ -50,16 +50,17 @@ public class FileEditor {
 
     private void loadMap() {
         for (String line : this.lines) {
-            if (line.contains(" - ")) continue;
-            if (line.contains("- ")) continue;
+            if(line.isEmpty()) continue;
+            if (getStringWithoutStartSpaces(line).startsWith("-")) continue;
             if (line.endsWith(":")) continue;
-            if (line.startsWith("#")) continue;
+            if (getStringWithoutStartSpaces(line).startsWith("#")) continue;
+            if(getStringWithoutStartSpaces(line).startsWith("[")) continue;
+
+            System.out.println("Result: " + getStringWithoutStartSpaces(line));
+
             String key = "";
             if (!line.contains(this.splitter) || line.split(this.splitter).length < 2) {
-                if (line.startsWith(" ")) {
-                    int count = getAmountOfStartSpacesInLine(key);
-                    key = key.substring(count);
-                }
+                line = getStringWithoutStartSpaces(line);
                 key = line.replace(this.splitter, "");
                 for (String s : this.splitter.split("")) {
                     key = key.replace(s, "");
@@ -82,6 +83,11 @@ public class FileEditor {
         }
     }
 
+    public String getStringWithoutStartSpaces(String s){
+        int amountOfSpaces = getAmountOfStartSpacesInLine(s);
+        return s.substring(amountOfSpaces);
+    }
+
     public void setValue(String key, String value) {
         if (!this.keyValues.containsKey(key)) throw new IllegalArgumentException("Key " + key + " not found");
         this.keyValues.put(key, value);
@@ -92,8 +98,10 @@ public class FileEditor {
     }
 
     public List<String> newLine() {
+        System.out.println("NewLIne: ");
         List<String> list = new ArrayList<>(this.lines);
         this.keyValues.forEach((key, value) -> {
+            System.out.println(key + " - " + value);
             int lineIndex = getLineIndexByKey(key);
             String newLine = constructNewLine(key, value, lineIndex);
             list.set(lineIndex, newLine);
@@ -124,12 +132,13 @@ public class FileEditor {
     public int getAmountOfStartSpacesInLine(String line) {
         int amountOfSpaces = 0;
         for (int i = 0; i < line.length(); i++) {
-            if (line.charAt(i) == ' ') {
+            if (line.charAt(i) == ' ' || line.charAt(i) == '\t') {
                 amountOfSpaces++;
                 continue;
             }
             break;
         }
+        System.out.println("Spaces " + amountOfSpaces + ": " + line);
         return amountOfSpaces;
     }
 

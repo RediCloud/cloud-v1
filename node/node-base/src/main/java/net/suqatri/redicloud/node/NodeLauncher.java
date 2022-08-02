@@ -338,11 +338,16 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         return;
                     }
 
-                    if (this.getNodeManager().getNodes().size() == 1) {
-                        this.serviceTemplateManager.createTemplate("global-minecraft");
-                        this.serviceTemplateManager.createTemplate("global-proxy");
-                        this.serviceTemplateManager.createTemplate("global-all");
-                    }
+                    this.getEventManager().register(CloudNodeConnectedEvent.class, event -> {
+                        if (this.getNodeManager().getNodes().size() == 1) {
+                            if(!this.serviceTemplateManager.existsTemplate("global-minecraft"))
+                                this.serviceTemplateManager.createTemplate("global-minecraft");
+                            if(!this.serviceTemplateManager.existsTemplate("global-proxy"))
+                                this.serviceTemplateManager.createTemplate("global-proxy");
+                            if(!this.serviceTemplateManager.existsTemplate("global-all"))
+                                this.serviceTemplateManager.createTemplate("global-all");
+                        }
+                    });
 
                     CloudNode cloudNode = new CloudNode();
                     connectionInformation.applyToNode(cloudNode);

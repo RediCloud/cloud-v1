@@ -440,8 +440,11 @@ public class GroupCommand extends ConsoleCommand {
                     cloudGroup.setServiceEnvironment(ServiceEnvironment.MINECRAFT);
 
                     CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
-                            .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))
-                            .onSuccess(holder -> commandSender.sendMessage("Group %hc" + name + "%tc created"));
+                            .onFailure(e2 -> CloudAPI.getInstance().getConsole().error("Failed to create group " + name, e2))
+                            .onSuccess(holder -> {
+                                CloudAPI.getInstance().getGroupManager().addDefaultTemplates(cloudGroup.getHolder());
+                                commandSender.sendMessage("Group %hc" + name + "%tc created");
+                            });
                 } else if (mineCraftSetupControlState == SetupControlState.CANCELLED) {
                     commandSender.sendMessage("§cMinecraft Group creation cancelled");
                 }

@@ -18,9 +18,11 @@ tasks.register('copyToTest') {
             file("${rootDir}/test/node-1/redicloud-node-base.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-proxy.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-minecraft.jar"),
+            file("${rootDir}/test/node-1/storage/redicloud-plugin-velocity.jar"),
             file("${rootDir}/test/node-2/redicloud-node-base.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-proxy.jar"),
-            file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar")
+            file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar"),
+            file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar")
     )
     println 'Copying files'
     dependsOn copyNodeBaseToNode1
@@ -29,6 +31,8 @@ tasks.register('copyToTest') {
     dependsOn copyMinecraftPluginToNode2
     dependsOn copyProxyPluginToNode1
     dependsOn copyProxyPluginToNode2
+    dependsOn copyVelocityPluginToNode1
+    dependsOn copyVelocityPluginToNode2
 }
 
 tasks.register('projectBuild') {
@@ -86,6 +90,17 @@ tasks.register('copyProxyPluginToNode2', Copy) {
     from "plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar"
     into 'test/node-2/storage'
     rename "plugin-proxy-${project.version}-all.jar", "redicloud-plugin-proxy.jar"
+}
+tasks.register('copyVelocityPluginToNode1', Copy) {
+    from "plugins/plugin-minecraft/build/libs/redicloud-plugin-velocity.jar"
+    into 'test/node-2/storage'
+    rename "plugin-velocity-${project.version}-all.jar", "redicloud-plugin-velocity.jar"
+}
+
+tasks.register('copyVelocityPluginToNode2', Copy) {
+    from "plugins/plugin-proxy/build/libs/redicloud-plugin-velocity.jar"
+    into 'test/node-2/storage'
+    rename "plugin-velocity-${project.version}-all.jar", "redicloud-plugin-velocity.jar"
 }
 
 tasks.register('publishToRepository') {

@@ -18,12 +18,14 @@ public abstract class CloudPacket implements ICloudPacket {
 
     public void simplePacketResponseAsync() {
         SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
+        packet.getPacketData().setResponseTargetData(this.packetData);
         packet.getPacketData().addReceiver(this.packetData.getSender());
         packet.publishAsync();
     }
 
     public void simplePacketResponse() {
         SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
+        packet.getPacketData().setResponseTargetData(this.packetData);
         packet.getPacketData().addReceiver(this.packetData.getSender());
         packet.publish();
     }
@@ -31,6 +33,7 @@ public abstract class CloudPacket implements ICloudPacket {
     public void simplePacketResponseAsync(Exception exception) {
         SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
         packet.setException(exception);
+        packet.getPacketData().setResponseTargetData(this.packetData);
         packet.getPacketData().addReceiver(this.packetData.getSender());
         packet.publishAsync();
     }
@@ -38,6 +41,7 @@ public abstract class CloudPacket implements ICloudPacket {
     public void simplePacketResponse(Exception exception) {
         SimpleCloudPacketResponse packet = new SimpleCloudPacketResponse();
         packet.setException(exception);
+        packet.getPacketData().setResponseTargetData(this.packetData);
         packet.getPacketData().addReceiver(this.packetData.getSender());
         packet.publish();
     }

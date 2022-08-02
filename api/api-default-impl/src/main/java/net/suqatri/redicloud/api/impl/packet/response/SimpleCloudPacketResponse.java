@@ -15,7 +15,8 @@ public class SimpleCloudPacketResponse extends CloudPacketResponse {
     @Override
     public void receive() {
         if (this.getException() == null) return;
-        ICloudPacketData packetData = ((CloudPacketManager) CloudAPI.getInstance().getPacketManager()).getWaitingForResponse().get(this.getPacketData().getResponseTargetData().getPacketId());
+        ICloudPacketData packetData = ((CloudPacketManager) CloudAPI.getInstance().getPacketManager()).getWaitingForResponse()
+                .get(this.getPacketData().getResponseTargetData().getPacketId());
         FutureAction<ICloudPacketResponse> futureAction = packetData.getResponseAction();
         if (!futureAction.isCompletedExceptionally() && !futureAction.isDone() && !futureAction.isCancelled()) {
             futureAction.completeExceptionally(new Exception("[" + this.getException() + "]: " + this.getErrorMessage()));

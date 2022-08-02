@@ -22,7 +22,8 @@ public abstract class CloudPacketResponse extends CloudPacket implements ICloudP
     @Override
     public void receive() {
         if (this.errorMessage == null) return;
-        ICloudPacketData packetData = ((CloudPacketManager) CloudAPI.getInstance().getPacketManager()).getWaitingForResponse().get(this.getPacketData().getResponseTargetData().getPacketId());
+        ICloudPacketData packetData = ((CloudPacketManager) CloudAPI.getInstance().getPacketManager()).getWaitingForResponse()
+                .get(this.getPacketData().getResponseTargetData().getPacketId());
         FutureAction<ICloudPacketResponse> futureAction = packetData.getResponseAction();
         if (!futureAction.isCompletedExceptionally() && !futureAction.isDone() && !futureAction.isCancelled()) {
             futureAction.completeExceptionally(new Exception("[" + this.exception + "]: " + this.errorMessage));

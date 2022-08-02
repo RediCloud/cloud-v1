@@ -173,7 +173,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
 
     public FutureAction<Collection<IRBucketHolder<I>>> getBucketHoldersAsync() {
         FutureAction<Collection<IRBucketHolder<I>>> futureAction = new FutureAction<>();
-        getKeys(this.redisPrefix + "@*")
+        getKeys(this.redisPrefix + ":*")
                 .onFailure(futureAction)
                 .onSuccess(keys -> {
                     FutureActionCollection<String, IRBucketHolder<I>> futureActionCollection = new FutureActionCollection<>();
@@ -191,7 +191,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
 
     public Collection<IRBucketHolder<I>> getBucketHolders() {
         Collection<IRBucketHolder<I>> bucketHolders = new ArrayList<>();
-        for (String s : getClient().getKeys().getKeysByPattern(this.redisPrefix + "@*")) {
+        for (String s : getClient().getKeys().getKeysByPattern(this.redisPrefix + ":*")) {
             bucketHolders.add(getBucketHolder(s.split(":")[1]));
         }
         return bucketHolders;

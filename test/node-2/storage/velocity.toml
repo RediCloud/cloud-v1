@@ -56,6 +56,7 @@ ping-passthrough = "DISABLED"
 	# Configure your servers here. Each key represents the server's name, and the value
 	# represents the IP address of the server to connect to.
 	fallback = "127.0.0.1:0"
+	lobby = "127.0.0.1:1"
 [forced-hosts]
 	# Configure your forced hosts here.
 	# "lobby.example.com" = ["lobby"]

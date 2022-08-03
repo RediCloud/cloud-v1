@@ -9,7 +9,7 @@ public class CloudProxyServiceManager extends CloudServiceManager {
 
     @Override
     public boolean executeCommand(IRBucketHolder<ICloudService> serviceHolder, String command) {
-        if(super.executeCommand(serviceHolder, command)) return true;
+        if(!super.executeCommand(serviceHolder, command)) return true;
         ProxyServer.getInstance().getPluginManager().dispatchCommand(ProxyServer.getInstance().getConsole(), command);
         return true;
     }

@@ -14,7 +14,7 @@ public class CloudVelocityServiceManager extends CloudServiceManager {
 
     @Override
     public boolean executeCommand(IRBucketHolder<ICloudService> serviceHolder, String command) {
-        if(super.executeCommand(serviceHolder, command)) return true;
+        if(!super.executeCommand(serviceHolder, command)) return true;
         this.proxyServer.getCommandManager().executeAsync(
                         this.proxyServer.getConsoleCommandSource(),
                         command);

@@ -1,4 +1,4 @@
-package net.suqatri.redicloud.plugin.velocity.utils;
+package net.suqatri.redicloud.api.velocity.utils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;

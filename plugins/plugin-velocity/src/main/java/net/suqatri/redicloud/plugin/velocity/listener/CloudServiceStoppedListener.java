@@ -2,12 +2,11 @@ package net.suqatri.redicloud.plugin.velocity.listener;
 
 import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.event.CloudListener;
 import net.suqatri.redicloud.api.service.event.CloudServiceStoppedEvent;
 import net.suqatri.redicloud.plugin.velocity.VelocityCloudAPI;
-import net.suqatri.redicloud.plugin.velocity.utils.LegacyMessageUtils;
+import net.suqatri.redicloud.api.velocity.utils.LegacyMessageUtils;
 
 import java.util.Optional;
 

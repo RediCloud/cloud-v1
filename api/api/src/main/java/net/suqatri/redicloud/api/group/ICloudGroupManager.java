@@ -36,4 +36,6 @@ public interface ICloudGroupManager {
 
     boolean deleteGroup(UUID uniqueId) throws Exception;
 
+    FutureAction<IRBucketHolder<ICloudGroup>> addDefaultTemplates(IRBucketHolder<ICloudGroup> group);
+
 }

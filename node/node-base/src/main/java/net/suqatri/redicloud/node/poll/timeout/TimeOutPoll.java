@@ -63,6 +63,15 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
                                 resultPacket.publishAsync();
                             })
                             .onSuccess(response -> {
+                                if(response.getErrorMessage() != null){
+                                    CloudAPI.getInstance().getConsole().error("Error while process ping node packet: " + response.getErrorMessage());
+                                    TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
+                                    resultPacket.setPollID(this.pollId);
+                                    resultPacket.setResult(TimeOutResult.ERROR);
+                                    resultPacket.getPacketData().addReceiver(resultPacket.getPacketData().getSender());
+                                    resultPacket.publishAsync();
+                                    return;
+                                }
                                 TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
                                 resultPacket.setPollID(this.pollId);
                                 resultPacket.setResult(TimeOutResult.PASSED);

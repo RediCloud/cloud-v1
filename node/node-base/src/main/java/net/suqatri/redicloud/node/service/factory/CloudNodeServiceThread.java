@@ -64,22 +64,25 @@ public class CloudNodeServiceThread extends Thread {
                 this.checkServiceCount = 0;
                 for (IRBucketHolder<ICloudGroup> groupHolder : CloudAPI.getInstance().getGroupManager().getGroups()) {
 
-                    int count = (int) groupHolder.get().getOnlineServices().getBlockOrNull().parallelStream()
-                            .filter(holder -> holder.get().getServiceState() != ServiceState.RUNNING_DEFINED)
+                    long count = groupHolder.get().getConnectedServices().getBlockOrNull()
+                            .parallelStream()
+                            .filter(holder -> holder.get().isGroupBased())
+                            .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(groupHolder.get().getName()))
                             .filter(holder -> holder.get().getServiceState() != ServiceState.OFFLINE)
+                            .filter(holder -> holder.get().getServiceState() != ServiceState.RUNNING_DEFINED)
                             .filter(holder -> {
-                                if(holder.get().getPercentToStartNewService() == -1) return true;
-                                int percent = ((int)(100 / ((double)holder.get().getMaxPlayers())) * holder.get().getOnlineCount());
-                                if(percent >= holder.get().getPercentToStartNewService()) return false;
-                                return holder.get().getOnlineCount() >= holder.get().getMaxPlayers();
+                                if (holder.get().getMaxPlayers() == -1) return true;
+                                if (holder.get().getPercentToStartNewService() == -1) return true;
+                                int percent = ((int) (100 / ((double) holder.get().getMaxPlayers())) * holder.get().getOnlineCount());
+                                if (percent >= holder.get().getPercentToStartNewService()) return false;
+                                return holder.get().getOnlineCount() <= holder.get().getMaxPlayers();
                             })
                             .count();
-
                     int min = groupHolder.get().getMinServices();
 
                     if (count < min) {
                         CloudAPI.getInstance().getConsole().trace("Group " + groupHolder.get().getName() + " need to start " + (min - count) + " services");
-                        for (int i = count; i < min; i++) {
+                        for (long i = count; i < min; i++) {
                             IServiceStartConfiguration configuration = groupHolder.get().createServiceConfiguration();
                             if ((this.node.getFreeMemory() - configuration.getMaxMemory()) < 0) {
                                 memoryWarningCount++;
@@ -238,7 +241,7 @@ public class CloudNodeServiceThread extends Thread {
             cloudService.setExternal(false);
             cloudService.setServiceState(ServiceState.PREPARE);
             cloudService.setMaxPlayers(50);
-            if (configuration.getEnvironment() == ServiceEnvironment.PROXY) {
+            if (configuration.getEnvironment() == ServiceEnvironment.BUNGEECORD || configuration.getEnvironment() == ServiceEnvironment.VELOCITY) {
                 cloudService.setMotd("§7•§8● §bRedi§3Cloud §8» §fA §bredis §fbased §bcluster §fcloud system§r\n    §b§l§8× §fDiscord §8➜ §3https://discord.gg/g2HV52VV4G");
             } else {
                 cloudService.setMotd("§bRedi§3Cloud§7-§fService");

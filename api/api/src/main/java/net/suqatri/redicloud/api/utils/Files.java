@@ -27,6 +27,7 @@ public enum Files {
     NODE_JAR("storage/redicloud-node-base.jar"),
     MINECRAFT_PLUGIN_JAR("storage/redicloud-plugin-minecraft.jar"),
     PROXY_PLUGIN_JAR("storage/redicloud-plugin-proxy.jar"),
+    VELOCITY_PLUGIN_JAR("storage/redicloud-plugin-velocity.jar"),
     NODE_JSON("node.json"),
     VERSIONS_FOLDER("storage/versions"),
     SERVER_ICON("storage/server-icon.png"),

@@ -32,6 +32,7 @@ public class ServiceCommand extends ConsoleCommand {
     @Subcommand("start")
     @Description("Start a amount of services")
     @Syntax("<Gruppe> [Amount]")
+    @CommandCompletion("@groups")
     public void onStart(CommandSender commandSender, String name, @Optional String amountString) {
         AtomicInteger amount = new AtomicInteger(1);
         if (amountString != null) {
@@ -68,7 +69,7 @@ public class ServiceCommand extends ConsoleCommand {
     @Subcommand("stop")
     @Description("Stop a service")
     @Syntax("<Service> --force")
-    @CommandCompletion("@service --force")
+    @CommandCompletion("@running_services --force")
     public void onStop(CommandSender commandSender, String serviceName, @Optional String arg) {
         boolean force = arg != null && arg.equalsIgnoreCase("--force");
         if (serviceName.endsWith("-*")) {
@@ -80,7 +81,7 @@ public class ServiceCommand extends ConsoleCommand {
                             return;
                         }
                         commandSender.sendMessage((force ? "Force stopping" : "Stopping") + " all service of group " + groupHolder.get().getName() + "...");
-                        groupHolder.get().getOnlineServices()
+                        groupHolder.get().getConnectedServices()
                                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get services", t))
                                 .onSuccess(serviceHolders -> {
                                     FutureActionCollection<IServiceStartConfiguration, Boolean> futureActionCollection = new FutureActionCollection();
@@ -139,7 +140,7 @@ public class ServiceCommand extends ConsoleCommand {
     @Subcommand("info")
     @Description("Get info about a service")
     @Syntax("<Service>")
-    @CommandCompletion("@service")
+    @CommandCompletion("@services")
     public void onInfo(CommandSender commandSender, String serviceName) {
         CloudAPI.getInstance().getConsole().trace("Checking service existence...");
         CloudAPI.getInstance().getServiceManager().existsServiceAsync(serviceName)
@@ -155,24 +156,29 @@ public class ServiceCommand extends ConsoleCommand {
                                 serviceHolder.get().getServiceVersion()
                                         .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get service version", t))
                                         .onSuccess(versionHolder -> {
-                                            commandSender.sendMessage("");
-                                            commandSender.sendMessage("%tcService info of %hc" + serviceHolder.get().getServiceName() + "§8:");
-                                            commandSender.sendMessage("§8 »%tc Environment: %hc" + serviceHolder.get().getEnvironment().name());
-                                            commandSender.sendMessage("§8 »%tc Group: %hc" + (serviceHolder.get().isGroupBased() ? serviceHolder.get().getGroupName() : "None"));
-                                            commandSender.sendMessage("§8 »%tc Version: %hc" + versionHolder.get().getName());
-                                            commandSender.sendMessage("§8 »%tc State: %hc" + serviceHolder.get().getServiceState().name());
-                                            commandSender.sendMessage("§8 »%tc Players: %hc" + serviceHolder.get().getOnlineCount() + "§8/%hc" + serviceHolder.get().getMaxPlayers());
-                                            commandSender.sendMessage("§8 »%tc RAM: %hc" + serviceHolder.get().getMaxRam() + " MB");
-                                            commandSender.sendMessage("§8 »%tc External: %hc" + serviceHolder.get().isExternal());
-                                            StringBuilder templateBuilder = new StringBuilder();
-                                            for (String templateName : serviceHolder.get().getConfiguration().getTemplateNames()) {
-                                                if (!templateBuilder.toString().isEmpty())
-                                                    templateBuilder.append("§8, %hc");
-                                                templateBuilder.append("%hc");
-                                                templateBuilder.append(templateName);
-                                            }
-                                            commandSender.sendMessage("§8 »%tc Templates: %hc" + templateBuilder);
-                                            commandSender.sendMessage("");
+                                            CloudAPI.getInstance().getNodeManager().getNodeAsync(serviceHolder.get().getNodeId())
+                                                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get node", t))
+                                                .onSuccess(nodeHolder -> {
+                                                    commandSender.sendMessage("");
+                                                    commandSender.sendMessage("%tcService info of %hc" + serviceHolder.get().getServiceName() + "§8:");
+                                                    commandSender.sendMessage("§8 »%tc Environment: %hc" + serviceHolder.get().getEnvironment().name());
+                                                    commandSender.sendMessage("§8 »%tc Group: %hc" + (serviceHolder.get().isGroupBased() ? serviceHolder.get().getGroupName() : "None"));
+                                                    commandSender.sendMessage("§8 »%tc Version: %hc" + versionHolder.get().getName());
+                                                    commandSender.sendMessage("§8 »%tc State: %hc" + serviceHolder.get().getServiceState().name());
+                                                    commandSender.sendMessage("§8 »%tc Players: %hc" + serviceHolder.get().getOnlineCount() + "§8/%hc" + serviceHolder.get().getMaxPlayers());
+                                                    commandSender.sendMessage("§8 »%tc RAM: %hc" + serviceHolder.get().getMaxRam() + " MB");
+                                                    commandSender.sendMessage("§8 »%tc External: %hc" + serviceHolder.get().isExternal());
+                                                    commandSender.sendMessage("§8 »%tc Node: %hc" + nodeHolder.get().getName());
+                                                    StringBuilder templateBuilder = new StringBuilder();
+                                                    for (String templateName : serviceHolder.get().getConfiguration().getTemplateNames()) {
+                                                        if (!templateBuilder.toString().isEmpty())
+                                                            templateBuilder.append("§8, %hc");
+                                                        templateBuilder.append("%hc");
+                                                        templateBuilder.append(templateName);
+                                                    }
+                                                    commandSender.sendMessage("§8 »%tc Templates: %hc" + templateBuilder);
+                                                    commandSender.sendMessage("");
+                                                });
                                         });
                             });
                 });

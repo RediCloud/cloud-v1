@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'net.suqatri.redicloud'
-version '1.2.0-' + getCommitHash() + '-SNAPSHOT'
+version '0.4.0-' + getCommitHash() + '-SNAPSHOT'
 
 tasks.register('buildAndCopy', Copy) {
     dependsOn projectBuild
@@ -17,12 +17,22 @@ tasks.register('copyToTest') {
     project.delete(
             file("${rootDir}/test/node-1/redicloud-node-base.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-proxy.jar"),
-            file("${rootDir}/test/node-1/storage/redicloud-plugin-minecraft.jar")
+            file("${rootDir}/test/node-1/storage/redicloud-plugin-minecraft.jar"),
+            file("${rootDir}/test/node-1/storage/redicloud-plugin-velocity.jar"),
+            file("${rootDir}/test/node-2/redicloud-node-base.jar"),
+            file("${rootDir}/test/node-2/storage/redicloud-plugin-proxy.jar"),
+            file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar"),
+            file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar")
     )
     println 'Copying files'
-    dependsOn copyNodeBase
-    dependsOn copyMinecraftPlugin
-    dependsOn copyProxyPlugin
+    dependsOn copyNodeBaseToNode1
+    dependsOn copyNodeBaseToNode2
+    dependsOn copyMinecraftPluginToNode1
+    dependsOn copyMinecraftPluginToNode2
+    dependsOn copyProxyPluginToNode1
+    dependsOn copyProxyPluginToNode2
+    dependsOn copyVelocityPluginToNode1
+    dependsOn copyVelocityPluginToNode2
 }
 
 tasks.register('projectBuild') {
@@ -44,24 +54,46 @@ tasks.register('projectBuild') {
 
     dependsOn ':plugins:plugin-minecraft:build'
     dependsOn ':plugins:plugin-proxy:build'
+    dependsOn ':plugins:plugin-velocity:build'
 }
 
-tasks.register('copyNodeBase', Copy) {
+tasks.register('copyNodeBaseToNode1', Copy) {
     from "node/node-base/build/libs/redicloud-node-base.jar"
     into 'test/node-1'
-    rename "node-base-${project.version}-all.jar", "redicloud-node-base.jar"
 }
 
-tasks.register('copyMinecraftPlugin', Copy) {
+tasks.register('copyMinecraftPluginToNode1', Copy) {
     from "plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar"
     into 'test/node-1/storage'
-    rename "plugin-minecraft-${project.version}-all.jar", "redicloud-plugin-minecraft.jar"
 }
 
-tasks.register('copyProxyPlugin', Copy) {
+tasks.register('copyProxyPluginToNode1', Copy) {
     from "plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar"
     into 'test/node-1/storage'
-    rename "plugin-proxy-${project.version}-all.jar", "redicloud-plugin-proxy.jar"
+}
+
+tasks.register('copyNodeBaseToNode2', Copy) {
+    from "node/node-base/build/libs/redicloud-node-base.jar"
+    into 'test/node-2'
+}
+
+tasks.register('copyMinecraftPluginToNode2', Copy) {
+    from "plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar"
+    into 'test/node-2/storage'
+}
+
+tasks.register('copyProxyPluginToNode2', Copy) {
+    from "plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar"
+    into 'test/node-2/storage'
+}
+tasks.register('copyVelocityPluginToNode1', Copy) {
+    from "plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar"
+    into 'test/node-1/storage'
+}
+
+tasks.register('copyVelocityPluginToNode2', Copy) {
+    from "plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar"
+    into 'test/node-2/storage'
 }
 
 tasks.register('publishToRepository') {
@@ -83,6 +115,7 @@ tasks.register('publishToRepository') {
 
     dependsOn ':plugins:plugin-minecraft:publish'
     dependsOn ':plugins:plugin-proxy:publish'
+    dependsOn ':plugins:plugin-velocity:publish'
 }
 
 allprojects {
@@ -91,7 +124,7 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
 
-    version '1.2.0-' + getCommitHash() + '-SNAPSHOT'
+    version '0.4.0-' + getCommitHash() + '-SNAPSHOT'
 
     sourceCompatibility = '1.8'
 
@@ -142,7 +175,18 @@ allprojects {
 
     task createProperties(dependsOn: processResources) {
         def file = new File("$projectDir/src/main/resources/redicloud.properties")
-        if(!file.exists()) return
+
+        def parentFile = file.getParentFile()
+        while(!parentFile.exists()) {
+            parentFile.mkdirs()
+            parentFile = parentFile.getParentFile()
+        }
+        def version = "version=" + project.version.toString()
+        def gitHash = "gitHash=" + getCommitHash()
+        def gitBranch = "gitBranch=" + getCurrentBrancheName()
+        List<String> props = [version, gitHash, gitBranch]
+        file.text = props.join("\n")
+        /*
         file.withWriter { w ->
             Properties p = new Properties()
             p['version'] = project.version.toString()
@@ -150,6 +194,7 @@ allprojects {
             p['git-branch-name'] = getCurrentBrancheName()
             p.store w, null
         }
+         */
     }
 
     publishing {

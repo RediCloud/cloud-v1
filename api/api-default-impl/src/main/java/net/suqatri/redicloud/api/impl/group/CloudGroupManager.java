@@ -6,6 +6,7 @@ import net.suqatri.redicloud.api.group.ICloudGroupManager;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
+import net.suqatri.redicloud.api.template.ICloudServiceTemplate;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 import net.suqatri.redicloud.commons.function.future.FutureActionCollection;
 
@@ -109,7 +110,7 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
         getGroupAsync(uniqueId)
                 .onFailure(futureAction)
                 .onSuccess(groupHolder -> {
-                    groupHolder.get().getOnlineServices()
+                    groupHolder.get().getConnectedServices()
                             .onFailure(futureAction)
                             .onSuccess(serviceHolders -> {
                                 FutureActionCollection<UUID, Boolean> futureActionFutureAction = new FutureActionCollection<>();
@@ -145,5 +146,49 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
     @Override
     public IRBucketHolder<ICloudGroup> createGroup(ICloudGroup group) {
         return this.createBucket(group.getUniqueId().toString(), group);
+    }
+
+    @Override
+    public FutureAction<IRBucketHolder<ICloudGroup>> addDefaultTemplates(IRBucketHolder<ICloudGroup> groupHolder) {
+        FutureAction<IRBucketHolder<ICloudGroup>> futureAction = new FutureAction<>();
+
+        FutureActionCollection<String, Boolean> existencesCollection = new FutureActionCollection<>();
+
+        existencesCollection.addToProcess("global-all",
+                CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync("global-all"));
+        switch (groupHolder.get().getServiceEnvironment()){
+            case VELOCITY:
+            case BUNGEECORD: {
+                existencesCollection.addToProcess("global-proxy",
+                        CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync("global-proxy"));
+                break;
+            }
+            case MINECRAFT:
+                existencesCollection.addToProcess("global-minecraft",
+                        CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync("global-minecraft"));
+                break;
+        }
+
+        existencesCollection.process()
+            .onFailure(futureAction)
+            .onSuccess(existencesResults -> {
+               FutureActionCollection<String, IRBucketHolder<ICloudServiceTemplate>> templateCollection = new FutureActionCollection<>();
+               existencesResults.forEach((name, exists) -> {
+                   if(!exists) return;
+                   templateCollection.addToProcess(name, CloudAPI.getInstance().getServiceTemplateManager().getTemplateAsync(name));
+               });
+               templateCollection.process()
+                   .onFailure(futureAction)
+                   .onSuccess(templateResults -> {
+                       for (IRBucketHolder<ICloudServiceTemplate> value : templateResults.values()) {
+                           groupHolder.get().addTemplate(value);
+                       }
+                       groupHolder.get().updateAsync()
+                           .onFailure(futureAction)
+                           .onSuccess(s -> futureAction.complete(groupHolder));
+                   });
+            });
+
+        return futureAction;
     }
 }

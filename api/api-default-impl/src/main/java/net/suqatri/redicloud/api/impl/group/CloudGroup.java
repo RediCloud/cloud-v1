@@ -110,26 +110,31 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(services -> (int) services
                         .parallelStream()
+                        .filter(holder -> holder.get().isGroupBased())
+                        .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(this.name))
                         .filter(service -> service.get().getServiceState() == serviceState)
                         .count());
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getOnlineServices() {
+    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getConnectedServices() {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(holders -> holders
                         .parallelStream()
-                        .filter(holder -> holder.get().getGroup() != null)
-                        .filter(holder -> holder.get().getGroupName().equals(this.name))
+                        .filter(holder -> holder.get().isGroupBased())
+                        .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(this.name))
+                        .filter(holder -> holder.get().getServiceState() != ServiceState.OFFLINE)
                         .collect(Collectors.toList())
                 );
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getOnlineServices(ServiceState serviceState) {
-        return getOnlineServices()
+    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getServices(ServiceState serviceState) {
+        return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(holders -> holders
                         .parallelStream()
+                        .filter(holder -> holder.get().isGroupBased())
+                        .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(this.name))
                         .filter(holder -> holder.get().getServiceState() == serviceState)
                         .collect(Collectors.toList()));
     }
@@ -206,7 +211,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     //TODO improve this methode
     @Override
     public FutureAction<Integer> getPlayersCount() {
-        return getOnlineServices().map(services -> {
+        return getConnectedServices().map(services -> {
             int count = 0;
             for (IRBucketHolder<ICloudService> service : services) {
                 if (service.get().getName().equals(this.name)) count++;

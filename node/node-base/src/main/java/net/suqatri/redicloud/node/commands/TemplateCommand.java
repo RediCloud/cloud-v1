@@ -81,7 +81,7 @@ public class TemplateCommand extends ConsoleCommand {
 
     @Subcommand("delete")
     @Syntax("<Template>")
-    @CommandCompletion("@templates")
+    @CommandCompletion("@service_templates")
     @Description("Delete a template")
     public void onDelete(CommandSender commandSender, String name) {
         commandSender.sendMessage("Deleting template %hc" + name + "...");
@@ -100,7 +100,7 @@ public class TemplateCommand extends ConsoleCommand {
 
     @Subcommand("info")
     @Syntax("<Template>")
-    @CommandCompletion("@templates")
+    @CommandCompletion("@service_templates")
     @Description("Show info for a template")
     public void onInfo(CommandSender commandSender, String name) {
         commandSender.sendMessage("Loading information of template %hc" + name + "...");
@@ -132,7 +132,7 @@ public class TemplateCommand extends ConsoleCommand {
 
     @Subcommand("push")
     @Syntax("<Node>")
-    @CommandCompletion("@nodes")
+    @CommandCompletion("@connected_nodes")
     @Description("Push a template to a node")
     public void onPush(CommandSender commandSender, String nodeName) {
         if (nodeName.equalsIgnoreCase(NodeLauncher.getInstance().getNode().getName())) {
@@ -199,6 +199,7 @@ public class TemplateCommand extends ConsoleCommand {
     @Subcommand("pull")
     @Syntax("<Node>")
     @Description("Pull all templates from a node")
+    @CommandCompletion("@connected_nodes")
     public void onPull(CommandSender commandSender, String nodeName) {
         CloudAPI.getInstance().getNodeManager().existsNodeAsync(nodeName)
                 .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("§cError while checking node existence!", throwable))

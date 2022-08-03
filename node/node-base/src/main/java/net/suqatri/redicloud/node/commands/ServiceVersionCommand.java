@@ -70,6 +70,7 @@ public class ServiceVersionCommand extends ConsoleCommand {
     @Subcommand("delete")
     @Description("Delete a service version")
     @Syntax("<Name>")
+    @CommandCompletion("@service_versions")
     public void onDelete(CommandSender commandSender, String name) {
         CloudAPI.getInstance().getGroupManager().getGroupsAsync()
                 .onFailure(t -> commandSender.sendMessage("Failed to get groups"))
@@ -124,6 +125,7 @@ public class ServiceVersionCommand extends ConsoleCommand {
     @Subcommand("edit")
     @Description("Edit a service version")
     @Syntax("<Name> <Property> <Value>")
+    @CommandCompletion("@service_versions @service_version_properties")
     public void onEdit(CommandSender commandSender, String name, String propertyString, String value) {
         CloudAPI.getInstance().getServiceVersionManager().existsServiceVersionAsync(name)
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while checking service version existence", t))
@@ -196,6 +198,7 @@ public class ServiceVersionCommand extends ConsoleCommand {
     @Subcommand("patch")
     @Description("Patch a service version")
     @Syntax("<Name>")
+    @CommandCompletion("@service_versions")
     public void onPatch(CommandSender commandSender, String serviceVersionName) {
         CloudAPI.getInstance().getServiceVersionManager().existsServiceVersionAsync(serviceVersionName)
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while checking service version existence", t))
@@ -221,6 +224,7 @@ public class ServiceVersionCommand extends ConsoleCommand {
     @Subcommand("download")
     @Description("Download a service version")
     @Syntax("<Name>")
+    @CommandCompletion("@service_versions")
     public void onDownload(CommandSender commandSender, String serviceVersionName) {
         CloudAPI.getInstance().getServiceVersionManager().existsServiceVersionAsync(serviceVersionName)
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while checking service version existence", t))

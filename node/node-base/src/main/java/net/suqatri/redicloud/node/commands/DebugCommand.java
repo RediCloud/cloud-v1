@@ -28,6 +28,25 @@ public class DebugCommand extends ConsoleCommand {
         commandSender.sendMessage("Factory queue: " + NodeLauncher.getInstance().getServiceFactory().getThread().getQueue());
     }
 
+    @Subcommand("services connectedbygroup")
+    @Description("Prints the services connected by group")
+    @Syntax("<Group>")
+    public void onServicesConnectedByGroup(CommandSender commandSender, String groupName){
+        CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
+                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while getting group " + groupName, t))
+                .onSuccess(groupHolder -> {
+                   commandSender.sendMessage("Group: " + groupHolder.get().getName());
+                   groupHolder.get().getConnectedServices()
+                           .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while getting services", t))
+                           .onSuccess(serviceHolders -> {
+                               commandSender.sendMessage("Services: " + serviceHolders.size());
+                               serviceHolders.forEach(serviceHolder -> {
+                                   commandSender.sendMessage("Service: " + serviceHolder.get().getName());
+                               });
+                           });
+                });
+    }
+
     @Subcommand("facatory processes")
     @Description("Prints the factory processes")
     public void onFactoryProcesses(CommandSender commandSender) {

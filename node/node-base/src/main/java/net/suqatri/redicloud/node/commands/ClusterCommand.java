@@ -48,6 +48,7 @@ public class ClusterCommand extends ConsoleCommand {
     @Subcommand("ping")
     @Description("Ping a node")
     @Syntax("<Node>")
+    @CommandCompletion("@connected_nodes")
     public void onPing(CommandSender commandSender, String nodeName) {
         CloudAPI.getInstance().getNodeManager().existsNodeAsync(nodeName)
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to check existence of node " + nodeName, e))
@@ -68,9 +69,9 @@ public class ClusterCommand extends ConsoleCommand {
                                 packet.getPacketData().waitForResponse()
                                         .onFailure(e -> {
                                             if (e instanceof TimeoutException) {
-                                                CloudAPI.getInstance().getConsole().error("Ping timeout after 30 seconds for node " + nodeName, e);
-                                            } else {
                                                 CloudAPI.getInstance().getConsole().error("Ping timeout after 30 seconds for node " + nodeName);
+                                            } else {
+                                                CloudAPI.getInstance().getConsole().error("Ping timeout after 30 seconds for node " + nodeName, e);
                                             }
                                         })
                                         .onSuccess(response -> {
@@ -85,6 +86,7 @@ public class ClusterCommand extends ConsoleCommand {
     @Subcommand("info")
     @Syntax("<Node>")
     @Description("Show information about a specific node")
+    @CommandCompletion("@nodes")
     public void onInfoNode(CommandSender commandSender, String nodeName) {
         commandSender.sendMessage("Loading node...");
         CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)

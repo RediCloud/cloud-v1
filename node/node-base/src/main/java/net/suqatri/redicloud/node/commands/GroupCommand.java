@@ -46,6 +46,7 @@ public class GroupCommand extends ConsoleCommand {
     @Subcommand("template add")
     @Syntax("<Group> <Template>")
     @Description("Add a template to a group")
+    @CommandCompletion("@groups @service_templates")
     public void onTemplateAdd(CommandSender commandSender, String groupName, String templateName){
         CloudAPI.getInstance().getConsole().trace("Checking existence of group " + groupName + "...");
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
@@ -84,6 +85,7 @@ public class GroupCommand extends ConsoleCommand {
     @Subcommand("template remove")
     @Syntax("<Group> <Template>")
     @Description("Remove a template to a group")
+    @CommandCompletion("@groups @service_templates")
     public void onTemplateRemove(CommandSender commandSender, String groupName, String templateName){
         CloudAPI.getInstance().getConsole().trace("Checking existence of group " + groupName + "...");
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
@@ -122,6 +124,7 @@ public class GroupCommand extends ConsoleCommand {
     @Subcommand("info")
     @Description("Show information about a group")
     @Syntax("<Name>")
+    @CommandCompletion("@groups")
     public void onInfo(CommandSender commandSender, String groupName) {
         CloudAPI.getInstance().getConsole().trace("Checking existence of group " + groupName + "... ");
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
@@ -135,7 +138,7 @@ public class GroupCommand extends ConsoleCommand {
                     CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
                             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
                             .onSuccess(groupHolder -> {
-                                groupHolder.get().getOnlineServices()
+                                groupHolder.get().getConnectedServices()
                                         .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
                                         .onSuccess(services -> {
                                             StringBuilder builder = new StringBuilder();
@@ -170,29 +173,35 @@ public class GroupCommand extends ConsoleCommand {
                     } else {
                         new GroupSetup().start(((groupSetup, groupSetupControlState) -> {
                             if (groupSetupControlState == SetupControlState.FINISHED) {
-                                boolean foundServiceVersion = CloudAPI.getInstance().getServiceVersionManager().getServiceVersions().stream().anyMatch(iCloudServiceVersionIRBucketHolder -> iCloudServiceVersionIRBucketHolder.get().getEnvironmentType().equals(groupSetup.getEnvironment()));
-                                if (!foundServiceVersion) {
-                                    new ServiceVersionSetup().start((setup, state) -> {
-                                        if (state == SetupControlState.CANCELLED) {
-                                            commandSender.sendMessage("Setup cancelled!");
-                                            return;
-                                        }
-                                        CloudServiceVersion serviceVersion = new CloudServiceVersion();
-                                        serviceVersion.setName(name);
-                                        serviceVersion.setJavaCommand(setup.getJavaCommand());
-                                        serviceVersion.setDownloadUrl(setup.getDownloadUrl());
-                                        serviceVersion.setEnvironmentType(setup.getEnvironment());
-                                        serviceVersion.setPaperClip(setup.isPaperClip());
-                                        CloudAPI.getInstance().getServiceVersionManager().createServiceVersionAsync(serviceVersion)
-                                                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to create service version!", t))
-                                                .onSuccess(versionHolder -> {
-                                                    commandSender.sendMessage("Service version created!");
-                                                    createGroup(groupSetup, commandSender, name);
+                                CloudAPI.getInstance().getServiceVersionManager().getServiceVersionsAsync()
+                                        .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to create group!", e))
+                                        .onSuccess(versionHolders -> {
+                                            boolean foundServiceVersion = versionHolders.parallelStream()
+                                                    .anyMatch(iCloudServiceVersionIRBucketHolder -> iCloudServiceVersionIRBucketHolder.get()
+                                                    .getEnvironmentType().equals(groupSetup.getEnvironment()));
+                                            if (!foundServiceVersion) {
+                                                new ServiceVersionSetup().start((setup, state) -> {
+                                                    if (state == SetupControlState.CANCELLED) {
+                                                        commandSender.sendMessage("Setup cancelled!");
+                                                        return;
+                                                    }
+                                                    CloudServiceVersion serviceVersion = new CloudServiceVersion();
+                                                    serviceVersion.setName(name);
+                                                    serviceVersion.setJavaCommand(setup.getJavaCommand());
+                                                    serviceVersion.setDownloadUrl(setup.getDownloadUrl());
+                                                    serviceVersion.setEnvironmentType(setup.getEnvironment());
+                                                    serviceVersion.setPaperClip(setup.isPaperClip());
+                                                    CloudAPI.getInstance().getServiceVersionManager().createServiceVersionAsync(serviceVersion)
+                                                            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to create service version!", t))
+                                                            .onSuccess(versionHolder -> {
+                                                                commandSender.sendMessage("Service version created!");
+                                                                createGroup(groupSetup, commandSender, name);
+                                                            });
                                                 });
-                                    });
-                                    return;
-                                }
-                                createGroup(groupSetup, commandSender, name);
+                                                return;
+                                            }
+                                            createGroup(groupSetup, commandSender, name);
+                                        });
                             } else if (groupSetupControlState == SetupControlState.CANCELLED) {
                                 commandSender.sendMessage("§cGroup creation cancelled");
                             }
@@ -254,8 +263,8 @@ public class GroupCommand extends ConsoleCommand {
     }
 
     @Subcommand("edit")
-    @Syntax("<Group> <Key> <Value>")
-    @CommandCompletion("@groups @group_keys @group_values")
+    @Syntax("<Group> <Property> <Value>")
+    @CommandCompletion("@groups @group_properties")
     @Description("Edit a group property")
     public void onEdit(CommandSender commandSender, String name, String key, String value) {
         CloudAPI.getInstance().getGroupManager().existsGroupAsync(name)
@@ -269,29 +278,45 @@ public class GroupCommand extends ConsoleCommand {
                             .onFailure(e2 -> commandSender.sendMessage("§cFailed to edit group " + name))
                             .onSuccess(holder -> {
                                 try {
-                                    switch (value.toUpperCase()) {
+                                    switch (key.toUpperCase()) {
+                                        case "PERCENT_TO_START_NEW_SERVICE":
+                                            if (!ConditionChecks.isInteger(value)) {
+                                                commandSender.sendMessage("Value must be an integer");
+                                                return;
+                                            }
+                                            int intValue = Integer.parseInt(value);
+                                            if(intValue != -1 && (intValue < 0 || intValue > 100)) {
+                                                commandSender.sendMessage("Value must be greater than 400");
+                                                return;
+                                            }
+                                            holder.get().setPercentToStartNewService(intValue);
+                                            holder.get().updateAsync();
+                                            commandSender.sendMessage("Percent to start new service set to " + intValue);
+                                            break;
                                         case "MAX_MEMORY":
                                         case "MEMORY":
                                             if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
                                             }
-                                            int intValue = Integer.parseInt(value);
+                                            intValue = Integer.parseInt(value);
                                             if (intValue < 400) {
                                                 commandSender.sendMessage("Value must be greater than 400");
                                                 return;
                                             }
                                             holder.get().setMaxMemory(intValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc max memory set to %hc" + intValue);
                                             break;
                                         case "FALLBACK":
-                                        case "LOBBY_SERIVCE":
+                                        case "LOBBY_SERVICE":
                                             if (!ConditionChecks.isBoolean(value)) {
                                                 commandSender.sendMessage("Value must be a boolean");
                                                 return;
                                             }
                                             boolean boolValue = Boolean.parseBoolean(value);
                                             holder.get().setFallback(boolValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc fallback set to %hc" + boolValue);
                                             break;
                                         case "MAINTENANCE":
@@ -301,6 +326,7 @@ public class GroupCommand extends ConsoleCommand {
                                             }
                                             boolValue = Boolean.parseBoolean(value);
                                             holder.get().setMaintenance(boolValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
                                             break;
                                         case "MAX_SERVICES":
@@ -315,6 +341,7 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             holder.get().setMaxServices(intValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc max services set to %hc" + intValue);
                                             break;
                                         case "MIN_SERVICES":
@@ -329,6 +356,7 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             holder.get().setMinServices(intValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc min services set to %hc" + intValue);
                                             break;
                                         case "START_PRIORITY":
@@ -338,6 +366,7 @@ public class GroupCommand extends ConsoleCommand {
                                             }
                                             intValue = Integer.parseInt(value);
                                             holder.get().setStartPriority(intValue);
+                                            holder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc start priority set to %hc" + intValue);
                                             break;
                                         case "SERVICE_VERSION":
@@ -374,8 +403,16 @@ public class GroupCommand extends ConsoleCommand {
                                                         commandSender.sendMessage("Group %hc" + name + "%tc static set to %hc" + Boolean.parseBoolean(value));
                                                     });
                                             break;
+                                        default:
+                                            StringBuilder builder = new StringBuilder();
+                                            for (GroupProperty property : GroupProperty.values()) {
+                                                if (!builder.toString().isEmpty()) builder.append("§8, ");
+                                                builder.append("%hc");
+                                                builder.append(property.name());
+                                            }
+                                            commandSender.sendMessage("§cInvalid property! Properties: " + builder);
+                                            break;
                                     }
-                                    holder.get().updateAsync();
                                 } catch (Exception e) {
                                     StringBuilder builder = new StringBuilder();
                                     for (GroupProperty property : GroupProperty.values()) {
@@ -409,8 +446,11 @@ public class GroupCommand extends ConsoleCommand {
                     cloudGroup.setServiceEnvironment(ServiceEnvironment.MINECRAFT);
 
                     CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
-                            .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))
-                            .onSuccess(holder -> commandSender.sendMessage("Group %hc" + name + "%tc created"));
+                            .onFailure(e2 -> CloudAPI.getInstance().getConsole().error("Failed to create group " + name, e2))
+                            .onSuccess(holder -> {
+                                CloudAPI.getInstance().getGroupManager().addDefaultTemplates(cloudGroup.getHolder());
+                                commandSender.sendMessage("Group %hc" + name + "%tc created");
+                            });
                 } else if (mineCraftSetupControlState == SetupControlState.CANCELLED) {
                     commandSender.sendMessage("§cMinecraft Group creation cancelled");
                 }
@@ -418,7 +458,7 @@ public class GroupCommand extends ConsoleCommand {
             return;
         }
 
-        if (groupSetup.getEnvironment().equals(ServiceEnvironment.PROXY)) {
+        if (groupSetup.getEnvironment() == ServiceEnvironment.BUNGEECORD || groupSetup.getEnvironment() == ServiceEnvironment.VELOCITY) {
             new ProxySetup().start((proxySetup, proxySetupControlState) -> {
                 if (proxySetupControlState == SetupControlState.FINISHED) {
 
@@ -435,7 +475,7 @@ public class GroupCommand extends ConsoleCommand {
                     cloudGroup.setMaxMemory(proxySetup.getMaxMemory());
                     cloudGroup.setStartPriority(proxySetup.getStartPriority());
                     cloudGroup.setServiceVersionName(proxySetup.getServiceVersionName());
-                    cloudGroup.setServiceEnvironment(ServiceEnvironment.PROXY);
+                    cloudGroup.setServiceEnvironment(groupSetup.getEnvironment());
 
                     CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
                             .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))

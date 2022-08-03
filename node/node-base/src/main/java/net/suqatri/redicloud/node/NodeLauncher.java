@@ -1,8 +1,12 @@
 package net.suqatri.redicloud.node;
 
 import lombok.Getter;
+import net.suqatri.commands.CommandCompletions;
+import net.suqatri.commands.ConsoleCommandCompletionContext;
+import net.suqatri.commands.InvalidCommandArgument;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.console.LogLevel;
+import net.suqatri.redicloud.api.group.GroupProperty;
 import net.suqatri.redicloud.api.impl.node.CloudNode;
 import net.suqatri.redicloud.api.impl.poll.timeout.ITimeOutPollManager;
 import net.suqatri.redicloud.api.impl.redis.RedisConnection;
@@ -17,6 +21,7 @@ import net.suqatri.redicloud.api.redis.RedisCredentials;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceState;
+import net.suqatri.redicloud.api.service.version.ServiceVersionProperty;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.connection.IPUtils;
 import net.suqatri.redicloud.commons.file.FileWriter;
@@ -31,6 +36,7 @@ import net.suqatri.redicloud.node.listener.CloudServiceStartedListener;
 import net.suqatri.redicloud.node.listener.CloudServiceStoppedListener;
 import net.suqatri.redicloud.node.node.ClusterConnectionInformation;
 import net.suqatri.redicloud.node.node.packet.NodePingPacket;
+import net.suqatri.redicloud.node.node.packet.NodePingPacketResponse;
 import net.suqatri.redicloud.node.poll.timeout.TimeOutPollManager;
 import net.suqatri.redicloud.node.scheduler.Scheduler;
 import net.suqatri.redicloud.node.service.NodeCloudServiceManager;
@@ -44,12 +50,12 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Getter
 public class NodeLauncher extends NodeCloudDefaultAPI {
@@ -207,6 +213,42 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     private void registerCommands() {
         this.console.info("Registering cloud commands for the console...");
+
+        this.commandManager.getCommandCompletions().registerCompletion("services", context ->
+                this.serviceManager.getServices().parallelStream()
+                        .map(holder -> holder.get().getServiceName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("running_services", context ->
+                this.serviceManager.getServices().parallelStream()
+                        .filter(holder -> holder.get().getServiceState() != ServiceState.STOPPING)
+                        .map(holder -> holder.get().getServiceName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("groups", context ->
+                this.getGroupManager().getGroups().parallelStream()
+                        .map(holder -> holder.get().getName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("service_versions", context ->
+                this.getServiceVersionManager().getServiceVersions().parallelStream()
+                        .map(holder -> holder.get().getName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("service_templates", context ->
+                this.getServiceTemplateManager().getAllTemplates().parallelStream()
+                        .map(holder -> holder.get().getName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("nodes", context ->
+                this.getNodeManager().getNodes().parallelStream()
+                        .map(holder -> holder.get().getName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerCompletion("connected_nodes", context ->
+                this.getNodeManager().getNodes().parallelStream()
+                        .filter(holder -> holder.get().isConnected())
+                        .map(holder -> holder.get().getName())
+                        .collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerAsyncCompletion("group_properties", context ->
+                Arrays.stream(GroupProperty.values()).parallel().map(Enum::name).collect(Collectors.toList()));
+        this.commandManager.getCommandCompletions().registerAsyncCompletion("service_version_properties", context ->
+                Arrays.stream(ServiceVersionProperty.values()).parallel().map(Enum::name).collect(Collectors.toList()));
+
         if (CloudAPI.getInstance().getConsole().getLogLevel().getId() <= LogLevel.DEBUG.getId())
             this.commandManager.registerCommand(new DebugCommand());
         this.commandManager.registerCommand(new ClearCommand());
@@ -223,6 +265,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
     private void registerPackets() {
         this.getPacketManager().registerPacket(NodePingPacket.class);
+        this.getPacketManager().registerPacket(NodePingPacketResponse.class);
     }
 
     private void registerListeners() {
@@ -297,11 +340,16 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         return;
                     }
 
-                    if (this.getNodeManager().getNodes().size() == 1) {
-                        this.serviceTemplateManager.createTemplate("global-minecraft");
-                        this.serviceTemplateManager.createTemplate("global-proxy");
-                        this.serviceTemplateManager.createTemplate("global-all");
-                    }
+                    this.getEventManager().register(CloudNodeConnectedEvent.class, event -> {
+                        if (this.getNodeManager().getNodes().size() == 1) {
+                            if(!this.serviceTemplateManager.existsTemplate("global-minecraft"))
+                                this.serviceTemplateManager.createTemplate("global-minecraft");
+                            if(!this.serviceTemplateManager.existsTemplate("global-proxy"))
+                                this.serviceTemplateManager.createTemplate("global-proxy");
+                            if(!this.serviceTemplateManager.existsTemplate("global-all"))
+                                this.serviceTemplateManager.createTemplate("global-all");
+                        }
+                    });
 
                     CloudNode cloudNode = new CloudNode();
                     connectionInformation.applyToNode(cloudNode);
@@ -419,6 +467,9 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         if (!Files.PROXY_PLUGIN_JAR.exists()) {
             throw new FileNotFoundException("Proxy plugin jar not found!");
         }
+        if(!Files.VELOCITY_PLUGIN_JAR.exists()){
+            throw new FileNotFoundException("Velocity plugin jar not found!");
+        }
         Files.LIBS_FOLDER.createIfNotExists();
         Files.LIBS_BLACKLIST_FOLDER.createIfNotExists();
         Files.LIBS_REPO_FOLDER.createIfNotExists();
@@ -461,22 +512,23 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
                 if (this.console != null) this.console.info("Stopping services...");
                 ((NodeCloudServiceFactory) this.serviceFactory).getThread().interrupt();
-                for (IRBucketHolder<ICloudService> serviceHolders : this.serviceManager.getServices()) {
+                for (IRBucketHolder<ICloudService> serviceHolder : this.serviceManager.getServices()) {
                     //TODO create event for cluster shutdown
-                    if(serviceHolders.get().isExternal() && !isLastNode) continue;
-                    if (serviceHolders.get().getServiceState() == ServiceState.OFFLINE) continue;
-                    if (!this.serviceManager.existsService(serviceHolders.get().getUniqueId())) continue;
+                    if(serviceHolder.get().isExternal() && !isLastNode) continue;
+                    if(!serviceHolder.get().getNodeId().equals(this.node.getUniqueId())) continue;
+                    if (serviceHolder.get().getServiceState() == ServiceState.OFFLINE) continue;
+                    if (!this.serviceManager.existsService(serviceHolder.get().getUniqueId())) continue;
                     stopCount++;
                     try {
-                        this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), false).get(10, TimeUnit.SECONDS);
+                        this.serviceManager.stopServiceAsync(serviceHolder.get().getUniqueId(), false).get(10, TimeUnit.SECONDS);
                     } catch (InterruptedException | ExecutionException | TimeoutException e) {
                         try {
                             if (this.console != null)
-                                this.console.warn("Failed to stop service " + serviceHolders.get().getServiceName() + "! Try to force stop...");
-                            this.serviceManager.stopServiceAsync(serviceHolders.get().getUniqueId(), true).get(5, TimeUnit.SECONDS);
+                                this.console.warn("Failed to stop service " + serviceHolder.get().getServiceName() + "! Try to force stop...");
+                            this.serviceManager.stopServiceAsync(serviceHolder.get().getUniqueId(), true).get(5, TimeUnit.SECONDS);
                         } catch (InterruptedException | ExecutionException | TimeoutException e1) {
                             if (this.console != null) {
-                                this.console.error("Failed to stop service " + serviceHolders.get().getServiceName(), e1);
+                                this.console.error("Failed to stop service " + serviceHolder.get().getServiceName(), e1);
                             } else {
                                 e1.printStackTrace();
                             }

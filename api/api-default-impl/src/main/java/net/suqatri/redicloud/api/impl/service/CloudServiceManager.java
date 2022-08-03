@@ -26,7 +26,7 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     public CloudServiceManager() {
         super("service", ICloudService.class);
         CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event ->
-                this.serviceIdFetcherMap = event.getConnection().getClient().getMap("services@idFetcher", getObjectCodec()));
+                this.serviceIdFetcherMap = event.getConnection().getClient().getMap("fetcher:serviceId", getObjectCodec()));
     }
 
     @Override
@@ -36,19 +36,16 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
 
     @Override
     public void putInFetcher(String serviceName, UUID serviceId) {
-        CloudAPI.getInstance().getConsole().trace("Putting service " + serviceName + " in fetcher");
         this.serviceIdFetcherMap.putAsync(serviceName.toLowerCase(), serviceId.toString());
     }
 
     @Override
     public void removeFromFetcher(String serviceName) {
-        CloudAPI.getInstance().getConsole().trace("Removing service " + serviceName + " from fetcher");
         this.serviceIdFetcherMap.removeAsync(serviceName.toLowerCase());
     }
 
     @Override
     public void removeFromFetcher(String serviceName, UUID serviceId) {
-        CloudAPI.getInstance().getConsole().trace("Removing service " + serviceName + "|" + serviceId + " from fetcher");
         this.serviceIdFetcherMap.removeAsync(serviceName.toLowerCase(), serviceId.toString());
     }
 

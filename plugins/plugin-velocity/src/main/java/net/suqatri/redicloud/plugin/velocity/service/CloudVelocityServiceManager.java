@@ -2,6 +2,7 @@ package net.suqatri.redicloud.plugin.velocity.service;
 
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.AllArgsConstructor;
+import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.service.CloudServiceManager;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
@@ -14,7 +15,7 @@ public class CloudVelocityServiceManager extends CloudServiceManager {
 
     @Override
     public boolean executeCommand(IRBucketHolder<ICloudService> serviceHolder, String command) {
-        if(!super.executeCommand(serviceHolder, command)) return true;
+        if(super.executeCommand(serviceHolder, command)) return true;
         this.proxyServer.getCommandManager().executeAsync(
                         this.proxyServer.getConsoleCommandSource(),
                         command);

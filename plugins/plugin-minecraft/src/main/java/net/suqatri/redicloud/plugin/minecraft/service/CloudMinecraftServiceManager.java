@@ -9,7 +9,7 @@ public class CloudMinecraftServiceManager extends CloudServiceManager {
 
     @Override
     public boolean executeCommand(IRBucketHolder<ICloudService> serviceHolder, String command) {
-        if(!super.executeCommand(serviceHolder, command)) return true;
+        if(super.executeCommand(serviceHolder, command)) return true;
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
         return false;
     }

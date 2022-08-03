@@ -21,7 +21,10 @@ public class CloudServiceConsoleCommandPacket extends CloudPacket {
                 if(!exists) return;
                 CloudAPI.getInstance().getServiceManager().getServiceAsync(this.serviceId)
                         .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get service for service id " + this.serviceId, e))
-                        .onSuccess(service -> service.get().executeCommand(command));
+                        .onSuccess(service -> {
+                            CloudAPI.getInstance().getConsole().trace("Type of service manager is: " + CloudAPI.getInstance().getServiceManager().getClass().getSimpleName());
+                            CloudAPI.getInstance().getServiceManager().executeCommand(service, this.command);
+                        });
             });
     }
 }

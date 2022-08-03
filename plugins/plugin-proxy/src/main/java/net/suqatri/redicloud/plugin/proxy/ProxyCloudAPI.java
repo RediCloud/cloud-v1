@@ -18,6 +18,7 @@ import net.suqatri.redicloud.api.impl.service.factory.CloudServiceFactory;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersionManager;
 import net.suqatri.redicloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
+import net.suqatri.redicloud.api.proxy.ProxyDefaultCloudAPI;
 import net.suqatri.redicloud.api.redis.RedisCredentials;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
@@ -41,7 +42,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Getter
-public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
+public class ProxyCloudAPI extends ProxyDefaultCloudAPI {
 
     @Getter
     private static ProxyCloudAPI instance;
@@ -66,7 +67,7 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private boolean runningExternal = false;
 
     public ProxyCloudAPI(Plugin plugin) {
-        super(ApplicationType.SERVICE_PROXY);
+        super();
         instance = this;
         this.plugin = plugin;
         this.scheduler = new BungeeScheduler(this.plugin);

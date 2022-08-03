@@ -6,7 +6,7 @@ import com.velocitypowered.api.event.proxy.ProxyPingEvent;
 import com.velocitypowered.api.proxy.server.ServerPing;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.plugin.velocity.VelocityCloudAPI;
-import net.suqatri.redicloud.plugin.velocity.utils.LegacyMessageUtils;
+import net.suqatri.redicloud.api.velocity.utils.LegacyMessageUtils;
 
 import java.util.concurrent.TimeUnit;
 

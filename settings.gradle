@@ -47,4 +47,6 @@ include 'plugins:plugin-velocity'
 findProject(':plugins:plugin-velocity')?.name = 'plugin-velocity'
 include 'commands:command-velocity'
 findProject(':commands:command-velocity')?.name = 'command-velocity'
+include 'api:api-velocity'
+findProject(':api:api-velocity')?.name = 'api-velocity'
 

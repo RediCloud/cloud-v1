@@ -14,6 +14,8 @@ import net.suqatri.redicloud.api.impl.network.NetworkComponentManager;
 import net.suqatri.redicloud.api.impl.node.CloudNodeManager;
 import net.suqatri.redicloud.api.impl.packet.CloudPacketManager;
 import net.suqatri.redicloud.api.impl.player.CloudPlayerManager;
+import net.suqatri.redicloud.api.impl.player.RequestPlayerBridge;
+import net.suqatri.redicloud.api.impl.player.packet.*;
 import net.suqatri.redicloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.redicloud.api.impl.redis.bucket.packet.BucketDeletePacket;
 import net.suqatri.redicloud.api.impl.redis.bucket.packet.BucketUpdatePacket;
@@ -23,13 +25,14 @@ import net.suqatri.redicloud.api.impl.utils.CloudProperties;
 import net.suqatri.redicloud.api.network.INetworkComponentManager;
 import net.suqatri.redicloud.api.node.ICloudNodeManager;
 import net.suqatri.redicloud.api.packet.ICloudPacketManager;
+import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.player.ICloudPlayerManager;
+import net.suqatri.redicloud.api.player.IPlayerBridge;
 import net.suqatri.redicloud.api.redis.IRedisConnection;
+import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.utils.ApplicationType;
-import org.redisson.codec.JsonJacksonCodec;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -61,6 +64,11 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
         this.playerManager = new CloudPlayerManager();
     }
 
+    @Override
+    public IPlayerBridge createBridge(IRBucketHolder<ICloudPlayer> playerHolder) {
+        return new RequestPlayerBridge(playerHolder);
+    }
+
     private void loadProperties(){
         try {
             this.properties = new CloudProperties(this.getClass().getClassLoader().getResourceAsStream("redicloud.properties"));
@@ -79,8 +87,16 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     public void registerInternalPackets() {
         CloudAPI.getInstance().getPacketManager().registerPacket(BucketUpdatePacket.class);
         CloudAPI.getInstance().getPacketManager().registerPacket(BucketDeletePacket.class);
+
         CloudAPI.getInstance().getPacketManager().registerPacket(CloudServiceConsoleCommandPacket.class);
+
         CloudAPI.getInstance().getPacketManager().registerPacket(CloudServiceInitStopPacket.class);
+
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeMessagePacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeTitlePacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeActionbarPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeConnectServicePacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeDisconnectPacket.class);
     }
 
     @Override

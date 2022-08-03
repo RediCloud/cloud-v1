@@ -7,7 +7,7 @@ import net.suqatri.redicloud.api.event.CloudListener;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.event.CloudServiceStartedEvent;
 import net.suqatri.redicloud.plugin.velocity.VelocityCloudAPI;
-import net.suqatri.redicloud.plugin.velocity.utils.LegacyMessageUtils;
+import net.suqatri.redicloud.api.velocity.utils.LegacyMessageUtils;
 
 import java.net.InetSocketAddress;
 

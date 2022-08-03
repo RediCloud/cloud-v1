@@ -11,8 +11,6 @@ public class PlayerDisconnectListener {
 
     @Subscribe
     public void onPlayerDisconnect(DisconnectEvent event) {
-        //TODO remove online count from api, get directly from proxy server
-        VelocityCloudAPI.getInstance().setOnlineCount(VelocityCloudAPI.getInstance().getOnlineCount() - 1);
 
         CloudAPI.getInstance().getPlayerManager().getPlayerAsync(event.getPlayer().getUniqueId())
                 .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("", throwable))

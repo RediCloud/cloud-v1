@@ -13,7 +13,6 @@ public class PlayerDisconnectListener implements Listener {
 
     @EventHandler
     public void onPlayerDisconnect(PlayerDisconnectEvent event) {
-        ProxyCloudAPI.getInstance().setOnlineCount(ProxyServer.getInstance().getOnlineCount() - 1);
 
         CloudAPI.getInstance().getPlayerManager().getPlayerAsync(event.getPlayer().getUniqueId())
                 .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("", throwable))

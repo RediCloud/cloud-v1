@@ -22,6 +22,7 @@ public class CloudServiceVersion extends RBucketObject implements ICloudServiceV
     private String downloadUrl;
     private ServiceEnvironment environmentType;
     private boolean paperClip;
+    private boolean isDefaultVersion = false;
 
     @Override
     public File getFile(boolean forceGetExistFile) throws IOException, InterruptedException {

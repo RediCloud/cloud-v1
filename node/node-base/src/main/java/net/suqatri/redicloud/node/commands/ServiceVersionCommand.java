@@ -10,6 +10,7 @@ import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersion;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.redicloud.api.service.version.ServiceVersionProperty;
+import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.console.setup.SetupControlState;
 import net.suqatri.redicloud.node.setup.version.ServiceVersionSetup;
 
@@ -36,6 +37,25 @@ public class ServiceVersionCommand extends ConsoleCommand {
         commandHelp.showHelp();
     }
 
+    @Subcommand("installdefault")
+    @Description("Install default service version")
+    @Syntax("<Overwrite>")
+    public void onInstallDefault(CommandSender commandSender, boolean overwrite) {
+        commandSender.sendMessage("Installing default service version...");
+        commandSender.sendMessage("This may take a while...");
+        NodeLauncher.getInstance().getServiceVersionManager().installDefaultVersions(overwrite)
+            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to install default service versions", e))
+            .onSuccess(versionHolders -> {
+                StringBuilder builder = new StringBuilder();
+                for (IRBucketHolder<ICloudServiceVersion> versionHolder : versionHolders) {
+                    if(!builder.toString().isEmpty()) builder.append("§7, ");
+                    builder.append("%hc");
+                    builder.append(versionHolder.get().getName());
+                }
+                commandSender.sendMessage("Installed service versions: " + builder);
+            });
+    }
+
     @Subcommand("create")
     @Description("Create a new service version")
     @Syntax("<Name>")
@@ -58,7 +78,7 @@ public class ServiceVersionCommand extends ConsoleCommand {
                         serviceVersion.setDownloadUrl(setup.getDownloadUrl());
                         serviceVersion.setEnvironmentType(setup.getEnvironment());
                         serviceVersion.setPaperClip(setup.isPaperClip());
-                        CloudAPI.getInstance().getServiceVersionManager().createServiceVersionAsync(serviceVersion)
+                        CloudAPI.getInstance().getServiceVersionManager().createServiceVersionAsync(serviceVersion, false)
                                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to create service version!", t))
                                 .onSuccess(versionHolder -> {
                                     commandSender.sendMessage("Service version created!");

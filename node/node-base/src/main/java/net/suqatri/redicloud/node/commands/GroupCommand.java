@@ -191,7 +191,7 @@ public class GroupCommand extends ConsoleCommand {
                                                     serviceVersion.setDownloadUrl(setup.getDownloadUrl());
                                                     serviceVersion.setEnvironmentType(setup.getEnvironment());
                                                     serviceVersion.setPaperClip(setup.isPaperClip());
-                                                    CloudAPI.getInstance().getServiceVersionManager().createServiceVersionAsync(serviceVersion)
+                                                    CloudAPI.getInstance().getServiceVersionManager().createServiceVersionAsync(serviceVersion, false)
                                                             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to create service version!", t))
                                                             .onSuccess(versionHolder -> {
                                                                 commandSender.sendMessage("Service version created!");

@@ -20,7 +20,7 @@ public enum DefaultServiceVersion {
     PAPER_1_19_1("paper-1.19.1", "https://api.papermc.io/v2/projects/paper/versions/1.19.1/builds/104/downloads/paper-1.19.1-104.jar", true),
 
     WATERFALL("waterfall", "https://api.papermc.io/v2/projects/waterfall/versions/1.19/builds/500/downloads/waterfall-1.19-500.jar", false),
-    BUNGEECORD("bungeecord", "", false),
+    BUNGEECORD("bungeecord", "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar", false),
     VELOCITY("velocity", "https://api.papermc.io/v2/projects/velocity/versions/3.1.2-SNAPSHOT/builds/165/downloads/velocity-3.1.2-SNAPSHOT-165.jar", false),
 
     SPIGOT_1_8_8("spigot-1.8.8", "https://cdn.getbukkit.org/spigot/spigot-1.8.8.jar", false),

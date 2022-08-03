@@ -106,12 +106,12 @@ public class VelocityCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     private void initListeners() {
 
-        this.proxyServer.getEventManager().register(this.proxyServer, new LoginListener());
-        this.proxyServer.getEventManager().register(this.proxyServer, new PlayerDisconnectListener());
-        this.proxyServer.getEventManager().register(this.proxyServer, new ProxyPingListener());
-        this.proxyServer.getEventManager().register(this.proxyServer, new ServerPreConnectListener());
-        this.proxyServer.getEventManager().register(this.proxyServer, new KickedFromServerListener());
-        this.proxyServer.getEventManager().register(this.proxyServer, new ServerPostConnectListener());
+        this.proxyServer.getEventManager().register(this.plugin, new LoginListener());
+        this.proxyServer.getEventManager().register(this.plugin, new PlayerDisconnectListener());
+        this.proxyServer.getEventManager().register(this.plugin, new ProxyPingListener());
+        this.proxyServer.getEventManager().register(this.plugin, new ServerPreConnectListener());
+        this.proxyServer.getEventManager().register(this.plugin, new KickedFromServerListener());
+        this.proxyServer.getEventManager().register(this.plugin, new ServerPostConnectListener());
 
         getEventManager().register(new CloudServiceStartedListener());
         getEventManager().register(new CloudServiceStoppedListener());

@@ -75,13 +75,12 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
     @Override
     public FutureAction<Boolean> deleteServiceVersionAsync(String name) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
-        name = name.toLowerCase();
         CloudAPI.getInstance().getGroupManager().getGroupsAsync()
                 .onFailure(futureAction)
                 .onSuccess(holders -> {
                     StringBuilder builder = new StringBuilder();
                     for (IRBucketHolder<ICloudGroup> holder : holders) {
-                        if (holder.get().getServiceVersionName().equalsIgnoreCase(name)) {
+                        if (holder.get().getServiceVersionName().equalsIgnoreCase(name.toLowerCase())) {
                             if (!builder.toString().isEmpty()) builder.append(", ");
                             builder.append(holder.get().getName());
                         }

@@ -187,7 +187,8 @@ public class CloudNodeServiceThread extends Thread {
         return this.processes
                 .values()
                 .parallelStream()
-                .filter(process -> process.getServiceHolder().get().getServiceState() == ServiceState.STARTING || process.getServiceHolder().get().getServiceState() == ServiceState.STARTING)
+                .filter(process -> process.getServiceHolder().get().getServiceState() == ServiceState.STARTING
+                        || process.getServiceHolder().get().getServiceState() == ServiceState.PREPARE)
                 .count();
     }
 

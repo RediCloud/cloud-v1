@@ -5,6 +5,7 @@ import net.suqatri.redicloud.api.impl.service.CloudService;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersion;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersionManager;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.StreamUtils;
@@ -27,10 +28,12 @@ import java.util.stream.Collectors;
 public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
 
     public NodeCloudServiceVersionManager(){
-        if(!isAnyDefaultVersionInstalled()){
-            CloudAPI.getInstance().getConsole().warn("No default service version is installed!");
-            CloudAPI.getInstance().getConsole().warn("If you want to install a default service version, please run the following command: sv installdefault");
-        }
+        CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event -> {
+            if(!isAnyDefaultVersionInstalled()){
+                CloudAPI.getInstance().getConsole().warn("No default service version is installed!");
+                CloudAPI.getInstance().getConsole().warn("If you want to install a default service version, please run the following command: sv installdefault");
+            }
+        });
     }
 
     @Override

@@ -31,6 +31,7 @@ import net.suqatri.redicloud.api.service.event.CloudServiceStartedEvent;
 import net.suqatri.redicloud.api.service.event.CloudServiceStoppedEvent;
 import net.suqatri.redicloud.api.utils.ApplicationType;
 import net.suqatri.redicloud.api.utils.Files;
+import net.suqatri.redicloud.api.velocity.VelocityDefaultCloudAPI;
 import net.suqatri.redicloud.commons.file.FileWriter;
 import net.suqatri.redicloud.plugin.velocity.command.VelocityCloudCommandManager;
 import net.suqatri.redicloud.plugin.velocity.console.VelocityConsole;
@@ -47,13 +48,12 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Getter
-public class VelocityCloudAPI extends CloudDefaultAPIImpl<CloudService> {
+public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
 
     @Getter
     private static VelocityCloudAPI instance;
 
     private final VelocityCloudPlugin plugin;
-    private final ProxyServer proxyServer;
     private final CloudServiceFactory serviceFactory;
     private final CloudVelocityServiceManager serviceManager;
     private final CloudServiceVersionManager serviceVersionManager;
@@ -73,17 +73,16 @@ public class VelocityCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private boolean runningExternal = false;
 
     public VelocityCloudAPI(ProxyServer proxyServer, VelocityCloudPlugin plugin) {
-        super(ApplicationType.SERVICE_PROXY);
+        super(proxyServer);
         instance = this;
         this.plugin = plugin;
-        this.proxyServer = proxyServer;
         this.scheduler = new VelocityScheduler(this.plugin);
         this.console = new VelocityConsole();
-        this.serviceManager = new CloudVelocityServiceManager(this.proxyServer);
+        this.serviceManager = new CloudVelocityServiceManager(this.getProxyServer());
         this.serviceFactory = new CloudServiceFactory(this.serviceManager);
         this.serviceVersionManager = new CloudServiceVersionManager();
         this.serviceTemplateManager = new CloudServiceTemplateManager();
-        this.commandManager = new VelocityCloudCommandManager(this.proxyServer, this.plugin);
+        this.commandManager = new VelocityCloudCommandManager(this.getProxyServer(), this.plugin);
         this.playerManager = new CloudPlayerManager();
 
         if (!hasRedisFilePath()) {
@@ -106,12 +105,12 @@ public class VelocityCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     private void initListeners() {
 
-        this.proxyServer.getEventManager().register(this.plugin, new LoginListener());
-        this.proxyServer.getEventManager().register(this.plugin, new PlayerDisconnectListener());
-        this.proxyServer.getEventManager().register(this.plugin, new ProxyPingListener());
-        this.proxyServer.getEventManager().register(this.plugin, new ServerPreConnectListener());
-        this.proxyServer.getEventManager().register(this.plugin, new KickedFromServerListener());
-        this.proxyServer.getEventManager().register(this.plugin, new ServerPostConnectListener());
+        this.getProxyServer().getEventManager().register(this.plugin, new LoginListener());
+        this.getProxyServer().getEventManager().register(this.plugin, new PlayerDisconnectListener());
+        this.getProxyServer().getEventManager().register(this.plugin, new ProxyPingListener());
+        this.getProxyServer().getEventManager().register(this.plugin, new ServerPreConnectListener());
+        this.getProxyServer().getEventManager().register(this.plugin, new KickedFromServerListener());
+        this.getProxyServer().getEventManager().register(this.plugin, new ServerPostConnectListener());
 
         getEventManager().register(new CloudServiceStartedListener());
         getEventManager().register(new CloudServiceStoppedListener());
@@ -122,9 +121,9 @@ public class VelocityCloudAPI extends CloudDefaultAPIImpl<CloudService> {
                 .onFailure(e -> this.console.error("Failed to register started service", e))
                 .onSuccess(serviceHolders -> {
                     for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                        Optional<RegisteredServer> serverInfo = this.proxyServer.getServer(serviceHolder.get().getServiceName());
+                        Optional<RegisteredServer> serverInfo = this.getProxyServer().getServer(serviceHolder.get().getServiceName());
                         if(!serverInfo.isPresent()) continue;
-                        this.proxyServer.unregisterServer(serverInfo.get().getServerInfo());
+                        this.getProxyServer().unregisterServer(serverInfo.get().getServerInfo());
                     }
 
                     for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
@@ -132,16 +131,16 @@ public class VelocityCloudAPI extends CloudDefaultAPIImpl<CloudService> {
                         if(serviceHolder.get().getEnvironment() == ServiceEnvironment.VELOCITY) continue;
                         ServerInfo serverInfo = new ServerInfo(serviceHolder.get().getServiceName(),
                                 new InetSocketAddress(serviceHolder.get().getHostName(), serviceHolder.get().getPort()));
-                        this.proxyServer.registerServer(serverInfo);
+                        this.getProxyServer().registerServer(serverInfo);
                         CloudAPI.getInstance().getConsole().debug("Registered service: " + serverInfo.getName());
                     }
 
                     ServerInfo fallback = new ServerInfo("fallback", new InetSocketAddress("127.0.0.1", 0));
-                    proxyServer.registerServer(fallback);
+                    getProxyServer().registerServer(fallback);
                     CloudAPI.getInstance().getConsole().debug("Registered service: " + fallback.getName());
 
                     ServerInfo lobby = new ServerInfo("lobby", new InetSocketAddress("127.0.0.1", 0));
-                    proxyServer.registerServer(lobby);
+                    getProxyServer().registerServer(lobby);
                     CloudAPI.getInstance().getConsole().debug("Registered service: " + lobby.getName());
                 });
     }
@@ -268,9 +267,9 @@ public class VelocityCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
         getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service.getHolder()));
 
-        this.updaterTask = this.proxyServer.getScheduler().buildTask(this.plugin, () -> {
-            if (this.service.getOnlineCount() != this.proxyServer.getPlayerCount()) {
-                this.service.setOnlineCount(this.proxyServer.getPlayerCount());
+        this.updaterTask = this.getProxyServer().getScheduler().buildTask(this.plugin, () -> {
+            if (this.service.getOnlineCount() != this.getProxyServer().getPlayerCount()) {
+                this.service.setOnlineCount(this.getProxyServer().getPlayerCount());
                 this.service.updateAsync();
             }
         }).repeat(1500, TimeUnit.MILLISECONDS).schedule();
@@ -316,7 +315,7 @@ public class VelocityCloudAPI extends CloudDefaultAPIImpl<CloudService> {
             this.service.update();
         }
 
-        for (Player onlinePlayer : this.proxyServer.getAllPlayers()) {
+        for (Player onlinePlayer : this.getProxyServer().getAllPlayers()) {
             onlinePlayer.disconnect(LegacyComponentSerializer.legacySection()
                     .deserialize("§cServer is shutting down."));
         }
@@ -343,6 +342,6 @@ public class VelocityCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
         if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
 
-        proxyServer.shutdown();
+        getProxyServer().shutdown();
     }
 }

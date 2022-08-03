@@ -23,4 +23,6 @@ public interface IServiceScreenManager {
 
     boolean isAnyScreenActive();
 
+    void write(String command);
+
 }

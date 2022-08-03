@@ -18,6 +18,6 @@ public class CloudVelocityServiceManager extends CloudServiceManager {
         this.proxyServer.getCommandManager().executeAsync(
                         this.proxyServer.getConsoleCommandSource(),
                         command);
-        return true;
+        return false;
     }
 }

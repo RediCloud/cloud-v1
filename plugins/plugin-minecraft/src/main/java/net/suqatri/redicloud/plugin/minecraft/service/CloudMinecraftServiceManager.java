@@ -11,7 +11,7 @@ public class CloudMinecraftServiceManager extends CloudServiceManager {
     public boolean executeCommand(IRBucketHolder<ICloudService> serviceHolder, String command) {
         if(!super.executeCommand(serviceHolder, command)) return true;
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-        return true;
+        return false;
     }
 
 }

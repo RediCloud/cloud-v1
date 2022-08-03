@@ -52,133 +52,133 @@ public class CloudNodeServiceThread extends Thread {
         this.node = NodeLauncher.getInstance().getNode();
         while (!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
 
-            if (NodeLauncher.getInstance().isShutdownInitialized()) break;
-            if (NodeLauncher.getInstance().isInstanceTimeOuted()) break;
-            if (NodeLauncher.getInstance().isRestarting()) break;
-            if (NodeLauncher.getInstance().isShutdownInitialized()) break;
+            try {
+                if (NodeLauncher.getInstance().isShutdownInitialized()) break;
+                if (NodeLauncher.getInstance().isInstanceTimeOuted()) break;
+                if (NodeLauncher.getInstance().isRestarting()) break;
+                if (NodeLauncher.getInstance().isShutdownInitialized()) break;
 
-            int maxStartSize = NodeLauncher.getInstance().getNode().getMaxParallelStartingServiceCount();
+                int maxStartSize = NodeLauncher.getInstance().getNode().getMaxParallelStartingServiceCount();
 
-            this.checkServiceCount++;
-            if (this.checkServiceCount >= checkServiceInterval) {
-                this.checkServiceCount = 0;
-                for (IRBucketHolder<ICloudGroup> groupHolder : CloudAPI.getInstance().getGroupManager().getGroups()) {
+                this.checkServiceCount++;
+                if (this.checkServiceCount >= checkServiceInterval) {
+                    this.checkServiceCount = 0;
+                    for (IRBucketHolder<ICloudGroup> groupHolder : CloudAPI.getInstance().getGroupManager().getGroups()) {
 
-                    long count = groupHolder.get().getConnectedServices().getBlockOrNull()
-                            .parallelStream()
-                            .filter(holder -> holder.get().isGroupBased())
-                            .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(groupHolder.get().getName()))
-                            .filter(holder -> holder.get().getServiceState() != ServiceState.OFFLINE)
-                            .filter(holder -> holder.get().getServiceState() != ServiceState.RUNNING_DEFINED)
-                            .filter(holder -> {
-                                if (holder.get().getMaxPlayers() == -1) return true;
-                                if (holder.get().getPercentToStartNewService() == -1) return true;
-                                int percent = ((int) (100 / ((double) holder.get().getMaxPlayers())) * holder.get().getOnlineCount());
-                                if (percent >= holder.get().getPercentToStartNewService()) return false;
-                                return holder.get().getOnlineCount() <= holder.get().getMaxPlayers();
-                            })
-                            .count();
-                    int min = groupHolder.get().getMinServices();
+                        long count = groupHolder.get().getConnectedServices().getBlockOrNull()
+                                .parallelStream()
+                                .filter(holder -> holder.get().isGroupBased())
+                                .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(groupHolder.get().getName()))
+                                .filter(holder -> holder.get().getServiceState() != ServiceState.OFFLINE)
+                                .filter(holder -> holder.get().getServiceState() != ServiceState.RUNNING_DEFINED)
+                                .filter(holder -> {
+                                    if (holder.get().getMaxPlayers() == -1) return true;
+                                    if (holder.get().getPercentToStartNewService() == -1) return true;
+                                    int percent = ((int) (100 / ((double) holder.get().getMaxPlayers())) * holder.get().getOnlineCount());
+                                    if (percent >= holder.get().getPercentToStartNewService()) return false;
+                                    return holder.get().getOnlineCount() <= holder.get().getMaxPlayers();
+                                })
+                                .count();
+                        int min = groupHolder.get().getMinServices();
 
-                    if (count < min) {
-                        CloudAPI.getInstance().getConsole().trace("Group " + groupHolder.get().getName() + " need to start " + (min - count) + " services");
-                        for (long i = count; i < min; i++) {
-                            IServiceStartConfiguration configuration = groupHolder.get().createServiceConfiguration();
-                            if ((this.node.getFreeMemory() - configuration.getMaxMemory()) < 0) {
-                                memoryWarningCount++;
-                                if (memoryWarningCount < memoryWarningInterval) break;
-                                memoryWarningCount = 0;
-                                long maxRam = NodeLauncher.getInstance().getNode().getMaxMemory();
-                                CloudAPI.getInstance().getConsole().warn("Not enough memory to start a required service of group "
-                                        + groupHolder.get().getName() + " (" + (this.node.getMemoryUsage()) + "/" + this.node.getMaxMemory() + "MB)");
-                                break;
+                        if (count < min) {
+                            CloudAPI.getInstance().getConsole().trace("Group " + groupHolder.get().getName() + " need to start " + (min - count) + " services");
+                            for (long i = count; i < min; i++) {
+                                IServiceStartConfiguration configuration = groupHolder.get().createServiceConfiguration();
+                                if ((this.node.getFreeMemory() - configuration.getMaxMemory()) < 0) {
+                                    memoryWarningCount++;
+                                    if (memoryWarningCount < memoryWarningInterval) break;
+                                    memoryWarningCount = 0;
+                                    long maxRam = NodeLauncher.getInstance().getNode().getMaxMemory();
+                                    CloudAPI.getInstance().getConsole().warn("Not enough memory to start a required service of group "
+                                            + groupHolder.get().getName() + " (" + (this.node.getMemoryUsage()) + "/" + this.node.getMaxMemory() + "MB)");
+                                    break;
+                                }
+                                this.queue.add(configuration);
                             }
-                            this.queue.add(configuration);
                         }
                     }
                 }
-            }
-
-            if (!this.queue.isEmpty()) {
-
-                this.queue.stream()
-                        .filter(config -> this.waitForRemove.contains(config.getUniqueId()))
-                        .forEach(config -> {
-                            this.queue.remove(config);
-                            if (config.isStatic()) return;
-                            if (!((NodeCloudServiceManager) CloudAPI.getInstance().getServiceManager()).existsService(config.getUniqueId()))
-                                return;
-                            ((NodeCloudServiceManager) CloudAPI.getInstance().getServiceManager()).removeFromFetcher(config.getName());
-                            NodeLauncher.getInstance().getServiceManager().deleteBucket(config.getUniqueId().toString());
-                        });
 
                 if (!this.queue.isEmpty()) {
 
-                    if (this.node.getStartedServicesCount() >= this.node.getMaxServiceCount()
-                            && this.node.getMaxServiceCount() != -1) {
-                        this.maxServiceOnNodeCount++;
-                        if (this.maxServiceOnNodeCount < maxServiceOnNodeInterval) return;
-                        this.maxServiceOnNodeCount = 0;
-                        CloudAPI.getInstance().getConsole().warn("Max node service count reached, cannot start more services!");
-                        return;
-                    }
+                    this.queue.stream()
+                            .filter(config -> this.waitForRemove.contains(config.getUniqueId()))
+                            .forEach(config -> {
+                                this.queue.remove(config);
+                                if (config.isStatic()) return;
+                                if (!((NodeCloudServiceManager) CloudAPI.getInstance().getServiceManager()).existsService(config.getUniqueId()))
+                                    return;
+                                ((NodeCloudServiceManager) CloudAPI.getInstance().getServiceManager()).removeFromFetcher(config.getName());
+                                NodeLauncher.getInstance().getServiceManager().deleteBucket(config.getUniqueId().toString());
+                            });
 
-                    IServiceStartConfiguration configuration = this.queue.poll();
-                    while ((this.node.getMaxServiceCount() == -1 || getCurrentStartingCount() < maxStartSize)
-                            && configuration != null
-                            && this.node.getFreeMemory() > 0) {
-                        CloudAPI.getInstance().getConsole().debug("Service " + configuration.getName() + " is now inside a big thread of a POWER cpu!");
-                        if (configuration.isGroupBased()) {
-                            IRBucketHolder<ICloudGroup> groupHolder = CloudAPI.getInstance().getGroupManager().getGroup(configuration.getGroupName());
-                            if (groupHolder.get().getOnlineServiceCount().getBlockOrNull() >= groupHolder.get().getMaxServices() && groupHolder.get().getMaxServices() != -1) {
-                                if (configuration.getStartListener() != null) {
-                                    configuration.getStartListener().completeExceptionally(new IllegalStateException("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!"));
-                                } else {
-                                    this.maxServiceOfGroupCount++;
-                                    if (!this.queue.isEmpty()) {
-                                        configuration = this.queue.poll();
+                    if (!this.queue.isEmpty()) {
+
+                        if (this.node.getStartedServicesCount() >= this.node.getMaxServiceCount()
+                                && this.node.getMaxServiceCount() != -1) {
+                            this.maxServiceOnNodeCount++;
+                            if (this.maxServiceOnNodeCount < maxServiceOnNodeInterval) return;
+                            this.maxServiceOnNodeCount = 0;
+                            CloudAPI.getInstance().getConsole().warn("Max node service count reached, cannot start more services!");
+                            return;
+                        }
+
+                        IServiceStartConfiguration configuration = this.queue.poll();
+                        while ((this.node.getMaxServiceCount() == -1 || getCurrentStartingCount() < maxStartSize)
+                                && configuration != null
+                                && this.node.getFreeMemory() > 0) {
+                            CloudAPI.getInstance().getConsole().debug("Service " + configuration.getName() + " is now inside a big thread of a POWER cpu!");
+                            if (configuration.isGroupBased()) {
+                                IRBucketHolder<ICloudGroup> groupHolder = CloudAPI.getInstance().getGroupManager().getGroup(configuration.getGroupName());
+                                if (groupHolder.get().getOnlineServiceCount().getBlockOrNull() >= groupHolder.get().getMaxServices() && groupHolder.get().getMaxServices() != -1) {
+                                    if (configuration.getStartListener() != null) {
+                                        configuration.getStartListener().completeExceptionally(new IllegalStateException("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!"));
                                     } else {
-                                        configuration = null;
+                                        this.maxServiceOfGroupCount++;
+                                        if (!this.queue.isEmpty()) {
+                                            configuration = this.queue.poll();
+                                        } else {
+                                            configuration = null;
+                                        }
+                                        if (this.maxServiceOfGroupCount < maxServiceOfGroupInterval) continue;
+                                        this.maxServiceOfGroupCount = 0;
+                                        CloudAPI.getInstance().getConsole().warn("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!");
                                     }
-                                    if (this.maxServiceOfGroupCount < maxServiceOfGroupInterval) continue;
-                                    this.maxServiceOfGroupCount = 0;
-                                    CloudAPI.getInstance().getConsole().warn("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!");
+                                    continue;
                                 }
-                                continue;
                             }
-                        }
-                        try {
-                            start(configuration);
-                        } catch (Exception e) {
-                            this.waitForRemove.add(configuration.getUniqueId());
-                            if (configuration.getStartListener() != null) {
-                                configuration.getStartListener().completeExceptionally(e);
+                            try {
+                                start(configuration);
+                            } catch (Exception e) {
+                                this.waitForRemove.add(configuration.getUniqueId());
+                                if (configuration.getStartListener() != null) {
+                                    configuration.getStartListener().completeExceptionally(e);
+                                } else {
+                                    CloudAPI.getInstance().getConsole().error("Error starting service " + configuration.getName(), e);
+                                }
+                            }
+                            if (!this.queue.isEmpty()) {
+                                configuration = this.queue.poll();
                             } else {
-                                CloudAPI.getInstance().getConsole().error("Error starting service " + configuration.getName(), e);
+                                configuration = null;
                             }
                         }
-                        if (!this.queue.isEmpty()) {
-                            configuration = this.queue.poll();
-                        } else {
-                            configuration = null;
-                        }
-                    }
-                    if (configuration != null) {
-                        this.queue.add(configuration);
-                        this.currentValueCount++;
-                        if (this.currentValueCount > valueCheckInterval) {
-                            this.currentValueCount = 0;
-                            CloudAPI.getInstance().getConsole().warn("Failed to start service " + configuration.getName() + "! Check following values:");
-                            CloudAPI.getInstance().getConsole().warn(" - Max service count: " + getCurrentStartingCount() + "/" + this.node.getMaxServiceCount());
-                            CloudAPI.getInstance().getConsole().warn(" - Max memory: " + this.node.getMemoryUsage() + "/" + this.node.getMaxMemory());
+                        if (configuration != null) {
+                            this.queue.add(configuration);
+                            this.currentValueCount++;
+                            if (this.currentValueCount > valueCheckInterval) {
+                                this.currentValueCount = 0;
+                                CloudAPI.getInstance().getConsole().warn("Failed to start service " + configuration.getName() + "! Check following values:");
+                                CloudAPI.getInstance().getConsole().warn(" - Max service count: " + getCurrentStartingCount() + "/" + this.node.getMaxServiceCount());
+                                CloudAPI.getInstance().getConsole().warn(" - Max memory: " + this.node.getMemoryUsage() + "/" + this.node.getMaxMemory());
+                            }
                         }
                     }
                 }
-            }
-
-            try {
                 Thread.sleep(200);
-            } catch (InterruptedException e) {
+            }catch (Exception e){
+                CloudAPI.getInstance().getConsole().error("Error in service factory thread", e);
             }
         }
     }
@@ -187,7 +187,8 @@ public class CloudNodeServiceThread extends Thread {
         return this.processes
                 .values()
                 .parallelStream()
-                .filter(process -> process.getServiceHolder().get().getServiceState() == ServiceState.STARTING || process.getServiceHolder().get().getServiceState() == ServiceState.STARTING)
+                .filter(process -> process.getServiceHolder().get().getServiceState() == ServiceState.STARTING
+                        || process.getServiceHolder().get().getServiceState() == ServiceState.PREPARE)
                 .count();
     }
 

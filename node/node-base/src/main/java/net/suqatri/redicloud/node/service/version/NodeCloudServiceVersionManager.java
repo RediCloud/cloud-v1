@@ -26,11 +26,15 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
 
     public NodeCloudServiceVersionManager(){
         CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event -> {
-            if(!isAnyDefaultVersionInstalled()){
-                CloudAPI.getInstance().getConsole().warn("No default service version is installed!");
-                CloudAPI.getInstance().getConsole().warn("If you want to install a default service version, please run the following command: sv installdefault");
-            }
-        });
+            isAnyDefaultVersionInstalled()
+                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to check default version", e))
+                .onSuccess(isInstalled -> {
+                    if(!isInstalled){
+                        CloudAPI.getInstance().getConsole().warn("No default service version is installed!");
+                        CloudAPI.getInstance().getConsole().warn("If you want to install a default service version, please run the following command: sv installdefault");
+                    }
+                });
+            });
     }
 
     @Override
@@ -290,13 +294,18 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
         return futureAction;
     }
 
-    public boolean isAnyDefaultVersionInstalled(){
-        for(IRBucketHolder<ICloudServiceVersion> versionHolder : this.getServiceVersions()){
-            if(versionHolder.get().isDefaultVersion()){
-                return true;
+    public FutureAction<Boolean> isAnyDefaultVersionInstalled(){
+        FutureAction<Boolean> futureAction = new FutureAction<>();
+        CloudAPI.getInstance().getExecutorService().submit(() -> {
+            for(IRBucketHolder<ICloudServiceVersion> versionHolder : this.getServiceVersions()){
+                if(versionHolder.get().isDefaultVersion()){
+                    futureAction.complete(true);
+                    return;
+                }
             }
-        }
-        return false;
+            futureAction.complete(false);
+        });
+        return futureAction;
     }
 
     public FutureAction<Collection<IRBucketHolder<ICloudServiceVersion>>> installDefaultVersions(boolean overwrite) {

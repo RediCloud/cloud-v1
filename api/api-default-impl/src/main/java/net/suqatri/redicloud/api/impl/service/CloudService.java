@@ -36,6 +36,11 @@ public class CloudService extends RBucketObject implements ICloudService {
     private boolean isExternal = true;
 
     @Override
+    public void executeCommand(String command) {
+        CloudAPI.getInstance().getServiceManager().executeCommand(this.getHolder(), command);
+    }
+
+    @Override
     public void merged() {
         if (CloudAPI.getInstance().getApplicationType().getNetworkComponentType() != NetworkComponentType.SERVICE)
             return;

@@ -9,7 +9,10 @@ import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.network.INetworkComponentManager;
 import net.suqatri.redicloud.api.node.ICloudNodeManager;
 import net.suqatri.redicloud.api.packet.ICloudPacketManager;
+import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.player.ICloudPlayerManager;
+import net.suqatri.redicloud.api.player.IPlayerBridge;
+import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.scheduler.IScheduler;
 import net.suqatri.redicloud.api.service.ICloudServiceManager;
 import net.suqatri.redicloud.api.service.factory.ICloudServiceFactory;
@@ -18,6 +21,7 @@ import net.suqatri.redicloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.redicloud.api.utils.ApplicationType;
 import net.suqatri.redicloud.api.utils.ICloudProperties;
 
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
 @Getter
@@ -34,6 +38,8 @@ public abstract class CloudAPI {
         initShutdownHook();
         this.applicationType = type;
     }
+
+    public abstract IPlayerBridge createBridge(IRBucketHolder<ICloudPlayer> playerHolder);
 
     public abstract ExecutorService getExecutorService();
 

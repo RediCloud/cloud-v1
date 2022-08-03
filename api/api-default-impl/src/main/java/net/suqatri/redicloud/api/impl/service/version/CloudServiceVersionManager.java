@@ -28,12 +28,12 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
     }
 
     @Override
-    public IRBucketHolder<ICloudServiceVersion> createServiceVersion(ICloudServiceVersion version) throws IOException, InterruptedException {
+    public IRBucketHolder<ICloudServiceVersion> createServiceVersion(ICloudServiceVersion version, boolean fullInstall) throws IOException, InterruptedException {
         return this.createBucket(version.getName(), version);
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudServiceVersion>> createServiceVersionAsync(ICloudServiceVersion version) {
+    public FutureAction<IRBucketHolder<ICloudServiceVersion>> createServiceVersionAsync(ICloudServiceVersion version, boolean fullInstall) {
         return this.createBucketAsync(version.getName(), version);
     }
 

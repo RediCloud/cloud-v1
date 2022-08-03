@@ -342,6 +342,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
                     this.getEventManager().register(CloudNodeConnectedEvent.class, event -> {
                         if (this.getNodeManager().getNodes().size() == 1) {
+                            this.serviceVersionManager.installDefaultVersions(false);
                             if(!this.serviceTemplateManager.existsTemplate("global-minecraft"))
                                 this.serviceTemplateManager.createTemplate("global-minecraft");
                             if(!this.serviceTemplateManager.existsTemplate("global-proxy"))

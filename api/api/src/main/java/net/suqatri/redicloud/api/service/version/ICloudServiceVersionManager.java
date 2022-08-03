@@ -12,9 +12,9 @@ public interface ICloudServiceVersionManager {
 
     FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersionAsync(String name);
 
-    IRBucketHolder<ICloudServiceVersion> createServiceVersion(ICloudServiceVersion version) throws IOException, InterruptedException;
+    IRBucketHolder<ICloudServiceVersion> createServiceVersion(ICloudServiceVersion version, boolean fullInstall) throws IOException, InterruptedException;
 
-    FutureAction<IRBucketHolder<ICloudServiceVersion>> createServiceVersionAsync(ICloudServiceVersion version);
+    FutureAction<IRBucketHolder<ICloudServiceVersion>> createServiceVersionAsync(ICloudServiceVersion version, boolean fullInstall);
 
     Collection<IRBucketHolder<ICloudServiceVersion>> getServiceVersions();
 

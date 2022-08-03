@@ -26,7 +26,7 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     public CloudServiceManager() {
         super("service", ICloudService.class);
         CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event ->
-                this.serviceIdFetcherMap = event.getConnection().getClient().getMap("services@idFetcher", getObjectCodec()));
+                this.serviceIdFetcherMap = event.getConnection().getClient().getMap("fetcher:serviceId", getObjectCodec()));
     }
 
     @Override

@@ -25,7 +25,8 @@ public class CloudNodePortManager implements ICloudPortManager {
             boolean inRange = process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.MINECRAFT
                     ? (startPort >= 49152 && startPort <= 65535)
                     : (startPort >= 25500 && startPort <= 25600);
-            int currentPort = !inRange ? (process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.PROXY
+            int currentPort = !inRange ? ((process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.BUNGEECORD
+                    || process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY)
                     ? 25565 : 49152)
                     : process.getServiceHolder().get().getConfiguration().getStartPort();
             if (!inRange) {

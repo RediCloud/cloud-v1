@@ -4,5 +4,6 @@ import java.io.Serializable;
 
 public enum ServiceEnvironment implements Serializable {
     MINECRAFT,
-    PROXY;
+    BUNGEECORD,
+    VELOCITY;
 }

@@ -157,7 +157,8 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
         existencesCollection.addToProcess("global-all",
                 CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync("global-all"));
         switch (groupHolder.get().getServiceEnvironment()){
-            case PROXY: {
+            case VELOCITY:
+            case BUNGEECORD: {
                 existencesCollection.addToProcess("global-proxy",
                         CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync("global-proxy"));
                 break;

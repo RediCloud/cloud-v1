@@ -17,7 +17,6 @@ public class FileEditor {
     private final HashMap<String, String> keyValues;
 
     public FileEditor(Type type) {
-        ;
         this.splitter = type.splitter;
         this.lines = new ArrayList<>();
         this.keyValues = new HashMap<>();
@@ -50,16 +49,15 @@ public class FileEditor {
 
     private void loadMap() {
         for (String line : this.lines) {
-            if (line.contains(" - ")) continue;
-            if (line.contains("- ")) continue;
+            if(line.isEmpty()) continue;
+            if (getStringWithoutStartSpaces(line).startsWith("-")) continue;
             if (line.endsWith(":")) continue;
-            if (line.startsWith("#")) continue;
+            if (getStringWithoutStartSpaces(line).startsWith("#")) continue;
+            if(getStringWithoutStartSpaces(line).startsWith("[")) continue;
+
             String key = "";
             if (!line.contains(this.splitter) || line.split(this.splitter).length < 2) {
-                if (line.startsWith(" ")) {
-                    int count = getAmountOfStartSpacesInLine(key);
-                    key = key.substring(count);
-                }
+                line = getStringWithoutStartSpaces(line);
                 key = line.replace(this.splitter, "");
                 for (String s : this.splitter.split("")) {
                     key = key.replace(s, "");
@@ -80,6 +78,11 @@ public class FileEditor {
                 throw new IndexOutOfBoundsException("Invalid line: " + line);
             }
         }
+    }
+
+    public String getStringWithoutStartSpaces(String s){
+        int amountOfSpaces = getAmountOfStartSpacesInLine(s);
+        return s.substring(amountOfSpaces);
     }
 
     public void setValue(String key, String value) {
@@ -124,7 +127,7 @@ public class FileEditor {
     public int getAmountOfStartSpacesInLine(String line) {
         int amountOfSpaces = 0;
         for (int i = 0; i < line.length(); i++) {
-            if (line.charAt(i) == ' ') {
+            if (line.charAt(i) == ' ' || line.charAt(i) == '\t') {
                 amountOfSpaces++;
                 continue;
             }
@@ -136,6 +139,7 @@ public class FileEditor {
     public int getLineIndexByKey(String key) {
         String match = key + this.splitter;
         for (int i = 0; i < this.lines.size(); i++) {
+            if(getStringWithoutStartSpaces(this.lines.get(i)).startsWith("#")) continue;
             if (this.lines.get(i).contains(match)) {
                 return i;
             }
@@ -147,6 +151,7 @@ public class FileEditor {
     @Getter
     public static enum Type {
         YML(": "),
+        TOML(" = "),
         PROPERTIES("=");
         private String splitter;
     }

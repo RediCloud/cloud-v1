@@ -59,7 +59,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
         if (this.isBucketHolderCached(identifier)) return new FutureAction(this.cachedBucketHolders.get(identifier));
         FutureAction<IRBucketHolder<I>> futureAction = new FutureAction<>();
 
-        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'", futureAction);
+        Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain '@'", futureAction);
 
         existsBucketAsync(identifier)
                 .onFailure(futureAction)
@@ -90,7 +90,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
     @SneakyThrows
     @Override
     public IRBucketHolder<I> getBucketHolder(String identifier) {
-        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
+        Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (this.isBucketHolderCached(identifier)) return (IRBucketHolder<I>) this.cachedBucketHolders.get(identifier);
         RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
         if (!bucket.isExists())
@@ -107,7 +107,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
     }
 
     public IRBucketHolder<I> createBucket(String identifier, I object) {
-        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
+        Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (existsBucket(identifier))
             throw new IllegalArgumentException("Bucket[" + getRedisKey(identifier) + "] already exists");
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).set(object);
@@ -119,7 +119,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
 
     public FutureAction<IRBucketHolder<I>> createBucketAsync(String identifier, I object) {
         FutureAction<IRBucketHolder<I>> futureAction = new FutureAction<>();
-        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'", futureAction);
+        Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'", futureAction);
         existsBucketAsync(identifier)
                 .onFailure(futureAction)
                 .onSuccess(exists -> {
@@ -144,7 +144,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
     }
 
     public void updateBucket(String identifier, String json) {
-        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
+        Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (!this.isBucketHolderCached(identifier)) return;
         CloudAPI.getInstance().getConsole().trace("Updating bucket: " + getRedisKey(identifier));
         IRBucketHolder<T> bucketHolder = this.cachedBucketHolders.get(identifier);
@@ -153,13 +153,13 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
     }
 
     public boolean existsBucket(String identifier) {
-        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
+        Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         return getClient().getBucket(getRedisKey(identifier), getObjectCodec()).isExists();
     }
 
     public FutureAction<Boolean> existsBucketAsync(String identifier) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
-        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'", futureAction);
+        Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'", futureAction);
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).isExistsAsync()
                 .whenComplete((exists, throwable) -> {
                     if (throwable != null) {
@@ -173,12 +173,12 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
 
     public FutureAction<Collection<IRBucketHolder<I>>> getBucketHoldersAsync() {
         FutureAction<Collection<IRBucketHolder<I>>> futureAction = new FutureAction<>();
-        getKeys(this.redisPrefix + "@*")
+        getKeys(this.redisPrefix + ":*")
                 .onFailure(futureAction)
                 .onSuccess(keys -> {
                     FutureActionCollection<String, IRBucketHolder<I>> futureActionCollection = new FutureActionCollection<>();
                     for (String s : keys) {
-                        futureActionCollection.addToProcess(s.split("@")[1], getBucketHolderAsync(s.split("@")[1]));
+                        futureActionCollection.addToProcess(s.split(":")[1], getBucketHolderAsync(s.split(":")[1]));
                     }
                     futureActionCollection.process()
                             .onFailure(futureAction)
@@ -191,14 +191,14 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
 
     public Collection<IRBucketHolder<I>> getBucketHolders() {
         Collection<IRBucketHolder<I>> bucketHolders = new ArrayList<>();
-        for (String s : getClient().getKeys().getKeysByPattern(this.redisPrefix + "@*")) {
-            bucketHolders.add(getBucketHolder(s.split("@")[1]));
+        for (String s : getClient().getKeys().getKeysByPattern(this.redisPrefix + ":*")) {
+            bucketHolders.add(getBucketHolder(s.split(":")[1]));
         }
         return bucketHolders;
     }
 
     public boolean deleteBucket(String identifier) {
-        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
+        Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (this.isBucketHolderCached(identifier)) {
             this.cachedBucketHolders.remove(identifier);
         }
@@ -214,7 +214,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
     }
 
     public FutureAction<Boolean> deleteBucketAsync(String identifier) {
-        Predicates.illegalArgument(identifier.contains("@"), "Identifier cannot contain '@'");
+        Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (this.isBucketHolderCached(identifier)) {
             this.cachedBucketHolders.remove(identifier);
         }
@@ -230,7 +230,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
 
     @Override
     public String getRedisKey(String identifier) {
-        return this.redisPrefix + "@" + identifier;
+        return this.redisPrefix + ":" + identifier;
     }
 
     @Override

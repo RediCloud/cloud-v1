@@ -173,29 +173,35 @@ public class GroupCommand extends ConsoleCommand {
                     } else {
                         new GroupSetup().start(((groupSetup, groupSetupControlState) -> {
                             if (groupSetupControlState == SetupControlState.FINISHED) {
-                                boolean foundServiceVersion = CloudAPI.getInstance().getServiceVersionManager().getServiceVersions().stream().anyMatch(iCloudServiceVersionIRBucketHolder -> iCloudServiceVersionIRBucketHolder.get().getEnvironmentType().equals(groupSetup.getEnvironment()));
-                                if (!foundServiceVersion) {
-                                    new ServiceVersionSetup().start((setup, state) -> {
-                                        if (state == SetupControlState.CANCELLED) {
-                                            commandSender.sendMessage("Setup cancelled!");
-                                            return;
-                                        }
-                                        CloudServiceVersion serviceVersion = new CloudServiceVersion();
-                                        serviceVersion.setName(name);
-                                        serviceVersion.setJavaCommand(setup.getJavaCommand());
-                                        serviceVersion.setDownloadUrl(setup.getDownloadUrl());
-                                        serviceVersion.setEnvironmentType(setup.getEnvironment());
-                                        serviceVersion.setPaperClip(setup.isPaperClip());
-                                        CloudAPI.getInstance().getServiceVersionManager().createServiceVersionAsync(serviceVersion)
-                                                .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to create service version!", t))
-                                                .onSuccess(versionHolder -> {
-                                                    commandSender.sendMessage("Service version created!");
-                                                    createGroup(groupSetup, commandSender, name);
+                                CloudAPI.getInstance().getServiceVersionManager().getServiceVersionsAsync()
+                                        .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to create group!", e))
+                                        .onSuccess(versionHolders -> {
+                                            boolean foundServiceVersion = versionHolders.parallelStream()
+                                                    .anyMatch(iCloudServiceVersionIRBucketHolder -> iCloudServiceVersionIRBucketHolder.get()
+                                                    .getEnvironmentType().equals(groupSetup.getEnvironment()));
+                                            if (!foundServiceVersion) {
+                                                new ServiceVersionSetup().start((setup, state) -> {
+                                                    if (state == SetupControlState.CANCELLED) {
+                                                        commandSender.sendMessage("Setup cancelled!");
+                                                        return;
+                                                    }
+                                                    CloudServiceVersion serviceVersion = new CloudServiceVersion();
+                                                    serviceVersion.setName(name);
+                                                    serviceVersion.setJavaCommand(setup.getJavaCommand());
+                                                    serviceVersion.setDownloadUrl(setup.getDownloadUrl());
+                                                    serviceVersion.setEnvironmentType(setup.getEnvironment());
+                                                    serviceVersion.setPaperClip(setup.isPaperClip());
+                                                    CloudAPI.getInstance().getServiceVersionManager().createServiceVersionAsync(serviceVersion)
+                                                            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to create service version!", t))
+                                                            .onSuccess(versionHolder -> {
+                                                                commandSender.sendMessage("Service version created!");
+                                                                createGroup(groupSetup, commandSender, name);
+                                                            });
                                                 });
-                                    });
-                                    return;
-                                }
-                                createGroup(groupSetup, commandSender, name);
+                                                return;
+                                            }
+                                            createGroup(groupSetup, commandSender, name);
+                                        });
                             } else if (groupSetupControlState == SetupControlState.CANCELLED) {
                                 commandSender.sendMessage("§cGroup creation cancelled");
                             }
@@ -452,7 +458,7 @@ public class GroupCommand extends ConsoleCommand {
             return;
         }
 
-        if (groupSetup.getEnvironment().equals(ServiceEnvironment.PROXY)) {
+        if (groupSetup.getEnvironment() == ServiceEnvironment.BUNGEECORD || groupSetup.getEnvironment() == ServiceEnvironment.VELOCITY) {
             new ProxySetup().start((proxySetup, proxySetupControlState) -> {
                 if (proxySetupControlState == SetupControlState.FINISHED) {
 
@@ -469,7 +475,7 @@ public class GroupCommand extends ConsoleCommand {
                     cloudGroup.setMaxMemory(proxySetup.getMaxMemory());
                     cloudGroup.setStartPriority(proxySetup.getStartPriority());
                     cloudGroup.setServiceVersionName(proxySetup.getServiceVersionName());
-                    cloudGroup.setServiceEnvironment(ServiceEnvironment.PROXY);
+                    cloudGroup.setServiceEnvironment(groupSetup.getEnvironment());
 
                     CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
                             .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))

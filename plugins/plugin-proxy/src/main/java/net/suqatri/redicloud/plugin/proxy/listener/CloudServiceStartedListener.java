@@ -18,7 +18,8 @@ public class CloudServiceStartedListener {
         event.getServiceAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to register service!", e))
                 .onSuccess(serviceHolder -> {
-                    if (serviceHolder.get().getEnvironment() == ServiceEnvironment.PROXY) return;
+                    if (serviceHolder.get().getEnvironment() == ServiceEnvironment.BUNGEECORD) return;
+                    if(serviceHolder.get().getEnvironment() == ServiceEnvironment.VELOCITY) return;
                     ServerInfo serverInfo = ProxyServer.getInstance().constructServerInfo(
                             serviceHolder.get().getServiceName(),
                             new InetSocketAddress(serviceHolder.get().getHostName(), serviceHolder.get().getPort()),

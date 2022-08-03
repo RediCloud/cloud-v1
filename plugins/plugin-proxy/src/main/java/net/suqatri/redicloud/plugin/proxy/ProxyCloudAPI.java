@@ -14,7 +14,6 @@ import net.suqatri.redicloud.api.impl.player.CloudPlayerManager;
 import net.suqatri.redicloud.api.impl.redis.RedisConnection;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.impl.service.CloudService;
-import net.suqatri.redicloud.api.impl.service.CloudServiceManager;
 import net.suqatri.redicloud.api.impl.service.factory.CloudServiceFactory;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersionManager;
 import net.suqatri.redicloud.api.impl.template.CloudServiceTemplateManager;
@@ -35,10 +34,8 @@ import net.suqatri.redicloud.plugin.proxy.console.ProxyConsole;
 import net.suqatri.redicloud.plugin.proxy.listener.*;
 import net.suqatri.redicloud.plugin.proxy.scheduler.BungeeScheduler;
 import net.suqatri.redicloud.plugin.proxy.service.CloudProxyServiceManager;
-import org.checkerframework.checker.units.qual.C;
 
 import java.io.File;
-import java.lang.management.ManagementFactory;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -119,7 +116,8 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
                     ProxyServer.getInstance().getServers().clear();
 
                     for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                        if (serviceHolder.get().getEnvironment() == ServiceEnvironment.PROXY) continue;
+                        if (serviceHolder.get().getEnvironment() == ServiceEnvironment.BUNGEECORD) continue;
+                        if (serviceHolder.get().getEnvironment() == ServiceEnvironment.VELOCITY) continue;
                         ServerInfo serverInfo = ProxyServer.getInstance().constructServerInfo(
                                 serviceHolder.get().getServiceName(),
                                 new InetSocketAddress(serviceHolder.get().getHostName(), serviceHolder.get().getPort()),

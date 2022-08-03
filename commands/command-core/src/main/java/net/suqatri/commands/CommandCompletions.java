@@ -66,7 +66,7 @@ public class CommandCompletions<C extends CommandCompletionContext> {
 
     @NotNull
     private static String prepareCompletionId(String id) {
-        return (id.startsWith("@") ? "" : "@") + id.toLowerCase(Locale.ENGLISH);
+        return (id.startsWith(":") ? "" : ":") + id.toLowerCase(Locale.ENGLISH);
     }
 
     /**

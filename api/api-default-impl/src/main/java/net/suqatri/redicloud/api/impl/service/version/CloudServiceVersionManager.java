@@ -29,12 +29,12 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
 
     @Override
     public IRBucketHolder<ICloudServiceVersion> createServiceVersion(ICloudServiceVersion version, boolean fullInstall) throws IOException, InterruptedException {
-        return this.createBucket(version.getName(), version);
+        return this.createBucket(version.getName().toLowerCase(), version);
     }
 
     @Override
     public FutureAction<IRBucketHolder<ICloudServiceVersion>> createServiceVersionAsync(ICloudServiceVersion version, boolean fullInstall) {
-        return this.createBucketAsync(version.getName(), version);
+        return this.createBucketAsync(version.getName().toLowerCase(), version);
     }
 
     @Override
@@ -49,16 +49,17 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
 
     @Override
     public boolean existsServiceVersion(String name) {
-        return this.existsBucket(name);
+        return this.existsBucket(name.toLowerCase());
     }
 
     @Override
     public FutureAction<Boolean> existsServiceVersionAsync(String name) {
-        return this.existsBucketAsync(name);
+        return this.existsBucketAsync(name.toLowerCase());
     }
 
     @Override
     public boolean deleteServiceVersion(String name) {
+        name = name.toLowerCase();
         StringBuilder builder = new StringBuilder();
         for (IRBucketHolder<ICloudGroup> holder : CloudAPI.getInstance().getGroupManager().getGroups()) {
             if (holder.get().getServiceVersionName().equalsIgnoreCase(name)) {
@@ -79,7 +80,7 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
                 .onSuccess(holders -> {
                     StringBuilder builder = new StringBuilder();
                     for (IRBucketHolder<ICloudGroup> holder : holders) {
-                        if (holder.get().getServiceVersionName().equalsIgnoreCase(name)) {
+                        if (holder.get().getServiceVersionName().equalsIgnoreCase(name.toLowerCase())) {
                             if (!builder.toString().isEmpty()) builder.append(", ");
                             builder.append(holder.get().getName());
                         }

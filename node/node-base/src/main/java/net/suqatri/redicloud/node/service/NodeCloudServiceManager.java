@@ -34,8 +34,8 @@ public class NodeCloudServiceManager extends CloudServiceManager {
                 CloudAPI.getInstance().getConsole().warn("Service " + serviceHolder.get().getServiceName() + " is still registered in redis!");
                 deleteBucketAsync(serviceHolder.getIdentifier());
                 removeFromFetcher(serviceHolder.get().getServiceName(), serviceHolder.get().getUniqueId());
-                if (getClient().getList("screen-log@" + serviceHolder.get().getUniqueId()).isExists()) {
-                    getClient().getList("screen-log@" + serviceHolder.get().getUniqueId()).deleteAsync();
+                if (getClient().getList("screen-log:" + serviceHolder.get().getUniqueId()).isExists()) {
+                    getClient().getList("screen-log:" + serviceHolder.get().getUniqueId()).deleteAsync();
                 }
             }
             CloudAPI.getInstance().getConsole().warn("Removed " + count + " services from redis!");

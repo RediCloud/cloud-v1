@@ -63,6 +63,18 @@ public class ScreenCommand extends ConsoleCommand {
                 });
     }
 
+    @Subcommand("write")
+    @Description("Write a message to all active screens")
+    @Syntax("<Message>")
+    public void onWrite(CommandSender commandSender, String command){
+        if(command.startsWith("/")) {
+            CloudAPI.getInstance().getConsole().warn("§cYou can write commands without the / prefix!");
+        }
+        commandSender.sendMessage("Writing message \"" + command + "\" to all screens...");
+        NodeLauncher.getInstance().getScreenManager().write(command);
+    }
+
+
     @Subcommand("join")
     @Description("Join a screen")
     @Syntax("<Service>")

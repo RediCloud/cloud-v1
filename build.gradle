@@ -5,7 +5,14 @@ plugins {
 }
 
 group 'net.suqatri.redicloud'
-version '0.5.1-' + getCommitHash() + '-SNAPSHOT'
+version '0.6.0-' + getCommitHash() + '-SNAPSHOT'
+
+def repoUser = "$System.env.REPO_USER"
+def repoPassword = "$System.env.REPO_PASSWORD"
+
+static def hasRepoAuth() {
+    return System.getenv().containsKey('REPO_USER') && System.getenv().containsKey('REPO_PASSWORD')
+}
 
 tasks.register('buildAndCopy', Copy) {
     dependsOn projectBuild
@@ -124,7 +131,7 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
     
-    version '0.5.1-' + getCommitHash() + '-SNAPSHOT'
+    version '0.6.0-' + getCommitHash() + '-SNAPSHOT'
 
     sourceCompatibility = '1.8'
 
@@ -198,26 +205,28 @@ allprojects {
     }
 
     publishing {
-        try{
-            publications {
-                maven(MavenPublication) {
-                    artifact("build/libs/${project.name}-${project.version}.jar") {
-                        extension 'jar'
+        if(hasRepoAuth()){
+            try{
+                publications {
+                    maven(MavenPublication) {
+                        artifact("build/libs/${project.name}-${project.version}.jar") {
+                            extension 'jar'
+                        }
                     }
                 }
-            }
-            repositories {
-                maven {
-                    name 'nexus'
-                    url getRepoUrl()
-                    allowInsecureProtocol true
-                    credentials {
-                        username project.repoUser
-                        password project.repoPassword
+                repositories {
+                    maven {
+                        name 'nexus'
+                        url getRepoUrl()
+                        allowInsecureProtocol true
+                        credentials {
+                            username project.repoUser
+                            password project.repoPassword
+                        }
                     }
                 }
-            }
-        }catch(ignored) {}
+            }catch(ignored) {}
+        }
     }
 }
 

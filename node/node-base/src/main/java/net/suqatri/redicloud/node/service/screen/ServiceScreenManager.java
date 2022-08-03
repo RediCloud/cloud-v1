@@ -99,4 +99,10 @@ public class ServiceScreenManager implements IServiceScreenManager {
         return !this.activeScreens.isEmpty();
     }
 
+    @Override
+    public void write(String command) {
+        for (IServiceScreen activeScreen : this.activeScreens) {
+            CloudAPI.getInstance().getServiceManager().executeCommand(activeScreen.getService(), command);
+        }
+    }
 }

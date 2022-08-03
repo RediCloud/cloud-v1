@@ -13,4 +13,5 @@ public class CloudMinecraftServiceManager extends CloudServiceManager {
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
         return true;
     }
+
 }

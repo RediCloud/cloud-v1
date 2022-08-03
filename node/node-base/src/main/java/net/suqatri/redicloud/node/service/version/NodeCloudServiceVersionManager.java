@@ -19,10 +19,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
@@ -315,32 +312,41 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                 .onFailure(futureAction)
                 .onSuccess(existsResults -> {
                     if(overwrite){
-                         FutureActionCollection<String, Boolean> removeVersionsAction = new FutureActionCollection<>();
+                         FutureActionCollection<DefaultServiceVersion, IRBucketHolder<ICloudServiceVersion>> editAction = new FutureActionCollection<>();
                          for (String name : names) {
+                             DefaultServiceVersion defaultServiceVersion = Arrays.stream(DefaultServiceVersion.values())
+                                     .parallel().filter(v -> v.getName().equals(name)).findAny().orElse(null);
                               if(existsResults.get(name)){
-                                removeVersionsAction.addToProcess(name, this.deleteServiceVersionAsync(name));
+                                  FutureAction<IRBucketHolder<ICloudServiceVersion>> editFutureAction = new FutureAction<>();
+
+                                  getServiceVersionAsync(name)
+                                          .onFailure(editFutureAction)
+                                          .onSuccess(versionHolder -> {
+                                              versionHolder.getImpl(CloudServiceVersion.class).setName(defaultServiceVersion.getName());
+                                              versionHolder.getImpl(CloudServiceVersion.class).setDefaultVersion(true);
+                                              versionHolder.getImpl(CloudServiceVersion.class).setDownloadUrl(defaultServiceVersion.getUrl());
+                                              versionHolder.getImpl(CloudServiceVersion.class).setPaperClip(defaultServiceVersion.isPaperClip());
+                                              versionHolder.get().updateAsync()
+                                                      .onFailure(editFutureAction)
+                                                      .onSuccess(holder -> editFutureAction.complete(versionHolder));
+                                          });
+
+                                  editAction.addToProcess(defaultServiceVersion, editFutureAction);
+                              }else{
+                                  if(existsResults.get(name)) continue;
+                                  CloudServiceVersion version = new CloudServiceVersion();
+                                  version.setName(defaultServiceVersion.getName());
+                                  version.setJavaCommand("java");
+                                  version.setDefaultVersion(true);
+                                  version.setDownloadUrl(defaultServiceVersion.getUrl());
+                                  version.setPaperClip(defaultServiceVersion.isPaperClip());
+                                  editAction.addToProcess(defaultServiceVersion, this.createServiceVersionAsync(version, false));
                               }
                          }
-                         removeVersionsAction.process()
+
+                         editAction.process()
                              .onFailure(futureAction)
-                             .onSuccess(r -> {
-                                 FutureActionCollection<DefaultServiceVersion, IRBucketHolder<ICloudServiceVersion>> versionCreateAction = new FutureActionCollection<>();
-                                 for (String name : names) {
-                                     if(existsResults.get(name)) continue;
-                                     DefaultServiceVersion defaultServiceVersion = Arrays.stream(DefaultServiceVersion.values())
-                                             .parallel().filter(v -> v.getName().equals(name)).findAny().orElse(null);
-                                     CloudServiceVersion version = new CloudServiceVersion();
-                                     version.setName(defaultServiceVersion.getName());
-                                     version.setJavaCommand("java");
-                                     version.setDefaultVersion(true);
-                                     version.setDownloadUrl(defaultServiceVersion.getUrl());
-                                     version.setPaperClip(defaultServiceVersion.isPaperClip());
-                                     versionCreateAction.addToProcess(defaultServiceVersion, this.createServiceVersionAsync(version, false));
-                                 }
-                                 versionCreateAction.process()
-                                         .onFailure(futureAction)
-                                         .onSuccess(sr -> futureAction.complete(sr.values()));
-                             });
+                             .onSuccess(r -> futureAction.complete(r.values()));
                     }else{
                         FutureActionCollection<DefaultServiceVersion, IRBucketHolder<ICloudServiceVersion>> versionCreateAction = new FutureActionCollection<>();
                         for (String name : names) {

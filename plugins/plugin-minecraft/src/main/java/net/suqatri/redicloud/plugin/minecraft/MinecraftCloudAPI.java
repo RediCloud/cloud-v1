@@ -63,7 +63,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
     private boolean isShutdownInitiated = false;
 
     public MinecraftCloudAPI(JavaPlugin javaPlugin) {
-        super(ApplicationType.SERVICE_MINECRAFT);
+        super();
         instance = this;
         this.javaPlugin = javaPlugin;
         this.console = new BukkitConsole(this.javaPlugin.getLogger());

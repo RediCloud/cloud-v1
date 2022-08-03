@@ -103,7 +103,6 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PlayerDisconnectListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerKickListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerConnectListener());
-        ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PostLoginListener());
 
         getEventManager().register(new CloudServiceStartedListener());
         getEventManager().register(new CloudServiceStoppedListener());
@@ -267,8 +266,8 @@ public class ProxyCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service.getHolder()));
 
         this.updaterTask = ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
-            if (this.service.getOnlineCount() != this.onlineCount) {
-                this.service.setOnlineCount(this.onlineCount);
+            if (this.service.getOnlineCount() != ProxyServer.getInstance().getOnlineCount()) {
+                this.service.setOnlineCount(ProxyServer.getInstance().getOnlineCount());
                 this.service.updateAsync();
             }
         }, 1500, 1500, TimeUnit.MILLISECONDS);

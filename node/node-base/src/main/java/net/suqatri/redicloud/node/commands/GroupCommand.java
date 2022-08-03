@@ -155,6 +155,7 @@ public class GroupCommand extends ConsoleCommand {
                                             commandSender.sendMessage("  Services: %hc" + builder.toString());
                                             commandSender.sendMessage("  Min. Services: %hc" + groupHolder.get().getMinServices());
                                             commandSender.sendMessage("  Max. Services: %hc" + groupHolder.get().getMaxServices());
+                                            commandSender.sendMessage("  Service-Version: %hc" + groupHolder.get().getServiceVersionName());
                                         });
                             });
                 });

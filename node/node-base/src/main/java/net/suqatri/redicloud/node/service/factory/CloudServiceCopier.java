@@ -67,7 +67,13 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                             try {
                                                                 for (File folder : folders) {
                                                                     if (!folder.exists()) continue;
-                                                                    FileUtils.copyDirectory(folder, this.getServiceDirectory());
+                                                                    for (File file : folder.listFiles()) {
+                                                                        if(file.isDirectory()){
+                                                                            FileUtils.copyDirectory(file, this.getServiceDirectory());
+                                                                        }else{
+                                                                            FileUtils.copyFileToDirectory(file, this.getServiceDirectory());
+                                                                        }
+                                                                    }
                                                                 }
 
                                                                 List<File> configFiles = new ArrayList<>();
@@ -148,7 +154,13 @@ public class CloudServiceCopier implements ICloudServiceCopier {
 
         for (File folder : folders) {
             if (!folder.exists()) continue;
-            FileUtils.copyDirectoryToDirectory(folder, getServiceDirectory());
+            for (File file : folder.listFiles()) {
+                if(file.isDirectory()){
+                    FileUtils.copyDirectory(file, this.getServiceDirectory());
+                }else{
+                    FileUtils.copyFileToDirectory(file, this.getServiceDirectory());
+                }
+            }
         }
 
         List<File> configFiles = new ArrayList<>();

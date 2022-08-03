@@ -143,7 +143,7 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
                 .onSuccess(playerHolders -> {
                     if (fallBacks.isEmpty()) {
                         for (IRBucketHolder<ICloudPlayer> playerHolder : playerHolders) {
-                            playerHolder.get().disconnect("You have been disconnected because the node of your connected service has been timeouted!");
+                            playerHolder.get().getBridge().disconnect("You have been disconnected because the node of your connected service has been timeouted!");
                         }
                         futureAction.complete(false);
                         return;
@@ -151,11 +151,11 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
                     for (IRBucketHolder<ICloudPlayer> playerHolder : playerHolders) {
                         IRBucketHolder<ICloudService> fallBack = getFallback(fallBacks);
                         if (fallBack == null) {
-                            playerHolder.get().disconnect("You have been disconnected because the node of your connected service has been timeouted!");
+                            playerHolder.get().getBridge().disconnect("You have been disconnected because the node of your connected service has been timeouted!");
                             continue;
                         }
-                        playerHolder.get().connect(fallBack);
-                        playerHolder.get().sendMessage("You have been connected to a fallback service because the node of your connected service has been timeouted!");
+                        playerHolder.get().getBridge().connect(fallBack);
+                        playerHolder.get().getBridge().sendMessage("You have been connected to a fallback service because the node of your connected service has been timeouted!");
                     }
                     futureAction.complete(true);
                 });

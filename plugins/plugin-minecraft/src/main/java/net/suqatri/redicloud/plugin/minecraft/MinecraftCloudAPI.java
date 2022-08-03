@@ -10,6 +10,7 @@ import net.suqatri.redicloud.api.impl.service.CloudServiceManager;
 import net.suqatri.redicloud.api.impl.service.factory.CloudServiceFactory;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersionManager;
 import net.suqatri.redicloud.api.impl.template.CloudServiceTemplateManager;
+import net.suqatri.redicloud.api.minecraft.MinecraftDefaultCloudAPI;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.redis.RedisCredentials;
@@ -39,7 +40,7 @@ import java.io.File;
 import java.util.UUID;
 
 @Getter
-public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
+public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
 
     @Getter
     private static MinecraftCloudAPI instance;
@@ -153,7 +154,7 @@ public class MinecraftCloudAPI extends CloudDefaultAPIImpl<CloudService> {
                             onlinePlayer.kickPlayer("CloudService shutdown");
                             continue;
                         }
-                        cloudPlayer.get().connect(serviceHolder);
+                        cloudPlayer.get().getBridge().connect(serviceHolder);
                     } else {
                         onlinePlayer.kickPlayer("CloudService shutdown");
                     }

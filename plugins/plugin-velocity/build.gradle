@@ -12,6 +12,7 @@ dependencies {
     implementation project(':commons')
     implementation project(':api:api')
     implementation project(':api:api-default-impl')
+    implementation project(':api:api-velocity')
     implementation project(':commands:command-velocity')
     implementation project(':commands:command-core')
     implementation project(':commands:command-locales')

@@ -7,7 +7,7 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.plugin.velocity.VelocityCloudAPI;
-import net.suqatri.redicloud.plugin.velocity.utils.LegacyMessageUtils;
+import net.suqatri.redicloud.api.velocity.utils.LegacyMessageUtils;
 
 import java.util.Optional;
 

@@ -36,18 +36,6 @@ public interface ICloudPlayer extends IRBucketObject {
         return System.currentTimeMillis() - getLastLogin();
     }
 
-    void sendMessage(String message);
-
-    void sendTitle(String title, String subTitle, int fadeIn, int stay, int fadeOut);
-
-    void sendActionbar(String message);
-
-    void sendTab(String header, String footer);
-
-    void connect(String server);
-
-    void connect(IRBucketHolder<ICloudService> cloudService);
-
-    void disconnect(String reason);
+    IPlayerBridge getBridge();
 
 }

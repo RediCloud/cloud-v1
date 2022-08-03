@@ -268,7 +268,7 @@ public class VelocityCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
         getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service.getHolder()));
 
-        this.updaterTask = this.proxyServer.getScheduler().buildTask(this, () -> {
+        this.updaterTask = this.proxyServer.getScheduler().buildTask(this.plugin, () -> {
             if (this.service.getOnlineCount() != this.onlineCount) {
                 this.service.setOnlineCount(this.onlineCount);
                 this.service.updateAsync();

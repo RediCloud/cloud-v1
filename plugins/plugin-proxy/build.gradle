@@ -8,6 +8,7 @@ dependencies {
     implementation project(':commons')
     implementation project(':api:api')
     implementation project(':api:api-default-impl')
+    implementation project(':api:api-proxy')
     implementation project(':commands:command-bungeecord')
     implementation project(':commands:command-core')
     implementation project(':commands:command-locales')

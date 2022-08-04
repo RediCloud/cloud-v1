@@ -299,7 +299,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
             CloudNodeConnectedEvent event = new CloudNodeConnectedEvent();
             event.setNodeId(this.node.getUniqueId());
-            getEventManager().postGlobal(event);
+            getEventManager().postGlobalAsync(event);
 
             this.console.info(this.node.getName() + " is now connected to the cluster!");
             this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@" + this.console.getHighlightColor() + this.node.getName() + " §f=> "));
@@ -483,8 +483,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             } catch (Exception e) {
                 this.console.error("Failed to read redis.json file! Please check your credentials.");
                 this.console.error("Restarting redis setup in 10 seconds...");
+                Files.REDIS_CONFIG.getFile().delete();
                 this.scheduler.runTaskLater(() -> {
-                    Files.REDIS_CONFIG.getFile().delete();
                     initRedis(consumer);
                 }, 10, TimeUnit.SECONDS);
                 return;

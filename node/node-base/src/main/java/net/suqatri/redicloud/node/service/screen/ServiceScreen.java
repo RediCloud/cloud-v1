@@ -1,6 +1,5 @@
 package net.suqatri.redicloud.node.service.screen;
 
-import com.google.common.util.concurrent.RateLimiter;
 import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.CloudDefaultAPIImpl;
@@ -25,18 +24,18 @@ public class ServiceScreen implements IServiceScreen {
     private static final int MAX_LINES_PER_SECOND = 15;
     private static final int MAX_LINES_FAIL_UNTIL_BLOCK = 3;
 
-    private final IRBucketHolder<ICloudService> service;
+    private final IRBucketHolder<ICloudService> serviceHolder;
     private final RList<IScreenLine> lines;
     private int current = 0;
 
-    public ServiceScreen(IRBucketHolder<ICloudService> service) {
-        this.service = service;
-        this.lines = CloudDefaultAPIImpl.getInstance().getRedisConnection().getClient().getList("screen-log:" + this.service.get().getUniqueId(), new JsonJacksonCodec());
+    public ServiceScreen(IRBucketHolder<ICloudService> serviceHolder) {
+        this.serviceHolder = serviceHolder;
+        this.lines = CloudDefaultAPIImpl.getInstance().getRedisConnection().getClient().getList("screen-log:" + this.serviceHolder.get().getUniqueId(), new JsonJacksonCodec());
     }
 
     @Override
     public void addLine(String line) {
-        ScreenLine screenLine = new ScreenLine(this.getService().get().getServiceName(), line);
+        ScreenLine screenLine = new ScreenLine(this.getServiceHolder().get().getServiceName(), line);
         this.lines.add(screenLine);
 
         this.current++;
@@ -45,14 +44,14 @@ public class ServiceScreen implements IServiceScreen {
             this.current = 0;
         }
 
-        if (this.getService().get().getConsoleNodeListenerIds().isEmpty()) return;
+        if (this.getServiceHolder().get().getConsoleNodeListenerIds().isEmpty()) return;
 
         ScreenLinePacket packet = null;
-        for (UUID nodeId : this.getService().get().getConsoleNodeListenerIds()) {
+        for (UUID nodeId : this.getServiceHolder().get().getConsoleNodeListenerIds()) {
             if (nodeId.equals(NodeLauncher.getInstance().getNode().getUniqueId())) continue;
             if (packet == null) {
                 packet = new ScreenLinePacket();
-                packet.setServiceId(this.service.get().getUniqueId());
+                packet.setServiceId(this.serviceHolder.get().getUniqueId());
                 packet.setScreenLine(screenLine);
             }
             packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager().getComponentInfo(NetworkComponentType.NODE, nodeId.toString()));
@@ -66,10 +65,21 @@ public class ServiceScreen implements IServiceScreen {
 
     @Override
     public void removeUselessLines() {
+        CloudAPI.getInstance().getConsole().trace("Removing useless lines from service screen " + this.getServiceHolder().get().getServiceName());
         this.lines.sizeAsync()
-                .thenAccept(size -> {
+                .whenComplete((size, throwable) -> {
+                    if(throwable != null) {
+                        CloudAPI.getInstance().getConsole().error("Error while getting screen log size", throwable);
+                        return;
+                    }
+                    CloudAPI.getInstance().getConsole().trace("Screen log size: " + size + "/" + MAX_LINES);
                     if (size <= MAX_LINES) return;
-                    this.lines.readAllAsync().thenAccept(lines -> {
+                    this.lines.readAllAsync().whenComplete((lines, throwable1) -> {
+                        if(throwable1 != null){
+                            CloudAPI.getInstance().getConsole().error("Error while getting screen log of service " + this.serviceHolder.get().getServiceName(), throwable1);
+                            return;
+                        }
+                        CloudAPI.getInstance().getConsole().trace("Loaded screen logs " + lines.size() + " of " + this.serviceHolder.get().getServiceName());
                         for (IScreenLine line : lines) {
                             if (this.lines.size() <= MAX_LINES) break;
                             this.lines.removeAsync(line);

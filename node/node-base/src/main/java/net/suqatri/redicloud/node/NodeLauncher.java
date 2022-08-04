@@ -458,7 +458,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                                     this.redisConnection = new RedisConnection(redisCredentials);
                                     try {
                                         this.redisConnection.connect();
-                                        FileWriter.writeObject(redisConfigExits, Files.REDIS_CONFIG.getFile());
+                                        FileWriter.writeObject(redisCredentials, Files.REDIS_CONFIG.getFile());
                                         this.console.info("Redis connection established!");
                                         consumer.accept(this.redisConnection);
                                     } catch (Exception e) {

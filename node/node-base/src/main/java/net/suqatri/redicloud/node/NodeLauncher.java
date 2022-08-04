@@ -567,7 +567,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             if (this.console != null) this.console.info("Shutting down...");
 
             if (this.isRestarting()) {
-                String startCommand = "java -jar " + this.node.getFilePath(Files.NODE_JAR) + String.join(" ", NodeLauncherMain.ARGUMENTS) + finalSleepArgument;
+                String startCommand = "java -jar " + this.node.getFilePath(Files.NODE_JAR) + (NodeLauncherMain.ARGUMENTS.length != 0 ? " " : "") + String.join(" ", NodeLauncherMain.ARGUMENTS) + finalSleepArgument;
                 if (this.console != null) this.console.info("Restarting node with command: " + startCommand);
                 try {
                     Runtime.getRuntime().exec(startCommand);

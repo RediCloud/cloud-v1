@@ -24,7 +24,7 @@ public enum Files {
     LIBS_REPO_FOLDER("storage/libs/repo"),
     LIBS_INFO_FOLDER("storage/libs/info"),
     RUNNER_JAR("runner.jar"),
-    NODE_JAR("storage/redicloud-node-base.jar"),
+    NODE_JAR("redicloud-node-base.jar"),
     MINECRAFT_PLUGIN_JAR("storage/redicloud-plugin-minecraft.jar"),
     PROXY_PLUGIN_JAR("storage/redicloud-plugin-proxy.jar"),
     VELOCITY_PLUGIN_JAR("storage/redicloud-plugin-velocity.jar"),

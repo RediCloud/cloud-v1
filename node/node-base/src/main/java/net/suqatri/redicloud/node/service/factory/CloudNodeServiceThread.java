@@ -75,11 +75,17 @@ public class CloudNodeServiceThread extends Thread {
                                 .filter(holder -> {
                                     if (holder.get().getMaxPlayers() == -1) return true;
                                     if (holder.get().getPercentToStartNewService() == -1) return true;
+                                    if(holder.get().getServiceState() == ServiceState.STARTING || holder.get().getServiceState() == ServiceState.PREPARE) return true;
                                     int percent = ((int) (100 / ((double) holder.get().getMaxPlayers())) * holder.get().getOnlineCount());
                                     if (percent >= holder.get().getPercentToStartNewService()) return false;
                                     return holder.get().getOnlineCount() <= holder.get().getMaxPlayers();
                                 })
                                 .count();
+                        for (IServiceStartConfiguration configuration : this.queue) {
+                            if(!configuration.isGroupBased()) continue;
+                            if(!configuration.getGroupName().equalsIgnoreCase(groupHolder.get().getName())) return;
+                            count++;
+                        }
                         int min = groupHolder.get().getMinServices();
 
                         if (count < min) {

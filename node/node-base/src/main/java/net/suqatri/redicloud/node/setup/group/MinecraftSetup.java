@@ -1,22 +1,17 @@
 package net.suqatri.redicloud.node.setup.group;
 
 import lombok.Getter;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
-import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.console.setup.Setup;
 import net.suqatri.redicloud.node.console.setup.SetupHeaderBehaviour;
 import net.suqatri.redicloud.node.console.setup.annotations.AnswerCompleter;
 import net.suqatri.redicloud.node.console.setup.annotations.ConditionChecker;
 import net.suqatri.redicloud.node.console.setup.annotations.Question;
-import net.suqatri.redicloud.node.console.setup.annotations.QuestionTip;
 import net.suqatri.redicloud.node.console.setup.conditions.PositivIntegerCondition;
 import net.suqatri.redicloud.node.console.setup.suggester.BooleanSuggester;
 import net.suqatri.redicloud.node.console.setup.suggester.MemorySuggester;
 import net.suqatri.redicloud.node.setup.condition.GroupMemoryCondition;
-import net.suqatri.redicloud.node.setup.condition.ServiceVersionExistsCondition;
-
-import java.util.Collection;
+import net.suqatri.redicloud.node.setup.condition.MinecraftServiceVersionExistsCondition;
 
 @Getter
 public class MinecraftSetup extends Setup<MinecraftSetup> {
@@ -48,7 +43,7 @@ public class MinecraftSetup extends Setup<MinecraftSetup> {
     private boolean fallback;
 
     @Question(id = 8, question = "What service version should be used for the group?")
-    @ConditionChecker(value = ServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
+    @ConditionChecker(value = MinecraftServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
     private String serviceVersionName;
 
     public MinecraftSetup() {

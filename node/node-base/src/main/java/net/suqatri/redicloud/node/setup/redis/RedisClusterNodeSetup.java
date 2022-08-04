@@ -29,7 +29,7 @@ public class RedisClusterNodeSetup extends Setup<RedisClusterNodeSetup> {
 
     @Override
     public boolean shouldPrintHeader() {
-        return false;
+        return true;
     }
 
     @Override

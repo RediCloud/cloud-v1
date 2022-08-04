@@ -27,7 +27,7 @@ public class RedisNewNodeQuestion extends Setup<RedisNewNodeQuestion> {
 
     @Override
     public boolean shouldPrintHeader() {
-        return false;
+        return true;
     }
 
     @Override

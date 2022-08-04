@@ -8,12 +8,14 @@ import net.suqatri.redicloud.node.console.setup.SetupHeaderBehaviour;
 import net.suqatri.redicloud.node.console.setup.annotations.AcceptEmptyInput;
 import net.suqatri.redicloud.node.console.setup.annotations.AnswerCompleter;
 import net.suqatri.redicloud.node.console.setup.annotations.Question;
+import net.suqatri.redicloud.node.console.setup.annotations.RequiresEnum;
 import net.suqatri.redicloud.node.setup.suggester.RedisTypeSuggester;
 
 @Getter
 public class RedisGenerellSetup extends Setup<RedisGenerellSetup> {
 
     @Question(id = 1, question = "What type of redis server do you want to use?")
+    @RequiresEnum(RedisType.class)
     @AnswerCompleter(value = RedisTypeSuggester.class)
     private RedisType redisType;
 
@@ -32,7 +34,7 @@ public class RedisGenerellSetup extends Setup<RedisGenerellSetup> {
 
     @Override
     public boolean shouldPrintHeader() {
-        return false;
+        return true;
     }
 
     @Override

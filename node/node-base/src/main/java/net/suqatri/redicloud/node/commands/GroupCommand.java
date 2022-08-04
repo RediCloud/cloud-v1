@@ -22,6 +22,7 @@ import net.suqatri.redicloud.node.setup.version.ServiceVersionSetup;
 
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @CommandAlias("group|groups")
 public class GroupCommand extends ConsoleCommand {
@@ -177,33 +178,65 @@ public class GroupCommand extends ConsoleCommand {
                                 CloudAPI.getInstance().getServiceVersionManager().getServiceVersionsAsync()
                                         .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to create group!", e))
                                         .onSuccess(versionHolders -> {
-                                            boolean foundServiceVersion = versionHolders.parallelStream()
-                                                    .anyMatch(iCloudServiceVersionIRBucketHolder
-                                                            -> iCloudServiceVersionIRBucketHolder.get()
-                                                                .getEnvironmentType()
-                                                                .equals(groupSetup.getEnvironment()));
-                                            if (!foundServiceVersion) {
-                                                new ServiceVersionSetup().start((setup, state) -> {
-                                                    if (state == SetupControlState.CANCELLED) {
-                                                        commandSender.sendMessage("Setup cancelled!");
-                                                        return;
-                                                    }
-                                                    CloudServiceVersion serviceVersion = new CloudServiceVersion();
-                                                    serviceVersion.setName(name);
-                                                    serviceVersion.setJavaCommand(setup.getJavaCommand());
-                                                    serviceVersion.setDownloadUrl(setup.getDownloadUrl());
-                                                    serviceVersion.setEnvironmentType(setup.getEnvironment());
-                                                    serviceVersion.setPaperClip(setup.isPaperClip());
-                                                    CloudAPI.getInstance().getServiceVersionManager().createServiceVersionAsync(serviceVersion, false)
-                                                            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to create service version!", t))
-                                                            .onSuccess(versionHolder -> {
-                                                                commandSender.sendMessage("Service version created!");
-                                                                createGroup(groupSetup.getEnvironment(), commandSender, name);
-                                                            });
-                                                });
-                                                return;
+                                            switch (groupSetup.getEnvironment()){
+                                                case MINECRAFT:
+                                                    new MinecraftSetup().start((mineCraftSetup, mineCraftSetupControlState) -> {
+                                                        if (mineCraftSetupControlState == SetupControlState.FINISHED) {
+                                                            CloudGroup cloudGroup = new CloudGroup();
+                                                            cloudGroup.setUniqueId(UUID.randomUUID());
+                                                            cloudGroup.setName(name);
+                                                            cloudGroup.setPercentToStartNewService(mineCraftSetup.getPercentToStartNewService());
+                                                            cloudGroup.setStartPort(49152);
+                                                            cloudGroup.setMinServices(mineCraftSetup.getMinServices());
+                                                            cloudGroup.setMaxServices(mineCraftSetup.getMaxServices());
+                                                            cloudGroup.setStaticGroup(mineCraftSetup.isStaticGroup());
+                                                            cloudGroup.setMaintenance(true);
+                                                            cloudGroup.setFallback(mineCraftSetup.isFallback());
+                                                            cloudGroup.setMaxMemory(mineCraftSetup.getMaxMemory());
+                                                            cloudGroup.setStartPriority(mineCraftSetup.getStartPriority());
+                                                            cloudGroup.setServiceVersionName(mineCraftSetup.getServiceVersionName());
+                                                            cloudGroup.setServiceEnvironment(ServiceEnvironment.MINECRAFT);
+
+                                                            CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
+                                                                    .onFailure(e2 -> CloudAPI.getInstance().getConsole().error("Failed to create group " + name, e2))
+                                                                    .onSuccess(holder -> {
+                                                                        CloudAPI.getInstance().getGroupManager().addDefaultTemplates(cloudGroup.getHolder());
+                                                                        commandSender.sendMessage("Group %hc" + name + "%tc created");
+                                                                    });
+                                                        } else if (mineCraftSetupControlState == SetupControlState.CANCELLED) {
+                                                            commandSender.sendMessage("§cMinecraft Group creation cancelled");
+                                                        }
+                                                    });
+                                                    break;
+                                                case VELOCITY:
+                                                case BUNGEECORD:
+                                                    new ProxySetup().start((proxySetup, proxySetupControlState) -> {
+                                                        if (proxySetupControlState == SetupControlState.FINISHED) {
+
+                                                            CloudGroup cloudGroup = new CloudGroup();
+                                                            cloudGroup.setUniqueId(UUID.randomUUID());
+                                                            cloudGroup.setName(name);
+                                                            cloudGroup.setPercentToStartNewService(proxySetup.getPercentToStartNewService());
+                                                            cloudGroup.setStartPort(25565);
+                                                            cloudGroup.setMinServices(proxySetup.getMinServices());
+                                                            cloudGroup.setMaxServices(proxySetup.getMaxServices());
+                                                            cloudGroup.setStaticGroup(proxySetup.isStaticGroup());
+                                                            cloudGroup.setMaintenance(true);
+                                                            cloudGroup.setFallback(false);
+                                                            cloudGroup.setMaxMemory(proxySetup.getMaxMemory());
+                                                            cloudGroup.setStartPriority(proxySetup.getStartPriority());
+                                                            cloudGroup.setServiceVersionName(proxySetup.getServiceVersionName());
+                                                            cloudGroup.setServiceEnvironment(groupSetup.getEnvironment());
+
+                                                            CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
+                                                                    .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))
+                                                                    .onSuccess(holder -> commandSender.sendMessage("Group %hc" + name + "%tc created"));
+                                                        } else if (proxySetupControlState == SetupControlState.CANCELLED) {
+                                                            commandSender.sendMessage("§cProxy Group creation cancelled");
+                                                        }
+                                                    });
+                                                    break;
                                             }
-                                            createGroup(groupSetup.getEnvironment(), commandSender, name);
                                         });
                             } else if (groupSetupControlState == SetupControlState.CANCELLED) {
                                 commandSender.sendMessage("§cGroup creation cancelled");
@@ -427,67 +460,5 @@ public class GroupCommand extends ConsoleCommand {
                                 }
                             });
                 });
-    }
-
-    private void createGroup(ServiceEnvironment serviceEnvironment, CommandSender commandSender, String name) {
-        switch (serviceEnvironment){
-            case MINECRAFT:
-                new MinecraftSetup().start((mineCraftSetup, mineCraftSetupControlState) -> {
-                    if (mineCraftSetupControlState == SetupControlState.FINISHED) {
-                        CloudGroup cloudGroup = new CloudGroup();
-                        cloudGroup.setUniqueId(UUID.randomUUID());
-                        cloudGroup.setName(name);
-                        cloudGroup.setPercentToStartNewService(mineCraftSetup.getPercentToStartNewService());
-                        cloudGroup.setStartPort(49152);
-                        cloudGroup.setMinServices(mineCraftSetup.getMinServices());
-                        cloudGroup.setMaxServices(mineCraftSetup.getMaxServices());
-                        cloudGroup.setStaticGroup(mineCraftSetup.isStaticGroup());
-                        cloudGroup.setMaintenance(true);
-                        cloudGroup.setFallback(mineCraftSetup.isFallback());
-                        cloudGroup.setMaxMemory(mineCraftSetup.getMaxMemory());
-                        cloudGroup.setStartPriority(mineCraftSetup.getStartPriority());
-                        cloudGroup.setServiceVersionName(mineCraftSetup.getServiceVersionName());
-                        cloudGroup.setServiceEnvironment(ServiceEnvironment.MINECRAFT);
-
-                        CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
-                                .onFailure(e2 -> CloudAPI.getInstance().getConsole().error("Failed to create group " + name, e2))
-                                .onSuccess(holder -> {
-                                    CloudAPI.getInstance().getGroupManager().addDefaultTemplates(cloudGroup.getHolder());
-                                    commandSender.sendMessage("Group %hc" + name + "%tc created");
-                                });
-                    } else if (mineCraftSetupControlState == SetupControlState.CANCELLED) {
-                        commandSender.sendMessage("§cMinecraft Group creation cancelled");
-                    }
-                });
-                break;
-            case VELOCITY:
-            case BUNGEECORD:
-                new ProxySetup().start((proxySetup, proxySetupControlState) -> {
-                    if (proxySetupControlState == SetupControlState.FINISHED) {
-
-                        CloudGroup cloudGroup = new CloudGroup();
-                        cloudGroup.setUniqueId(UUID.randomUUID());
-                        cloudGroup.setName(name);
-                        cloudGroup.setPercentToStartNewService(proxySetup.getPercentToStartNewService());
-                        cloudGroup.setStartPort(25565);
-                        cloudGroup.setMinServices(proxySetup.getMinServices());
-                        cloudGroup.setMaxServices(proxySetup.getMaxServices());
-                        cloudGroup.setStaticGroup(proxySetup.isStaticGroup());
-                        cloudGroup.setMaintenance(true);
-                        cloudGroup.setFallback(false);
-                        cloudGroup.setMaxMemory(proxySetup.getMaxMemory());
-                        cloudGroup.setStartPriority(proxySetup.getStartPriority());
-                        cloudGroup.setServiceVersionName(proxySetup.getServiceVersionName());
-                        cloudGroup.setServiceEnvironment(serviceEnvironment);
-
-                        CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
-                                .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))
-                                .onSuccess(holder -> commandSender.sendMessage("Group %hc" + name + "%tc created"));
-                    } else if (proxySetupControlState == SetupControlState.CANCELLED) {
-                        commandSender.sendMessage("§cProxy Group creation cancelled");
-                    }
-                });
-                break;
-        }
     }
 }

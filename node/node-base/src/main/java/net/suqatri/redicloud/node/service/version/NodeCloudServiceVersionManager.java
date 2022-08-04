@@ -112,7 +112,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
     @Override
     public boolean patch(IRBucketHolder<ICloudServiceVersion> holder, boolean force) throws IOException, InterruptedException, IllegalStateException {
 
-        if (!holder.get().isPaperClip()) throw new IllegalStateException("Service version is not paperclip!");
+        if (!holder.get().isPaperClip()) return false;
 
         if (!force && holder.get().isPatched()) return false;
 

@@ -127,11 +127,14 @@ public class CloudNodeServiceThread extends Thread {
 
                         IServiceStartConfiguration configuration = this.queue.poll();
 
-                        while ((this.node.getMaxParallelStartingServiceCount() == -1
-                                || getCurrentStartingCount() < this.node.getMaxParallelStartingServiceCount())
+                        while (
+                                (this.node.getMaxParallelStartingServiceCount() == -1
+                                    || getCurrentStartingCount() < this.node.getMaxParallelStartingServiceCount())
                                 && configuration != null
                                 && this.node.getFreeMemory() > 0
-                                && this.node.getStartedServicesCount() < this.node.getMaxServiceCount()) {
+                                && (this.node.getMaxServiceCount() == -1
+                                    || this.node.getStartedServicesCount() < this.node.getMaxServiceCount())
+                        ) {
 
                             CloudAPI.getInstance().getConsole().debug("Service " + configuration.getName() + " is now inside a big thread of a POWER cpu!");
                             if (configuration.isGroupBased()) {
@@ -172,7 +175,8 @@ public class CloudNodeServiceThread extends Thread {
                         if (configuration != null) {
                             this.queue.add(configuration);
                             this.currentValueCount++;
-                            if (this.currentValueCount > valueCheckInterval) {
+                            if (this.currentValueCount > valueCheckInterval
+                            && (getCurrentStartingCount() < this.node.getMaxParallelStartingServiceCount())) {
                                 this.currentValueCount = 0;
                                 CloudAPI.getInstance().getConsole().warn("Failed to start service " + configuration.getName() + "! Check following values:");
                                 CloudAPI.getInstance().getConsole().warn(" - Current parallel starting service count: " + getCurrentStartingCount() + "/" + this.node.getMaxParallelStartingServiceCount());

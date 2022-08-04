@@ -6,7 +6,7 @@ import org.redisson.api.RList;
 
 public interface IServiceScreen {
 
-    IRBucketHolder<ICloudService> getService();
+    IRBucketHolder<ICloudService> getServiceHolder();
 
     RList<IScreenLine> getLines();
 

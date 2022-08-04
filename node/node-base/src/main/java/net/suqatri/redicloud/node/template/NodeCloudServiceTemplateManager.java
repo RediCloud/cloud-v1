@@ -29,7 +29,7 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
         if (!file.exists()) {
             file.mkdirs();
         }
-        return this.createBucket(name, template);
+        return this.createBucket(name.toLowerCase(), template);
     }
 
     public FutureAction<IRBucketHolder<ICloudServiceTemplate>> createTemplateAsync(String name) {
@@ -40,7 +40,7 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
         if (!file.exists()) {
             file.mkdirs();
         }
-        this.createBucketAsync(name, template)
+        this.createBucketAsync(name.toLowerCase(), template)
                 .onFailure(futureAction)
                 .onSuccess(holder -> {
                     pushTemplate(holder)
@@ -76,7 +76,7 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
                                 FileDeletePacket packet = new FileDeletePacket();
                                 packet.setPath(file.getPath());
                                 packet.publishAllAsync(NetworkComponentType.NODE);
-                                this.deleteBucketAsync(name)
+                                this.deleteBucketAsync(name.toLowerCase())
                                         .onFailure(futureAction)
                                         .onSuccess(r -> futureAction.complete(true));
                             });

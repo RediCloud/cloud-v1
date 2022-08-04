@@ -12,6 +12,8 @@ import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
 import org.redisson.config.SingleServerConfig;
 
+import java.util.stream.Collectors;
+
 @Getter
 public class RedisConnection implements IRedisConnection {
 
@@ -39,16 +41,37 @@ public class RedisConnection implements IRedisConnection {
     @Override
     public void connect() {
         Config config = new Config();
-        config.useSingleServer()
-                .setSubscriptionConnectionMinimumIdleSize(this.subscriptionConnectionMinimumIdleSize)
-                .setSubscriptionConnectionPoolSize(this.subscriptionConnectionPoolSize)
-                .setConnectionMinimumIdleSize(this.connectionMinimumIdleSize)
-                .setConnectionPoolSize(this.connectionPoolSize)
-                .setAddress("redis://" + this.redisCredentials.getHostname() + ":" + this.redisCredentials.getPort())
-                .setDatabase(this.redisCredentials.getDatabaseId());
-        if(this.redisCredentials.getPassword() != null) {
-            config.useSingleServer().setPassword(this.redisCredentials.getPassword());
+        if(this.redisCredentials.isCluser()){
+
+            config.useClusterServers()
+                    .setNodeAddresses(this.redisCredentials.getNodeAddresses()
+                            .keySet()
+                            .parallelStream()
+                            .map(hostname -> this.redisCredentials.toNodeAddress(hostname))
+                            .collect(Collectors.toList()));
+            config.useClusterServers()
+                    .setSubscriptionConnectionMinimumIdleSize(this.subscriptionConnectionMinimumIdleSize)
+                    .setSubscriptionConnectionPoolSize(this.subscriptionConnectionPoolSize);
+
+            if(this.redisCredentials.getPassword() != null){
+                config.useClusterServers().setPassword(this.redisCredentials.getPassword());
+            }
+
+        }else {
+
+            config.useSingleServer()
+                    .setSubscriptionConnectionMinimumIdleSize(this.subscriptionConnectionMinimumIdleSize)
+                    .setSubscriptionConnectionPoolSize(this.subscriptionConnectionPoolSize)
+                    .setConnectionMinimumIdleSize(this.connectionMinimumIdleSize)
+                    .setConnectionPoolSize(this.connectionPoolSize)
+                    .setAddress(this.redisCredentials.getAnyNodeAddress())
+                    .setDatabase(this.redisCredentials.getDatabaseId());
+
+            if (this.redisCredentials.getPassword() != null) {
+                config.useSingleServer().setPassword(this.redisCredentials.getPassword());
+            }
         }
+
         this.client = Redisson.create(config);
 
         RedisConnectedEvent redisConnectedEvent = new RedisConnectedEvent(this);

@@ -14,7 +14,7 @@ public class RedisNewNodeQuestion extends Setup<RedisNewNodeQuestion> {
 
     @Question(id = 1, question = "Do you want to add a new node to the cluster?")
     @AnswerCompleter(value = BooleanSuggester.class)
-    private boolean addNewNode;
+    private boolean addNewNode = true;
 
     public RedisNewNodeQuestion() {
         super(NodeLauncher.getInstance().getConsole());
@@ -32,6 +32,6 @@ public class RedisNewNodeQuestion extends Setup<RedisNewNodeQuestion> {
 
     @Override
     public SetupHeaderBehaviour headerBehaviour() {
-        return SetupHeaderBehaviour.CLEAR_SCREEN_AFTER;
+        return this.addNewNode ?  SetupHeaderBehaviour.NOTHING : SetupHeaderBehaviour.CLEAR_SCREEN_AFTER;
     }
 }

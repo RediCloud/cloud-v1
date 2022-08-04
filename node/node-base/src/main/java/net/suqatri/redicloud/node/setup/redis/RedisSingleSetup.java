@@ -40,7 +40,7 @@ public class RedisSingleSetup extends Setup<RedisSingleSetup> {
 
     @Override
     public SetupHeaderBehaviour headerBehaviour() {
-        return SetupHeaderBehaviour.CLEAR_SCREEN_AFTER;
+        return SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES;
     }
 
 }

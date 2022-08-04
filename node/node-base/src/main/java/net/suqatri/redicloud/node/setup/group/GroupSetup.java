@@ -34,6 +34,6 @@ public class GroupSetup extends Setup<GroupSetup> {
 
     @Override
     public SetupHeaderBehaviour headerBehaviour() {
-        return SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES;
+        return SetupHeaderBehaviour.NOTHING;
     }
 }

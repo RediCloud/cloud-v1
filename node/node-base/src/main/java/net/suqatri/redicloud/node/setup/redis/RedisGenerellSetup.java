@@ -39,6 +39,6 @@ public class RedisGenerellSetup extends Setup<RedisGenerellSetup> {
 
     @Override
     public SetupHeaderBehaviour headerBehaviour() {
-        return SetupHeaderBehaviour.CLEAR_SCREEN_AFTER;
+        return SetupHeaderBehaviour.NOTHING;
     }
 }

@@ -330,8 +330,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         this.console.error("A Node with the same name already exists!");
                         this.console.error("Please choose a different name!");
                         this.console.info("Restarting cluster connection setup in 10 seconds...");
+                        Files.NODE_JSON.getFile().delete();
                         this.scheduler.runTaskLater(() -> {
-                            Files.NODE_JSON.getFile().delete();
                             this.initClusterConnection(consumer);
                         }, 10, TimeUnit.SECONDS);
                         return;
@@ -374,20 +374,21 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         } catch (Exception e) {
             this.console.error("Failed to read node.json file, but it's not the first cluster connection!");
             this.console.error("Starting cluster connection setup in 10 seconds...");
+            Files.NODE_JSON.getFile().delete();
             this.scheduler.runTaskLater(() -> {
-                Files.NODE_JSON.getFile().delete();
                 this.initClusterConnection(consumer);
             }, 10, TimeUnit.SECONDS);
             return;
         }
 
         if (!this.getNodeManager().existsNode(connectionInformation.getUniqueId())) {
-            CloudNode cloudNode = new CloudNode();
-            connectionInformation.applyToNode(cloudNode);
-            cloudNode.setConnected(true);
-            cloudNode.setLastConnection(System.currentTimeMillis());
-            cloudNode.setLastStart(System.currentTimeMillis());
-            this.node = this.getNodeManager().createNode(cloudNode).getImpl(CloudNode.class);
+            this.console.error("The node.json file contains a node that doesn't exist!");
+            this.console.error("Starting cluster connection setup in 10 seconds...");
+            Files.NODE_JSON.getFile().delete();
+            this.scheduler.runTaskLater(() -> {
+                this.initClusterConnection(consumer);
+            }, 10, TimeUnit.SECONDS);
+            return;
         } else {
             this.node = this.getNodeManager().getNode(connectionInformation.getUniqueId()).getImpl(CloudNode.class);
             if (this.node.getUniqueId().equals(connectionInformation.getUniqueId()) && this.node.isConnected()) {

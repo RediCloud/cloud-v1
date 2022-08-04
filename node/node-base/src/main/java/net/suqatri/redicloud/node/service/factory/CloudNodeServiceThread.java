@@ -83,7 +83,7 @@ public class CloudNodeServiceThread extends Thread {
                                 .count();
                         for (IServiceStartConfiguration configuration : this.queue) {
                             if(!configuration.isGroupBased()) continue;
-                            if(!configuration.getGroupName().equalsIgnoreCase(groupHolder.get().getName())) return;
+                            if(!configuration.getGroupName().equalsIgnoreCase(groupHolder.get().getName())) continue;
                             count++;
                         }
                         int min = groupHolder.get().getMinServices();

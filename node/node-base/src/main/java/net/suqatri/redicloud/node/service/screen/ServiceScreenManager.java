@@ -42,8 +42,8 @@ public class ServiceScreenManager implements IServiceScreenManager {
     public FutureAction<IServiceScreen> join(IServiceScreen serviceScreen) {
         FutureAction<IServiceScreen> futureAction = new FutureAction<>();
 
-        serviceScreen.getService().get().getConsoleNodeListenerIds().add(NodeLauncher.getInstance().getNode().getUniqueId());
-        serviceScreen.getService().get().updateAsync();
+        serviceScreen.getServiceHolder().get().getConsoleNodeListenerIds().add(NodeLauncher.getInstance().getNode().getUniqueId());
+        serviceScreen.getServiceHolder().get().updateAsync();
 
         if (this.activeScreens.contains(serviceScreen)) {
             futureAction.complete(serviceScreen);
@@ -73,8 +73,8 @@ public class ServiceScreenManager implements IServiceScreenManager {
     @Override
     public void leave(IServiceScreen serviceScreen) {
 
-        serviceScreen.getService().get().getConsoleNodeListenerIds().remove(NodeLauncher.getInstance().getNode().getUniqueId());
-        serviceScreen.getService().get().updateAsync();
+        serviceScreen.getServiceHolder().get().getConsoleNodeListenerIds().remove(NodeLauncher.getInstance().getNode().getUniqueId());
+        serviceScreen.getServiceHolder().get().updateAsync();
 
         this.activeScreens.remove(serviceScreen);
     }
@@ -86,7 +86,7 @@ public class ServiceScreenManager implements IServiceScreenManager {
 
     @Override
     public boolean isActive(UUID serviceId) {
-        return this.activeScreens.parallelStream().anyMatch(screen -> screen.getService().get().getUniqueId().equals(serviceId));
+        return this.activeScreens.parallelStream().anyMatch(screen -> screen.getServiceHolder().get().getUniqueId().equals(serviceId));
     }
 
     @Override
@@ -102,7 +102,7 @@ public class ServiceScreenManager implements IServiceScreenManager {
     @Override
     public void write(String command) {
         for (IServiceScreen activeScreen : this.activeScreens) {
-            CloudAPI.getInstance().getServiceManager().executeCommand(activeScreen.getService(), command);
+            CloudAPI.getInstance().getServiceManager().executeCommand(activeScreen.getServiceHolder(), command);
         }
     }
 }

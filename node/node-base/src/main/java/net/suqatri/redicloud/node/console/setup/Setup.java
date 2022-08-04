@@ -132,7 +132,7 @@ public abstract class Setup<T extends Setup<?>> {
     }
 
     public SetupHeaderBehaviour headerBehaviour() {
-        return SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES;
+        return SetupHeaderBehaviour.NOTHING;
     }
 
     public void start(SetupListener<T> finishHandler) {
@@ -159,8 +159,26 @@ public abstract class Setup<T extends Setup<?>> {
             this.console.removeInputHandler(this.inputConsumer);
         }
 
+        switch (headerBehaviour()){
+            case RESTORE_PREVIOUS_LINES:
+                this.console.clearScreen();
+                for (IConsoleLineEntry restoredLine : this.restoredLines) {
+                    if (restoredLine instanceof IConsoleLine) {
+                        ((IConsoleLine) restoredLine).setStored(false);
+                        ((IConsoleLine) restoredLine).println();
+                    } else if (restoredLine instanceof IConsoleInput) {
+                        ((IConsoleInput) restoredLine).logAsFake();
+                    }
+                }
+                break;
+            case CLEAR_SCREEN_AFTER:
+                this.console.clearScreen();
+                break;
+        }
+
         //Setup done and accepting consumer
         this.console.setCurrentSetup(null);
+
         //If already exited by another code line
         if (this.setupListener != null) {
             if (success) {
@@ -169,19 +187,6 @@ public abstract class Setup<T extends Setup<?>> {
                 this.setupListener.accept((T) this, SetupControlState.CANCELLED);
             }
             this.setupListener = null;
-        }
-
-
-        if (headerBehaviour() == SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES) {
-            this.console.clearScreen();
-            for (IConsoleLineEntry restoredLine : this.restoredLines) {
-                if (restoredLine instanceof IConsoleLine) {
-                    ((IConsoleLine) restoredLine).setStored(false);
-                    ((IConsoleLine) restoredLine).println();
-                } else if (restoredLine instanceof IConsoleInput) {
-                    ((IConsoleInput) restoredLine).logAsFake();
-                }
-            }
         }
 
         for (IServiceScreen pausedScreen : this.pausedScreens) {

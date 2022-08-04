@@ -11,7 +11,7 @@ import net.suqatri.redicloud.node.console.setup.conditions.PositivIntegerConditi
 import net.suqatri.redicloud.node.console.setup.suggester.BooleanSuggester;
 import net.suqatri.redicloud.node.console.setup.suggester.MemorySuggester;
 import net.suqatri.redicloud.node.setup.condition.GroupMemoryCondition;
-import net.suqatri.redicloud.node.setup.condition.ServiceVersionExistsCondition;
+import net.suqatri.redicloud.node.setup.condition.MinecraftServiceVersionExistsCondition;
 
 @Getter
 public class MinecraftSetup extends Setup<MinecraftSetup> {
@@ -43,7 +43,7 @@ public class MinecraftSetup extends Setup<MinecraftSetup> {
     private boolean fallback;
 
     @Question(id = 8, question = "What service version should be used for the group?")
-    @ConditionChecker(value = ServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
+    @ConditionChecker(value = MinecraftServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
     private String serviceVersionName;
 
     public MinecraftSetup() {

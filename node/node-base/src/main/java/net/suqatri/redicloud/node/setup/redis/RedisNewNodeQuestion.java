@@ -1,24 +1,22 @@
-package net.suqatri.redicloud.node.setup.group;
+package net.suqatri.redicloud.node.setup.redis;
 
 import lombok.Getter;
-import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.node.NodeLauncher;
+import net.suqatri.redicloud.node.console.NodeConsole;
 import net.suqatri.redicloud.node.console.setup.Setup;
 import net.suqatri.redicloud.node.console.setup.SetupHeaderBehaviour;
 import net.suqatri.redicloud.node.console.setup.annotations.AnswerCompleter;
 import net.suqatri.redicloud.node.console.setup.annotations.Question;
-import net.suqatri.redicloud.node.console.setup.annotations.RequiresEnum;
-import net.suqatri.redicloud.node.setup.suggester.ServiceEnvironmentSuggester;
+import net.suqatri.redicloud.node.console.setup.suggester.BooleanSuggester;
 
 @Getter
-public class GroupSetup extends Setup<GroupSetup> {
+public class RedisNewNodeQuestion extends Setup<RedisNewNodeQuestion> {
 
-    @RequiresEnum(ServiceEnvironment.class)
-    @Question(id = 1, question = "Which type of group do you want to create?")
-    @AnswerCompleter(value = ServiceEnvironmentSuggester.class)
-    private ServiceEnvironment environment;
+    @Question(id = 1, question = "Do you want to add a new node to the cluster?")
+    @AnswerCompleter(value = BooleanSuggester.class)
+    private boolean addNewNode = true;
 
-    public GroupSetup() {
+    public RedisNewNodeQuestion() {
         super(NodeLauncher.getInstance().getConsole());
     }
 
@@ -34,6 +32,6 @@ public class GroupSetup extends Setup<GroupSetup> {
 
     @Override
     public SetupHeaderBehaviour headerBehaviour() {
-        return SetupHeaderBehaviour.NOTHING;
+        return this.addNewNode ?  SetupHeaderBehaviour.NOTHING : SetupHeaderBehaviour.CLEAR_SCREEN_AFTER;
     }
 }

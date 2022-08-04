@@ -193,6 +193,10 @@ public class ServiceVersionCommand extends ConsoleCommand {
                                                     }
                                                 });
                                         break;
+                                    case JAVA_COMMAND:
+                                        versionHolder.get().setJavaCommand(value);
+                                        versionHolder.get().updateAsync();
+                                        break;
                                     case PAPER_CLIP:
                                         boolean paperClip = false;
                                         try {

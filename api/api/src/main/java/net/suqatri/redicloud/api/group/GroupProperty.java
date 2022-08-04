@@ -9,6 +9,7 @@ public enum GroupProperty {
     FALLBACK,
     MAINTENANCE,
     SERVICE_VERSION,
+    PERCENT_TO_START_NEW_SERVICE,
     STATIC;
 
 }

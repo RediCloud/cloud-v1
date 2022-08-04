@@ -3,8 +3,9 @@
 
 releases/
 
-test/node-1/storage/redis.json
-test/node-2/storage/redis.json
+
+test/node-1/storage/redis.*
+test/node-2/storage/redis.*
 test/node-1/templates/
 test/node-2/templates/
 test/node-1/temp/
@@ -21,8 +22,7 @@ redicloud.properties
 **/build/
 .gradle/
 
-test/node-1/node.json
-test/node-2/node.json
+node.json
 
 test/node-1/static/
 test/node-2/static/

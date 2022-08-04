@@ -109,7 +109,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
         try {
             redisCredentials = FileWriter.readObject(new File(System.getenv("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())), RedisCredentials.class);
         } catch (Exception e) {
-            this.console.error("Failed to read redis.json file! Please check your credentials.");
+            this.console.error("Failed to read redis.json file! Please check your credentials.", e);
             Bukkit.getPluginManager().disablePlugin(this.javaPlugin);
             return;
         }

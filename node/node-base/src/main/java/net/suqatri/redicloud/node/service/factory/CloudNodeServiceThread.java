@@ -52,13 +52,14 @@ public class CloudNodeServiceThread extends Thread {
         this.node = NodeLauncher.getInstance().getNode();
         while (!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
 
-            try {
-                if (NodeLauncher.getInstance().isShutdownInitialized()) break;
-                if (NodeLauncher.getInstance().isInstanceTimeOuted()) break;
-                if (NodeLauncher.getInstance().isRestarting()) break;
-                if (NodeLauncher.getInstance().isShutdownInitialized()) break;
+            if(NodeLauncher.getInstance().isShutdownInitialized() ){
+                this.interrupt();
+                return;
+            }
 
-                int maxStartSize = NodeLauncher.getInstance().getNode().getMaxParallelStartingServiceCount();
+            try {
+                if (NodeLauncher.getInstance().isInstanceTimeOuted()) return;
+                if (NodeLauncher.getInstance().isRestarting()) return;
 
                 this.checkServiceCount++;
                 if (this.checkServiceCount >= checkServiceInterval) {
@@ -74,11 +75,17 @@ public class CloudNodeServiceThread extends Thread {
                                 .filter(holder -> {
                                     if (holder.get().getMaxPlayers() == -1) return true;
                                     if (holder.get().getPercentToStartNewService() == -1) return true;
+                                    if(holder.get().getServiceState() == ServiceState.STARTING || holder.get().getServiceState() == ServiceState.PREPARE) return true;
                                     int percent = ((int) (100 / ((double) holder.get().getMaxPlayers())) * holder.get().getOnlineCount());
                                     if (percent >= holder.get().getPercentToStartNewService()) return false;
                                     return holder.get().getOnlineCount() <= holder.get().getMaxPlayers();
                                 })
                                 .count();
+                        for (IServiceStartConfiguration configuration : this.queue) {
+                            if(!configuration.isGroupBased()) continue;
+                            if(!configuration.getGroupName().equalsIgnoreCase(groupHolder.get().getName())) continue;
+                            count++;
+                        }
                         int min = groupHolder.get().getMinServices();
 
                         if (count < min) {
@@ -125,9 +132,16 @@ public class CloudNodeServiceThread extends Thread {
                         }
 
                         IServiceStartConfiguration configuration = this.queue.poll();
-                        while ((this.node.getMaxServiceCount() == -1 || getCurrentStartingCount() < maxStartSize)
+
+                        while (
+                                (this.node.getMaxParallelStartingServiceCount() == -1
+                                    || getCurrentStartingCount() < this.node.getMaxParallelStartingServiceCount())
                                 && configuration != null
-                                && this.node.getFreeMemory() > 0) {
+                                && this.node.getFreeMemory() > 0
+                                && (this.node.getMaxServiceCount() == -1
+                                    || this.node.getStartedServicesCount() < this.node.getMaxServiceCount())
+                        ) {
+
                             CloudAPI.getInstance().getConsole().debug("Service " + configuration.getName() + " is now inside a big thread of a POWER cpu!");
                             if (configuration.isGroupBased()) {
                                 IRBucketHolder<ICloudGroup> groupHolder = CloudAPI.getInstance().getGroupManager().getGroup(configuration.getGroupName());
@@ -167,10 +181,12 @@ public class CloudNodeServiceThread extends Thread {
                         if (configuration != null) {
                             this.queue.add(configuration);
                             this.currentValueCount++;
-                            if (this.currentValueCount > valueCheckInterval) {
+                            if (this.currentValueCount > valueCheckInterval
+                            && (getCurrentStartingCount() < this.node.getMaxParallelStartingServiceCount())) {
                                 this.currentValueCount = 0;
                                 CloudAPI.getInstance().getConsole().warn("Failed to start service " + configuration.getName() + "! Check following values:");
-                                CloudAPI.getInstance().getConsole().warn(" - Max service count: " + getCurrentStartingCount() + "/" + this.node.getMaxServiceCount());
+                                CloudAPI.getInstance().getConsole().warn(" - Current parallel starting service count: " + getCurrentStartingCount() + "/" + this.node.getMaxParallelStartingServiceCount());
+                                CloudAPI.getInstance().getConsole().warn(" - Max Service count: " + this.node.getMaxServiceCount() + "/" + this.node.getMaxServiceCount());
                                 CloudAPI.getInstance().getConsole().warn(" - Max memory: " + this.node.getMemoryUsage() + "/" + this.node.getMaxMemory());
                             }
                         }
@@ -178,6 +194,7 @@ public class CloudNodeServiceThread extends Thread {
                 }
                 Thread.sleep(200);
             }catch (Exception e){
+                if(e instanceof InterruptedException) return;
                 CloudAPI.getInstance().getConsole().error("Error in service factory thread", e);
             }
         }

@@ -146,7 +146,7 @@ public class ScreenCommand extends ConsoleCommand {
         }
         commandSender.sendMessage("Active screens §8(%hc" + NodeLauncher.getInstance().getScreenManager().getActiveScreens().size() + "§8)%tc:");
         for (IServiceScreen serviceScreen : NodeLauncher.getInstance().getScreenManager().getActiveScreens()) {
-            commandSender.sendMessage("§8 » %tc" + serviceScreen.getService().get().getServiceName());
+            commandSender.sendMessage("§8 » %tc" + serviceScreen.getServiceHolder().get().getServiceName());
         }
     }
 

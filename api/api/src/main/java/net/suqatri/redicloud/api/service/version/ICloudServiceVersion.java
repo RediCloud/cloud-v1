@@ -45,5 +45,6 @@ public interface ICloudServiceVersion extends IRBucketObject {
 
     boolean needPatch();
 
+    void setJavaCommand(String command);
 
 }

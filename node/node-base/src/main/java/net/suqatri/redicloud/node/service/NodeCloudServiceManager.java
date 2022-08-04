@@ -42,7 +42,10 @@ public class NodeCloudServiceManager extends CloudServiceManager {
             CloudAPI.getInstance().getConsole().warn("Please check if there are any service processes running in the background!");
         }
         for (String s : readAllFetcherKeysAsync().getBlockOrNull()) {
-            if(existsService(s)) continue;
+            if(!existsService(s)) {
+                getServiceIdFetcherMap().remove(s);
+                continue;
+            }
             IRBucketHolder<ICloudService> serviceHolder = getService(s);
             if(serviceHolder.get().isExternal()) continue;
             if(!serviceHolder.get().getNodeId().equals(nodeIdToCheck)) continue;

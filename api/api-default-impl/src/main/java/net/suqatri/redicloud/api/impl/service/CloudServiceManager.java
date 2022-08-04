@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.api.impl.service;
 
+import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.impl.service.configuration.DefaultServiceStartConfiguration;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 
 public abstract class CloudServiceManager extends RedissonBucketManager<CloudService, ICloudService> implements ICloudServiceManager {
 
+    @Getter
     private RMap<String, String> serviceIdFetcherMap;
 
     public CloudServiceManager() {

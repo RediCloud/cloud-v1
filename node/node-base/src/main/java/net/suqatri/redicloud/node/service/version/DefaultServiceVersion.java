@@ -23,9 +23,9 @@ public enum DefaultServiceVersion {
     BUNGEECORD("bungeecord", "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar", false),
     VELOCITY("velocity", "https://api.papermc.io/v2/projects/velocity/versions/3.1.2-SNAPSHOT/builds/165/downloads/velocity-3.1.2-SNAPSHOT-165.jar", false),
 
-    SPIGOT_1_8_8("spigot-1.8.8", "https://cdn.getbukkit.org/spigot/spigot-1.8.8.jar", false),
-    SPIGOT_1_9_4("spigot-1.9.4", "https://cdn.getbukkit.org/spigot/spigot-1.9.4.jar", false),
-    SPIGOT_1_10_2("spigot-1.10.2", "https://cdn.getbukkit.org/spigot/spigot-1.10.2.jar", false),
+    SPIGOT_1_8_8("spigot-1.8.8", "https://cdn.getbukkit.org/spigot/spigot-1.8.8-R0.1-SNAPSHOT-latest.jar", false),
+    SPIGOT_1_9_4("spigot-1.9.4", "https://cdn.getbukkit.org/spigot/spigot-1.9.4-R0.1-SNAPSHOT-latest.jar", false),
+    SPIGOT_1_10_2("spigot-1.10.2", "https://cdn.getbukkit.org/spigot/spigot-1.10.2-R0.1-SNAPSHOT-latest.jar", false),
     SPIGOT_1_11_2("spigot-1.11.2", "https://cdn.getbukkit.org/spigot/spigot-1.11.2.jar", false),
     SPIGOT_1_12_2("spigot-1.12.2", "https://cdn.getbukkit.org/spigot/spigot-1.12.2.jar", false),
     SPIGOT_1_13_2("spigot-1.13.2", "https://cdn.getbukkit.org/spigot/spigot-1.13.2.jar", false),

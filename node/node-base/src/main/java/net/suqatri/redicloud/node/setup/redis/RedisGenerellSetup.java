@@ -1,30 +1,35 @@
-package net.suqatri.redicloud.node.setup.group;
+package net.suqatri.redicloud.node.setup.redis;
 
 import lombok.Getter;
-import net.suqatri.redicloud.api.service.ServiceEnvironment;
+import net.suqatri.redicloud.api.redis.RedisType;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.console.setup.Setup;
 import net.suqatri.redicloud.node.console.setup.SetupHeaderBehaviour;
+import net.suqatri.redicloud.node.console.setup.annotations.AcceptEmptyInput;
 import net.suqatri.redicloud.node.console.setup.annotations.AnswerCompleter;
 import net.suqatri.redicloud.node.console.setup.annotations.Question;
 import net.suqatri.redicloud.node.console.setup.annotations.RequiresEnum;
-import net.suqatri.redicloud.node.setup.suggester.ServiceEnvironmentSuggester;
+import net.suqatri.redicloud.node.setup.suggester.RedisTypeSuggester;
 
 @Getter
-public class GroupSetup extends Setup<GroupSetup> {
+public class RedisGenerellSetup extends Setup<RedisGenerellSetup> {
 
-    @RequiresEnum(ServiceEnvironment.class)
-    @Question(id = 1, question = "Which type of group do you want to create?")
-    @AnswerCompleter(value = ServiceEnvironmentSuggester.class)
-    private ServiceEnvironment environment;
+    @Question(id = 1, question = "What type of redis server do you want to use?")
+    @RequiresEnum(RedisType.class)
+    @AnswerCompleter(value = RedisTypeSuggester.class)
+    private RedisType redisType;
 
-    public GroupSetup() {
+    @AcceptEmptyInput
+    @Question(id = 2, question = "What is the password of the redis server/cluster?")
+    private String password;
+
+    public RedisGenerellSetup() {
         super(NodeLauncher.getInstance().getConsole());
     }
 
     @Override
     public boolean isCancellable() {
-        return true;
+        return false;
     }
 
     @Override

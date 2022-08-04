@@ -10,8 +10,8 @@ import net.suqatri.redicloud.node.console.setup.annotations.Question;
 import net.suqatri.redicloud.node.console.setup.conditions.PositivIntegerCondition;
 import net.suqatri.redicloud.node.console.setup.suggester.BooleanSuggester;
 import net.suqatri.redicloud.node.console.setup.suggester.MemorySuggester;
+import net.suqatri.redicloud.node.setup.condition.ProxyServiceVersionExistsCondition;
 import net.suqatri.redicloud.node.setup.condition.GroupMemoryCondition;
-import net.suqatri.redicloud.node.setup.condition.ServiceVersionExistsCondition;
 
 @Getter
 public class ProxySetup extends Setup<ProxySetup> {
@@ -39,7 +39,7 @@ public class ProxySetup extends Setup<ProxySetup> {
     private boolean staticGroup;
 
     @Question(id = 7, question = "What service version should be used for the group?")
-    @ConditionChecker(value = ServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
+    @ConditionChecker(value = ProxyServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
     private String serviceVersionName;
 
     public ProxySetup() {

@@ -41,7 +41,7 @@ import net.suqatri.redicloud.node.service.factory.NodeCloudServiceFactory;
 import net.suqatri.redicloud.node.service.screen.ServiceScreenManager;
 import net.suqatri.redicloud.node.service.version.NodeCloudServiceVersionManager;
 import net.suqatri.redicloud.node.setup.node.NodeConnectionDataSetup;
-import net.suqatri.redicloud.node.setup.redis.RedisSetup;
+import net.suqatri.redicloud.node.setup.redis.*;
 import net.suqatri.redicloud.node.template.NodeCloudServiceTemplateManager;
 import org.apache.commons.io.FileUtils;
 
@@ -299,7 +299,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
             CloudNodeConnectedEvent event = new CloudNodeConnectedEvent();
             event.setNodeId(this.node.getUniqueId());
-            getEventManager().postGlobal(event);
+            getEventManager().postGlobalAsync(event);
 
             this.console.info(this.node.getName() + " is now connected to the cluster!");
             this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@" + this.console.getHighlightColor() + this.node.getName() + " §f=> "));
@@ -330,8 +330,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         this.console.error("A Node with the same name already exists!");
                         this.console.error("Please choose a different name!");
                         this.console.info("Restarting cluster connection setup in 10 seconds...");
+                        Files.NODE_JSON.getFile().delete();
                         this.scheduler.runTaskLater(() -> {
-                            Files.NODE_JSON.getFile().delete();
                             this.initClusterConnection(consumer);
                         }, 10, TimeUnit.SECONDS);
                         return;
@@ -374,20 +374,21 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         } catch (Exception e) {
             this.console.error("Failed to read node.json file, but it's not the first cluster connection!");
             this.console.error("Starting cluster connection setup in 10 seconds...");
+            Files.NODE_JSON.getFile().delete();
             this.scheduler.runTaskLater(() -> {
-                Files.NODE_JSON.getFile().delete();
                 this.initClusterConnection(consumer);
             }, 10, TimeUnit.SECONDS);
             return;
         }
 
         if (!this.getNodeManager().existsNode(connectionInformation.getUniqueId())) {
-            CloudNode cloudNode = new CloudNode();
-            connectionInformation.applyToNode(cloudNode);
-            cloudNode.setConnected(true);
-            cloudNode.setLastConnection(System.currentTimeMillis());
-            cloudNode.setLastStart(System.currentTimeMillis());
-            this.node = this.getNodeManager().createNode(cloudNode).getImpl(CloudNode.class);
+            this.console.error("The node.json file contains a node that doesn't exist!");
+            this.console.error("Starting cluster connection setup in 10 seconds...");
+            Files.NODE_JSON.getFile().delete();
+            this.scheduler.runTaskLater(() -> {
+                this.initClusterConnection(consumer);
+            }, 10, TimeUnit.SECONDS);
+            return;
         } else {
             this.node = this.getNodeManager().getNode(connectionInformation.getUniqueId()).getImpl(CloudNode.class);
             if (this.node.getUniqueId().equals(connectionInformation.getUniqueId()) && this.node.isConnected()) {
@@ -400,32 +401,81 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         consumer.accept(this.node);
     }
 
+    private void initRedisNodes(RedisCredentials redisCredentials, boolean first, Consumer<RedisConnection> consumer){
+        new RedisClusterNodeSetup(first).start((setup, state) -> {
+            if(state == SetupControlState.FINISHED){
+                redisCredentials.getNodeAddresses().put(setup.getHostName(), setup.getPort());
+                new RedisNewNodeQuestion().start((question, state1) -> {
+                    if(state1 == SetupControlState.FINISHED){
+                        if(question.isAddNewNode()){
+                            this.initRedisNodes(redisCredentials, false, consumer);
+                            return;
+                        }
+                    }
+                    this.finishRedisInit(redisCredentials, consumer);
+                });
+            }else{
+                this.finishRedisInit(redisCredentials, consumer);
+            }
+        });
+    }
+
+    private void finishRedisInit(RedisCredentials redisCredentials, Consumer<RedisConnection> consumer){
+        try {
+            this.redisConnection.connect();
+            FileWriter.writeObject(redisCredentials, Files.REDIS_CONFIG.getFile());
+            this.console.info("Redis connection established!");
+            consumer.accept(this.redisConnection);
+        } catch (Exception e) {
+            this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
+            this.console.info("Restarting redis setup in 10 seconds...");
+            this.scheduler.runTaskLater(() -> {
+                Files.REDIS_CONFIG.getFile().delete();
+                initRedis(consumer);
+            }, 10, TimeUnit.SECONDS);
+        }
+    }
+
     private void initRedis(Consumer<RedisConnection> consumer) {
         boolean redisConfigExits = Files.REDIS_CONFIG.exists();
+        RedisCredentials redisCredentials = new RedisCredentials();
         if (!redisConfigExits) {
-            new RedisSetup().start(((redisSetup, state) -> {
-                if (state == SetupControlState.FINISHED) {
-                    RedisCredentials credentials = new RedisCredentials();
-                    credentials.setHostname(redisSetup.getHostname());
-                    credentials.setPort(redisSetup.getPort());
-                    credentials.setPassword(redisSetup.getPassword());
-                    credentials.setDatabaseId(redisSetup.getDatabaseId());
-                    this.redisConnection = new RedisConnection(credentials);
-                    try {
-                        this.redisConnection.connect();
-                        FileWriter.writeObject(credentials, Files.REDIS_CONFIG.getFile());
-                        this.console.info("Redis connection established!");
-                        consumer.accept(this.redisConnection);
-                    } catch (Exception e) {
-                        this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
-                        this.console.info("Restarting redis setup in 10 seconds...");
-                        this.scheduler.runTaskLater(() -> {
-                            Files.REDIS_CONFIG.getFile().delete();
-                            initRedis(consumer);
-                        }, 10, TimeUnit.SECONDS);
+
+            new RedisGenerellSetup().start((generellSetup, state) -> {
+                if(state == SetupControlState.FINISHED) {
+                    redisCredentials.setPassword(generellSetup.getPassword());
+                    redisCredentials.setType(generellSetup.getRedisType());
+                    switch (generellSetup.getRedisType()){
+                        case CLUSTER:
+                            this.initRedisNodes(redisCredentials, true, consumer);
+                            break;
+                        case SINGLE_SERVICE:
+                            new RedisSingleSetup().start((singleSetup, state1) -> {
+                                if(state1 == SetupControlState.FINISHED){
+                                    redisCredentials.getNodeAddresses()
+                                            .put(singleSetup.getHostname(), singleSetup.getPort());
+                                    redisCredentials.setDatabaseId(singleSetup.getDatabaseId());
+                                    this.redisConnection = new RedisConnection(redisCredentials);
+                                    try {
+                                        this.redisConnection.connect();
+                                        FileWriter.writeObject(redisConfigExits, Files.REDIS_CONFIG.getFile());
+                                        this.console.info("Redis connection established!");
+                                        consumer.accept(this.redisConnection);
+                                    } catch (Exception e) {
+                                        this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
+                                        this.console.info("Restarting redis setup in 10 seconds...");
+                                        this.console.trace("URL: " + redisCredentials.getAnyNodeAddress());
+                                        this.scheduler.runTaskLater(() -> {
+                                            Files.REDIS_CONFIG.getFile().delete();
+                                            initRedis(consumer);
+                                        }, 10, TimeUnit.SECONDS);
+                                    }
+                                }
+                            });
+                            break;
                     }
                 }
-            }));
+            });
         } else {
             RedisCredentials credentials;
             try {
@@ -433,8 +483,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             } catch (Exception e) {
                 this.console.error("Failed to read redis.json file! Please check your credentials.");
                 this.console.error("Restarting redis setup in 10 seconds...");
+                Files.REDIS_CONFIG.getFile().delete();
                 this.scheduler.runTaskLater(() -> {
-                    Files.REDIS_CONFIG.getFile().delete();
                     initRedis(consumer);
                 }, 10, TimeUnit.SECONDS);
                 return;
@@ -532,12 +582,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                                 e1.printStackTrace();
                             }
                         }
-                    }
-                }
-                if (stopCount != 0) {
-                    try {
-                        Thread.sleep(3000 + (stopCount * 200L));
-                    } catch (InterruptedException e) {
                     }
                 }
             }

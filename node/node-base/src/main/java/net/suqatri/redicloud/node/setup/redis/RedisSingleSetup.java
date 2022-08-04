@@ -11,7 +11,7 @@ import net.suqatri.redicloud.node.console.setup.suggester.HostNameSuggester;
 import net.suqatri.redicloud.node.console.setup.suggester.RedisPortSuggester;
 
 @Getter
-public class RedisSetup extends Setup<RedisSetup> {
+public class RedisSingleSetup extends Setup<RedisSingleSetup> {
 
     @Question(id = 1, question = "What´s the hostname of the Redis server?")
     @AnswerCompleter(value = HostNameSuggester.class)
@@ -21,14 +21,10 @@ public class RedisSetup extends Setup<RedisSetup> {
     @AnswerCompleter(value = RedisPortSuggester.class)
     private int port;
 
-    @AcceptEmptyInput
-    @Question(id = 3, question = "What´s the password of the Redis server?")
-    private String password;
-
-    @Question(id = 4, question = "What´s the database id of the Redis server?")
+    @Question(id = 3, question = "What´s the database id of the Redis server?")
     private int databaseId;
 
-    public RedisSetup() {
+    public RedisSingleSetup() {
         super(NodeLauncher.getInstance().getConsole());
     }
 

@@ -8,7 +8,6 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.group.GroupProperty;
 import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.impl.group.CloudGroup;
-import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersion;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
@@ -18,11 +17,9 @@ import net.suqatri.redicloud.node.console.setup.SetupControlState;
 import net.suqatri.redicloud.node.setup.group.GroupSetup;
 import net.suqatri.redicloud.node.setup.group.MinecraftSetup;
 import net.suqatri.redicloud.node.setup.group.ProxySetup;
-import net.suqatri.redicloud.node.setup.version.ServiceVersionSetup;
 
 import java.util.Arrays;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 @CommandAlias("group|groups")
 public class GroupCommand extends ConsoleCommand {
@@ -416,6 +413,10 @@ public class GroupCommand extends ConsoleCommand {
                                                     CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(value)
                                                         .onFailure(e4 -> CloudAPI.getInstance().getConsole().error("Failed to get service version " + value, e4))
                                                         .onSuccess(serviceVersionHolder -> {
+                                                            if(serviceVersionHolder.get().getEnvironmentType() != holder.get().getServiceEnvironment()){
+                                                                commandSender.sendMessage("Service version %hc" + value + "%tc is not compatible with group %hc" + name + "%tc");
+                                                                return;
+                                                            }
                                                             holder.get().setServiceVersion(serviceVersionHolder);
                                                             holder.get().updateAsync();
                                                             commandSender.sendMessage("Group %hc" + name + "%tc service version set to %hc" + value);

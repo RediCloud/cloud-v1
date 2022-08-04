@@ -65,24 +65,23 @@ public class ServiceScreen implements IServiceScreen {
 
     @Override
     public void removeUselessLines() {
-        CloudAPI.getInstance().getConsole().trace("Removing useless lines from service screen " + this.getServiceHolder().get().getServiceName());
         this.lines.sizeAsync()
                 .whenComplete((size, throwable) -> {
                     if(throwable != null) {
                         CloudAPI.getInstance().getConsole().error("Error while getting screen log size", throwable);
                         return;
                     }
-                    CloudAPI.getInstance().getConsole().trace("Screen log size: " + size + "/" + MAX_LINES);
                     if (size <= MAX_LINES) return;
                     this.lines.readAllAsync().whenComplete((lines, throwable1) -> {
                         if(throwable1 != null){
                             CloudAPI.getInstance().getConsole().error("Error while getting screen log of service " + this.serviceHolder.get().getServiceName(), throwable1);
                             return;
                         }
-                        CloudAPI.getInstance().getConsole().trace("Loaded screen logs " + lines.size() + " of " + this.serviceHolder.get().getServiceName());
+                        int cachedSize = size;
                         for (IScreenLine line : lines) {
-                            if (this.lines.size() <= MAX_LINES) break;
+                            if (cachedSize <= MAX_LINES) break;
                             this.lines.removeAsync(line);
+                            cachedSize--;
                         }
                     });
                 });

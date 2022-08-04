@@ -52,6 +52,11 @@ public class CloudNodeServiceThread extends Thread {
         this.node = NodeLauncher.getInstance().getNode();
         while (!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
 
+            if(NodeLauncher.getInstance().isShutdownInitialized()){
+                this.interrupt();
+                return;
+            }
+
             try {
                 if (NodeLauncher.getInstance().isShutdownInitialized()) break;
                 if (NodeLauncher.getInstance().isInstanceTimeOuted()) break;
@@ -178,6 +183,7 @@ public class CloudNodeServiceThread extends Thread {
                 }
                 Thread.sleep(200);
             }catch (Exception e){
+                if(e instanceof InterruptedException) return;
                 CloudAPI.getInstance().getConsole().error("Error in service factory thread", e);
             }
         }

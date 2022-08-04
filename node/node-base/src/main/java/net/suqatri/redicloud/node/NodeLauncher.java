@@ -514,7 +514,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         .count() == 1;
 
                 if (this.console != null) this.console.info("Stopping services...");
-                ((NodeCloudServiceFactory) this.serviceFactory).getThread().interrupt();
                 for (IRBucketHolder<ICloudService> serviceHolder : this.serviceManager.getServices()) {
                     //TODO create event for cluster shutdown
                     if(serviceHolder.get().isExternal() && !isLastNode) continue;

@@ -443,6 +443,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             new RedisGenerellSetup().start((generellSetup, state) -> {
                 if(state == SetupControlState.FINISHED) {
                     redisCredentials.setPassword(generellSetup.getPassword());
+                    redisCredentials.setType(generellSetup.getRedisType());
                     switch (generellSetup.getRedisType()){
                         case CLUSTER:
                             this.initRedisNodes(redisCredentials, true, consumer);
@@ -462,6 +463,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                                     } catch (Exception e) {
                                         this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
                                         this.console.info("Restarting redis setup in 10 seconds...");
+                                        this.console.trace("URL: " + redisCredentials.getAnyNodeAddress());
                                         this.scheduler.runTaskLater(() -> {
                                             Files.REDIS_CONFIG.getFile().delete();
                                             initRedis(consumer);

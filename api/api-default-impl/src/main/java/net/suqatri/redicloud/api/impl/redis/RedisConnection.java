@@ -80,6 +80,7 @@ public class RedisConnection implements IRedisConnection {
 
     @Override
     public void disconnect() {
+        if(this.client == null) return;
         CloudAPI.getInstance().getEventManager().postLocal(new RedisDisconnectedEvent());
         this.client.shutdown();
     }

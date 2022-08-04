@@ -2,6 +2,7 @@ package net.suqatri.redicloud.api.redis;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.redisson.misc.RedisURI;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -10,7 +11,7 @@ import java.util.HashMap;
 @Setter
 public class RedisCredentials implements Serializable {
 
-    private HashMap<String, Integer> nodeAddresses;
+    private HashMap<String, Integer> nodeAddresses = new HashMap<>();
     private String password;
     private int databaseId;
     private RedisType type;
@@ -23,7 +24,7 @@ public class RedisCredentials implements Serializable {
     }
 
     public String getAnyHostname(){
-        return this.toNodeAddress(this.nodeAddresses.keySet().iterator().next());
+        return this.nodeAddresses.keySet().iterator().next();
     }
 
     public Integer getAnyPort(String hostname){

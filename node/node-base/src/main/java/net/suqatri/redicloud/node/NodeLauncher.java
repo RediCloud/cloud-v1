@@ -1,9 +1,6 @@
 package net.suqatri.redicloud.node;
 
 import lombok.Getter;
-import net.suqatri.commands.CommandCompletions;
-import net.suqatri.commands.ConsoleCommandCompletionContext;
-import net.suqatri.commands.InvalidCommandArgument;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.console.LogLevel;
 import net.suqatri.redicloud.api.group.GroupProperty;
@@ -77,7 +74,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private CloudNode node;
     private FileTransferManager fileTransferManager;
     private NodeCloudServiceTemplateManager serviceTemplateManager;
-    private boolean skiptempaltesync = false;
+    private boolean skipTemplateSync = false;
     private boolean firstTemplatePulled = false;
     private boolean restarting = false;
     private String hostName;
@@ -109,7 +106,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     }
 
     private void syncTemplates(Runnable runnable) {
-        if (this.skiptempaltesync) {
+        if (this.skipTemplateSync) {
             this.console.info("Skipping template sync!");
             runnable.run();
             return;
@@ -203,7 +200,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         continue;
                     }
                     case "--skiptempaltesync": {
-                        this.skiptempaltesync = true;
+                        this.skipTemplateSync = true;
                         continue;
                     }
                 }

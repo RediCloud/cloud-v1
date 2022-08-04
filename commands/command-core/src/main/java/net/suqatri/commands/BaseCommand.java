@@ -204,6 +204,7 @@ public abstract class BaseCommand {
      * @return All possible options. This may be empty.
      */
     private static List<String> filterTabComplete(String arg, List<String> cmds) {
+
         return cmds.stream()
                 .distinct()
                 .filter(cmd -> cmd != null && (arg.isEmpty() || ApacheCommonsLangUtil.startsWithIgnoreCase(cmd, arg)))
@@ -683,6 +684,8 @@ public abstract class BaseCommand {
         }
 
         List<String> cmds = manager.getCommandCompletions().of(cmd, issuer, args, isAsync);
+        for (String s : cmds) {
+        }
         return filterTabComplete(args[args.length - 1], cmds);
     }
 

@@ -71,8 +71,8 @@ public class NodeConsole implements IConsole {
         log(new ConsoleLine("", "§f    |____| |___|'.__.' '.__.;__][___]  `.____ .'[___]'.__.'  '.__.'_/ '.__.;__] ").setPrintPrefix(false).setPrintTimestamp(false));
         log(new ConsoleLine("", "").setPrintPrefix(false).setPrintTimestamp(false));
         log(new ConsoleLine("", this.textColor + "    A redis based cluster cloud system for Minecraft").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "    §8» " + this.textColor + "Version: " + this.highlightColor + (CloudAPI.getInstance().getProperties().getVersion().split("-")[0] + "-" + CloudAPI.getInstance().getProperties().getVersion().split("-")[2]) + " §8| " + this.textColor + "Discord: " + this.highlightColor + "https://discord.gg/g2HV52VV4G").setPrintPrefix(false).setPrintTimestamp(false));
-        log(new ConsoleLine("", "    §8» " + this.textColor + "Git: " + this.highlightColor + CloudAPI.getInstance().getProperties().getGitHash()).setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "    §8» " + this.textColor + "Version: " + this.highlightColor + (CloudAPI.getInstance().getProperties().getVersion().split("-")[0] + "-" + CloudAPI.getInstance().getProperties().getVersion().split("-")[2]) + " §8| %tcGit: " + this.highlightColor + CloudAPI.getInstance().getProperties().getGitHash()).setPrintPrefix(false).setPrintTimestamp(false));
+        log(new ConsoleLine("", "    §8» " + this.textColor + "Discord: " + this.highlightColor + "https://discord.gg/g2HV52VV4G").setPrintPrefix(false).setPrintTimestamp(false));
         log(new ConsoleLine("", "     ").setPrintPrefix(false).setPrintTimestamp(false));
         if (this.cleanConsoleMode && printWarning) {
             warn("§cClean console mode is enabled! Stacktraces will not be printed, only the message.");

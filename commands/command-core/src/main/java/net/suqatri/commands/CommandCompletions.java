@@ -238,7 +238,13 @@ public class CommandCompletions<C extends CommandCompletionContext> {
 
         for (String value : ACFPatterns.PIPE.split(completion)) {
             String[] complete = ACFPatterns.COLONEQUALS.split(value, 2);
-            CommandCompletionHandler handler = this.completionMap.get(complete[0].toLowerCase(Locale.ENGLISH));
+            String firstComplete = complete[0];
+            if(firstComplete.startsWith("@")){
+                firstComplete = firstComplete.toLowerCase(Locale.ENGLISH).replace("@", ":");
+            }else{
+                firstComplete = firstComplete.toLowerCase(Locale.ENGLISH);
+            }
+            CommandCompletionHandler handler = this.completionMap.get(firstComplete);
             if (handler != null) {
                 if (isAsync && !(handler instanceof AsyncCommandCompletionHandler)) {
                     ACFUtil.sneaky(new SyncCompletionRequired());

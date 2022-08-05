@@ -7,6 +7,8 @@ import net.suqatri.redicloud.api.console.IConsole;
 import net.suqatri.redicloud.api.console.IConsoleLine;
 import net.suqatri.redicloud.api.console.IConsoleLineEntry;
 import net.suqatri.redicloud.api.console.LogLevel;
+import net.suqatri.redicloud.api.utils.Files;
+import net.suqatri.redicloud.commons.ByteUtils;
 import net.suqatri.redicloud.node.console.setup.Setup;
 import org.fusesource.jansi.Ansi;
 import org.jline.reader.LineReader;
@@ -15,17 +17,24 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.InfoCmp;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.logging.*;
+import java.util.logging.Formatter;
 
 @Getter
 public class NodeConsole implements IConsole {
+
+    public static final long MAX_LOG_SAVE_MILLIS = TimeUnit.DAYS.toMillis(3);
+    public static final SimpleDateFormat LOG_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
     private final CommandConsoleManager consoleManager;
     private final NodeConsoleThread thread;
@@ -47,8 +56,21 @@ public class NodeConsole implements IConsole {
     private String prefix = translateColorCodes("§b" + System.getProperty("user.name") + "§a@§cUnknownNode §f=> ");
     private String mainPrefix;
     private boolean colorsEnabled = true;
+    private FileHandler fileHandler;
 
-    public NodeConsole(CommandConsoleManager consoleManager) throws IOException {
+    public NodeConsole(CommandConsoleManager consoleManager) throws Exception {
+        if(!Files.LOG_FOLDER.exists()) Files.LOG_FOLDER.getFile().mkdirs();
+        FileHandler fileHandler = new FileHandler(Files.LOG_FILE.getPath()
+            .replaceAll("%time%", LOG_DATE_FORMAT.format(Calendar.getInstance().getTime())), (int) ByteUtils.mbToBytes(50), 1);
+        fileHandler.setFormatter(new Formatter() {
+            @Override
+            public String format(LogRecord record) {
+            return record.getMessage()
+                    .replaceAll("\u001B\\[[;\\d]*m", "")
+                    .replaceAll("§", "");
+            }
+        });
+        fileHandler.setFilter(record -> true);
         this.consoleManager = consoleManager;
         this.inputStream = System.in;
         this.outputStream = System.out;
@@ -57,8 +79,33 @@ public class NodeConsole implements IConsole {
         this.lineEntries = new ArrayList<>();
         this.inputHandler = new ArrayList<>();
         this.mainPrefix = prefix;
+
+        this.deleteOldLogs();
+
         this.startThread();
         if (this.logLevel.getId() <= LogLevel.DEBUG.getId()) this.cleanConsoleMode = false;
+    }
+
+    private void deleteOldLogs(){
+        for (File file : Files.LOG_FOLDER.getFile().listFiles()) {
+            if(file.isDirectory()) continue;
+            if(file.getName().endsWith(".lck")) continue;
+            if(file.getName().endsWith(".log")) continue;
+            if(!file.getName().startsWith("redicloud-")) continue;
+            StringBuilder builder = new StringBuilder();
+            for (String s : file.getName().split("-")) {
+                if(s.isEmpty()) continue;
+                builder.append(s);
+            }
+            try {
+                if(System.currentTimeMillis() - file.lastModified() > MAX_LOG_SAVE_MILLIS) {
+                    CloudAPI.getInstance().getConsole().info("Deleting old log file: " + file.getName());
+                    file.delete();
+                }
+            } catch (Exception e) {
+                this.error("Error while deleting log: " + file.getName(), e);
+            }
+        }
     }
 
     public void printCloudHeader(boolean printWarning) {
@@ -160,8 +207,6 @@ public class NodeConsole implements IConsole {
 
         if (consoleLine.isStored()) this.lineEntries.add(consoleLine);
 
-        if (!canLog(consoleLine)) return;
-
         message = message.replaceAll("%tc", this.textColor)
                 .replaceAll("%hc", this.highlightColor);
 
@@ -176,12 +221,18 @@ public class NodeConsole implements IConsole {
             prefix = "§f" + consoleLine.getPrefix() + "§7: " + (logLevel == LogLevel.INFO ? this.textColor : Ansi.ansi().a(Ansi.Attribute.RESET).fgRgb(consoleLine.getLogLevel().getColor().getRed(), consoleLine.getLogLevel().getColor().getGreen(), consoleLine.getLogLevel().getColor().getBlue()).toString());
         }
 
-        String line = this.colorsEnabled ? translateColorCodes(dateTime + prefix + message) : ColorTranslator.removeColorCodes(dateTime + prefix + message);
-        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
-        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
-        this.lineReader.getTerminal().writer().flush();
 
-        this.redisplay();
+        String line = this.colorsEnabled ? translateColorCodes(dateTime + prefix + message) : ColorTranslator.removeColorCodes(dateTime + prefix + message);
+        if (canLog(consoleLine)) {
+            this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
+            this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
+            this.lineReader.getTerminal().writer().flush();
+
+            this.redisplay();
+        }
+
+
+        if(consoleLine.isLogToFile()) this.fileHandler.publish(new LogRecord(logLevel.getLevel(), line));
     }
 
     public void log(LogLevel level, String message) {

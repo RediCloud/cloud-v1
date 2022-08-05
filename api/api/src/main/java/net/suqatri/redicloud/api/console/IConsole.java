@@ -1,6 +1,7 @@
 package net.suqatri.redicloud.api.console;
 
 import java.util.Collection;
+import java.util.logging.Logger;
 
 public interface IConsole {
 

@@ -6,4 +6,8 @@ public class ByteUtils {
         return bytes / 1048576;
     }
 
+    public static long mbToBytes(long mb) {
+        return mb * 1048576;
+    }
+
 }

@@ -11,6 +11,7 @@ import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.velocity.VelocityDefaultCloudAPI;
 import net.suqatri.redicloud.api.velocity.utils.LegacyMessageUtils;
 
+import java.util.Optional;
 import java.util.UUID;
 
 public class VelocityPlayerBridge extends RequestPlayerBridge {
@@ -76,5 +77,12 @@ public class VelocityPlayerBridge extends RequestPlayerBridge {
         Player player = VelocityDefaultCloudAPI.getInstance().getProxyServer().getPlayer(this.getPlayerHolder().get().getUniqueId()).orElse(null);
         if(player == null || !player.isActive()) return;
         player.getTabList().setHeaderAndFooter(LegacyMessageUtils.component(header), LegacyMessageUtils.component(footer));
+    }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        Optional<Player> player = VelocityDefaultCloudAPI.getInstance().getProxyServer().getPlayer(this.getPlayerHolder().get().getUniqueId());
+        if(player.isPresent()) return player.get().hasPermission(permission);
+        return false;
     }
 }

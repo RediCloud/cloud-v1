@@ -80,4 +80,11 @@ public class ProxyPlayerBridge extends RequestPlayerBridge {
         if(player == null || !player.isConnected()) return;
         player.setTabHeader(TextComponent.fromLegacyText(header), TextComponent.fromLegacyText(footer));
     }
+
+    @Override
+    public boolean hasPermission(String permission) {
+        ProxiedPlayer proxiedPlayer = ProxyServer.getInstance().getPlayer(this.getPlayerHolder().get().getUniqueId());
+        if(proxiedPlayer == null || !proxiedPlayer.isConnected()) return false;
+        return proxiedPlayer.hasPermission(permission);
+    }
 }

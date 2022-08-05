@@ -169,6 +169,7 @@ public class ServiceCommand extends ConsoleCommand {
                                                     commandSender.sendMessage("§8 »%tc RAM: %hc" + serviceHolder.get().getMaxRam() + " MB");
                                                     commandSender.sendMessage("§8 »%tc External: %hc" + serviceHolder.get().isExternal());
                                                     commandSender.sendMessage("§8 »%tc Node: %hc" + nodeHolder.get().getName());
+                                                    commandSender.sendMessage("§8 »%tc Maintenance: %hc" + serviceHolder.get().isMaintenance());
                                                     StringBuilder templateBuilder = new StringBuilder();
                                                     for (String templateName : serviceHolder.get().getConfiguration().getTemplateNames()) {
                                                         if (!templateBuilder.toString().isEmpty())

@@ -2,6 +2,7 @@ package net.suqatri.redicloud.plugin.minecraft;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.redicloud.api.impl.player.CloudPlayerManager;
 import net.suqatri.redicloud.api.impl.redis.RedisConnection;
@@ -87,6 +88,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
         Bukkit.getPluginManager().registerEvents(new PlayerKickListener(), this.javaPlugin);
         Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), this.javaPlugin);
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(), this.javaPlugin);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(), this.javaPlugin);
     }
 
     private void initThisService() {
@@ -149,7 +151,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
                 try {
                     IRBucketHolder<ICloudPlayer> cloudPlayer = this.playerManager.getPlayer(onlinePlayer.getUniqueId());
                     if (this.serviceManager != null) {
-                        IRBucketHolder<ICloudService> serviceHolder = this.serviceManager.getFallbackService();
+                        IRBucketHolder<ICloudService> serviceHolder = this.serviceManager.getFallbackService(cloudPlayer);
                         if (serviceHolder == null) {
                             onlinePlayer.kickPlayer("CloudService shutdown");
                             continue;

@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.api.service;
 
+import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.api.service.factory.ICloudServiceFactory;
@@ -45,7 +46,8 @@ public interface ICloudServiceManager {
 
     ICloudServiceFactory getServiceFactory();
 
-    IRBucketHolder<ICloudService> getFallbackService(IRBucketHolder<ICloudService>... blacklist);
+    IRBucketHolder<ICloudService> getFallbackService(IRBucketHolder<ICloudPlayer> cloudPlayer, IRBucketHolder<ICloudService>... blacklist);
+    IRBucketHolder<ICloudService> getFallbackService(boolean maintenance, IRBucketHolder<ICloudService>... blacklist);
 
     boolean existsService(String name);
 

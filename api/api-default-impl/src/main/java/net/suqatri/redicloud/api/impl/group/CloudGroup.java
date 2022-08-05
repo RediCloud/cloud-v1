@@ -129,6 +129,17 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     }
 
     @Override
+    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getServices() {
+        return CloudAPI.getInstance().getServiceManager().getServicesAsync()
+                .map(holders -> holders
+                        .parallelStream()
+                        .filter(holder -> holder.get().isGroupBased())
+                        .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(this.name))
+                        .collect(Collectors.toList())
+                );
+    }
+
+    @Override
     public FutureAction<Collection<IRBucketHolder<ICloudService>>> getServices(ServiceState serviceState) {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(holders -> holders

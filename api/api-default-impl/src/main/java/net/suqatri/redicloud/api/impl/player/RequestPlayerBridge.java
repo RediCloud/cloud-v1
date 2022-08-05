@@ -118,4 +118,9 @@ public class RequestPlayerBridge implements IPlayerBridge {
         packet.publishAsync();
     }
 
+    @Override
+    public boolean hasPermission(String permission) {
+        return false;
+    }
+
 }

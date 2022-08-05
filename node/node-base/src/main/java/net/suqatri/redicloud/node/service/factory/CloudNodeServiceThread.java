@@ -90,7 +90,9 @@ public class CloudNodeServiceThread extends Thread {
                                 .filter(holder -> {
                                     if (holder.get().getMaxPlayers() == -1) return true;
                                     if (holder.get().getPercentToStartNewService() == -1) return true;
-                                    if(holder.get().getServiceState() == ServiceState.STARTING || holder.get().getServiceState() == ServiceState.PREPARE) return true;
+                                    if(holder.get().getServiceState() == ServiceState.STARTING
+                                            || holder.get().getServiceState() == ServiceState.PREPARE
+                                            || holder.get().getServiceState() == ServiceState.STOPPING) return true;
                                     int percent = ((int) (100 / ((double) holder.get().getMaxPlayers())) * holder.get().getOnlineCount());
                                     if (percent >= holder.get().getPercentToStartNewService()) return false;
                                     return holder.get().getOnlineCount() <= holder.get().getMaxPlayers();
@@ -185,7 +187,7 @@ public class CloudNodeServiceThread extends Thread {
                                 if (configuration.getStartListener() != null) {
                                     configuration.getStartListener().completeExceptionally(e);
                                 } else {
-                                    CloudAPI.getInstance().getConsole().error("Error starting service " + configuration.getName(), e);
+                                    CloudAPI.getInstance().getConsole().error(e.getMessage(), e);
                                 }
                             }
                             if (this.queue.isExists()) {
@@ -274,6 +276,8 @@ public class CloudNodeServiceThread extends Thread {
             cloudService.setConfiguration(configuration);
             cloudService.setExternal(false);
             cloudService.setServiceState(ServiceState.PREPARE);
+            cloudService.setMaintenance(configuration.isGroupBased()
+                    && CloudAPI.getInstance().getGroupManager().getGroup(configuration.getGroupName()).get().isMaintenance());
             cloudService.setMaxPlayers(50);
             if (configuration.getEnvironment() == ServiceEnvironment.BUNGEECORD || configuration.getEnvironment() == ServiceEnvironment.VELOCITY) {
                 cloudService.setMotd("§7•§8● §bRedi§3Cloud §8» §fA §bredis §fbased §bcluster §fcloud system§r\n    §b§l§8× §fDiscord §8➜ §3https://discord.gg/g2HV52VV4G");

@@ -104,6 +104,7 @@ public class ProxyCloudAPI extends ProxyDefaultCloudAPI {
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PlayerDisconnectListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerKickListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerConnectListener());
+        ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PostLoginListener());
 
         getEventManager().register(new CloudServiceStartedListener());
         getEventManager().register(new CloudServiceStoppedListener());
@@ -332,10 +333,8 @@ public class ProxyCloudAPI extends ProxyDefaultCloudAPI {
         if (this.updaterTask != null) this.updaterTask.cancel();
 
         if(this.service != null) {
-            this.service.setServiceState(ServiceState.OFFLINE);
+            this.service.setServiceState(ServiceState.STOPPING);
             this.service.update();
-            ((RedissonBucketManager) CloudAPI.getInstance().getServiceManager()).deleteBucket(this.service.getUniqueId().toString());
-            CloudAPI.getInstance().getServiceManager().removeFromFetcher(this.service.getServiceName(), this.service.getUniqueId());
         }
 
         if (this.redisConnection != null) this.redisConnection.getClient().shutdown();

@@ -163,16 +163,18 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
 
         File patchedJar = null;
         File cacheDir = new File(processDir, "cache");
-        if (!cacheDir.exists())
-            throw new NullPointerException("Cache directory not found! Failed to patch service version: " + holder.get().getName());
+        if (!cacheDir.exists()) {
+            patchedJar = jarToPatch;
+        }
         for (File file : cacheDir.listFiles()) {
             if (file.getName().startsWith("patch")) {
                 patchedJar = file;
                 break;
             }
         }
-        if (patchedJar == null)
-            throw new NullPointerException("Patched jar not found! Failed to patch service version: " + holder.get().getName());
+        if (patchedJar == null){
+            patchedJar = jarToPatch;
+        }
 
         File patchedJarDest = new File(Files.VERSIONS_FOLDER.getFile(), holder.get().getName() + ".patched.jar");
         org.apache.commons.io.FileUtils.copyFile(patchedJar, patchedJarDest);
@@ -271,8 +273,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                             }
                         }
                         if (patchedJar == null) {
-                            futureAction.completeExceptionally(new NullPointerException("Patched jar not found! Failed to patch service version: " + holder.get().getName()));
-                            return;
+                            patchedJar = jarToPatch;
                         }
 
                         File patchedJarDest = new File(Files.VERSIONS_FOLDER.getFile(), holder.get().getName() + ".patched.jar");

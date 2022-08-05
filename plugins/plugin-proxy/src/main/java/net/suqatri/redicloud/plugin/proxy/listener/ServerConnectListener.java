@@ -22,9 +22,15 @@ public class ServerConnectListener implements Listener {
                         : event.getTarget();
 
         if (serverInfo == null) {
-            IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService();
+            IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService(event.getPlayer().hasPermission("redicloud.maintenance.bypass"));
             if (holder == null) {
                 event.getPlayer().disconnect("Fallback service is not available.");
+                event.setCancelled(true);
+                return;
+            }
+            if(holder.get().isMaintenance() && !event.getPlayer().hasPermission("redicloud.service.bypass.maintenance")) {
+                event.getPlayer().sendMessage("This service is currently under maintenance. Please try again later.");
+                event.setCancelled(true);
                 return;
             }
             serverInfo = ProxyServer.getInstance().getServerInfo(holder.get().getServiceName());

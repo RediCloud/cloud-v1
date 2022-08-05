@@ -164,6 +164,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                 CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped exceptionally!", e);
 
                 this.destroyScreen();
+                this.factory.getPortManager().unUsePort(this);
                 if (!this.serviceHolder.get().isStatic()) {
                     ((NodeCloudServiceManager) this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
                     CloudAPI.getInstance().getServiceManager().removeFromFetcher(this.serviceHolder.get().getServiceName());

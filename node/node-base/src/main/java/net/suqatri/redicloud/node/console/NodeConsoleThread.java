@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.stream.Collectors;
 
 public class NodeConsoleThread extends Thread {
@@ -74,7 +75,7 @@ public class NodeConsoleThread extends Thread {
         String logLine = this.nodeConsole.getPrefix() + raw;
         String dateTime = java.time.format.DateTimeFormatter.ofPattern("dd-MM HH:mm:ss:SSS").format(java.time.LocalDateTime.now());
         String p = "[" + dateTime + "] ";
-        this.nodeConsole.getLogger().log(Level.INFO, p + logLine + "\n");
+        this.nodeConsole.getFileHandler().publish(new LogRecord(Level.INFO, p + logLine + "\n"));
 
         this.nodeConsole.getLineEntries().add(new ConsoleInput(line, System.currentTimeMillis(), this.nodeConsole.getPrefix()));
 

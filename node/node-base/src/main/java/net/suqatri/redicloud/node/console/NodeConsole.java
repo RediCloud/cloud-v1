@@ -8,6 +8,7 @@ import net.suqatri.redicloud.api.console.IConsoleLine;
 import net.suqatri.redicloud.api.console.IConsoleLineEntry;
 import net.suqatri.redicloud.api.console.LogLevel;
 import net.suqatri.redicloud.api.utils.Files;
+import net.suqatri.redicloud.commons.ByteUtils;
 import net.suqatri.redicloud.node.console.setup.Setup;
 import org.fusesource.jansi.Ansi;
 import org.jline.reader.LineReader;
@@ -35,7 +36,6 @@ public class NodeConsole implements IConsole {
     public static final long MAX_LOG_SAVE_MILLIS = TimeUnit.DAYS.toMillis(3);
     public static final SimpleDateFormat LOG_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
-    private final Logger logger;
     private final CommandConsoleManager consoleManager;
     private final NodeConsoleThread thread;
     private final InputStream inputStream;
@@ -56,26 +56,21 @@ public class NodeConsole implements IConsole {
     private String prefix = translateColorCodes("§b" + System.getProperty("user.name") + "§a@§cUnknownNode §f=> ");
     private String mainPrefix;
     private boolean colorsEnabled = true;
+    private FileHandler fileHandler;
 
     public NodeConsole(CommandConsoleManager consoleManager) throws Exception {
-        this.logger = Logger.getLogger(this.getClass().getName());
-        this.logger.setLevel(Level.ALL);
         if(!Files.LOG_FOLDER.exists()) Files.LOG_FOLDER.getFile().mkdirs();
         FileHandler fileHandler = new FileHandler(Files.LOG_FILE.getPath()
-                .replaceAll("%time%", LOG_DATE_FORMAT.format(Calendar.getInstance().getTime())));
+            .replaceAll("%time%", LOG_DATE_FORMAT.format(Calendar.getInstance().getTime())), (int) ByteUtils.mbToBytes(50), 1);
         fileHandler.setFormatter(new Formatter() {
             @Override
             public String format(LogRecord record) {
-                return record.getMessage().replaceAll("\u001B\\[[;\\d]*m", "");
+            return record.getMessage()
+                    .replaceAll("\u001B\\[[;\\d]*m", "")
+                    .replaceAll("§", "");
             }
         });
-        this.logger.setFilter(new Filter() {
-            @Override
-            public boolean isLoggable(LogRecord record) {
-                return NodeConsole.this.logLevel.getLevel().intValue() <= record.getLevel().intValue();
-            }
-        });
-        this.logger.addHandler(fileHandler);
+        fileHandler.setFilter(record -> true);
         this.consoleManager = consoleManager;
         this.inputStream = System.in;
         this.outputStream = System.out;
@@ -103,13 +98,12 @@ public class NodeConsole implements IConsole {
                 builder.append(s);
             }
             try {
-                Date date = LOG_DATE_FORMAT.parse(builder.toString());
-                if(System.currentTimeMillis() - date.getTime() > MAX_LOG_SAVE_MILLIS) {
+                if(System.currentTimeMillis() - file.lastModified() > MAX_LOG_SAVE_MILLIS) {
                     CloudAPI.getInstance().getConsole().info("Deleting old log file: " + file.getName());
                     file.delete();
                 }
-            } catch (ParseException e) {
-                this.error("Could not parse log file input: " + builder + " for file: " + file.getName(), e);
+            } catch (Exception e) {
+                this.error("Error while deleting log: " + file.getName(), e);
             }
         }
     }
@@ -235,7 +229,7 @@ public class NodeConsole implements IConsole {
         this.lineReader.getTerminal().writer().flush();
 
         this.redisplay();
-        if(consoleLine.isLogToFile()) this.logger.log(logLevel.getLevel(), line.replaceAll("§", ""));
+        if(consoleLine.isLogToFile()) this.fileHandler.publish(new LogRecord(logLevel.getLevel(), line));
     }
 
     public void log(LogLevel level, String message) {

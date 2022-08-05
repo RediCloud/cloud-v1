@@ -79,6 +79,7 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 - easy dev plugin test (create external service, that you can start for e.g via your IDE. The services will connect without a node to the cloud cluster) 🚧
 - offline/online player support at the same time ❌
 - player api bridge (actionbar, messages, service connect, kick, title, tablist) ✅
+- toggle maintenance for groups/services✅
   <br>
 
 ## Commands

@@ -40,7 +40,7 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
     }
 
     public FutureAction<IRBucketHolder<ICloudService>> queueService(IServiceStartConfiguration configuration) {
-        this.thread.getOldQueue().add(configuration);
+        this.thread.getQueue().add(configuration);
         configuration.listenToStart();
         configuration.getStartListener()
                 .onSuccess(holder -> this.serviceManager.putInFetcher(holder.get().getServiceName(), holder.get().getUniqueId()));

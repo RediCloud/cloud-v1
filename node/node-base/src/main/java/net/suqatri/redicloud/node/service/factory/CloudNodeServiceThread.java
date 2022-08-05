@@ -50,7 +50,7 @@ public class CloudNodeServiceThread extends Thread {
         this.processes = new ConcurrentHashMap<>();
         CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event
                 -> {
-            this.queue = event.getConnection().getClient().getPriorityBlockingDeque("service:queue", new JsonJacksonCodec());
+            this.queue = event.getConnection().getClient().getPriorityBlockingDeque("factory:queue", new JsonJacksonCodec());
             this.queue.trySetComparator(new CloudServiceStartComparator());
         });
     }
@@ -96,10 +96,12 @@ public class CloudNodeServiceThread extends Thread {
                                     return holder.get().getOnlineCount() <= holder.get().getMaxPlayers();
                                 })
                                 .count();
-                        for (IServiceStartConfiguration configuration : this.queue.readAll()) {
-                            if(!configuration.isGroupBased()) continue;
-                            if(!configuration.getGroupName().equalsIgnoreCase(groupHolder.get().getName())) continue;
-                            count++;
+                        if(this.queue.isExists()){
+                            for (IServiceStartConfiguration configuration : this.queue.readAll()) {
+                                if(!configuration.isGroupBased()) continue;
+                                if(!configuration.getGroupName().equalsIgnoreCase(groupHolder.get().getName())) continue;
+                                count++;
+                            }
                         }
                         int min = groupHolder.get().getMinServices();
 
@@ -122,21 +124,20 @@ public class CloudNodeServiceThread extends Thread {
                     }
                 }
 
-                if (!this.queue.isExists()) {
+                if (this.queue.isExists()) {
 
                     this.queue.readAll().stream()
-                            .filter(config -> this.waitForRemove.contains(config.getUniqueId()))
-                            .forEach(config -> {
-                                this.queue.remove(config);
-                                if (config.isStatic()) return;
-                                if (!((NodeCloudServiceManager) CloudAPI.getInstance().getServiceManager()).existsService(config.getUniqueId()))
-                                    return;
-                                ((NodeCloudServiceManager) CloudAPI.getInstance().getServiceManager()).removeFromFetcher(config.getName());
-                                NodeLauncher.getInstance().getServiceManager().deleteBucket(config.getUniqueId().toString());
-                            });
+                        .filter(config -> this.waitForRemove.contains(config.getUniqueId()))
+                        .forEach(config -> {
+                            this.queue.remove(config);
+                            if (config.isStatic()) return;
+                            if (!((NodeCloudServiceManager) CloudAPI.getInstance().getServiceManager()).existsService(config.getUniqueId()))
+                                return;
+                            ((NodeCloudServiceManager) CloudAPI.getInstance().getServiceManager()).removeFromFetcher(config.getName());
+                            NodeLauncher.getInstance().getServiceManager().deleteBucket(config.getUniqueId().toString());
+                        });
 
-                    if (!this.queue.isExists()) {
-
+                    if (this.queue.isExists()) {
                         if (this.node.getStartedServicesCount() >= this.node.getMaxServiceCount()
                                 && this.node.getMaxServiceCount() != -1) {
                             this.maxServiceOnNodeCount++;
@@ -165,7 +166,7 @@ public class CloudNodeServiceThread extends Thread {
                                         configuration.getStartListener().completeExceptionally(new IllegalStateException("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!"));
                                     } else {
                                         this.maxServiceOfGroupCount++;
-                                        if (!this.queue.isExists()) {
+                                        if (this.queue.isExists()) {
                                             configuration = this.queue.poll();
                                         } else {
                                             configuration = null;
@@ -187,7 +188,7 @@ public class CloudNodeServiceThread extends Thread {
                                     CloudAPI.getInstance().getConsole().error("Error starting service " + configuration.getName(), e);
                                 }
                             }
-                            if (!this.queue.isExists()) {
+                            if (this.queue.isExists()) {
                                 configuration = this.queue.poll();
                             } else {
                                 configuration = null;

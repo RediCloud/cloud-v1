@@ -335,6 +335,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                                               versionHolder.getImpl(CloudServiceVersion.class).setDefaultVersion(true);
                                               versionHolder.getImpl(CloudServiceVersion.class).setDownloadUrl(defaultServiceVersion.getUrl());
                                               versionHolder.getImpl(CloudServiceVersion.class).setPaperClip(defaultServiceVersion.isPaperClip());
+                                              versionHolder.getImpl(CloudServiceVersion.class).setEnvironmentType(defaultServiceVersion.getEnvironment());
                                               versionHolder.get().updateAsync()
                                                       .onFailure(editFutureAction)
                                                       .onSuccess(holder -> editFutureAction.complete(versionHolder));

@@ -542,6 +542,9 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         if (this.shutdownInitialized) return;
         this.shutdownInitialized = true;
 
+        if(this.console != null) {
+            if(this.console.getCurrentSetup() != null) this.console.getCurrentSetup().exit(false);
+        }
 
         String sleepArgument = "";
         if (this.node != null) {

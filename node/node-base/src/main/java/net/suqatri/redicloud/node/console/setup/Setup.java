@@ -152,8 +152,7 @@ public abstract class Setup<T extends Setup<?>> {
         this.console.addInputHandler(this.inputConsumer);
     }
 
-    @SuppressWarnings("unchecked")
-    private void exit(boolean success) {
+    public void exit(boolean success) {
 
         if (this.inputConsumer != null) {
             this.console.removeInputHandler(this.inputConsumer);

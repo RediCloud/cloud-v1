@@ -12,6 +12,7 @@ import net.suqatri.redicloud.node.console.setup.suggester.BooleanSuggester;
 import net.suqatri.redicloud.node.console.setup.suggester.MemorySuggester;
 import net.suqatri.redicloud.node.setup.condition.GroupMemoryCondition;
 import net.suqatri.redicloud.node.setup.condition.MinecraftServiceVersionExistsCondition;
+import net.suqatri.redicloud.node.setup.suggester.CloudServiceMinecraftVersionSuggester;
 
 @Getter
 public class MinecraftSetup extends Setup<MinecraftSetup> {
@@ -44,6 +45,7 @@ public class MinecraftSetup extends Setup<MinecraftSetup> {
 
     @Question(id = 8, question = "What service version should be used for the group?")
     @ConditionChecker(value = MinecraftServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
+    @AnswerCompleter(value = CloudServiceMinecraftVersionSuggester.class)
     private String serviceVersionName;
 
     public MinecraftSetup() {

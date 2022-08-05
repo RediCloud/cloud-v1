@@ -12,6 +12,8 @@ import net.suqatri.redicloud.node.console.setup.suggester.BooleanSuggester;
 import net.suqatri.redicloud.node.console.setup.suggester.MemorySuggester;
 import net.suqatri.redicloud.node.setup.condition.ProxyServiceVersionExistsCondition;
 import net.suqatri.redicloud.node.setup.condition.GroupMemoryCondition;
+import net.suqatri.redicloud.node.setup.suggester.CloudServiceMinecraftVersionSuggester;
+import net.suqatri.redicloud.node.setup.suggester.CloudServiceProxyVersionSuggester;
 
 @Getter
 public class ProxySetup extends Setup<ProxySetup> {
@@ -40,6 +42,7 @@ public class ProxySetup extends Setup<ProxySetup> {
 
     @Question(id = 7, question = "What service version should be used for the group?")
     @ConditionChecker(value = ProxyServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
+    @AnswerCompleter(value = CloudServiceProxyVersionSuggester.class)
     private String serviceVersionName;
 
     public ProxySetup() {

@@ -149,6 +149,7 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 - min. 256MB Java Virtual Machine Heap size
 - min. 1GB RAM
 - min. 2 vCores
+- a redis server
   <br>
 
 ### Installation

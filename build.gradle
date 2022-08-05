@@ -206,6 +206,7 @@ allprojects {
 
     publishing {
         if(hasRepoAuth()){
+            println("Repo auth found for module ${project.name}")
             try{
                 publications {
                     maven(MavenPublication) {

@@ -1,8 +1,7 @@
 ![img](https://img.shields.io/nexus/r/net.suqatri.redicloud.api/api?label=release&nexusVersion=3&server=http%3A%2F%2Frepo.suqatri.net%3A8081%2F)
 ![img](https://img.shields.io/nexus/s/net.suqatri.redicloud.api/api?label=snapshot&server=http%3A%2F%2Frepo.suqatri.net%3A8081)
-![img](https://img.shields.io/github/downloads/RediCloud/cloud/total)
 
-# RediCloud (WIP⚒️)
+# RediCloud
 
 A redis based cluster cloud system for
 minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://github.com/Suqatri)]**
@@ -52,14 +51,12 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 
 ### Features
 
-Please note that this project is still work in progress and not stable yet
-
 (✅ = done | ⚙️ = in progress | ❌ = not started | 🚧 = done, but not tested enough)
 
 - node clustering ✅
 - redis for communication and storage ✅
 - start minecraft services ([spigot](https://getbukkit.org/download/spigot)
-  , [bukkit](https://getbukkit.org/download/craftbukkit), [paper](https://papermc.io) based forks) 🚧
+  , [bukkit](https://getbukkit.org/download/craftbukkit), [paper](https://papermc.io) based forks) ✅
 - start proxy services ([bungeecord](https://www.spigotmc.org/wiki/bungeecord/)
   , [waterfall](https://github.com/PaperMC/Waterfall), [velocity](https://github.com/PaperMC/Velocity)) ✅
 - remote screens (with rate limiter for cpu-overload-protection on exception spam) ✅
@@ -71,7 +68,7 @@ Please note that this project is still work in progress and not stable yet
 - api (sync / async) ✅
 - module system ❌
 - default modules: perms, cloudflare ❌
-- redis cluster support ❌
+- redis cluster support 🚧
 - smart clustering ⚙️
 - automatic service start ✅
 - 1.8-1.19 support ✅
@@ -152,11 +149,12 @@ Please note that this project is still work in progress and not stable yet
 - min. 256MB Java Virtual Machine Heap size
 - min. 1GB RAM
 - min. 2 vCores
+- a redis server
   <br>
 
 ### Installation
 
-- Not done yet
+Follow these [steps](https://github.com/RediCloud/cloud/wiki/installation)
 <br>
 
 ### Build

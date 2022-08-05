@@ -12,6 +12,7 @@ import net.suqatri.redicloud.api.node.service.screen.IScreenLine;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
+import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.file.FileTransferProcessThread;
 
@@ -25,7 +26,10 @@ public class DebugCommand extends ConsoleCommand {
     @Subcommand("facatory queue")
     @Description("Prints the factory queue")
     public void onFactoryQueue(CommandSender commandSender) {
-        commandSender.sendMessage("Factory queue: " + NodeLauncher.getInstance().getServiceFactory().getThread().getQueue());
+        commandSender.sendMessage("Factory queue: " + NodeLauncher.getInstance().getServiceFactory().getThread().getQueue().size());
+        for (IServiceStartConfiguration configuration : NodeLauncher.getInstance().getServiceFactory().getThread().getQueue().readAll()) {
+            commandSender.sendMessage(configuration.getName() + "-" + configuration.getId() + ": " + configuration.getStartPriority());
+        }
     }
 
     @Subcommand("services connectedbygroup")

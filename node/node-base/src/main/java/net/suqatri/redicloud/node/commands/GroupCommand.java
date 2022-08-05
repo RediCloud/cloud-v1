@@ -396,7 +396,7 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             intValue = Integer.parseInt(value);
-                                            if (intValue <= 0) {
+                                            if (intValue < 0) {
                                                 commandSender.sendMessage("Value must be greater than 0 or 0");
                                                 return;
                                             }

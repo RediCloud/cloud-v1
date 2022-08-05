@@ -176,7 +176,6 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
         return CloudAPI.getInstance().getServiceFactory();
     }
 
-    @SafeVarargs
     @Override
     public final IRBucketHolder<ICloudService> getFallbackService(IRBucketHolder<ICloudPlayer> cloudPlayer, IRBucketHolder<ICloudService>... blacklisted) {
         IRBucketHolder<ICloudService> fallbackHolder = null;
@@ -184,6 +183,27 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
         for (IRBucketHolder<ICloudService> serviceHolder : getServices()) {
             if (blackList.contains(serviceHolder.get().getUniqueId())) continue;
             if (serviceHolder.get().isMaintenance() && !cloudPlayer.get().getBridge().hasPermission("redicloud.maintenance.bypass")) continue;
+            if (!serviceHolder.get().getConfiguration().isFallback()) continue;
+            if (serviceHolder.get().getOnlineCount() >= serviceHolder.get().getMaxPlayers()) continue;
+            if (fallbackHolder == null) {
+                fallbackHolder = serviceHolder;
+                continue;
+            }
+            if (fallbackHolder.get().getOnlineCount() > serviceHolder.get().getOnlineCount()) {
+                fallbackHolder = serviceHolder;
+            }
+        }
+        return fallbackHolder;
+    }
+
+
+    @Override
+    public final IRBucketHolder<ICloudService> getFallbackService(boolean maintenanceByPass, IRBucketHolder<ICloudService>... blacklisted) {
+        IRBucketHolder<ICloudService> fallbackHolder = null;
+        List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(holder -> holder.get().getUniqueId()).collect(Collectors.toList());
+        for (IRBucketHolder<ICloudService> serviceHolder : getServices()) {
+            if (blackList.contains(serviceHolder.get().getUniqueId())) continue;
+            if (serviceHolder.get().isMaintenance() && !maintenanceByPass) continue;
             if (!serviceHolder.get().getConfiguration().isFallback()) continue;
             if (serviceHolder.get().getOnlineCount() >= serviceHolder.get().getMaxPlayers()) continue;
             if (fallbackHolder == null) {

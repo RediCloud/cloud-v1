@@ -24,6 +24,10 @@ public interface ICloudService extends IRBucketObject {
 
     boolean isExternal();
 
+    boolean isInMaintenance();
+
+    void setMaintenance(boolean maintenance);
+
     void executeCommand(String command);
 
     default void setFallback(boolean fallback) {

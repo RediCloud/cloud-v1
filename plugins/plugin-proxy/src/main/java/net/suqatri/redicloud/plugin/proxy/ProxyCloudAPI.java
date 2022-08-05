@@ -104,6 +104,7 @@ public class ProxyCloudAPI extends ProxyDefaultCloudAPI {
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PlayerDisconnectListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerKickListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerConnectListener());
+        ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PostLoginListener());
 
         getEventManager().register(new CloudServiceStartedListener());
         getEventManager().register(new CloudServiceStoppedListener());

@@ -34,6 +34,12 @@ public class CloudService extends RBucketObject implements ICloudService {
     private int port;
     private String hostName;
     private boolean isExternal = true;
+    private boolean isInMaintenance = false;
+
+    @Override
+    public void setMaintenance(boolean maintenance) {
+        this.isInMaintenance = true;
+    }
 
     @Override
     public void executeCommand(String command) {

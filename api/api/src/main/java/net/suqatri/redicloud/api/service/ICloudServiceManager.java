@@ -47,6 +47,7 @@ public interface ICloudServiceManager {
     ICloudServiceFactory getServiceFactory();
 
     IRBucketHolder<ICloudService> getFallbackService(IRBucketHolder<ICloudPlayer> cloudPlayer, IRBucketHolder<ICloudService>... blacklist);
+    IRBucketHolder<ICloudService> getFallbackService(boolean maintenance, IRBucketHolder<ICloudService>... blacklist);
 
     boolean existsService(String name);
 

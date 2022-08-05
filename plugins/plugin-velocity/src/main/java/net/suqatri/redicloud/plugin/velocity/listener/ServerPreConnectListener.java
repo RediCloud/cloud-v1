@@ -17,9 +17,8 @@ public class ServerPreConnectListener {
     @Subscribe
     public void onServerConnect(ServerPreConnectEvent event) {
 
-        IRBucketHolder<ICloudPlayer> playerHolder = CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
         if(!event.getPlayer().getCurrentServer().isPresent()) {
-            IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService(playerHolder);
+            IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService(event.getPlayer().hasPermission("redicloud.maintenance.bypass"));
             if (holder == null) {
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
                 event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
@@ -46,7 +45,7 @@ public class ServerPreConnectListener {
                         : target;
 
         if (serverInfo == null) {
-            IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService(playerHolder);
+            IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService(event.getPlayer().hasPermission("redicloud.maintenance.bypass"));
             if (holder == null) {
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
                 event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));

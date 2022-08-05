@@ -153,7 +153,7 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 
 ### Installation
 
-- Not done yet
+Follow these [steps](https://github.com/RediCloud/cloud/wiki/installation)
 <br>
 
 ### Build

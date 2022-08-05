@@ -7,6 +7,7 @@ import net.suqatri.redicloud.api.impl.node.CloudNode;
 import net.suqatri.redicloud.api.impl.service.CloudService;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersion;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.ServiceState;
@@ -14,6 +15,9 @@ import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguratio
 import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.service.NodeCloudServiceManager;
+import org.redisson.api.RPriorityBlockingDeque;
+import org.redisson.api.RQueue;
+import org.redisson.codec.JsonJacksonCodec;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,8 +30,6 @@ public class CloudNodeServiceThread extends Thread {
     private static final int maxServiceOfGroupInterval = 25;
     private static final int valueCheckInterval = 300;
 
-    @Getter
-    private final PriorityQueue<IServiceStartConfiguration> queue;
     private final NodeCloudServiceFactory factory;
     @Getter
     private final ConcurrentHashMap<UUID, CloudServiceProcess> processes;
@@ -39,16 +41,29 @@ public class CloudNodeServiceThread extends Thread {
     private int maxServiceOfGroupCount = Integer.MAX_VALUE-1;
     private int currentValueCount = Integer.MAX_VALUE-1;
     private CloudNode node;
+    @Getter
+    private RPriorityBlockingDeque<IServiceStartConfiguration> queue;
 
     public CloudNodeServiceThread(NodeCloudServiceFactory factory) {
         super("redicloud-node-service-thread");
         this.factory = factory;
-        this.queue = new PriorityQueue<>(new CloudServiceStartComparator());
         this.processes = new ConcurrentHashMap<>();
+        CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event
+                -> {
+            this.queue = event.getConnection().getClient().getPriorityBlockingDeque("service:queue", new JsonJacksonCodec());
+            this.queue.trySetComparator(new CloudServiceStartComparator());
+        });
     }
 
     @Override
     public void run() {
+        while(this.queue == null){
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         this.node = NodeLauncher.getInstance().getNode();
         while (!Thread.currentThread().isInterrupted() && Thread.currentThread().isAlive()) {
 
@@ -81,7 +96,7 @@ public class CloudNodeServiceThread extends Thread {
                                     return holder.get().getOnlineCount() <= holder.get().getMaxPlayers();
                                 })
                                 .count();
-                        for (IServiceStartConfiguration configuration : this.queue) {
+                        for (IServiceStartConfiguration configuration : this.queue.readAll()) {
                             if(!configuration.isGroupBased()) continue;
                             if(!configuration.getGroupName().equalsIgnoreCase(groupHolder.get().getName())) continue;
                             count++;
@@ -107,9 +122,9 @@ public class CloudNodeServiceThread extends Thread {
                     }
                 }
 
-                if (!this.queue.isEmpty()) {
+                if (!this.queue.isExists()) {
 
-                    this.queue.stream()
+                    this.queue.readAll().stream()
                             .filter(config -> this.waitForRemove.contains(config.getUniqueId()))
                             .forEach(config -> {
                                 this.queue.remove(config);
@@ -120,7 +135,7 @@ public class CloudNodeServiceThread extends Thread {
                                 NodeLauncher.getInstance().getServiceManager().deleteBucket(config.getUniqueId().toString());
                             });
 
-                    if (!this.queue.isEmpty()) {
+                    if (!this.queue.isExists()) {
 
                         if (this.node.getStartedServicesCount() >= this.node.getMaxServiceCount()
                                 && this.node.getMaxServiceCount() != -1) {
@@ -150,7 +165,7 @@ public class CloudNodeServiceThread extends Thread {
                                         configuration.getStartListener().completeExceptionally(new IllegalStateException("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!"));
                                     } else {
                                         this.maxServiceOfGroupCount++;
-                                        if (!this.queue.isEmpty()) {
+                                        if (!this.queue.isExists()) {
                                             configuration = this.queue.poll();
                                         } else {
                                             configuration = null;
@@ -172,7 +187,7 @@ public class CloudNodeServiceThread extends Thread {
                                     CloudAPI.getInstance().getConsole().error("Error starting service " + configuration.getName(), e);
                                 }
                             }
-                            if (!this.queue.isEmpty()) {
+                            if (!this.queue.isExists()) {
                                 configuration = this.queue.poll();
                             } else {
                                 configuration = null;

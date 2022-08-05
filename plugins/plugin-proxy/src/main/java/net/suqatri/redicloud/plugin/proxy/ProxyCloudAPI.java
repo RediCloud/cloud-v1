@@ -333,7 +333,7 @@ public class ProxyCloudAPI extends ProxyDefaultCloudAPI {
         if (this.updaterTask != null) this.updaterTask.cancel();
 
         if(this.service != null) {
-            this.service.setServiceState(ServiceState.OFFLINE);
+            this.service.setServiceState(ServiceState.STOPPING);
             this.service.update();
             ((RedissonBucketManager) CloudAPI.getInstance().getServiceManager()).deleteBucket(this.service.getUniqueId().toString());
             CloudAPI.getInstance().getServiceManager().removeFromFetcher(this.service.getServiceName(), this.service.getUniqueId());

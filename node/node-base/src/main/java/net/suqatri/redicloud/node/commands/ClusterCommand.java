@@ -51,7 +51,8 @@ public class ClusterCommand extends ConsoleCommand {
     @Description("Show the factory queue of the cluster")
     public void onQueue(CommandSender commandSender){
         RPriorityBlockingDeque<IServiceStartConfiguration> queue = NodeLauncher.getInstance().getServiceFactory().getThread().getQueue();
-
+        commandSender.sendMessage("§8   » %tcQueue: %hc" + queue.size());
+        commandSender.sendMessage("§8   » %tcQueue-Items: %hc" + queue.stream().map(IServiceStartConfiguration::getGroupName).collect(Collectors.toList()));
     }
 
     @Subcommand("ping")

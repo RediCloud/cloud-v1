@@ -8,6 +8,8 @@ import net.suqatri.redicloud.api.console.LogLevel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 @Data
@@ -26,61 +28,62 @@ public class BukkitConsole implements IConsole {
 
     @Override
     public void log(IConsoleLine consoleLine) {
-        System.out.println(consoleLine.getPrefix() + ": " + consoleLine.getMessage());
+        this.logger.log(consoleLine.getLogLevel().getLevel(), consoleLine.getMessage());
     }
 
     @Override
     public void error(String message, Throwable throwable) {
         if (!canLog(LogLevel.ERROR)) return;
-        System.out.println("[ERROR] " + message);
         if (throwable != null) {
-            throwable.printStackTrace();
+            this.logger.log(LogLevel.ERROR.getLevel(), message, throwable);
+        }else{
+            this.logger.log(LogLevel.ERROR.getLevel(), message);
         }
     }
 
     @Override
     public void error(String message) {
         if (!canLog(LogLevel.ERROR)) return;
-        System.out.println("[ERROR] " + message);
+        this.logger.log(LogLevel.ERROR.getLevel(), message);
     }
 
     @Override
     public void warn(String message) {
         if (!canLog(LogLevel.WARN)) return;
-        System.out.println("[WARN] " + message);
+        this.logger.log(LogLevel.WARN.getLevel(), message);
     }
 
     @Override
     public void info(String message) {
         if (!canLog(LogLevel.INFO)) return;
-        System.out.println("[INFO] " + message);
+        this.logger.log(LogLevel.INFO.getLevel(), message);
     }
 
     @Override
     public void debug(String message) {
         if (!canLog(LogLevel.DEBUG)) return;
-        System.out.println("[DEBUG] " + message);
+        this.logger.log(LogLevel.DEBUG.getLevel(), message);
     }
 
     @Override
     public void trace(String message) {
         if (!canLog(LogLevel.TRACE)) return;
-        System.out.println("[TRACE] " + message);
+        this.logger.log(LogLevel.TRACE.getLevel(), message);
     }
 
     @Override
     public void fatal(String message, Throwable throwable) {
         if (!canLog(LogLevel.FATAL)) return;
-        System.out.println("[FATAL] " + message);
         if (throwable != null) {
-            throwable.printStackTrace();
+            this.logger.log(LogLevel.FATAL.getLevel(), message, throwable);
+        }else{
+            this.logger.log(LogLevel.FATAL.getLevel(), message);
         }
     }
 
     @Override
     public void clearScreen() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
+        throw new UnsupportedOperationException("Not supported for minecraft service instance!");
     }
 
     @Override

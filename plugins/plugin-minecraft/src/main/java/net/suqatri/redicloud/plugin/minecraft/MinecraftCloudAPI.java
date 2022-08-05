@@ -140,41 +140,35 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
 
     @Override
     public void shutdown(boolean fromHook) {
-        if(this.isShutdownInitiated) return;
-        this.isShutdownInitiated = true;
+        getScheduler().runTask(() -> {
+            if(this.isShutdownInitiated) return;
+            this.isShutdownInitiated = true;
 
-        this.service.setServiceState(ServiceState.STOPPING);
-        this.service.update();
+            this.service.setServiceState(ServiceState.STOPPING);
+            this.service.update();
 
-        if(this.playerManager != null){
-            for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                try {
-                    IRBucketHolder<ICloudPlayer> cloudPlayer = this.playerManager.getPlayer(onlinePlayer.getUniqueId());
-                    if (this.serviceManager != null) {
-                        IRBucketHolder<ICloudService> serviceHolder = this.serviceManager.getFallbackService(cloudPlayer);
-                        if (serviceHolder == null) {
+            if(this.playerManager != null){
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    try {
+                        if (this.serviceManager != null) {
                             onlinePlayer.kickPlayer("CloudService shutdown");
-                            continue;
                         }
-                        cloudPlayer.get().getBridge().connect(serviceHolder);
-                    } else {
-                        onlinePlayer.kickPlayer("CloudService shutdown");
+                    }catch (Exception e){
+                        this.console.error("Failed to disconnect player " + onlinePlayer.getName() + " from service", e);
                     }
-                }catch (Exception e){
-                    this.console.error("Failed to disconnect player " + onlinePlayer.getName() + " from service", e);
                 }
             }
-        }
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException ignored) {
-        }
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
 
-        if (this.updaterTask != null) this.updaterTask.cancel();
+            if (this.updaterTask != null) this.updaterTask.cancel();
 
-        if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
+            if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
 
-        Bukkit.shutdown();
+            Bukkit.shutdown();
+        });
     }
 }

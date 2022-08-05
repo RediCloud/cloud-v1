@@ -44,7 +44,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                     String globalEnvironmentTemplate =
                             process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.BUNGEECORD
                             || process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY
-                            ? (process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY ? "global-velocity" : "global-proxy")
+                            ? (process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY ? "global-velocity" : "global-bungeecord")
                                     : "global-minecraft";
                     this.templateManager.existsTemplateAsync(globalEnvironmentTemplate)
                             .onFailure(futureAction)
@@ -147,7 +147,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
         String globalEnvironmentTemplate =
                 process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.BUNGEECORD
                         || process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY
-                        ? (process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY ? "global-velocity" : "global-proxy")
+                        ? (process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY ? "global-velocity" : "global-bungeecord")
                         : "global-minecraft";
         if (this.templateManager.existsTemplate(globalEnvironmentTemplate)) {
             folders.add(this.templateManager.getTemplate(globalEnvironmentTemplate).get().getTemplateFolder());

@@ -342,8 +342,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                             this.serviceVersionManager.installDefaultVersions(false);
                             if(!this.serviceTemplateManager.existsTemplate("global-minecraft"))
                                 this.serviceTemplateManager.createTemplate("global-minecraft");
-                            if(!this.serviceTemplateManager.existsTemplate("global-proxy"))
-                                this.serviceTemplateManager.createTemplate("global-proxy");
+                            if(!this.serviceTemplateManager.existsTemplate("global-bungeecord"))
+                                this.serviceTemplateManager.createTemplate("global-bungeecord");
                             if(!this.serviceTemplateManager.existsTemplate("global-velocity"))
                                 this.serviceTemplateManager.createTemplate("global-velocity");
                             if(!this.serviceTemplateManager.existsTemplate("global-all"))

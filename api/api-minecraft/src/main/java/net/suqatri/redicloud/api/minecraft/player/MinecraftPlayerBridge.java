@@ -43,4 +43,10 @@ public class MinecraftPlayerBridge extends RequestPlayerBridge {
         //TODO: send actionbar to player
     }
 
+    @Override
+    public boolean hasPermission(String permission) {
+        Player player = Bukkit.getPlayer(this.getPlayerHolder().get().getUniqueId());
+        if(player == null || !player.isOnline()) return player.hasPermission(permission);
+        return false;
+    }
 }

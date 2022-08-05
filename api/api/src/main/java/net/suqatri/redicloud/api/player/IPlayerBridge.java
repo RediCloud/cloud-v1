@@ -22,4 +22,6 @@ public interface IPlayerBridge {
     void connect(String server);
 
     void disconnect(String reason);
+
+    boolean hasPermission(String permission);
 }

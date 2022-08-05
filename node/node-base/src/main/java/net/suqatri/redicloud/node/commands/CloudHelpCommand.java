@@ -18,16 +18,17 @@ public class CloudHelpCommand extends ConsoleCommand {
     @Default
     public void onHelp(CommandSender commandSender) {
         commandSender.sendMessage("§8<------------|§7 %tcGeneral help §8|------------§8>");
-        List<BaseCommand> commands = new ArrayList<>();
+        List<String> commands = new ArrayList<>();
         for (RootCommand registeredRootCommand : NodeLauncher.getInstance().getCommandManager().getRegisteredRootCommands()) {
-            commands.add(registeredRootCommand.getDefCommand());
+            if(commands.contains(registeredRootCommand.getDefCommand().getName())) continue;
+            commands.add(registeredRootCommand.getDefCommand().getName());
         }
         if(commands.isEmpty()){
             commandSender.sendMessage("No commands registered");
             return;
         }
-        for (BaseCommand command : commands) {
-            commandSender.sendMessage("%hc" + command.getName() + " %tchelp §8| %tcHelp for the " + command.getName() + " command");
+        for (String command : commands) {
+            commandSender.sendMessage("%hc" + command + " %tchelp §8| %tcHelp for the " + command + " command");
         }
     }
 

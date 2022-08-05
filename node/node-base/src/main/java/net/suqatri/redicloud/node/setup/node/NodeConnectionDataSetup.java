@@ -44,7 +44,7 @@ public class NodeConnectionDataSetup extends Setup<NodeConnectionDataSetup> {
 
     @Override
     public SetupHeaderBehaviour headerBehaviour() {
-        return SetupHeaderBehaviour.RESTORE_PREVIOUS_LINES;
+        return SetupHeaderBehaviour.CLEAR_SCREEN_AFTER;
     }
 
 }

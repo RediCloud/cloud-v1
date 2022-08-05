@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'net.suqatri.redicloud'
-version '1.1.0' + getCommitHash() + '-RELEASE'
+version '1.1.1' + getCommitHash() + '-RELEASE'
 
 def repoUser = "$System.env.REPO_USER"
 def repoPassword = "$System.env.REPO_PASSWORD"
@@ -130,8 +130,8 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
-    
-    version '1.1.0-' + getCommitHash() + '-RELEASE'
+
+    version '1.1.1-' + getCommitHash() + '-RELEASE'
 
     sourceCompatibility = '1.8'
 

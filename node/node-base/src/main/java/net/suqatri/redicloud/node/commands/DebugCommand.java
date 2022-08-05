@@ -19,6 +19,8 @@ import net.suqatri.redicloud.node.file.FileTransferProcessThread;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 @CommandAlias("debug")
 public class DebugCommand extends ConsoleCommand {
@@ -30,6 +32,18 @@ public class DebugCommand extends ConsoleCommand {
         for (IServiceStartConfiguration configuration : NodeLauncher.getInstance().getServiceFactory().getThread().getQueue().readAll()) {
             commandSender.sendMessage(configuration.getName() + "-" + configuration.getId() + ": " + configuration.getStartPriority());
         }
+    }
+
+    @Subcommand("log filehandler publish")
+    @Description("Publishes the log filehandler")
+    @Syntax("<Line>")
+    public void onLine(CommandSender commandSender, String line){
+        if(NodeLauncher.getInstance().getConsole().getFileHandler() == null){
+            commandSender.sendMessage("No file handler found");
+            return;
+        }
+        NodeLauncher.getInstance().getConsole().getFileHandler().publish(new LogRecord(Level.ALL, line));
+        commandSender.sendMessage("Published");
     }
 
     @Subcommand("services connectedbygroup")

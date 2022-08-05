@@ -249,7 +249,14 @@ public class NodeConsole implements IConsole {
     @Override
     public void error(String message, Throwable throwable) {
         this.log(LogLevel.ERROR, message);
-        if (this.cleanConsoleMode) return;
+        if (this.cleanConsoleMode) {
+            if(this.fileHandler == null) return;
+            this.fileHandler.publish(new LogRecord(Level.ALL, throwable.getClass().getSimpleName() + ": " + throwable.getMessage()));
+            for (StackTraceElement element : throwable.getStackTrace()) {
+                this.fileHandler.publish(new LogRecord(Level.ALL, element.toString()));
+            }
+            return;
+        }
         this.log(LogLevel.ERROR, throwable.getClass().getSimpleName() + ": " + throwable.getMessage());
         for (StackTraceElement element : throwable.getStackTrace()) {
             this.log(LogLevel.ERROR, element.toString());

@@ -30,13 +30,9 @@ public class LoginListener {
             cloudPlayer.setLastConnectedProxyId(VelocityCloudAPI.getInstance().getService().getUniqueId());
             CloudAPI.getInstance().getPlayerManager().createPlayer(cloudPlayer);
         }
-
-        IRBucketHolder<ICloudGroup> groupHolder = VelocityCloudAPI.getInstance().getService().getGroup().getBlockOrNull();
-        if(groupHolder != null){
-            if(groupHolder.get().isMaintenance() && !event.getPlayer().hasPermission("redicloud.maintenance.bypass")){
-                event.setResult(ResultedEvent.ComponentResult.denied(LegacyMessageUtils.component("§cThis proxy is currently under maintenance. Please try again later.")));
-                return;
-            }
+        if(VelocityCloudAPI.getInstance().getService().isInMaintenance() && !event.getPlayer().hasPermission("redicloud.maintenance.bypass")){
+            event.setResult(ResultedEvent.ComponentResult.denied(LegacyMessageUtils.component("§cThis proxy is currently under maintenance. Please try again later.")));
+            return;
         }
     }
 }

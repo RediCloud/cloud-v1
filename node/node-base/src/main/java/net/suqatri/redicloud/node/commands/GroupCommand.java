@@ -156,6 +156,14 @@ public class GroupCommand extends ConsoleCommand {
                                             commandSender.sendMessage("§8 »%tc Max. Services: %hc" + groupHolder.get().getMaxServices());
                                             commandSender.sendMessage("§8 »%tc Service-Version: %hc" + groupHolder.get().getServiceVersionName());
                                             commandSender.sendMessage("§8 »%tc Maintenance: %hc" + groupHolder.get().isMaintenance());
+                                            StringBuilder templateBuilder = new StringBuilder();
+                                            for (String templateName : groupHolder.get().getTemplateNames()) {
+                                                if (!templateBuilder.toString().isEmpty())
+                                                    templateBuilder.append("§8, %hc");
+                                                templateBuilder.append("%hc");
+                                                templateBuilder.append(templateName);
+                                            }
+                                            commandSender.sendMessage("§8 »%tc Templates: %hc" + templateBuilder);
                                             if(groupHolder.get().getServiceEnvironment() == ServiceEnvironment.MINECRAFT)
                                                 commandSender.sendMessage("§8 »%tc Fallback: %hc" + groupHolder.get().isFallback());
                                         });

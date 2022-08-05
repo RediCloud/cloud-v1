@@ -17,7 +17,11 @@ test/node-2/storage/versions/
 test/node-1/external/
 test/node-2/external/
 
+*.log
+*.lck
+
 redicloud.properties
+*.log
 
 **/build/
 .gradle/

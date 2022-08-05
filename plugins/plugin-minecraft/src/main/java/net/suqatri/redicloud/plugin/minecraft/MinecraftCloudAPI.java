@@ -149,15 +149,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
         if(this.playerManager != null){
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 try {
-                    IRBucketHolder<ICloudPlayer> cloudPlayer = this.playerManager.getPlayer(onlinePlayer.getUniqueId());
                     if (this.serviceManager != null) {
-                        IRBucketHolder<ICloudService> serviceHolder = this.serviceManager.getFallbackService(cloudPlayer);
-                        if (serviceHolder == null) {
-                            onlinePlayer.kickPlayer("CloudService shutdown");
-                            continue;
-                        }
-                        cloudPlayer.get().getBridge().connect(serviceHolder);
-                    } else {
                         onlinePlayer.kickPlayer("CloudService shutdown");
                     }
                 }catch (Exception e){

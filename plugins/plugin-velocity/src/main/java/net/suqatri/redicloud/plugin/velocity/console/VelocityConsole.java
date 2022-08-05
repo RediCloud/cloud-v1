@@ -1,10 +1,12 @@
 package net.suqatri.redicloud.plugin.velocity.console;
 
+import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Data;
 import net.suqatri.redicloud.api.console.IConsole;
 import net.suqatri.redicloud.api.console.IConsoleLine;
 import net.suqatri.redicloud.api.console.IConsoleLineEntry;
 import net.suqatri.redicloud.api.console.LogLevel;
+import net.suqatri.redicloud.plugin.velocity.VelocityCloudAPI;
 
 import java.util.ArrayList;
 import java.util.List;

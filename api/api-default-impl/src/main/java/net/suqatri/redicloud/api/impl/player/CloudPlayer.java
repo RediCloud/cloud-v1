@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.api.impl.player;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.redicloud.api.CloudAPI;
@@ -17,7 +18,6 @@ import java.util.UUID;
 @Setter
 public class CloudPlayer extends RBucketObject implements ICloudPlayer {
 
-
     private UUID uniqueId;
     private String name;
     private long firstLogin;
@@ -27,6 +27,7 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
     private UUID lastConnectedServerId;
     private UUID lastConnectedProxyId;
     private boolean connected;
+    @JsonIgnore
     private IPlayerBridge bridge = CloudDefaultAPIImpl.getInstance().createBridge(this.getHolder());
 
     @Override

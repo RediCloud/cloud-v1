@@ -154,6 +154,8 @@ public class GroupCommand extends ConsoleCommand {
                                             commandSender.sendMessage("  Min. Services: %hc" + groupHolder.get().getMinServices());
                                             commandSender.sendMessage("  Max. Services: %hc" + groupHolder.get().getMaxServices());
                                             commandSender.sendMessage("  Service-Version: %hc" + groupHolder.get().getServiceVersionName());
+                                            if(groupHolder.get().getServiceEnvironment() == ServiceEnvironment.MINECRAFT)
+                                                commandSender.sendMessage("  Fallback: %hc" + groupHolder.get().isFallback());
                                         });
                             });
                 });

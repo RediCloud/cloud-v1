@@ -28,7 +28,19 @@ public abstract class Setup<T extends Setup<?>> {
         registerTransformer(byte.class, ((entry, input) -> Byte.parseByte(input.replaceAll(" ", ""))));
         registerTransformer(short.class, ((entry, input) -> Short.parseShort(input.replaceAll(" ", ""))));
         registerTransformer(float.class, (entry, input) -> Float.parseFloat(input.replaceAll(" ", "")));
-        registerTransformer(boolean.class, (entry, input) -> Boolean.parseBoolean(input.replaceAll(" ", "")));
+        registerTransformer(boolean.class, (entry, input) -> {
+            input = input.replaceAll(" ", "");
+            if(input.equalsIgnoreCase("true")) {
+                return true;
+            } else if(input.equalsIgnoreCase("false")) {
+                return false;
+            } else if(input.equalsIgnoreCase("yes")) {
+                return true;
+            } else if(input.equalsIgnoreCase("no")) {
+                return false;
+            }
+            return Boolean.parseBoolean(input);
+        });
 
         registerTransformer(String.class, (entry, input) -> input);
         registerTransformer(Integer.class, (entry, input) -> Integer.parseInt(input.replaceAll(" ", "")));
@@ -37,7 +49,19 @@ public abstract class Setup<T extends Setup<?>> {
         registerTransformer(Byte.class, ((entry, input) -> Byte.parseByte(input.replaceAll(" ", ""))));
         registerTransformer(Short.class, ((entry, input) -> Short.parseShort(input.replaceAll(" ", ""))));
         registerTransformer(Float.class, (entry, input) -> Float.parseFloat(input.replaceAll(" ", "")));
-        registerTransformer(Boolean.class, (entry, input) -> Boolean.parseBoolean(input.replaceAll(" ", "")));
+        registerTransformer(Boolean.class, (entry, input) -> {
+            input = input.replaceAll(" ", "");
+            if(input.equalsIgnoreCase("true")) {
+                return true;
+            } else if(input.equalsIgnoreCase("false")) {
+                return false;
+            } else if(input.equalsIgnoreCase("yes")) {
+                return true;
+            } else if(input.equalsIgnoreCase("no")) {
+                return false;
+            }
+            return Boolean.parseBoolean(input);
+        });
         registerTransformer(Enum.class, (entry, input) -> {
             if (entry.getRequiresEnum() == null) {
                 throw new IllegalStateException("To use an Enum in Setup you need the @RequiresEnum annotation!");

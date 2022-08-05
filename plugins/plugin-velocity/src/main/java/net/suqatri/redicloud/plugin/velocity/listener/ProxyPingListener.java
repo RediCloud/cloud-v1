@@ -25,10 +25,14 @@ public class ProxyPingListener  {
         String description = isDefaultMOTD ? LegacyMessageUtils.legacyText(builder.getDescriptionComponent().get()) : "";
 
         if(isDefaultMOTD){
+            CloudAPI.getInstance().getConsole().trace("Default MOTD: " + description + "|");
             if (description.contains("A Velocity Server") || description.contains("RediCloud")) {
                 builder.description(LegacyMessageUtils.component(
                         VelocityCloudAPI.getInstance().getService().getMotd()));
             }
+        }else{
+            builder.description(LegacyMessageUtils.component(
+                    VelocityCloudAPI.getInstance().getService().getMotd()));
         }
 
         builder.maximumPlayers(VelocityCloudAPI.getInstance().getService().getMaxPlayers());

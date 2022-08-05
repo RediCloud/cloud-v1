@@ -163,8 +163,9 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
 
         File patchedJar = null;
         File cacheDir = new File(processDir, "cache");
-        if (!cacheDir.exists())
-            throw new NullPointerException("Cache directory not found! Failed to patch service version: " + holder.get().getName());
+        if (!cacheDir.exists()) {
+            patchedJar = jarToPatch;
+        }
         for (File file : cacheDir.listFiles()) {
             if (file.getName().startsWith("patch")) {
                 patchedJar = file;

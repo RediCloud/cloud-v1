@@ -185,7 +185,7 @@ public class CloudNodeServiceThread extends Thread {
                                 if (configuration.getStartListener() != null) {
                                     configuration.getStartListener().completeExceptionally(e);
                                 } else {
-                                    CloudAPI.getInstance().getConsole().error("Error starting service " + configuration.getName(), e);
+                                    CloudAPI.getInstance().getConsole().error(e.getMessage(), e);
                                 }
                             }
                             if (this.queue.isExists()) {

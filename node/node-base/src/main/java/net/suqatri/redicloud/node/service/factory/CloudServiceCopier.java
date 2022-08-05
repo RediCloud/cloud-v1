@@ -90,7 +90,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                                         break;
 
                                                                     case BUNGEECORD:
-                                                                        FileUtils.copyFileToDirectory(Files.PROXY_PLUGIN_JAR.getFile(), pluginFolder);
+                                                                        FileUtils.copyFileToDirectory(Files.BUNGEECORD_PLUGIN_JAR.getFile(), pluginFolder);
                                                                         configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "config.yml"));
                                                                         break;
                                                                     case VELOCITY:
@@ -181,7 +181,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                 break;
 
             case BUNGEECORD:
-                FileUtils.copyFileToDirectory(Files.PROXY_PLUGIN_JAR.getFile(), pluginFolder);
+                FileUtils.copyFileToDirectory(Files.BUNGEECORD_PLUGIN_JAR.getFile(), pluginFolder);
                 configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "config.yml"));
                 break;
             case VELOCITY:

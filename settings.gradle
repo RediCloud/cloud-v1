@@ -11,8 +11,8 @@ findProject(':api:api-minecraft')?.name = 'api-minecraft'
 include 'api:api-node'
 findProject(':api:api-node')?.name = 'api-node'
 
-include 'api:api-proxy'
-findProject(':api:api-proxy')?.name = 'api-proxy'
+include 'api:api-bungeecord'
+findProject(':api:api-bungeecord')?.name = 'api-bungeecord'
 
 include 'commands:command-bukkit'
 findProject(':commands:command-bukkit')?.name = 'command-bukkit'
@@ -41,12 +41,15 @@ findProject(':node:node-base')?.name = 'node-base'
 include 'plugins:plugin-minecraft'
 findProject(':plugins:plugin-minecraft')?.name = 'plugin-minecraft'
 
-include 'plugins:plugin-proxy'
-findProject(':plugins:plugin-proxy')?.name = 'plugin-proxy'
+include 'plugins:plugin-bungeecord'
+findProject(':plugins:plugin-bungeecord')?.name = 'plugin-bungeecord'
+
 include 'plugins:plugin-velocity'
 findProject(':plugins:plugin-velocity')?.name = 'plugin-velocity'
+
 include 'commands:command-velocity'
 findProject(':commands:command-velocity')?.name = 'command-velocity'
+
 include 'api:api-velocity'
 findProject(':api:api-velocity')?.name = 'api-velocity'
 

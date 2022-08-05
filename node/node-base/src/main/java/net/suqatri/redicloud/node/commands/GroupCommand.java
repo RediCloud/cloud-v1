@@ -367,8 +367,8 @@ public class GroupCommand extends ConsoleCommand {
                                                     .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to get services of group " + groupHolder.get().getName(), e3))
                                                     .onSuccess(services -> {
                                                         for (IRBucketHolder<ICloudService> serviceHolder : services) {
-                                                            serviceHolder.get().setMaintenance(true);
-                                                            serviceHolder.get().update();
+                                                            serviceHolder.get().setMaintenance(boolValue);
+                                                            serviceHolder.get().updateAsync();
                                                         }
                                                         commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
                                                     });

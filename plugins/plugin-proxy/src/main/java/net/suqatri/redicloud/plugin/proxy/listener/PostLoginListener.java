@@ -9,7 +9,7 @@ public class PostLoginListener implements Listener {
 
     @EventHandler
     public void onPostLogin(PostLoginEvent event){
-        if(ProxyCloudAPI.getInstance().getService().isInMaintenance() && !event.getPlayer().hasPermission("redicloud.maintenance.bypass")){
+        if(ProxyCloudAPI.getInstance().getService().isMaintenance() && !event.getPlayer().hasPermission("redicloud.maintenance.bypass")){
             event.getPlayer().disconnect("§cThis proxy is currently under maintenance. Please try again later.");
             return;
         }

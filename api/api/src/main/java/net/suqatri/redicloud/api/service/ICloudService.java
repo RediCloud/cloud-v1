@@ -24,7 +24,7 @@ public interface ICloudService extends IRBucketObject {
 
     boolean isExternal();
 
-    boolean isInMaintenance();
+    boolean isMaintenance();
 
     void setMaintenance(boolean maintenance);
 

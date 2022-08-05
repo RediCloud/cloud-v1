@@ -4,9 +4,7 @@ import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.impl.player.CloudPlayer;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.velocity.utils.LegacyMessageUtils;
 import net.suqatri.redicloud.plugin.velocity.VelocityCloudAPI;
 
@@ -30,7 +28,7 @@ public class LoginListener {
             cloudPlayer.setLastConnectedProxyId(VelocityCloudAPI.getInstance().getService().getUniqueId());
             CloudAPI.getInstance().getPlayerManager().createPlayer(cloudPlayer);
         }
-        if(VelocityCloudAPI.getInstance().getService().isInMaintenance() && !event.getPlayer().hasPermission("redicloud.maintenance.bypass")){
+        if(VelocityCloudAPI.getInstance().getService().isMaintenance() && !event.getPlayer().hasPermission("redicloud.maintenance.bypass")){
             event.setResult(ResultedEvent.ComponentResult.denied(LegacyMessageUtils.component("§cThis proxy is currently under maintenance. Please try again later.")));
             return;
         }

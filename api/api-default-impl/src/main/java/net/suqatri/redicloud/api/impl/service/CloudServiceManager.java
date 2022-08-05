@@ -181,7 +181,7 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
         List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(holder -> holder.get().getUniqueId()).collect(Collectors.toList());
         for (IRBucketHolder<ICloudService> serviceHolder : getServices()) {
             if (blackList.contains(serviceHolder.get().getUniqueId())) continue;
-            if (serviceHolder.get().isInMaintenance()) continue;
+            if (serviceHolder.get().isMaintenance()) continue;
             if (!serviceHolder.get().getConfiguration().isFallback()) continue;
             if (serviceHolder.get().getOnlineCount() >= serviceHolder.get().getMaxPlayers()) continue;
             if (fallbackHolder == null) {

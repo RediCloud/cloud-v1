@@ -23,7 +23,7 @@ import java.util.UUID;
 @CommandAlias("debug")
 public class DebugCommand extends ConsoleCommand {
 
-    @Subcommand("facatory queue")
+    @Subcommand("factory queue")
     @Description("Prints the factory queue")
     public void onFactoryQueue(CommandSender commandSender) {
         commandSender.sendMessage("Factory queue: " + NodeLauncher.getInstance().getServiceFactory().getThread().getQueue().size());
@@ -51,7 +51,7 @@ public class DebugCommand extends ConsoleCommand {
                 });
     }
 
-    @Subcommand("facatory processes")
+    @Subcommand("factory processes")
     @Description("Prints the factory processes")
     public void onFactoryProcesses(CommandSender commandSender) {
         commandSender.sendMessage("Factory processes: ");

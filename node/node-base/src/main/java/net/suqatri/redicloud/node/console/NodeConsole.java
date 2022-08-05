@@ -60,9 +60,9 @@ public class NodeConsole implements IConsole {
 
     public NodeConsole(CommandConsoleManager consoleManager) throws Exception {
         if(!Files.LOG_FOLDER.exists()) Files.LOG_FOLDER.getFile().mkdirs();
-        FileHandler fileHandler = new FileHandler(Files.LOG_FILE.getPath()
+        this.fileHandler = new FileHandler(Files.LOG_FILE.getPath()
             .replaceAll("%time%", LOG_DATE_FORMAT.format(Calendar.getInstance().getTime())), (int) ByteUtils.mbToBytes(50), 1);
-        fileHandler.setFormatter(new Formatter() {
+        this.fileHandler.setFormatter(new Formatter() {
             @Override
             public String format(LogRecord record) {
             return record.getMessage()
@@ -70,7 +70,7 @@ public class NodeConsole implements IConsole {
                     .replaceAll("§", "");
             }
         });
-        fileHandler.setFilter(record -> true);
+        this.fileHandler.setFilter(record -> true);
         this.consoleManager = consoleManager;
         this.inputStream = System.in;
         this.outputStream = System.out;

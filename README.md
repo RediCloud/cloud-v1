@@ -51,8 +51,6 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 
 ### Features
 
-Please note that this project is still work in progress and not stable yet
-
 (✅ = done | ⚙️ = in progress | ❌ = not started | 🚧 = done, but not tested enough)
 
 - node clustering ✅

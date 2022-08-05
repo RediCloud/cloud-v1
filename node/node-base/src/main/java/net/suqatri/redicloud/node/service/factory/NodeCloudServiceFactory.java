@@ -3,14 +3,12 @@ package net.suqatri.redicloud.node.service.factory;
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.impl.service.factory.CloudServiceFactory;
 import net.suqatri.redicloud.api.impl.service.packet.stop.CloudServiceInitStopPacket;
 import net.suqatri.redicloud.api.node.file.event.FilePulledTemplatesEvent;
 import net.suqatri.redicloud.api.node.service.factory.ICloudNodeServiceFactory;
 import net.suqatri.redicloud.api.node.service.factory.ICloudServiceProcess;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
-import net.suqatri.redicloud.api.redis.bucket.IRedissonBucketManager;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
@@ -42,7 +40,7 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
     }
 
     public FutureAction<IRBucketHolder<ICloudService>> queueService(IServiceStartConfiguration configuration) {
-        this.thread.getQueue().add(configuration);
+        this.thread.getOldQueue().add(configuration);
         configuration.listenToStart();
         configuration.getStartListener()
                 .onSuccess(holder -> this.serviceManager.putInFetcher(holder.get().getServiceName(), holder.get().getUniqueId()));

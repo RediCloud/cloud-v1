@@ -232,7 +232,7 @@ public class NodeConsole implements IConsole {
         }
 
 
-        if(consoleLine.isLogToFile()) this.fileHandler.publish(new LogRecord(logLevel.getLevel(), line));
+        if(consoleLine.isLogToFile() && this.fileHandler != null) this.fileHandler.publish(new LogRecord(logLevel.getLevel(), line));
     }
 
     public void log(LogLevel level, String message) {

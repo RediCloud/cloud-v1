@@ -19,7 +19,7 @@ public class ProxyPingListener implements Listener {
     public void onPing(ProxyPingEvent event) {
         ServerPing serverPing = event.getResponse();
 
-        if (serverPing.getDescription().contains("Another Bungee server") || serverPing.getDescription().contains("RediCloud")) {
+        if (serverPing.getDescription().contains("Another Bungee server") || serverPing.getDescription().contains("RediCloud") || serverPing.getDescription().contains("Just another Waterfall")) {
             serverPing.setDescription(ProxyCloudAPI.getInstance().getService().getMotd());
         }
 

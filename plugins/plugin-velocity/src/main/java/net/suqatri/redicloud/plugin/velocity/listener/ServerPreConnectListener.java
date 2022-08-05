@@ -4,6 +4,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.ServerPreConnectEvent;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.plugin.velocity.VelocityCloudAPI;
@@ -16,8 +17,9 @@ public class ServerPreConnectListener {
     @Subscribe
     public void onServerConnect(ServerPreConnectEvent event) {
 
+        IRBucketHolder<ICloudPlayer> playerHolder = CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
         if(!event.getPlayer().getCurrentServer().isPresent()) {
-            IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService();
+            IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService(playerHolder);
             if (holder == null) {
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
                 event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
@@ -28,6 +30,7 @@ public class ServerPreConnectListener {
             if(!registeredServer.isPresent()){
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
                 event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
+                CloudAPI.getInstance().getConsole().error("Fallback service " + holder.get().getServiceName() + " is not registered: " + holder.get().getServiceName());
                 return;
             }
             event.setResult(ServerPreConnectEvent.ServerResult.allowed(registeredServer.get()));
@@ -43,7 +46,7 @@ public class ServerPreConnectListener {
                         : target;
 
         if (serverInfo == null) {
-            IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService();
+            IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService(playerHolder);
             if (holder == null) {
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
                 event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
@@ -53,6 +56,15 @@ public class ServerPreConnectListener {
             if(serverInfo == null){
                 event.setResult(ServerPreConnectEvent.ServerResult.denied());
                 event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
+                CloudAPI.getInstance().getConsole().error("Fallback service is not registered: " + holder.get().getServiceName());
+                return;
+            }
+        }else {
+            IRBucketHolder<ICloudService> targetServiceHolder = CloudAPI.getInstance().getServiceManager()
+                    .getService(serverInfo.getServerInfo().getName());
+            if (targetServiceHolder.get().isMaintenance() && !event.getPlayer().hasPermission("redicloud.service.bypass.maintenance")) {
+                event.setResult(ServerPreConnectEvent.ServerResult.denied());
+                event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is in maintenance mode."));
                 return;
             }
         }

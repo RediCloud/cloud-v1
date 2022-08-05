@@ -8,6 +8,7 @@ import net.suqatri.redicloud.api.impl.service.packet.command.CloudServiceConsole
 import net.suqatri.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartPacket;
 import net.suqatri.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartResponseCloud;
 import net.suqatri.redicloud.api.impl.service.packet.stop.CloudFactoryServiceStopPacket;
+import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.redicloud.api.service.ICloudService;
@@ -175,13 +176,14 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
         return CloudAPI.getInstance().getServiceFactory();
     }
 
+    @SafeVarargs
     @Override
-    public final IRBucketHolder<ICloudService> getFallbackService(IRBucketHolder<ICloudService>... blacklisted) {
+    public final IRBucketHolder<ICloudService> getFallbackService(IRBucketHolder<ICloudPlayer> cloudPlayer, IRBucketHolder<ICloudService>... blacklisted) {
         IRBucketHolder<ICloudService> fallbackHolder = null;
         List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(holder -> holder.get().getUniqueId()).collect(Collectors.toList());
         for (IRBucketHolder<ICloudService> serviceHolder : getServices()) {
             if (blackList.contains(serviceHolder.get().getUniqueId())) continue;
-            if (serviceHolder.get().isMaintenance()) continue;
+            if (serviceHolder.get().isMaintenance() && !cloudPlayer.get().getBridge().hasPermission("redicloud.maintenance.bypass")) continue;
             if (!serviceHolder.get().getConfiguration().isFallback()) continue;
             if (serviceHolder.get().getOnlineCount() >= serviceHolder.get().getMaxPlayers()) continue;
             if (fallbackHolder == null) {

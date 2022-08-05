@@ -4,6 +4,7 @@ import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.player.KickedFromServerEvent;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.plugin.velocity.VelocityCloudAPI;
@@ -15,7 +16,8 @@ public class KickedFromServerListener {
 
     @Subscribe
     public void onServerKick(KickedFromServerEvent event) {
-        IRBucketHolder<ICloudService> fallbackHolder = CloudAPI.getInstance().getServiceManager().getFallbackService();
+        IRBucketHolder<ICloudPlayer> playerHolder = CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
+        IRBucketHolder<ICloudService> fallbackHolder = CloudAPI.getInstance().getServiceManager().getFallbackService(playerHolder);
         if (fallbackHolder == null) {
             event.setResult(KickedFromServerEvent.DisconnectPlayer.create(LegacyMessageUtils.component("Fallback service is not available.")));
             return;

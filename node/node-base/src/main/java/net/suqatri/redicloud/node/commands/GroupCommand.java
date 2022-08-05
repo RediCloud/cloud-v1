@@ -148,16 +148,16 @@ public class GroupCommand extends ConsoleCommand {
                                                 builder.append(service.get().getServiceName());
                                             }
                                             commandSender.sendMessage("%tcGroup info of %hc" + groupHolder.get().getName() + "§8:");
-                                            commandSender.sendMessage("  JVM-Flags: %hc" + Arrays.toString(groupHolder.get().getJvmArguments()));
-                                            commandSender.sendMessage("  Process-Arguments: %hc" + Arrays.toString(groupHolder.get().getProcessParameters()));
-                                            commandSender.sendMessage("  Environment: %hc" + groupHolder.get().getServiceEnvironment().name());
-                                            commandSender.sendMessage("  Services: %hc" + builder.toString());
-                                            commandSender.sendMessage("  Min. Services: %hc" + groupHolder.get().getMinServices());
-                                            commandSender.sendMessage("  Max. Services: %hc" + groupHolder.get().getMaxServices());
-                                            commandSender.sendMessage("  Service-Version: %hc" + groupHolder.get().getServiceVersionName());
+                                            commandSender.sendMessage("§8 »%tc JVM-Flags: %hc" + Arrays.toString(groupHolder.get().getJvmArguments()));
+                                            commandSender.sendMessage("§8 »%tc Process-Arguments: %hc" + Arrays.toString(groupHolder.get().getProcessParameters()));
+                                            commandSender.sendMessage("§8 »%tc Environment: %hc" + groupHolder.get().getServiceEnvironment().name());
+                                            commandSender.sendMessage("§8 »%tc Services: %hc" + builder.toString());
+                                            commandSender.sendMessage("§8 »%tc Min. Services: %hc" + groupHolder.get().getMinServices());
+                                            commandSender.sendMessage("§8 »%tc Max. Services: %hc" + groupHolder.get().getMaxServices());
+                                            commandSender.sendMessage("§8 »%tc Service-Version: %hc" + groupHolder.get().getServiceVersionName());
                                             commandSender.sendMessage("§8 »%tc Maintenance: %hc" + groupHolder.get().isMaintenance());
                                             if(groupHolder.get().getServiceEnvironment() == ServiceEnvironment.MINECRAFT)
-                                                commandSender.sendMessage("  Fallback: %hc" + groupHolder.get().isFallback());
+                                                commandSender.sendMessage("§8 »%tc Fallback: %hc" + groupHolder.get().isFallback());
                                         });
                             });
                 });

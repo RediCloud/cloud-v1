@@ -31,6 +31,8 @@ public enum Files {
     NODE_JSON("node.json"),
     VERSIONS_FOLDER("storage/versions"),
     SERVER_ICON("storage/server-icon.png"),
+    LOG_FOLDER("storage/logs/"),
+    LOG_FILE("storage/logs/redicloud-%time%.log"),
     REDIS_CONFIG("storage/redis.json");
 
     private final String path;

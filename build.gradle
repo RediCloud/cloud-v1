@@ -130,7 +130,7 @@ allprojects {
     apply plugin: 'java'
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
-
+    
     version '1.0.0-' + getCommitHash() + '-RELEASE'
 
     sourceCompatibility = '1.8'

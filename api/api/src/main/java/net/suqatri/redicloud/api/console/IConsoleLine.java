@@ -12,6 +12,10 @@ public interface IConsoleLine extends IConsoleLineEntry {
 
     LogLevel getLogLevel();
 
+    boolean isLogToFile();
+
+    IConsoleLine disableFileLogging();
+
     void println();
 
     long getTime();

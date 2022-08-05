@@ -19,6 +19,7 @@ public class ConsoleLine implements IConsoleLine, Cloneable, Serializable {
     private boolean stored = true;
     private boolean printTimestamp = true;
     private boolean printPrefix = true;
+    private boolean logToFile = true;
 
     public ConsoleLine(LogLevel logLevel, String message) {
         this.logLevel = logLevel;
@@ -30,6 +31,12 @@ public class ConsoleLine implements IConsoleLine, Cloneable, Serializable {
         this.logLevel = LogLevel.INFO;
         this.prefix = prefix;
         this.message = message;
+    }
+
+    @Override
+    public IConsoleLine disableFileLogging() {
+        this.logToFile = false;
+        return this;
     }
 
     @Override

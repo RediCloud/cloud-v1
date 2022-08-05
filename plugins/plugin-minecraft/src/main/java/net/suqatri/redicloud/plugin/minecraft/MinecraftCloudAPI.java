@@ -2,6 +2,7 @@ package net.suqatri.redicloud.plugin.minecraft;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.redicloud.api.impl.player.CloudPlayerManager;
 import net.suqatri.redicloud.api.impl.redis.RedisConnection;

@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.plugin.velocity.listener;
 
+import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
 import net.suqatri.redicloud.api.CloudAPI;

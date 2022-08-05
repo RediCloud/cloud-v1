@@ -15,11 +15,11 @@ public class ServerKickListener implements Listener {
         IRBucketHolder<ICloudService> fallbackHolder = CloudAPI.getInstance().getServiceManager().getFallbackService();
         if (fallbackHolder == null) {
             event.getPlayer().disconnect("Fallback service is not available.");
+            event.setCancelled(true);
             return;
         }
         event.getPlayer().sendMessage(event.getKickReasonComponent());
         event.setCancelServer(ProxyServer.getInstance().getServerInfo(fallbackHolder.get().getServiceName()));
-        event.setCancelled(true);
     }
 
 }

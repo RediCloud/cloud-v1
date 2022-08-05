@@ -19,12 +19,14 @@ public class ServerPreConnectListener {
         if(!event.getPlayer().getCurrentServer().isPresent()) {
             IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService();
             if (holder == null) {
+                event.setResult(ServerPreConnectEvent.ServerResult.denied());
                 event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
                 return;
             }
             Optional<RegisteredServer> registeredServer = VelocityCloudAPI.getInstance().getProxyServer()
                     .getServer(holder.get().getServiceName());
             if(!registeredServer.isPresent()){
+                event.setResult(ServerPreConnectEvent.ServerResult.denied());
                 event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
                 return;
             }
@@ -43,11 +45,13 @@ public class ServerPreConnectListener {
         if (serverInfo == null) {
             IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService();
             if (holder == null) {
+                event.setResult(ServerPreConnectEvent.ServerResult.denied());
                 event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
                 return;
             }
             serverInfo = VelocityCloudAPI.getInstance().getProxyServer().getServer(holder.get().getServiceName()).orElse(null);
             if(serverInfo == null){
+                event.setResult(ServerPreConnectEvent.ServerResult.denied());
                 event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
                 return;
             }

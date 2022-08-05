@@ -25,6 +25,7 @@ public class ServerConnectListener implements Listener {
             IRBucketHolder<ICloudService> holder = CloudAPI.getInstance().getServiceManager().getFallbackService();
             if (holder == null) {
                 event.getPlayer().disconnect("Fallback service is not available.");
+                event.setCancelled(true);
                 return;
             }
             serverInfo = ProxyServer.getInstance().getServerInfo(holder.get().getServiceName());

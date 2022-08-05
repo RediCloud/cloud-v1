@@ -272,8 +272,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                             }
                         }
                         if (patchedJar == null) {
-                            futureAction.completeExceptionally(new NullPointerException("Patched jar not found! Failed to patch service version: " + holder.get().getName()));
-                            return;
+                            patchedJar = jarToPatch;
                         }
 
                         File patchedJarDest = new File(Files.VERSIONS_FOLDER.getFile(), holder.get().getName() + ".patched.jar");

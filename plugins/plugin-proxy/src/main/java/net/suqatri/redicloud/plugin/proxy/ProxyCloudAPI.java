@@ -95,6 +95,7 @@ public class ProxyCloudAPI extends ProxyDefaultCloudAPI {
         registerInternalListeners();
         initListeners();
         initThisService();
+        registerStartedService();
     }
 
     private void initListeners() {
@@ -110,7 +111,7 @@ public class ProxyCloudAPI extends ProxyDefaultCloudAPI {
         getEventManager().register(new CloudServiceStoppedListener());
     }
 
-    void registerStartedService() {
+    public void registerStartedService() {
         this.serviceManager.getServicesAsync()
                 .onFailure(e -> this.console.error("Failed to register started service", e))
                 .onSuccess(serviceHolders -> {

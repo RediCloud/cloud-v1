@@ -1,8 +1,7 @@
 ![img](https://img.shields.io/nexus/r/net.suqatri.redicloud.api/api?label=release&nexusVersion=3&server=http%3A%2F%2Frepo.suqatri.net%3A8081%2F)
 ![img](https://img.shields.io/nexus/s/net.suqatri.redicloud.api/api?label=snapshot&server=http%3A%2F%2Frepo.suqatri.net%3A8081)
-![img](https://img.shields.io/github/downloads/RediCloud/cloud/total)
 
-# RediCloud (WIP⚒️)
+# RediCloud
 
 A redis based cluster cloud system for
 minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://github.com/Suqatri)]**

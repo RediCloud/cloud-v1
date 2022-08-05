@@ -191,7 +191,7 @@ public class GroupCommand extends ConsoleCommand {
                                                             cloudGroup.setFallback(mineCraftSetup.isFallback());
                                                             cloudGroup.setMaxMemory(mineCraftSetup.getMaxMemory());
                                                             cloudGroup.setStartPriority(mineCraftSetup.getStartPriority());
-                                                            cloudGroup.setServiceVersionName(mineCraftSetup.getServiceVersionName());
+                                                            cloudGroup.setServiceVersionName(mineCraftSetup.getServiceVersionName().replaceAll(" ", ""));
                                                             cloudGroup.setServiceEnvironment(ServiceEnvironment.MINECRAFT);
 
                                                             CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
@@ -222,7 +222,7 @@ public class GroupCommand extends ConsoleCommand {
                                                             cloudGroup.setFallback(false);
                                                             cloudGroup.setMaxMemory(proxySetup.getMaxMemory());
                                                             cloudGroup.setStartPriority(proxySetup.getStartPriority());
-                                                            cloudGroup.setServiceVersionName(proxySetup.getServiceVersionName());
+                                                            cloudGroup.setServiceVersionName(proxySetup.getServiceVersionName().replaceAll(" ", ""));
                                                             cloudGroup.setServiceEnvironment(groupSetup.getEnvironment());
 
                                                             CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)

@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+}
+
+group 'net.suqatri.redicloud.plugin.bungeecord'
+
+dependencies {
+    implementation project(':commons')
+    implementation project(':api:api')
+    implementation project(':api:api-default-impl')
+    implementation project(':api:api-bungeecord')
+    implementation project(':commands:command-bungeecord')
+    implementation project(':commands:command-core')
+    implementation project(':commands:command-locales')
+    compileOnly('net.md-5:bungeecord-api:1.19-R0.1-SNAPSHOT')
+}

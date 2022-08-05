@@ -514,7 +514,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         if (!Files.MINECRAFT_PLUGIN_JAR.exists()) {
             throw new FileNotFoundException("Minecraft plugin jar not found!");
         }
-        if (!Files.PROXY_PLUGIN_JAR.exists()) {
+        if (!Files.BUNGEECORD_PLUGIN_JAR.exists()) {
             throw new FileNotFoundException("Proxy plugin jar not found!");
         }
         if(!Files.VELOCITY_PLUGIN_JAR.exists()){

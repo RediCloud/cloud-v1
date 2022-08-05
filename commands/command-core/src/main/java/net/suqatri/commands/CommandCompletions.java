@@ -239,7 +239,7 @@ public class CommandCompletions<C extends CommandCompletionContext> {
         for (String value : ACFPatterns.PIPE.split(completion)) {
             String[] complete = ACFPatterns.COLONEQUALS.split(value, 2);
             String firstComplete = complete[0];
-            if(firstComplete.startsWith("@")){
+            if(firstComplete.startsWith("@") && !firstComplete.startsWith("@original") && !firstComplete.startsWith("@others")){
                 firstComplete = firstComplete.toLowerCase(Locale.ENGLISH).replace("@", ":");
             }else{
                 firstComplete = firstComplete.toLowerCase(Locale.ENGLISH);
@@ -287,10 +287,12 @@ public class CommandCompletions<C extends CommandCompletionContext> {
                     command.handleException(sender, Arrays.asList(args), e);
                 }
                 // Something went wrong in lookup, fall back to input
-                return Collections.singletonList(input);
+                //return Collections.singletonList(input);
+                return Collections.emptyList();
             } else {
                 // Plaintext value
-                allCompletions.add(value);
+                //allCompletions.add(value);
+                return Collections.emptyList();
             }
         }
         return allCompletions;

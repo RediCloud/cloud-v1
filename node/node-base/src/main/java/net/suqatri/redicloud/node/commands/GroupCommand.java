@@ -8,6 +8,7 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.group.GroupProperty;
 import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.impl.group.CloudGroup;
+import net.suqatri.redicloud.api.impl.service.CloudService;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
@@ -311,7 +312,7 @@ public class GroupCommand extends ConsoleCommand {
                     }
                     CloudAPI.getInstance().getGroupManager().getGroupAsync(name)
                             .onFailure(e2 -> commandSender.sendMessage("§cFailed to edit group " + name))
-                            .onSuccess(holder -> {
+                            .onSuccess(groupHolder -> {
                                 try {
                                     switch (key.toUpperCase()) {
                                         case "PERCENT_TO_START_NEW_SERVICE":
@@ -324,8 +325,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 commandSender.sendMessage("Value must be greater than 400");
                                                 return;
                                             }
-                                            holder.get().setPercentToStartNewService(intValue);
-                                            holder.get().updateAsync();
+                                            groupHolder.get().setPercentToStartNewService(intValue);
+                                            groupHolder.get().updateAsync();
                                             commandSender.sendMessage("Percent to start new service set to " + intValue);
                                             break;
                                         case "MAX_MEMORY":
@@ -339,8 +340,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 commandSender.sendMessage("Value must be greater than 400");
                                                 return;
                                             }
-                                            holder.get().setMaxMemory(intValue);
-                                            holder.get().updateAsync();
+                                            groupHolder.get().setMaxMemory(intValue);
+                                            groupHolder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc max memory set to %hc" + intValue);
                                             break;
                                         case "FALLBACK":
@@ -350,8 +351,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             boolean boolValue = Boolean.parseBoolean(value);
-                                            holder.get().setFallback(boolValue);
-                                            holder.get().updateAsync();
+                                            groupHolder.get().setFallback(boolValue);
+                                            groupHolder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc fallback set to %hc" + boolValue);
                                             break;
                                         case "MAINTENANCE":
@@ -360,9 +361,17 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             boolValue = Boolean.parseBoolean(value);
-                                            holder.get().setMaintenance(boolValue);
-                                            holder.get().updateAsync();
-                                            commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
+                                            groupHolder.get().setMaintenance(boolValue);
+                                            groupHolder.get().updateAsync();
+                                            groupHolder.get().getServices()
+                                                    .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to get services of group " + groupHolder.get().getName(), e3))
+                                                    .onSuccess(services -> {
+                                                        for (IRBucketHolder<ICloudService> serviceHolder : services) {
+                                                            serviceHolder.get().setMaintenance(true);
+                                                            serviceHolder.get().update();
+                                                        }
+                                                        commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
+                                                    });
                                             break;
                                         case "MAX_SERVICES":
                                         case "MAX_SERVICE":
@@ -375,8 +384,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 commandSender.sendMessage("Value must be greater than -1");
                                                 return;
                                             }
-                                            holder.get().setMaxServices(intValue);
-                                            holder.get().updateAsync();
+                                            groupHolder.get().setMaxServices(intValue);
+                                            groupHolder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc max services set to %hc" + intValue);
                                             break;
                                         case "MIN_SERVICES":
@@ -390,8 +399,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 commandSender.sendMessage("Value must be greater than 0 or 0");
                                                 return;
                                             }
-                                            holder.get().setMinServices(intValue);
-                                            holder.get().updateAsync();
+                                            groupHolder.get().setMinServices(intValue);
+                                            groupHolder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc min services set to %hc" + intValue);
                                             break;
                                         case "START_PRIORITY":
@@ -400,8 +409,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             intValue = Integer.parseInt(value);
-                                            holder.get().setStartPriority(intValue);
-                                            holder.get().updateAsync();
+                                            groupHolder.get().setStartPriority(intValue);
+                                            groupHolder.get().updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc start priority set to %hc" + intValue);
                                             break;
                                         case "SERVICE_VERSION":
@@ -415,12 +424,12 @@ public class GroupCommand extends ConsoleCommand {
                                                     CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(value)
                                                         .onFailure(e4 -> CloudAPI.getInstance().getConsole().error("Failed to get service version " + value, e4))
                                                         .onSuccess(serviceVersionHolder -> {
-                                                            if(serviceVersionHolder.get().getEnvironmentType() != holder.get().getServiceEnvironment()){
+                                                            if(serviceVersionHolder.get().getEnvironmentType() != groupHolder.get().getServiceEnvironment()){
                                                                 commandSender.sendMessage("Service version %hc" + value + "%tc is not compatible with group %hc" + name + "%tc");
                                                                 return;
                                                             }
-                                                            holder.get().setServiceVersion(serviceVersionHolder);
-                                                            holder.get().updateAsync();
+                                                            groupHolder.get().setServiceVersion(serviceVersionHolder);
+                                                            groupHolder.get().updateAsync();
                                                             commandSender.sendMessage("Group %hc" + name + "%tc service version set to %hc" + value);
                                                         });
                                                 });
@@ -430,15 +439,15 @@ public class GroupCommand extends ConsoleCommand {
                                                 commandSender.sendMessage("Value must be a boolean");
                                                 return;
                                             }
-                                            holder.get().getOnlineServiceCount()
+                                            groupHolder.get().getOnlineServiceCount()
                                                     .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to edit group " + name, e3))
                                                     .onSuccess(count -> {
                                                         if (count > 0) {
                                                             commandSender.sendMessage("§cCannot edit static property of group %hc" + name + "%tc while it has a connected services");
                                                             return;
                                                         }
-                                                        holder.get().setStatic(Boolean.parseBoolean(value));
-                                                        holder.get().updateAsync();
+                                                        groupHolder.get().setStatic(Boolean.parseBoolean(value));
+                                                        groupHolder.get().updateAsync();
                                                         commandSender.sendMessage("Group %hc" + name + "%tc static set to %hc" + Boolean.parseBoolean(value));
                                                     });
                                             break;

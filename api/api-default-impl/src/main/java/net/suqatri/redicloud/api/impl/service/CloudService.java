@@ -37,6 +37,11 @@ public class CloudService extends RBucketObject implements ICloudService {
     private boolean isInMaintenance = false;
 
     @Override
+    public void setMaintenance(boolean maintenance) {
+        this.isInMaintenance = true;
+    }
+
+    @Override
     public void executeCommand(String command) {
         CloudAPI.getInstance().getServiceManager().executeCommand(this.getHolder(), command);
     }

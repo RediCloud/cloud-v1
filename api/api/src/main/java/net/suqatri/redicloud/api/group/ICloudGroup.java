@@ -68,6 +68,8 @@ public interface ICloudGroup extends IRBucketObject {
 
     FutureAction<Collection<IRBucketHolder<ICloudService>>> getConnectedServices();
 
+    FutureAction<Collection<IRBucketHolder<ICloudService>>> getServices();
+
     FutureAction<Collection<IRBucketHolder<ICloudService>>> getServices(ServiceState serviceState);
 
     boolean isStatic();

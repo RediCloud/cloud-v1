@@ -622,6 +622,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
             if (this.console != null) {
                 this.console.info("Stopping node console thread...");
+                if(this.console.getFileHandler() != null) this.console.getFileHandler().close();
                 this.console.stopThread();
             }
 

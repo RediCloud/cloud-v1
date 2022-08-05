@@ -30,7 +30,8 @@ public class ServiceScreen implements IServiceScreen {
 
     public ServiceScreen(IRBucketHolder<ICloudService> serviceHolder) {
         this.serviceHolder = serviceHolder;
-        this.lines = CloudDefaultAPIImpl.getInstance().getRedisConnection().getClient().getList("screen-log:" + this.serviceHolder.get().getUniqueId(), new JsonJacksonCodec());
+        this.lines = CloudDefaultAPIImpl.getInstance().getRedisConnection().getClient()
+                .getList("screen-log:" + this.serviceHolder.get().getUniqueId(), new JsonJacksonCodec());
     }
 
     @Override

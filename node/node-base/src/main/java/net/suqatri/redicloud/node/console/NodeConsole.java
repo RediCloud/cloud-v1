@@ -207,8 +207,6 @@ public class NodeConsole implements IConsole {
 
         if (consoleLine.isStored()) this.lineEntries.add(consoleLine);
 
-        if (!canLog(consoleLine)) return;
-
         message = message.replaceAll("%tc", this.textColor)
                 .replaceAll("%hc", this.highlightColor);
 
@@ -223,12 +221,17 @@ public class NodeConsole implements IConsole {
             prefix = "§f" + consoleLine.getPrefix() + "§7: " + (logLevel == LogLevel.INFO ? this.textColor : Ansi.ansi().a(Ansi.Attribute.RESET).fgRgb(consoleLine.getLogLevel().getColor().getRed(), consoleLine.getLogLevel().getColor().getGreen(), consoleLine.getLogLevel().getColor().getBlue()).toString());
         }
 
-        String line = this.colorsEnabled ? translateColorCodes(dateTime + prefix + message) : ColorTranslator.removeColorCodes(dateTime + prefix + message);
-        this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
-        this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
-        this.lineReader.getTerminal().writer().flush();
 
-        this.redisplay();
+        String line = this.colorsEnabled ? translateColorCodes(dateTime + prefix + message) : ColorTranslator.removeColorCodes(dateTime + prefix + message);
+        if (canLog(consoleLine)) {
+            this.lineReader.getTerminal().puts(InfoCmp.Capability.carriage_return);
+            this.lineReader.getTerminal().writer().print(Ansi.ansi().eraseLine(Ansi.Erase.ALL) + "\r" + line + Ansi.ansi().reset());
+            this.lineReader.getTerminal().writer().flush();
+
+            this.redisplay();
+        }
+
+
         if(consoleLine.isLogToFile()) this.fileHandler.publish(new LogRecord(logLevel.getLevel(), line));
     }
 

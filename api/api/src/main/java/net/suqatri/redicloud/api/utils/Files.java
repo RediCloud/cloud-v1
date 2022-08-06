@@ -2,10 +2,8 @@ package net.suqatri.redicloud.api.utils;
 
 import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.redicloud.commons.file.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 
 @Getter
 public enum Files {
@@ -26,7 +24,7 @@ public enum Files {
     RUNNER_JAR("runner.jar"),
     NODE_JAR("redicloud-node-base.jar"),
     MINECRAFT_PLUGIN_JAR("storage/redicloud-plugin-minecraft.jar"),
-    PROXY_PLUGIN_JAR("storage/redicloud-plugin-proxy.jar"),
+    BUNGEECORD_PLUGIN_JAR("storage/redicloud-plugin-bungeecord.jar"),
     VELOCITY_PLUGIN_JAR("storage/redicloud-plugin-velocity.jar"),
     NODE_JSON("node.json"),
     VERSIONS_FOLDER("storage/versions"),

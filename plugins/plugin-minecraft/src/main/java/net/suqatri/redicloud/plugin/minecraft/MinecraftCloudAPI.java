@@ -2,26 +2,18 @@ package net.suqatri.redicloud.plugin.minecraft;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.suqatri.redicloud.api.group.ICloudGroup;
-import net.suqatri.redicloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.redicloud.api.impl.player.CloudPlayerManager;
 import net.suqatri.redicloud.api.impl.redis.RedisConnection;
 import net.suqatri.redicloud.api.impl.service.CloudService;
-import net.suqatri.redicloud.api.impl.service.CloudServiceManager;
 import net.suqatri.redicloud.api.impl.service.factory.CloudServiceFactory;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersionManager;
 import net.suqatri.redicloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.redicloud.api.minecraft.MinecraftDefaultCloudAPI;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
-import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.redis.RedisCredentials;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
-import net.suqatri.redicloud.api.service.ICloudService;
-import net.suqatri.redicloud.api.service.ICloudServiceManager;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.event.CloudServiceStartedEvent;
 import net.suqatri.redicloud.api.service.factory.ICloudServiceFactory;
-import net.suqatri.redicloud.api.utils.ApplicationType;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.file.FileWriter;
 import net.suqatri.redicloud.plugin.minecraft.command.BukkitCloudCommandManager;
@@ -92,11 +84,11 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
     }
 
     private void initThisService() {
-        this.service = this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_service_id"))).getImpl(CloudService.class);
+        this.service = (CloudService) this.serviceManager.getService(UUID.fromString(System.getenv("redicloud_service_id")));
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
         this.service.update();
-        getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service.getHolder()));
+        getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service));
 
         this.updaterTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.javaPlugin, () -> {
             if (this.service.getOnlineCount() != this.onlineCount) {

@@ -12,7 +12,7 @@ public class CloudServiceSuggester implements SetupSuggester {
     @Override
     public List<String> suggest(Setup<?> setup, SetupEntry entry) {
         return CloudAPI.getInstance().getServiceManager().getServices().parallelStream()
-                .map(holder -> holder.get().getServiceName())
+                .map(holder -> holder.getServiceName())
                 .collect(Collectors.toList());
     }
 }

@@ -4,7 +4,6 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.group.ICloudGroupManager;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.template.ICloudServiceTemplate;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
@@ -18,29 +17,29 @@ import java.util.concurrent.TimeUnit;
 public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudGroup> implements ICloudGroupManager {
 
     public CloudGroupManager() {
-        super("servicegroup", ICloudGroup.class);
+        super("serviceGroup", CloudGroup.class);
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudGroup>> getGroupAsync(UUID uniqueId) {
-        return this.getBucketHolderAsync(uniqueId.toString());
+    public FutureAction<ICloudGroup> getGroupAsync(UUID uniqueId) {
+        return this.getAsync(uniqueId.toString());
     }
 
     @Override
-    public IRBucketHolder<ICloudGroup> getGroup(UUID uniqueId) {
-        return this.getBucketHolder(uniqueId.toString());
+    public ICloudGroup getGroup(UUID uniqueId) {
+        return this.get(uniqueId.toString());
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudGroup>> getGroupAsync(String name) {
-        FutureAction<IRBucketHolder<ICloudGroup>> futureAction = new FutureAction<>();
+    public FutureAction<ICloudGroup> getGroupAsync(String name) {
+        FutureAction<ICloudGroup> futureAction = new FutureAction<>();
 
         getGroupsAsync()
                 .onFailure(futureAction)
                 .onSuccess(groups -> {
-                    Optional<IRBucketHolder<ICloudGroup>> optional = groups
+                    Optional<ICloudGroup> optional = groups
                             .parallelStream()
-                            .filter(group -> group.get().getName().equalsIgnoreCase(name))
+                            .filter(group -> group.getName().equalsIgnoreCase(name))
                             .findFirst();
                     if (optional.isPresent()) {
                         futureAction.complete(optional.get());
@@ -53,8 +52,8 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
     }
 
     @Override
-    public IRBucketHolder<ICloudGroup> getGroup(String name) {
-        return getGroups().parallelStream().filter(group -> group.get().getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+    public ICloudGroup getGroup(String name) {
+        return getGroups().parallelStream().filter(group -> group.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     @Override
@@ -90,17 +89,17 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
     }
 
     @Override
-    public Collection<IRBucketHolder<ICloudGroup>> getGroups() {
+    public Collection<ICloudGroup> getGroups() {
         return this.getBucketHolders();
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudGroup>>> getGroupsAsync() {
+    public FutureAction<Collection<ICloudGroup>> getGroupsAsync() {
         return this.getBucketHoldersAsync();
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudGroup>> createGroupAsync(ICloudGroup group) {
+    public FutureAction<ICloudGroup> createGroupAsync(ICloudGroup group) {
         return this.createBucketAsync(group.getUniqueId().toString(), group);
     }
 
@@ -109,13 +108,13 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
         FutureAction<Boolean> futureAction = new FutureAction<>();
         getGroupAsync(uniqueId)
                 .onFailure(futureAction)
-                .onSuccess(groupHolder -> {
-                    groupHolder.get().getConnectedServices()
+                .onSuccess(group -> {
+                    group.getConnectedServices()
                             .onFailure(futureAction)
-                            .onSuccess(serviceHolders -> {
+                            .onSuccess(services -> {
                                 FutureActionCollection<UUID, Boolean> futureActionFutureAction = new FutureActionCollection<>();
-                                for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                                    futureActionFutureAction.addToProcess(serviceHolder.get().getUniqueId(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.get().getUniqueId(), true));
+                                for (ICloudService service : services) {
+                                    futureActionFutureAction.addToProcess(service.getUniqueId(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(service.getUniqueId(), true));
                                 }
                                 futureActionFutureAction.process()
                                         .onFailure(futureAction)
@@ -132,11 +131,11 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
 
     @Override
     public boolean deleteGroup(UUID uniqueId) throws Exception {
-        IRBucketHolder<ICloudGroup> holder = getGroup(uniqueId);
-        for (IRBucketHolder<ICloudService> service : CloudAPI.getInstance().getServiceManager().getServices()) {
-            if (service.get().getGroup() == null) continue;
-            if (service.get().getGroupName().equalsIgnoreCase(holder.get().getName())) {
-                CloudAPI.getInstance().getServiceManager().stopServiceAsync(service.get().getUniqueId(), true).get(5, TimeUnit.SECONDS);
+        ICloudGroup holder = getGroup(uniqueId);
+        for (ICloudService service : CloudAPI.getInstance().getServiceManager().getServices()) {
+            if (service.getGroup() == null) continue;
+            if (service.getGroupName().equalsIgnoreCase(holder.getName())) {
+                CloudAPI.getInstance().getServiceManager().stopServiceAsync(service.getUniqueId(), true).get(5, TimeUnit.SECONDS);
             }
         }
         this.deleteBucket(uniqueId.toString());
@@ -144,19 +143,19 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
     }
 
     @Override
-    public IRBucketHolder<ICloudGroup> createGroup(ICloudGroup group) {
+    public ICloudGroup createGroup(ICloudGroup group) {
         return this.createBucket(group.getUniqueId().toString(), group);
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudGroup>> addDefaultTemplates(IRBucketHolder<ICloudGroup> groupHolder) {
-        FutureAction<IRBucketHolder<ICloudGroup>> futureAction = new FutureAction<>();
+    public FutureAction<ICloudGroup> addDefaultTemplates(ICloudGroup group) {
+        FutureAction<ICloudGroup> futureAction = new FutureAction<>();
 
         FutureActionCollection<String, Boolean> existencesCollection = new FutureActionCollection<>();
 
         existencesCollection.addToProcess("global-all",
                 CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync("global-all"));
-        switch (groupHolder.get().getServiceEnvironment()){
+        switch (group.getServiceEnvironment()){
             case VELOCITY: {
                 existencesCollection.addToProcess("global-velocity",
                         CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync("global-proxy"));
@@ -176,7 +175,7 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
         existencesCollection.process()
             .onFailure(futureAction)
             .onSuccess(existencesResults -> {
-               FutureActionCollection<String, IRBucketHolder<ICloudServiceTemplate>> templateCollection = new FutureActionCollection<>();
+               FutureActionCollection<String, ICloudServiceTemplate> templateCollection = new FutureActionCollection<>();
                existencesResults.forEach((name, exists) -> {
                    if(!exists) return;
                    templateCollection.addToProcess(name, CloudAPI.getInstance().getServiceTemplateManager().getTemplateAsync(name));
@@ -184,12 +183,12 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
                templateCollection.process()
                    .onFailure(futureAction)
                    .onSuccess(templateResults -> {
-                       for (IRBucketHolder<ICloudServiceTemplate> value : templateResults.values()) {
-                           groupHolder.get().addTemplate(value);
+                       for (ICloudServiceTemplate value : templateResults.values()) {
+                           group.addTemplate(value);
                        }
-                       groupHolder.get().updateAsync()
+                       group.updateAsync()
                            .onFailure(futureAction)
-                           .onSuccess(s -> futureAction.complete(groupHolder));
+                           .onSuccess(s -> futureAction.complete(group));
                    });
             });
 

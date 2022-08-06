@@ -13,9 +13,7 @@ public class CloudNodeConnectedListener {
         NetworkComponentManager manager = (NetworkComponentManager) CloudDefaultAPIImpl.getInstance().getNetworkComponentManager();
         event.getCloudNodeAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while caching network components of node@" + event.getCloudNode().getIdentifier(), e))
-                .onSuccess(nodeHolder -> {
-                    manager.addCachedNode(nodeHolder.get());
-                });
+                .onSuccess(manager::addCachedNode);
     }
 
 }

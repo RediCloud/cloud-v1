@@ -1,4 +1,0 @@
-name: RediCloud-Plugin
-author: Suqatri
-version: 1.0-SNAPSHOT
-main: net.suqatri.redicloud.plugin.proxy.ProxyCloudPlugin

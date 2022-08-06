@@ -5,7 +5,6 @@ import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.network.INetworkComponentManager;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
 import net.suqatri.redicloud.api.node.ICloudNode;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
@@ -81,14 +80,16 @@ public class NetworkComponentManager implements INetworkComponentManager {
         CloudAPI.getInstance().getNodeManager().getNodesAsync()
                 .onFailure(futureAction)
                 .onSuccess(nodes -> {
-                    for (IRBucketHolder<ICloudNode> node : nodes) {
-                        this.cachedNodes.put(node.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.NODE, node.get().getUniqueId().toString()));
+                    for (ICloudNode node : nodes) {
+                        this.cachedNodes.put(node.getUniqueId().toString(),
+                                new NetworkComponentInfo(NetworkComponentType.NODE, node.getUniqueId().toString()));
                     }
                     CloudAPI.getInstance().getServiceManager().getServicesAsync()
                             .onFailure(futureAction)
                             .onSuccess(services -> {
-                                for (IRBucketHolder<ICloudService> service : services) {
-                                    this.cachedServices.put(service.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.SERVICE, service.get().getUniqueId().toString()));
+                                for (ICloudService service : services) {
+                                    this.cachedServices.put(service.getUniqueId().toString(),
+                                            new NetworkComponentInfo(NetworkComponentType.SERVICE, service.getUniqueId().toString()));
                                 }
                                 List<INetworkComponentInfo> infos = new ArrayList<>();
                                 infos.addAll(this.cachedServices.values());
@@ -102,15 +103,17 @@ public class NetworkComponentManager implements INetworkComponentManager {
 
     @Override
     public Collection<INetworkComponentInfo> getAllComponentInfo() {
-        Collection<IRBucketHolder<ICloudNode>> nodes = CloudAPI.getInstance().getNodeManager().getNodes();
+        Collection<ICloudNode> nodes = CloudAPI.getInstance().getNodeManager().getNodes();
 
-        for (IRBucketHolder<ICloudNode> node : nodes) {
-            this.cachedNodes.put(node.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.NODE, node.get().getUniqueId().toString()));
+        for (ICloudNode node : nodes) {
+            this.cachedNodes.put(node.getUniqueId().toString(),
+                    new NetworkComponentInfo(NetworkComponentType.NODE, node.getUniqueId().toString()));
         }
 
-        Collection<IRBucketHolder<ICloudService>> services = CloudAPI.getInstance().getServiceManager().getServices();
-        for (IRBucketHolder<ICloudService> service : services) {
-            this.cachedServices.put(service.get().getUniqueId().toString(), new NetworkComponentInfo(NetworkComponentType.SERVICE, service.get().getUniqueId().toString()));
+        Collection<ICloudService> services = CloudAPI.getInstance().getServiceManager().getServices();
+        for (ICloudService service : services) {
+            this.cachedServices.put(service.getUniqueId().toString(),
+                    new NetworkComponentInfo(NetworkComponentType.SERVICE, service.getUniqueId().toString()));
         }
 
         Collection<INetworkComponentInfo> result = new ArrayList<>();

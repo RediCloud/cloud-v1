@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
@@ -37,7 +36,7 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
     private String serviceVersionName;
     private UUID nodeId;
     @JsonIgnore
-    private FutureAction<IRBucketHolder<ICloudService>> startListener;
+    private FutureAction<ICloudService> startListener;
     private int percentToStartNewService;
 
     public static FutureAction<DefaultServiceStartConfiguration> fromInterface(IServiceStartConfiguration interfaceConfig) {
@@ -63,10 +62,10 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
             configuration.setGroupName(interfaceConfig.getGroupName());
             CloudAPI.getInstance().getGroupManager().getGroupAsync(interfaceConfig.getGroupName())
                     .onFailure(futureAction)
-                    .onSuccess(groupHolder -> {
-                        configuration.getTemplateNames().addAll(groupHolder.get().getTemplateNames());
-                        configuration.setFallback(groupHolder.get().isFallback());
-                        configuration.setPercentToStartNewService(groupHolder.get().getPercentToStartNewService());
+                    .onSuccess(group -> {
+                        configuration.getTemplateNames().addAll(group.getTemplateNames());
+                        configuration.setFallback(group.isFallback());
+                        configuration.setPercentToStartNewService(group.getPercentToStartNewService());
                         futureAction.complete(configuration);
                     });
         } else {

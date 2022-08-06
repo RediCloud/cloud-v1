@@ -7,7 +7,6 @@ import net.suqatri.redicloud.api.impl.poll.timeout.TimeOutResult;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
 import net.suqatri.redicloud.api.node.ICloudNode;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.redicloud.api.redis.event.RedisDisconnectedEvent;
 import net.suqatri.redicloud.api.scheduler.IRepeatScheduler;
@@ -25,7 +24,7 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
     private IRepeatScheduler<?> task;
 
     public TimeOutPollManager() {
-        super("timeouts", ITimeOutPoll.class);
+        super("timeouts", TimeOutPoll.class);
         CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event -> this.checker());
     }
 
@@ -42,11 +41,11 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
                     .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while checking timeouts", e))
                     .onSuccess(nodes -> {
                         nodes.forEach(node -> {
-                            if (!node.get().isConnected()) return;
-                            if (node.get().getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId()))
+                            if (!node.isConnected()) return;
+                            if (node.getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId()))
                                 return;
                             NodePingPacket packet = new NodePingPacket();
-                            packet.getPacketData().addReceiver(node.get().getNetworkComponentInfo());
+                            packet.getPacketData().addReceiver(node.getNetworkComponentInfo());
                             packet.getPacketData().waitForResponse()
                                     .orTimeout(TimeOutPoll.PACKET_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)
                                     .onFailure(e -> {
@@ -54,19 +53,19 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
                                             TimeOutPoll poll = new TimeOutPoll();
                                             poll.setPollId(UUID.randomUUID());
                                             poll.setOpenerId(NodeLauncher.getInstance().getNode().getUniqueId());
-                                            poll.setTimeOutTargetId(node.get().getUniqueId());
+                                            poll.setTimeOutTargetId(node.getUniqueId());
                                             this.createPoll(poll)
                                                     .onFailure(e1 -> CloudAPI.getInstance().getConsole().error("Error while creating timeout poll", e1))
                                                     .onSuccess(pollHolder -> {
-                                                        for (IRBucketHolder<ICloudNode> nodeHolder : nodes) {
-                                                            if (!nodeHolder.get().isConnected()) continue;
-                                                            if (nodeHolder.get().getUniqueId().equals(pollHolder.get().getTimeOutTargetId()))
+                                                        for (ICloudNode clusterNodes : nodes) {
+                                                            if (!clusterNodes.isConnected()) continue;
+                                                            if (clusterNodes.getUniqueId().equals(pollHolder.getTimeOutTargetId()))
                                                                 continue;
-                                                            pollHolder.get().getResults().put(nodeHolder.get().getUniqueId(),
-                                                                    pollHolder.get().getOpenerId().equals(nodeHolder.get().getUniqueId()) ? TimeOutResult.FAILED : TimeOutResult.UNKNOWN);
+                                                            pollHolder.getResults().put(clusterNodes.getUniqueId(),
+                                                                    pollHolder.getOpenerId().equals(clusterNodes.getUniqueId()) ? TimeOutResult.FAILED : TimeOutResult.UNKNOWN);
                                                         }
                                                         TimeOutPollRequestPacket requestPacket = new TimeOutPollRequestPacket();
-                                                        requestPacket.setPollId(pollHolder.get().getPollId());
+                                                        requestPacket.setPollId(pollHolder.getPollId());
                                                         requestPacket.publishAllAsync(NetworkComponentType.NODE);
                                                         CloudAPI.getInstance().getScheduler().runTaskLaterAsync(poll::close,
                                                                 TimeOutPoll.PACKET_RESPONSE_TIMEOUT + 1500, TimeUnit.MILLISECONDS);
@@ -82,17 +81,17 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ITimeOutPoll>> createPoll(ITimeOutPoll timeOutPool) {
+    public FutureAction<ITimeOutPoll> createPoll(ITimeOutPoll timeOutPool) {
         return createBucketAsync(timeOutPool.getPollId().toString(), timeOutPool);
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ITimeOutPoll>> getPoll(UUID pollId) {
-        return this.getBucketHolderAsync(pollId.toString());
+    public FutureAction<ITimeOutPoll> getPoll(UUID pollId) {
+        return this.getAsync(pollId.toString());
     }
 
     @Override
-    public FutureAction<Boolean> closePoll(IRBucketHolder<ITimeOutPoll> poolHolder) {
+    public FutureAction<Boolean> closePoll(ITimeOutPoll poolHolder) {
         return this.deleteBucketAsync(poolHolder.getIdentifier());
     }
 }

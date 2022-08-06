@@ -2,7 +2,6 @@ package net.suqatri.redicloud.node.service;
 
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.service.CloudServiceManager;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
@@ -18,7 +17,7 @@ public class NodeCloudServiceManager extends CloudServiceManager {
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudService>> startService(IServiceStartConfiguration configuration) {
+    public FutureAction<ICloudService> startService(IServiceStartConfiguration configuration) {
         return NodeLauncher.getInstance().getServiceFactory().queueService(configuration);
     }
 
@@ -26,16 +25,16 @@ public class NodeCloudServiceManager extends CloudServiceManager {
         if (!getServices().isEmpty()) {
             CloudAPI.getInstance().getConsole().warn("It seems that the node was not correctly shut down last time!");
             int count = 0;
-            for (IRBucketHolder<ICloudService> serviceHolder : getServices()) {
-                if(serviceHolder.get().isExternal()) continue;
-                if (!serviceHolder.get().getNodeId().equals(nodeIdToCheck)) continue;
+            for (ICloudService service : getServices()) {
+                if(service.isExternal()) continue;
+                if (!service.getNodeId().equals(nodeIdToCheck)) continue;
                 count++;
-                if(serviceHolder.get().isStatic()) continue;
-                CloudAPI.getInstance().getConsole().warn("Service " + serviceHolder.get().getServiceName() + " is still registered in redis!");
-                deleteBucketAsync(serviceHolder.getIdentifier());
-                removeFromFetcher(serviceHolder.get().getServiceName(), serviceHolder.get().getUniqueId());
-                if (getClient().getList("screen-log:" + serviceHolder.get().getUniqueId()).isExists()) {
-                    getClient().getList("screen-log:" + serviceHolder.get().getUniqueId()).deleteAsync();
+                if(service.isStatic()) continue;
+                CloudAPI.getInstance().getConsole().warn("Service " + service.getServiceName() + " is still registered in redis!");
+                deleteBucketAsync(service.getIdentifier());
+                removeFromFetcher(service.getServiceName(), service.getUniqueId());
+                if (getClient().getList("screen-log:" + service.getUniqueId()).isExists()) {
+                    getClient().getList("screen-log:" + service.getUniqueId()).deleteAsync();
                 }
             }
             CloudAPI.getInstance().getConsole().warn("Removed " + count + " services from redis!");
@@ -46,11 +45,11 @@ public class NodeCloudServiceManager extends CloudServiceManager {
                 getServiceIdFetcherMap().remove(s);
                 continue;
             }
-            IRBucketHolder<ICloudService> serviceHolder = getService(s);
-            if(serviceHolder.get().isExternal()) continue;
-            if(!serviceHolder.get().getNodeId().equals(nodeIdToCheck)) continue;
+            ICloudService serviceHolder = getService(s);
+            if(serviceHolder.isExternal()) continue;
+            if(!serviceHolder.getNodeId().equals(nodeIdToCheck)) continue;
             removeFromFetcher(serviceHolder.getIdentifier());
-            CloudAPI.getInstance().getConsole().warn("Removed " + serviceHolder.get().getServiceName() + " services from fetcher!");
+            CloudAPI.getInstance().getConsole().warn("Removed " + serviceHolder.getServiceName() + " services from fetcher!");
         }
     }
 

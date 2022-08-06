@@ -22,7 +22,7 @@ public class FilePullPacket extends CloudPacket {
     public void receive() {
         if (CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
         CloudAPI.getInstance().getNodeManager().getNodeAsync(UUID.fromString(this.getPacketData().getSender().getIdentifier()))
-                .onSuccess(nodeHolder -> NodeLauncher.getInstance().getFileTransferManager()
-                        .transferFolderToNode(new File(this.originalFilePath), new File(this.destinationFilePath), this.targetFilePathToDelete, nodeHolder));
+                .onSuccess(node -> NodeLauncher.getInstance().getFileTransferManager()
+                        .transferFolderToNode(new File(this.originalFilePath), new File(this.destinationFilePath), this.targetFilePathToDelete, node));
     }
 }

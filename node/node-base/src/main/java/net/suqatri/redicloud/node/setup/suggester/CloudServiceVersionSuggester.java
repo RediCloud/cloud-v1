@@ -13,7 +13,7 @@ public class CloudServiceVersionSuggester implements SetupSuggester {
     public List<String> suggest(Setup<?> setup, SetupEntry entry) {
         return CloudAPI.getInstance().getServiceVersionManager().getServiceVersions()
                 .parallelStream()
-                .map(holder -> holder.get().getName())
+                .map(holder -> holder.getName())
                 .collect(Collectors.toList());
     }
 }

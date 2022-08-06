@@ -1,13 +1,12 @@
 package net.suqatri.redicloud.api.player;
 
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 
 import java.util.UUID;
 
 public interface IPlayerBridge {
 
-    void connect(IRBucketHolder<ICloudService> serviceHolder);
+    void connect(ICloudService service);
 
     void connect(UUID serviceId);
 

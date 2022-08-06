@@ -20,6 +20,6 @@ public class TimeOutPollResultPacket extends CloudPacket {
                 .onFailure(e ->
                         CloudAPI.getInstance().getConsole().error("Error while getting timeout poll " + this.pollID + "!"))
                 .onSuccess(pool ->
-                        pool.get().manageResult(this.result, UUID.fromString(this.getPacketData().getSender().getIdentifier())));
+                        pool.manageResult(this.result, UUID.fromString(this.getPacketData().getSender().getIdentifier())));
     }
 }

@@ -1,6 +1,5 @@
 package net.suqatri.redicloud.api.node;
 
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
 import java.util.Collection;
@@ -9,17 +8,17 @@ import java.util.UUID;
 public interface ICloudNodeManager {
 
 
-    FutureAction<IRBucketHolder<ICloudNode>> getNodeAsync(UUID uniqueId);
+    FutureAction<ICloudNode> getNodeAsync(UUID uniqueId);
 
-    IRBucketHolder<ICloudNode> getNode(UUID uniqueId);
+    ICloudNode getNode(UUID uniqueId);
 
-    FutureAction<IRBucketHolder<ICloudNode>> getNodeAsync(String name);
+    FutureAction<ICloudNode> getNodeAsync(String name);
 
-    IRBucketHolder<ICloudNode> getNode(String name);
+    ICloudNode getNode(String name);
 
-    Collection<IRBucketHolder<ICloudNode>> getNodes();
+    Collection<ICloudNode> getNodes();
 
-    FutureAction<Collection<IRBucketHolder<ICloudNode>>> getNodesAsync();
+    FutureAction<Collection<ICloudNode>> getNodesAsync();
 
     boolean existsNode(UUID uniqueId);
 
@@ -29,8 +28,8 @@ public interface ICloudNodeManager {
 
     FutureAction<Boolean> existsNodeAsync(String name);
 
-    IRBucketHolder<ICloudNode> createNode(ICloudNode node);
+    ICloudNode createNode(ICloudNode node);
 
-    FutureAction<IRBucketHolder<ICloudNode>> createNodeAsync(ICloudNode node);
+    FutureAction<ICloudNode> createNodeAsync(ICloudNode node);
 
 }

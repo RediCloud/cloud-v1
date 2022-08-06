@@ -3,7 +3,6 @@ package net.suqatri.redicloud.api.service;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketObject;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
@@ -36,7 +35,7 @@ public interface ICloudService extends IRBucketObject {
 
     INetworkComponentInfo getNetworkComponentInfo();
 
-    default FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion() {
+    default FutureAction<ICloudServiceVersion> getServiceVersion() {
         return CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(getConfiguration().getServiceVersionName());
     }
 
@@ -68,7 +67,7 @@ public interface ICloudService extends IRBucketObject {
         return this.getConfiguration().isGroupBased();
     }
 
-    default FutureAction<IRBucketHolder<ICloudGroup>> getGroup() {
+    default FutureAction<ICloudGroup> getGroup() {
         return CloudAPI.getInstance().getGroupManager().getGroupAsync(getGroupName());
     }
 

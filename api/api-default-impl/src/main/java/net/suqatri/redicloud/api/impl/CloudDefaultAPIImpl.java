@@ -29,7 +29,6 @@ import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.player.ICloudPlayerManager;
 import net.suqatri.redicloud.api.player.IPlayerBridge;
 import net.suqatri.redicloud.api.redis.IRedisConnection;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.utils.ApplicationType;
 
 import java.io.IOException;
@@ -65,8 +64,8 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     }
 
     @Override
-    public IPlayerBridge createBridge(IRBucketHolder<ICloudPlayer> playerHolder) {
-        return new RequestPlayerBridge(playerHolder);
+    public IPlayerBridge createBridge(ICloudPlayer player) {
+        return new RequestPlayerBridge(player);
     }
 
     private void loadProperties(){

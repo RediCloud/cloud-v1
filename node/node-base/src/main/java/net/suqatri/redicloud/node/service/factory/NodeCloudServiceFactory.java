@@ -8,7 +8,6 @@ import net.suqatri.redicloud.api.impl.service.packet.stop.CloudServiceInitStopPa
 import net.suqatri.redicloud.api.node.file.event.FilePulledTemplatesEvent;
 import net.suqatri.redicloud.api.node.service.factory.ICloudNodeServiceFactory;
 import net.suqatri.redicloud.api.node.service.factory.ICloudServiceProcess;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
@@ -39,11 +38,12 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
         }
     }
 
-    public FutureAction<IRBucketHolder<ICloudService>> queueService(IServiceStartConfiguration configuration) {
+    @Override
+    public FutureAction<ICloudService> queueService(IServiceStartConfiguration configuration) {
         this.thread.getQueue().add(configuration);
         configuration.listenToStart();
         configuration.getStartListener()
-                .onSuccess(holder -> this.serviceManager.putInFetcher(holder.get().getServiceName(), holder.get().getUniqueId()));
+                .onSuccess(holder -> this.serviceManager.putInFetcher(holder.getServiceName(), holder.getUniqueId()));
         return configuration.getStartListener();
     }
 
@@ -54,21 +54,21 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
         CloudAPI.getInstance().getServiceManager().getServiceAsync(uniqueId)
                 .onFailure(futureAction)
                 .onSuccess(serviceHolder -> {
-                    if(serviceHolder.get().isExternal()){
+                    if(serviceHolder.isExternal()){
                         CloudServiceInitStopPacket packet = new CloudServiceInitStopPacket();
-                        packet.getPacketData().addReceiver(serviceHolder.get().getNetworkComponentInfo());
+                        packet.getPacketData().addReceiver(serviceHolder.getNetworkComponentInfo());
                         packet.publishAsync();
 
                         NodeLauncher.getInstance().getNode().setMemoryUsage(NodeLauncher.getInstance().getNode().getMemoryUsage()
-                                - serviceHolder.get().getConfiguration().getMaxMemory());
+                                - serviceHolder.getConfiguration().getMaxMemory());
                         NodeLauncher.getInstance().getNode().updateAsync();
 
-                        CloudAPI.getInstance().getServiceManager().removeFromFetcher(serviceHolder.get().getServiceName());
+                        CloudAPI.getInstance().getServiceManager().removeFromFetcher(serviceHolder.getServiceName());
 
                         CloudAPI.getInstance().getEventManager().postGlobalAsync(new CloudServiceStoppedEvent(serviceHolder));
                         return;
                     }
-                    if (!serviceHolder.get().getNodeId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) {
+                    if (!serviceHolder.getNodeId().equals(NodeLauncher.getInstance().getNode().getUniqueId())) {
                         super.destroyServiceAsync(uniqueId, force)
                                 .onFailure(futureAction)
                                 .onSuccess(futureAction::complete);
@@ -86,14 +86,14 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
                     process.stopAsync(force)
                             .onFailure(futureAction)
                             .onSuccess(b -> {
-                                if (process.getServiceHolder().get().isStatic()) {
-                                    process.getServiceHolder().get().setServiceState(ServiceState.OFFLINE);
-                                    process.getServiceHolder().get().updateAsync()
+                                if (process.getService().isStatic()) {
+                                    process.getService().setServiceState(ServiceState.OFFLINE);
+                                    process.getService().updateAsync()
                                             .onFailure(futureAction)
                                             .onSuccess(v -> futureAction.complete(true));
                                 } else {
-                                    this.serviceManager.removeFromFetcher(process.getServiceHolder().get().getServiceName());
-                                    this.serviceManager.deleteBucketAsync(process.getServiceHolder().get().getUniqueId().toString())
+                                    this.serviceManager.removeFromFetcher(process.getService().getServiceName());
+                                    this.serviceManager.deleteBucketAsync(process.getService().getUniqueId().toString())
                                             .onFailure(futureAction)
                                             .onSuccess(v -> futureAction.complete(true));
                                 }

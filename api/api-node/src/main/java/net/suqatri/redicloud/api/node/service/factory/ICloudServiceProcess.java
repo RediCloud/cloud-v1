@@ -1,6 +1,5 @@
 package net.suqatri.redicloud.api.node.service.factory;
 
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
@@ -8,7 +7,7 @@ import java.io.File;
 
 public interface ICloudServiceProcess {
 
-    IRBucketHolder<ICloudService> getServiceHolder();
+    ICloudService getService();
 
     void executeCommand(String command);
 

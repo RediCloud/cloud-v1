@@ -6,7 +6,7 @@ repositories {
     maven { url = "https://nexus.velocitypowered.com/repository/maven-public/" }
 }
 
-group 'net.suqatri.redicloud'
+group 'net.suqatri.redicloud.plugin.velocity'
 
 dependencies {
     implementation project(':commons')

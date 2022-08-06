@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'net.suqatri.redicloud'
-version '1.3.2' + getCommitHash() + '-RELEASE'
+version '1.3.4' + getCommitHash() + '-RELEASE'
 
 def repoUser = "$System.env.REPO_USER"
 def repoPassword = "$System.env.REPO_PASSWORD"
@@ -23,11 +23,11 @@ tasks.register('copyToTest') {
     println 'Deleting test files'
     project.delete(
             file("${rootDir}/test/node-1/redicloud-node-base.jar"),
-            file("${rootDir}/test/node-1/storage/redicloud-plugin-proxy.jar"),
+            file("${rootDir}/test/node-1/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-minecraft.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-velocity.jar"),
             file("${rootDir}/test/node-2/redicloud-node-base.jar"),
-            file("${rootDir}/test/node-2/storage/redicloud-plugin-proxy.jar"),
+            file("${rootDir}/test/node-2/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar")
     )
@@ -54,13 +54,13 @@ tasks.register('projectBuild') {
 
     dependsOn ':api:api-node:build'
     dependsOn ':api:api-minecraft:build'
-    dependsOn ':api:api-proxy:build'
+    dependsOn ':api:api-bungeecord:build'
 
     dependsOn ':node:node-base:build'
     dependsOn ':node:node-runner:build'
 
     dependsOn ':plugins:plugin-minecraft:build'
-    dependsOn ':plugins:plugin-proxy:build'
+    dependsOn ':plugins:plugin-bungeecord:build'
     dependsOn ':plugins:plugin-velocity:build'
 }
 
@@ -75,7 +75,7 @@ tasks.register('copyMinecraftPluginToNode1', Copy) {
 }
 
 tasks.register('copyProxyPluginToNode1', Copy) {
-    from "plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar"
+    from "plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar"
     into 'test/node-1/storage'
 }
 
@@ -90,7 +90,7 @@ tasks.register('copyMinecraftPluginToNode2', Copy) {
 }
 
 tasks.register('copyProxyPluginToNode2', Copy) {
-    from "plugins/plugin-proxy/build/libs/redicloud-plugin-proxy.jar"
+    from "plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar"
     into 'test/node-2/storage'
 }
 tasks.register('copyVelocityPluginToNode1', Copy) {
@@ -115,13 +115,13 @@ tasks.register('publishToRepository') {
 
     dependsOn ':api:api-node:publish'
     dependsOn ':api:api-minecraft:publish'
-    dependsOn ':api:api-proxy:publish'
+    dependsOn ':api:api-bungeecord:publish'
 
     dependsOn ':node:node-base:publish'
     dependsOn ':node:node-runner:publish'
 
     dependsOn ':plugins:plugin-minecraft:publish'
-    dependsOn ':plugins:plugin-proxy:publish'
+    dependsOn ':plugins:plugin-bungeecord:publish'
     dependsOn ':plugins:plugin-velocity:publish'
 }
 
@@ -131,7 +131,7 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
 
-    version '1.3.2-' + getCommitHash() + '-RELEASE'
+    version '1.3.4-' + getCommitHash() + '-RELEASE'
 
     sourceCompatibility = '1.8'
 

@@ -3,7 +3,6 @@ package net.suqatri.redicloud.node.service.factory;
 import lombok.Data;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.node.service.factory.ICloudServiceCopier;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
@@ -33,7 +32,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
         FutureAction<File> futureAction = new FutureAction<>();
 
         List<File> folders = new ArrayList<>();
-        FutureActionCollection<String, IRBucketHolder<ICloudServiceTemplate>> futureActionCollection = new FutureActionCollection<>();
+        FutureActionCollection<String, ICloudServiceTemplate> futureActionCollection = new FutureActionCollection<>();
 
         this.templateManager.existsTemplateAsync("global-all")
                 .onFailure(futureAction)
@@ -42,9 +41,9 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                         futureActionCollection.addToProcess("global-all", this.templateManager.getTemplateAsync("global-all"));
                     }
                     String globalEnvironmentTemplate =
-                            process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.BUNGEECORD
-                            || process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY
-                            ? (process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY ? "global-velocity" : "global-bungeecord")
+                            process.getService().getEnvironment() == ServiceEnvironment.BUNGEECORD
+                            || process.getService().getEnvironment() == ServiceEnvironment.VELOCITY
+                            ? (process.getService().getEnvironment() == ServiceEnvironment.VELOCITY ? "global-velocity" : "global-bungeecord")
                                     : "global-minecraft";
                     this.templateManager.existsTemplateAsync(globalEnvironmentTemplate)
                             .onFailure(futureAction)
@@ -52,18 +51,18 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                 if (existsGlobalEnvironment) {
                                     futureActionCollection.addToProcess(globalEnvironmentTemplate, this.templateManager.getTemplateAsync(globalEnvironmentTemplate));
                                 }
-                                for (String templateName : process.getServiceHolder().get().getConfiguration().getTemplateNames()) {
+                                for (String templateName : process.getService().getConfiguration().getTemplateNames()) {
                                     futureActionCollection.addToProcess(templateName, this.templateManager.getTemplateAsync(templateName));
                                 }
                                 futureActionCollection.process()
                                         .onFailure(futureAction)
                                         .onSuccess(templates -> {
-                                            for (IRBucketHolder<ICloudServiceTemplate> templateHolder : templates.values()) {
-                                                folders.add(templateHolder.get().getTemplateFolder());
+                                            for (ICloudServiceTemplate template : templates.values()) {
+                                                folders.add(template.getTemplateFolder());
                                             }
-                                            this.process.getServiceHolder().get().getServiceVersion()
+                                            this.process.getService().getServiceVersion()
                                                     .onFailure(futureAction)
-                                                    .onSuccess(serviceVersionHolder -> {
+                                                    .onSuccess(serviceVersion -> {
                                                         CloudAPI.getInstance().getExecutorService().submit(() -> {
                                                             try {
                                                                 for (File folder : folders) {
@@ -81,7 +80,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
 
                                                                 File pluginFolder = new File(getServiceDirectory(), "plugins");
                                                                 if (!pluginFolder.exists()) pluginFolder.mkdirs();
-                                                                switch (this.process.getServiceHolder().get().getEnvironment()) {
+                                                                switch (this.process.getService().getEnvironment()) {
                                                                     case MINECRAFT:
                                                                         FileUtils.copyFileToDirectory(Files.MINECRAFT_PLUGIN_JAR.getFile(), pluginFolder);
                                                                         configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "bukkit.yml"));
@@ -90,7 +89,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                                         break;
 
                                                                     case BUNGEECORD:
-                                                                        FileUtils.copyFileToDirectory(Files.PROXY_PLUGIN_JAR.getFile(), pluginFolder);
+                                                                        FileUtils.copyFileToDirectory(Files.BUNGEECORD_PLUGIN_JAR.getFile(), pluginFolder);
                                                                         configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "config.yml"));
                                                                         break;
                                                                     case VELOCITY:
@@ -115,7 +114,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                                     return;
                                                                 }
 
-                                                                FileUtils.copyFile(serviceVersionHolder.get().getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
+                                                                FileUtils.copyFile(serviceVersion.getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
 
                                                                 futureAction.complete(this.getServiceDirectory());
                                                             } catch (IOException e) {
@@ -134,27 +133,27 @@ public class CloudServiceCopier implements ICloudServiceCopier {
     public File copyFiles() throws Exception {
         List<File> folders = new ArrayList<>();
 
-        CloudAPI.getInstance().getConsole().debug("Copying files for service " + this.process.getServiceHolder().get().getName() + "...");
+        CloudAPI.getInstance().getConsole().debug("Copying files for service " + this.process.getService().getName() + "...");
 
-        IRBucketHolder<ICloudServiceVersion> serviceVersionHolder = this.process.getServiceHolder().get().getServiceVersion().get(5, TimeUnit.SECONDS);
-        if (serviceVersionHolder == null)
-            throw new NullPointerException("Service version " + this.process.getServiceHolder().get().getConfiguration().getServiceVersionName() + "not found");
+        ICloudServiceVersion serviceVersion = this.process.getService().getServiceVersion().get(5, TimeUnit.SECONDS);
+        if (serviceVersion == null)
+            throw new NullPointerException("Service version " + this.process.getService().getConfiguration().getServiceVersionName() + "not found");
 
         if (this.templateManager.existsTemplate("global-all")) {
-            folders.add(this.templateManager.getTemplate("global-all").get().getTemplateFolder());
+            folders.add(this.templateManager.getTemplate("global-all").getTemplateFolder());
         }
 
         String globalEnvironmentTemplate =
-                process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.BUNGEECORD
-                        || process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY
-                        ? (process.getServiceHolder().get().getEnvironment() == ServiceEnvironment.VELOCITY ? "global-velocity" : "global-bungeecord")
+                process.getService().getEnvironment() == ServiceEnvironment.BUNGEECORD
+                        || process.getService().getEnvironment() == ServiceEnvironment.VELOCITY
+                        ? (process.getService().getEnvironment() == ServiceEnvironment.VELOCITY ? "global-velocity" : "global-bungeecord")
                         : "global-minecraft";
         if (this.templateManager.existsTemplate(globalEnvironmentTemplate)) {
-            folders.add(this.templateManager.getTemplate(globalEnvironmentTemplate).get().getTemplateFolder());
+            folders.add(this.templateManager.getTemplate(globalEnvironmentTemplate).getTemplateFolder());
         }
 
-        for (String templateName : process.getServiceHolder().get().getConfiguration().getTemplateNames()) {
-            folders.add(this.templateManager.getTemplate(templateName).get().getTemplateFolder());
+        for (String templateName : process.getService().getConfiguration().getTemplateNames()) {
+            folders.add(this.templateManager.getTemplate(templateName).getTemplateFolder());
         }
 
         for (File folder : folders) {
@@ -172,7 +171,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
 
         File pluginFolder = new File(getServiceDirectory(), "plugins");
         if (!pluginFolder.exists()) pluginFolder.mkdirs();
-        switch (this.process.getServiceHolder().get().getEnvironment()) {
+        switch (this.process.getService().getEnvironment()) {
             case MINECRAFT:
                 FileUtils.copyFileToDirectory(Files.MINECRAFT_PLUGIN_JAR.getFile(), pluginFolder);
                 configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "bukkit.yml"));
@@ -181,7 +180,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                 break;
 
             case BUNGEECORD:
-                FileUtils.copyFileToDirectory(Files.PROXY_PLUGIN_JAR.getFile(), pluginFolder);
+                FileUtils.copyFileToDirectory(Files.BUNGEECORD_PLUGIN_JAR.getFile(), pluginFolder);
                 configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "config.yml"));
                 break;
             case VELOCITY:
@@ -201,15 +200,15 @@ public class CloudServiceCopier implements ICloudServiceCopier {
 
         editFiles();
 
-        FileUtils.copyFile(serviceVersionHolder.get().getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
+        FileUtils.copyFile(serviceVersion.getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
 
-        CloudAPI.getInstance().getConsole().debug("Copying files for service " + this.process.getServiceHolder().get().getName() + " finished.");
+        CloudAPI.getInstance().getConsole().debug("Copying files for service " + this.process.getService().getName() + " finished.");
 
         return this.getServiceDirectory();
     }
 
     private void editFiles() throws IOException {
-        switch (this.process.getServiceHolder().get().getEnvironment()) {
+        switch (this.process.getService().getEnvironment()) {
             case MINECRAFT:
                 editProperties(new File(this.getServiceDirectory(), "server.properties"));
                 break;
@@ -228,10 +227,10 @@ public class CloudServiceCopier implements ICloudServiceCopier {
         fileEditor.read(properties);
         fileEditor.setValue("server-ip", NodeLauncher.getInstance().getNode().getHostname());
         fileEditor.setValue("server-port", String.valueOf(this.process.getPort()));
-        fileEditor.setValue("max-players", String.valueOf(this.process.getServiceHolder().get().getMaxPlayers()));
+        fileEditor.setValue("max-players", String.valueOf(this.process.getService().getMaxPlayers()));
         fileEditor.setValue("online-mode", "false");
-        fileEditor.setValue("motd", this.process.getServiceHolder().get().getMotd());
-        fileEditor.setValue("server-name", this.process.getServiceHolder().get().getServiceName());
+        fileEditor.setValue("motd", this.process.getService().getMotd());
+        fileEditor.setValue("server-name", this.process.getService().getServiceName());
         fileEditor.save(properties);
     }
 
@@ -239,22 +238,22 @@ public class CloudServiceCopier implements ICloudServiceCopier {
         FileEditor fileEditor = new FileEditor(FileEditor.Type.TOML);
         fileEditor.read(config);
         fileEditor.setValue("bind", "\"0.0.0.0:" + this.process.getPort() + "\"");
-        fileEditor.setValue("show-max-players", String.valueOf(this.process.getServiceHolder().get().getMaxPlayers()));
+        fileEditor.setValue("show-max-players", String.valueOf(this.process.getService().getMaxPlayers()));
         fileEditor.save(config);
     }
 
     private void editConfig(File config) throws IOException {
         FileEditor fileEditor = new FileEditor(FileEditor.Type.YML);
         fileEditor.read(config);
-        fileEditor.setValue("player_limit", String.valueOf(this.process.getServiceHolder().get().getMaxPlayers()));
-        fileEditor.setValue("max_players", String.valueOf(this.process.getServiceHolder().get().getMaxPlayers()));
+        fileEditor.setValue("player_limit", String.valueOf(this.process.getService().getMaxPlayers()));
+        fileEditor.setValue("max_players", String.valueOf(this.process.getService().getMaxPlayers()));
         fileEditor.setValue("host", NodeLauncher.getInstance().getNode().getHostname() + ":" + this.process.getPort());
         fileEditor.save(config);
     }
 
     @Override
-    public IRBucketHolder<ICloudService> getServiceHolder() {
-        return this.process.getServiceHolder();
+    public ICloudService getServices() {
+        return this.process.getService();
     }
 
     @Override

@@ -178,7 +178,7 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     @Override
     public final ICloudService getFallbackService(ICloudPlayer cloudPlayer, ICloudService... blacklisted) {
         ICloudService fallbackHolder = null;
-        List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(holder -> holder.getUniqueId()).collect(Collectors.toList());
+        List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(ICloudService::getUniqueId).collect(Collectors.toList());
         for (ICloudService serviceHolder : getServices()) {
             if (blackList.contains(serviceHolder.getUniqueId())) continue;
             if (serviceHolder.isMaintenance() && !cloudPlayer.getBridge().hasPermission("redicloud.maintenance.bypass")) continue;

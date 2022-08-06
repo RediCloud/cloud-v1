@@ -7,7 +7,6 @@ import net.suqatri.redicloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.redicloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
@@ -17,7 +16,6 @@ import net.suqatri.redicloud.commons.function.future.FutureAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.UUID;
-
 
 @Getter
 @Setter
@@ -38,7 +36,12 @@ public class CloudService extends RBucketObject implements ICloudService {
 
     @Override
     public void executeCommand(String command) {
-        CloudAPI.getInstance().getServiceManager().executeCommand(this.getHolder(), command);
+        CloudAPI.getInstance().getServiceManager().executeCommand(this, command);
+    }
+
+    @Override
+    public String getIdentifier() {
+        return this.getUniqueId().toString();
     }
 
     @Override
@@ -54,7 +57,7 @@ public class CloudService extends RBucketObject implements ICloudService {
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion() {
+    public FutureAction<ICloudServiceVersion> getServiceVersion() {
         return CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(this.configuration.getServiceVersionName());
     }
 

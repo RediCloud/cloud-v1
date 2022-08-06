@@ -5,7 +5,6 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.player.CloudPlayer;
 import net.suqatri.redicloud.api.impl.player.CloudPlayerManager;
-import net.suqatri.redicloud.plugin.velocity.VelocityCloudAPI;
 
 public class PlayerDisconnectListener {
 
@@ -16,14 +15,14 @@ public class PlayerDisconnectListener {
                 .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("", throwable))
                 .onSuccess(playerHolder -> {
                     if (event.getPlayer().isActive()) return;
-                    CloudPlayer cloudPlayer = playerHolder.getImpl(CloudPlayer.class);
+                    CloudPlayer cloudPlayer = (CloudPlayer) playerHolder;
                     cloudPlayer.setLastLogout(System.currentTimeMillis());
                     cloudPlayer.setConnected(false);
                     cloudPlayer.updateAsync()
                             .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("", throwable))
                             .onSuccess(v -> {
                                 if (event.getPlayer().isActive()) return;
-                                ((CloudPlayerManager) CloudAPI.getInstance().getPlayerManager()).removeCachedBucketHolder(event.getPlayer().getUniqueId().toString());
+                                ((CloudPlayerManager) CloudAPI.getInstance().getPlayerManager()).removeCache(event.getPlayer().getUniqueId().toString());
                             });
                 });
     }

@@ -24,7 +24,7 @@ public class CloudServiceStoppedListener {
                     for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                         if (!player.hasPermission("redicloud.service.notify")) continue;
                         player.sendMessage(BungeeCordCloudAPI.getInstance().getChatPrefix()
-                                + "§3" + event.getServiceName() + "§8(§f" + nodeHolder.get().getName() + "§8) » §4§l■");
+                                + "§3" + event.getServiceName() + "§8(§f" + nodeHolder.getName() + "§8) » §4§l■");
                     }
                 });
     }

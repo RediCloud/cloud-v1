@@ -18,26 +18,26 @@ public class CloudServiceStartedListener {
         event.getServiceAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to register service!", e))
                 .onSuccess(serviceHolder -> {
-                    if (serviceHolder.get().getEnvironment() == ServiceEnvironment.BUNGEECORD) return;
-                    if (serviceHolder.get().getEnvironment() == ServiceEnvironment.VELOCITY) return;
+                    if (serviceHolder.getEnvironment() == ServiceEnvironment.BUNGEECORD) return;
+                    if (serviceHolder.getEnvironment() == ServiceEnvironment.VELOCITY) return;
 
                     ServerInfo serverInfo = new ServerInfo(
-                            serviceHolder.get().getServiceName(),
-                            new InetSocketAddress(serviceHolder.get().getHostName(), serviceHolder.get().getPort()));
+                            serviceHolder.getServiceName(),
+                            new InetSocketAddress(serviceHolder.getHostName(), serviceHolder.getPort()));
 
                     VelocityCloudAPI.getInstance().getProxyServer().registerServer(serverInfo);
-                    CloudAPI.getInstance().getConsole().debug("Registered service: " + serviceHolder.get().getServiceName());
+                    CloudAPI.getInstance().getConsole().debug("Registered service: " + serviceHolder.getServiceName());
 
                     if(event.isExternal()) return;
-                    CloudAPI.getInstance().getNodeManager().getNodeAsync(serviceHolder.get().getNodeId())
+                    CloudAPI.getInstance().getNodeManager().getNodeAsync(serviceHolder.getNodeId())
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node!", e))
                             .onSuccess(nodeHolder -> {
 
                                 for (Player player : VelocityCloudAPI.getInstance().getProxyServer().getAllPlayers()) {
                                     if (!player.hasPermission("redicloud.service.notify")) continue;
                                     player.sendMessage(LegacyMessageUtils.component(VelocityCloudAPI.getInstance().getChatPrefix()
-                                            + "§3" + serviceHolder.get().getServiceName() + "§8(§f"
-                                            + nodeHolder.get().getName() + "§8) » §a§l■"));
+                                            + "§3" + serviceHolder.getServiceName() + "§8(§f"
+                                            + nodeHolder.getName() + "§8) » §a§l■"));
                                 }
 
                             });

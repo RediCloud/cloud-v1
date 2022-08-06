@@ -18,7 +18,7 @@ public class BucketUpdatePacket extends CloudPacket {
         RedissonBucketManager manager = RedissonBucketManager.getManager(this.redisPrefix);
         if (manager == null)
             throw new NullPointerException("RedissonBucketManager is null of prefix " + this.redisPrefix + "!");
-        manager.updateBucket(this.identifier, this.json);
+        manager.mergeChanges(this.identifier, this.json);
     }
 
 }

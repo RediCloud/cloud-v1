@@ -8,7 +8,6 @@ import net.suqatri.redicloud.api.impl.node.packet.CloudNodeShutdownPacket;
 import net.suqatri.redicloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.node.ICloudNode;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.utils.ApplicationType;
 import net.suqatri.redicloud.api.utils.Files;
@@ -74,8 +73,8 @@ public class CloudNode extends RBucketObject implements ICloudNode {
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getStartedServices() {
-        FutureActionCollection<UUID, IRBucketHolder<ICloudService>> futureActionCollection = new FutureActionCollection<>();
+    public FutureAction<Collection<ICloudService>> getStartedServices() {
+        FutureActionCollection<UUID, ICloudService> futureActionCollection = new FutureActionCollection<>();
         for (UUID startedServiceUniqueId : this.startedServiceUniqueIds) {
             futureActionCollection.addToProcess(startedServiceUniqueId, CloudAPI.getInstance().getServiceManager().getServiceAsync(startedServiceUniqueId));
         }
@@ -86,6 +85,11 @@ public class CloudNode extends RBucketObject implements ICloudNode {
     @Override
     public int getStartedServicesCount() {
         return this.startedServiceUniqueIds.size();
+    }
+
+    @Override
+    public String getIdentifier() {
+        return this.uniqueId.toString();
     }
 
     @Override

@@ -14,8 +14,8 @@ public class CloudServiceMinecraftVersionSuggester implements SetupSuggester {
     public List<String> suggest(Setup<?> setup, SetupEntry entry) {
         return CloudAPI.getInstance().getServiceVersionManager().getServiceVersions()
                 .parallelStream()
-                .filter(holder -> holder.get().getEnvironmentType() == ServiceEnvironment.MINECRAFT)
-                .map(holder -> holder.get().getName())
+                .filter(holder -> holder.getEnvironmentType() == ServiceEnvironment.MINECRAFT)
+                .map(holder -> holder.getName())
                 .collect(Collectors.toList());
     }
 }

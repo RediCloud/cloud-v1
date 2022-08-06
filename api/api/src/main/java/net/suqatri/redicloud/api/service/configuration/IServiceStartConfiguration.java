@@ -1,6 +1,5 @@
 package net.suqatri.redicloud.api.service.configuration;
 
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
@@ -56,7 +55,7 @@ public interface IServiceStartConfiguration {
 
     List<String> getJvmArguments();
 
-    FutureAction<IRBucketHolder<ICloudService>> getStartListener();
+    FutureAction<ICloudService> getStartListener();
 
     void listenToStart();
 

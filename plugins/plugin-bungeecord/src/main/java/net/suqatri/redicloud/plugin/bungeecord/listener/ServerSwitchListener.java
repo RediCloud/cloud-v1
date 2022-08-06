@@ -29,8 +29,8 @@ public class ServerSwitchListener implements Listener {
                             .onSuccess(serviceHolder -> {
                                 if (!event.getPlayer().getServer().getInfo().getName().equals(serverInfo.getName()))
                                     return;
-                                playerHolder.getImpl(CloudPlayer.class).setLastConnectedServerId(serviceHolder.get().getUniqueId());
-                                playerHolder.get().updateAsync();
+                                ((CloudPlayer)playerHolder).setLastConnectedServerId(serviceHolder.getUniqueId());
+                                playerHolder.updateAsync();
                             });
                 });
     }

@@ -17,7 +17,7 @@ public class CloudBridgeActionbarPacket extends CloudPacket {
         CloudAPI.getInstance().getPlayerManager().getPlayerAsync(this.uniqueId)
             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to send message to player " + this.uniqueId, t))
             .onSuccess(playerHolder -> {
-                playerHolder.get().getBridge().sendActionbar(this.bar);
+                playerHolder.getBridge().sendActionbar(this.bar);
             });
     }
 }

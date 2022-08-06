@@ -1,7 +1,6 @@
 package net.suqatri.redicloud.api.node.file.process;
 
 import net.suqatri.redicloud.api.node.ICloudNode;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
 import java.io.File;
@@ -11,9 +10,9 @@ public interface IFileTransferSendProcess extends IFileTransferProcess {
 
     UUID getTransferId();
 
-    IRBucketHolder<ICloudNode> getReceiver();
+    ICloudNode getReceiver();
 
-    void setReceiver(IRBucketHolder<ICloudNode> receiver);
+    void setReceiver(ICloudNode receiver);
 
     boolean isStartPacketSent();
 

@@ -8,8 +8,6 @@ import net.suqatri.redicloud.api.impl.service.packet.stop.CloudServiceInitStopPa
 import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.node.service.factory.ICloudServiceProcess;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
-import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.event.CloudServiceStoppedEvent;
@@ -38,7 +36,7 @@ import java.util.stream.Collectors;
 public class CloudServiceProcess implements ICloudServiceProcess {
 
     private final NodeCloudServiceFactory factory;
-    private final IRBucketHolder<ICloudService> serviceHolder;
+    private final CloudService serviceHolder;
     private File serviceDirectory;
     private Process process;
     private int port;
@@ -54,10 +52,10 @@ public class CloudServiceProcess implements ICloudServiceProcess {
     @Override
     public boolean start() throws Exception {
 
-        this.serviceDirectory = new File(this.serviceHolder.get().isStatic()
+        this.serviceDirectory = new File(this.serviceHolder.isStatic()
                 ? Files.STATIC_SERVICE_FOLDER.getFile()
                 : Files.TEMP_SERVICE_FOLDER.getFile(),
-                this.serviceHolder.get().getServiceName() + "-" + this.serviceHolder.get().getUniqueId());
+                this.serviceHolder.getServiceName() + "-" + this.serviceHolder.getUniqueId());
         if (!this.serviceDirectory.exists()) this.serviceDirectory.mkdirs();
 
         this.factory.getPortManager().getUnusedPort(this).get(5, TimeUnit.SECONDS);
@@ -65,29 +63,29 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         CloudServiceCopier copier = new CloudServiceCopier(this, CloudAPI.getInstance().getServiceTemplateManager());
         copier.copyFiles();
 
-        CloudAPI.getInstance().getConsole().debug("Starting cloud service process " + this.serviceHolder.get().getServiceName() + " on port " + this.port);
+        CloudAPI.getInstance().getConsole().debug("Starting cloud service process " + this.serviceHolder.getServiceName() + " on port " + this.port);
 
         ProcessBuilder builder = new ProcessBuilder();
         Map<String, String> environment = builder.environment();
-        environment.put("redicloud_service_id", this.getServiceHolder().get().getUniqueId().toString());
+        environment.put("redicloud_service_id", this.getService().getUniqueId().toString());
         environment.put("redicloud_path", NodeLauncher.getInstance().getNode().getFilePath());
         environment.put("redicloud_log_level", NodeLauncher.getInstance().getConsole().getLogLevel().name());
         for (Files value : Files.values()) {
             environment.put("redicloud_files_" + value.name().toLowerCase(), value.getFile().getAbsolutePath());
         }
         builder.directory(this.serviceDirectory);
-        builder.command(getStartCommand(this.serviceHolder.get().getServiceVersion().get(3, TimeUnit.SECONDS)));
+        builder.command(getStartCommand(this.serviceHolder.getServiceVersion().get(3, TimeUnit.SECONDS)));
         CloudAPI.getInstance().getConsole().debug("Start command: " + builder.command().parallelStream().collect(Collectors.joining(" ")));
         this.process = builder.start();
 
-        this.serviceHolder.get().setServiceState(ServiceState.STARTING);
-        this.serviceHolder.getImpl(CloudService.class).setMaxRam(this.serviceHolder.get().getConfiguration().getMaxMemory());
-        this.serviceHolder.getImpl(CloudService.class).setHostName(NodeLauncher.getInstance().getNode().getHostname());
-        this.serviceHolder.getImpl(CloudService.class).setPort(this.port);
-        this.serviceHolder.get().update();
+        this.serviceHolder.setServiceState(ServiceState.STARTING);
+        this.serviceHolder.setMaxRam(this.serviceHolder.getConfiguration().getMaxMemory());
+        this.serviceHolder.setHostName(NodeLauncher.getInstance().getNode().getHostname());
+        this.serviceHolder.setPort(this.port);
+        this.serviceHolder.update();
 
         NodeLauncher.getInstance().getNode().setMemoryUsage(NodeLauncher.getInstance().getNode().getMemoryUsage()
-                + this.serviceHolder.get().getConfiguration().getMaxMemory());
+                + this.serviceHolder.getConfiguration().getMaxMemory());
         NodeLauncher.getInstance().getNode().update();
 
         this.thread = new Thread(() -> {
@@ -113,10 +111,10 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                         //stream closed...
                     }
                 }
-                CloudAPI.getInstance().getConsole().trace("Closed stream for service " + this.serviceHolder.get().getServiceName());
+                CloudAPI.getInstance().getConsole().trace("Closed stream for service " + this.serviceHolder.getServiceName());
 
                 NodeLauncher.getInstance().getNode().setMemoryUsage(NodeLauncher.getInstance().getNode().getMemoryUsage()
-                        - this.serviceHolder.get().getConfiguration().getMaxMemory());
+                        - this.serviceHolder.getConfiguration().getMaxMemory());
                 NodeLauncher.getInstance().getNode().update();
 
                 reader.close();
@@ -127,12 +125,12 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
                 CloudAPI.getInstance().getEventManager().postGlobalAsync(new CloudServiceStoppedEvent(this.serviceHolder));
 
-                if (!this.serviceHolder.get().isStatic())
+                if (!this.serviceHolder.isStatic())
                     ((NodeCloudServiceManager) this.factory.getServiceManager())
-                            .deleteBucket(this.serviceHolder.get().getUniqueId().toString());
+                            .deleteBucket(this.serviceHolder.getUniqueId().toString());
 
                 if (StreamUtils.isOpen(this.process.getErrorStream())) {
-                    CloudAPI.getInstance().getConsole().trace("Read error stream for service " + this.serviceHolder.get().getServiceName());
+                    CloudAPI.getInstance().getConsole().trace("Read error stream for service " + this.serviceHolder.getServiceName());
                     reader = new BufferedReader(new InputStreamReader(this.process.getErrorStream()));
                     while (
                             StreamUtils.isOpen(this.process.getErrorStream())
@@ -142,18 +140,18 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                     ) {
                         String line = reader.readLine();
                         if (line == null) continue;
-                        CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN-ERROR [" + this.serviceHolder.get().getServiceName() + "]", line));
+                        CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN-ERROR [" + this.serviceHolder.getServiceName() + "]", line));
                     }
-                    CloudAPI.getInstance().getConsole().trace("Closed error stream for service " + this.serviceHolder.get().getServiceName());
+                    CloudAPI.getInstance().getConsole().trace("Closed error stream for service " + this.serviceHolder.getServiceName());
                     reader.close();
                 }
 
-                if (this.serviceDirectory.exists() && !this.serviceHolder.get().isStatic()) {
+                if (this.serviceDirectory.exists() && !this.serviceHolder.isStatic()) {
                     FileUtils.deleteDirectory(this.serviceDirectory);
                 }
-                CloudAPI.getInstance().getConsole().debug("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped");
+                CloudAPI.getInstance().getConsole().debug("Cloud service process " + this.serviceHolder.getServiceName() + " has been stopped");
 
-                CloudAPI.getInstance().getConsole().trace("Call stopping future action: " + this.stopFuture + " for service " + this.serviceHolder.get().getServiceName());
+                CloudAPI.getInstance().getConsole().trace("Call stopping future action: " + this.stopFuture + " for service " + this.serviceHolder.getServiceName());
                 if (!this.stopFuture.isFinishedAnyway()) {
                     this.stopFuture.complete(true);
                 }
@@ -161,28 +159,28 @@ public class CloudServiceProcess implements ICloudServiceProcess {
             } catch (Exception e) {
 
                 this.stopFuture.completeExceptionally(e);
-                CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.get().getServiceName() + " has been stopped exceptionally!", e);
+                CloudAPI.getInstance().getConsole().error("Cloud service process " + this.serviceHolder.getServiceName() + " has been stopped exceptionally!", e);
 
                 this.destroyScreen();
                 this.factory.getPortManager().unUsePort(this);
-                if (!this.serviceHolder.get().isStatic()) {
-                    ((NodeCloudServiceManager) this.factory.getServiceManager()).deleteBucket(this.serviceHolder.get().getUniqueId().toString());
-                    CloudAPI.getInstance().getServiceManager().removeFromFetcher(this.serviceHolder.get().getServiceName());
+                if (!this.serviceHolder.isStatic()) {
+                    ((NodeCloudServiceManager) this.factory.getServiceManager()).deleteBucket(this.serviceHolder.getUniqueId().toString());
+                    CloudAPI.getInstance().getServiceManager().removeFromFetcher(this.serviceHolder.getServiceName());
                 } else {
-                    this.serviceHolder.get().setServiceState(ServiceState.OFFLINE);
-                    this.serviceHolder.get().updateAsync();
+                    this.serviceHolder.setServiceState(ServiceState.OFFLINE);
+                    this.serviceHolder.updateAsync();
                 }
 
-                if (this.serviceDirectory.exists() && !this.serviceHolder.get().isStatic()) {
+                if (this.serviceDirectory.exists() && !this.serviceHolder.isStatic()) {
                     try {
                         FileUtils.deleteDirectory(this.serviceDirectory);
                     } catch (IOException e1) {
-                        CloudAPI.getInstance().getConsole().error("Temp service directory of " + this.serviceHolder.get().getServiceName() + " cannot be deleted (" + this.serviceDirectory.getAbsolutePath() + ")", e1);
+                        CloudAPI.getInstance().getConsole().error("Temp service directory of " + this.serviceHolder.getServiceName() + " cannot be deleted (" + this.serviceDirectory.getAbsolutePath() + ")", e1);
                     }
                 }
 
             }
-        }, "redicloud-service-" + this.serviceHolder.get().getServiceName());
+        }, "redicloud-service-" + this.serviceHolder.getServiceName());
         this.thread.start();
 
         return true;
@@ -191,14 +189,14 @@ public class CloudServiceProcess implements ICloudServiceProcess {
     private void destroyScreen() {
         if (this.screen == null) return;
         ScreenDestroyPacket screenDestroyPacket = null;
-        for (UUID nodeId : this.serviceHolder.get().getConsoleNodeListenerIds()) {
+        for (UUID nodeId : this.serviceHolder.getConsoleNodeListenerIds()) {
             if (nodeId.equals(NodeLauncher.getInstance().getNode().getUniqueId())) continue;
-            IRBucketHolder<ICloudNode> node = CloudAPI.getInstance().getNodeManager().getNode(nodeId);
+            ICloudNode node = CloudAPI.getInstance().getNodeManager().getNode(nodeId);
             if (screenDestroyPacket == null) {
                 screenDestroyPacket = new ScreenDestroyPacket();
-                screenDestroyPacket.setServiceId(this.serviceHolder.get().getUniqueId());
+                screenDestroyPacket.setServiceId(this.serviceHolder.getUniqueId());
             }
-            screenDestroyPacket.getPacketData().addReceiver(node.get().getNetworkComponentInfo());
+            screenDestroyPacket.getPacketData().addReceiver(node.getNetworkComponentInfo());
         }
         if (screenDestroyPacket != null) {
             screenDestroyPacket.publishAsync();
@@ -221,7 +219,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
 
     public void deleteTempFiles(boolean force) throws IOException {
         if (isActive()) stopProcess(force);
-        if (this.serviceHolder.get().isStatic() || !this.serviceDirectory.exists()) return;
+        if (this.serviceHolder.isStatic() || !this.serviceDirectory.exists()) return;
         FileUtils.deleteDirectory(this.serviceDirectory);
     }
 
@@ -232,7 +230,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
             stopProcess(force);
         }
 
-        if (this.serviceHolder.get().isStatic() || !this.serviceDirectory.exists()) {
+        if (this.serviceHolder.isStatic() || !this.serviceDirectory.exists()) {
             futureAction.complete(true);
             return futureAction;
         }
@@ -263,30 +261,30 @@ public class CloudServiceProcess implements ICloudServiceProcess {
             this.process.destroy();
         } else {
             CloudServiceInitStopPacket packet = new CloudServiceInitStopPacket();
-            packet.getPacketData().addReceiver(this.serviceHolder.get().getNetworkComponentInfo());
+            packet.getPacketData().addReceiver(this.serviceHolder.getNetworkComponentInfo());
             packet.publishAsync();
             CloudAPI.getInstance().getScheduler().runTaskLaterAsync(() -> { // service crashed, force stop
-                if(this.serviceHolder.get().getServiceState() == ServiceState.RUNNING_DEFINED
-                        || this.serviceHolder.get().getServiceState() == ServiceState.RUNNING_UNDEFINED) {
+                if(this.serviceHolder.getServiceState() == ServiceState.RUNNING_DEFINED
+                        || this.serviceHolder.getServiceState() == ServiceState.RUNNING_UNDEFINED) {
                     this.process.destroy();
                 }
             }, 1500, TimeUnit.MILLISECONDS);
         }
     }
 
-    private List<String> getStartCommand(IRBucketHolder<ICloudServiceVersion> serviceVersionHolder) {
+    private List<String> getStartCommand(ICloudServiceVersion serviceVersionHolder) {
         List<String> command = new ArrayList<>();
 
-        command.add(serviceVersionHolder.get().getJavaCommand());
+        command.add(serviceVersionHolder.getJavaCommand());
 
-        command.addAll(this.serviceHolder.get().getConfiguration().getJvmArguments());
-
-
-        command.add("-Xms" + this.serviceHolder.get().getConfiguration().getMaxMemory() + "M");
-        command.add("-Xmx" + this.serviceHolder.get().getConfiguration().getMaxMemory() + "M");
+        command.addAll(this.serviceHolder.getConfiguration().getJvmArguments());
 
 
-        if (this.serviceHolder.get().getEnvironment() == ServiceEnvironment.MINECRAFT) {
+        command.add("-Xms" + this.serviceHolder.getConfiguration().getMaxMemory() + "M");
+        command.add("-Xmx" + this.serviceHolder.getConfiguration().getMaxMemory() + "M");
+
+
+        if (this.serviceHolder.getEnvironment() == ServiceEnvironment.MINECRAFT) {
             command.add("-Dcom.mojang.eula.agree=true");
             command.add("-Djline.terminal=jline.UnsupportedTerminal");
         }
@@ -294,11 +292,11 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         command.add("-jar");
         command.add(this.serviceDirectory.getAbsolutePath() + File.separator + "service.jar");
 
-        if (this.serviceHolder.get().getEnvironment() == ServiceEnvironment.MINECRAFT) {
+        if (this.serviceHolder.getEnvironment() == ServiceEnvironment.MINECRAFT) {
             command.add("nogui");
         }
 
-        command.addAll(this.serviceHolder.get().getConfiguration().getProcessParameters());
+        command.addAll(this.serviceHolder.getConfiguration().getProcessParameters());
 
         return command;
     }

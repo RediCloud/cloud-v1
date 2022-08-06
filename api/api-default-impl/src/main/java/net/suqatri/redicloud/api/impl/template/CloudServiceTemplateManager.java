@@ -1,7 +1,6 @@
 package net.suqatri.redicloud.api.impl.template;
 
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.template.ICloudServiceTemplate;
 import net.suqatri.redicloud.api.template.ICloudServiceTemplateManager;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
@@ -11,17 +10,17 @@ import java.util.Collection;
 public class CloudServiceTemplateManager extends RedissonBucketManager<CloudServiceTemplate, ICloudServiceTemplate> implements ICloudServiceTemplateManager {
 
     public CloudServiceTemplateManager() {
-        super("template", ICloudServiceTemplate.class);
+        super("template", CloudServiceTemplate.class);
     }
 
     @Override
-    public IRBucketHolder<ICloudServiceTemplate> getTemplate(String name) {
-        return this.getBucketHolder(name);
+    public ICloudServiceTemplate getTemplate(String name) {
+        return this.get(name);
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudServiceTemplate>> getTemplateAsync(String name) {
-        return this.getBucketHolderAsync(name);
+    public FutureAction<ICloudServiceTemplate> getTemplateAsync(String name) {
+        return this.getAsync(name);
     }
 
     @Override
@@ -35,12 +34,12 @@ public class CloudServiceTemplateManager extends RedissonBucketManager<CloudServ
     }
 
     @Override
-    public Collection<IRBucketHolder<ICloudServiceTemplate>> getAllTemplates() {
+    public Collection<ICloudServiceTemplate> getAllTemplates() {
         return this.getBucketHolders();
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> getAllTemplatesAsync() {
+    public FutureAction<Collection<ICloudServiceTemplate>> getAllTemplatesAsync() {
         return this.getBucketHoldersAsync();
     }
 }

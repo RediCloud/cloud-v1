@@ -1,6 +1,5 @@
 package net.suqatri.redicloud.api.group;
 
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
 import java.util.Collection;
@@ -8,13 +7,13 @@ import java.util.UUID;
 
 public interface ICloudGroupManager {
 
-    FutureAction<IRBucketHolder<ICloudGroup>> getGroupAsync(UUID uniqueId);
+    FutureAction<ICloudGroup> getGroupAsync(UUID uniqueId);
 
-    IRBucketHolder<ICloudGroup> getGroup(UUID uniqueId);
+    ICloudGroup getGroup(UUID uniqueId);
 
-    FutureAction<IRBucketHolder<ICloudGroup>> getGroupAsync(String name);
+    FutureAction<ICloudGroup> getGroupAsync(String name);
 
-    IRBucketHolder<ICloudGroup> getGroup(String name);
+    ICloudGroup getGroup(String name);
 
     FutureAction<Boolean> existsGroupAsync(UUID uniqueId);
 
@@ -24,18 +23,18 @@ public interface ICloudGroupManager {
 
     boolean existsGroup(String name);
 
-    Collection<IRBucketHolder<ICloudGroup>> getGroups();
+    Collection<ICloudGroup> getGroups();
 
-    FutureAction<Collection<IRBucketHolder<ICloudGroup>>> getGroupsAsync();
+    FutureAction<Collection<ICloudGroup>> getGroupsAsync();
 
-    IRBucketHolder<ICloudGroup> createGroup(ICloudGroup group);
+    ICloudGroup createGroup(ICloudGroup group);
 
-    FutureAction<IRBucketHolder<ICloudGroup>> createGroupAsync(ICloudGroup group);
+    FutureAction<ICloudGroup> createGroupAsync(ICloudGroup group);
 
     FutureAction<Boolean> deleteGroupAsync(UUID uniqueId);
 
     boolean deleteGroup(UUID uniqueId) throws Exception;
 
-    FutureAction<IRBucketHolder<ICloudGroup>> addDefaultTemplates(IRBucketHolder<ICloudGroup> group);
+    FutureAction<ICloudGroup> addDefaultTemplates(ICloudGroup group);
 
 }

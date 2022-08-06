@@ -3,11 +3,9 @@ package net.suqatri.redicloud.api.velocity;
 import com.velocitypowered.api.proxy.ProxyServer;
 import lombok.Getter;
 import net.suqatri.redicloud.api.impl.CloudDefaultAPIImpl;
-import net.suqatri.redicloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.redicloud.api.impl.service.CloudService;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.player.IPlayerBridge;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.utils.ApplicationType;
 import net.suqatri.redicloud.api.velocity.player.VelocityPlayerBridge;
 
@@ -26,7 +24,7 @@ public abstract class VelocityDefaultCloudAPI extends CloudDefaultAPIImpl<CloudS
     }
 
     @Override
-    public IPlayerBridge createBridge(IRBucketHolder<ICloudPlayer> playerHolder) {
+    public IPlayerBridge createBridge(ICloudPlayer playerHolder) {
         return new VelocityPlayerBridge(playerHolder);
     }
 }

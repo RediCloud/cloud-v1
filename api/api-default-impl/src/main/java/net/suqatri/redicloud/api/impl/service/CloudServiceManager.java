@@ -9,7 +9,6 @@ import net.suqatri.redicloud.api.impl.service.packet.start.CloudFactoryServiceSt
 import net.suqatri.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartResponseCloud;
 import net.suqatri.redicloud.api.impl.service.packet.stop.CloudFactoryServiceStopPacket;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ICloudServiceManager;
@@ -27,7 +26,7 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     private RMap<String, String> serviceIdFetcherMap;
 
     public CloudServiceManager() {
-        super("service", ICloudService.class);
+        super("service", CloudService.class);
         CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event ->
                 this.serviceIdFetcherMap = event.getConnection().getClient().getMap("fetcher:serviceId", getObjectCodec()));
     }
@@ -73,8 +72,8 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudService>> getServiceAsync(String name) {
-        FutureAction<IRBucketHolder<ICloudService>> futureAction = new FutureAction<>();
+    public FutureAction<ICloudService> getServiceAsync(String name) {
+        FutureAction<ICloudService> futureAction = new FutureAction<>();
 
         this.containsKeyInFetcherAsync(name)
                 .onFailure(futureAction)
@@ -94,48 +93,48 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudService>> getServiceAsync(UUID uniqueId) {
-        return this.getBucketHolderAsync(uniqueId.toString()).map(holder -> {
-            this.putInFetcher(holder.get().getServiceName(), holder.get().getUniqueId());
+    public FutureAction<ICloudService> getServiceAsync(UUID uniqueId) {
+        return this.getAsync(uniqueId.toString()).map(holder -> {
+            this.putInFetcher(holder.getServiceName(), holder.getUniqueId());
             return holder;
         });
     }
 
     @Override
-    public IRBucketHolder<ICloudService> getService(String name) {
+    public ICloudService getService(String name) {
         if (!containsKeyInFetcher(name)) return null;
         return getService(getServiceIdFromFetcher(name));
     }
 
     @Override
-    public IRBucketHolder<ICloudService> getService(UUID uniqueId) {
-        IRBucketHolder<ICloudService> holder = getBucketHolder(uniqueId.toString());
-        putInFetcher(holder.get().getServiceName(), holder.get().getUniqueId());
+    public ICloudService getService(UUID uniqueId) {
+        ICloudService holder = get(uniqueId.toString());
+        putInFetcher(holder.getServiceName(), holder.getUniqueId());
         return holder;
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getServicesAsync() {
+    public FutureAction<Collection<ICloudService>> getServicesAsync() {
         return this.getBucketHoldersAsync().map(services -> {
-            for (IRBucketHolder<ICloudService> service : services) {
-                putInFetcher(service.get().getServiceName(), service.get().getUniqueId());
+            for (ICloudService service : services) {
+                putInFetcher(service.getServiceName(), service.getUniqueId());
             }
             return services;
         });
     }
 
     @Override
-    public Collection<IRBucketHolder<ICloudService>> getServices() {
-        Collection<IRBucketHolder<ICloudService>> services = getBucketHolders();
-        for (IRBucketHolder<ICloudService> service : services) {
-            putInFetcher(service.get().getServiceName(), service.get().getUniqueId());
+    public Collection<ICloudService> getServices() {
+        Collection<ICloudService> services = getBucketHolders();
+        for (ICloudService service : services) {
+            putInFetcher(service.getServiceName(), service.getUniqueId());
         }
         return services;
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudService>> startService(IServiceStartConfiguration configuration) {
-        FutureAction<IRBucketHolder<ICloudService>> futureAction = new FutureAction<>();
+    public FutureAction<ICloudService> startService(IServiceStartConfiguration configuration) {
+        FutureAction<ICloudService> futureAction = new FutureAction<>();
         DefaultServiceStartConfiguration.fromInterface(configuration)
                 .onFailure(futureAction)
                 .onSuccess(configuration1 -> {
@@ -177,19 +176,19 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     }
 
     @Override
-    public final IRBucketHolder<ICloudService> getFallbackService(IRBucketHolder<ICloudPlayer> cloudPlayer, IRBucketHolder<ICloudService>... blacklisted) {
-        IRBucketHolder<ICloudService> fallbackHolder = null;
-        List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(holder -> holder.get().getUniqueId()).collect(Collectors.toList());
-        for (IRBucketHolder<ICloudService> serviceHolder : getServices()) {
-            if (blackList.contains(serviceHolder.get().getUniqueId())) continue;
-            if (serviceHolder.get().isMaintenance() && !cloudPlayer.get().getBridge().hasPermission("redicloud.maintenance.bypass")) continue;
-            if (!serviceHolder.get().getConfiguration().isFallback()) continue;
-            if (serviceHolder.get().getOnlineCount() >= serviceHolder.get().getMaxPlayers()) continue;
+    public final ICloudService getFallbackService(ICloudPlayer cloudPlayer, ICloudService... blacklisted) {
+        ICloudService fallbackHolder = null;
+        List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(holder -> holder.getUniqueId()).collect(Collectors.toList());
+        for (ICloudService serviceHolder : getServices()) {
+            if (blackList.contains(serviceHolder.getUniqueId())) continue;
+            if (serviceHolder.isMaintenance() && !cloudPlayer.getBridge().hasPermission("redicloud.maintenance.bypass")) continue;
+            if (!serviceHolder.getConfiguration().isFallback()) continue;
+            if (serviceHolder.getOnlineCount() >= serviceHolder.getMaxPlayers()) continue;
             if (fallbackHolder == null) {
                 fallbackHolder = serviceHolder;
                 continue;
             }
-            if (fallbackHolder.get().getOnlineCount() > serviceHolder.get().getOnlineCount()) {
+            if (fallbackHolder.getOnlineCount() > serviceHolder.getOnlineCount()) {
                 fallbackHolder = serviceHolder;
             }
         }
@@ -198,19 +197,19 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
 
 
     @Override
-    public final IRBucketHolder<ICloudService> getFallbackService(boolean maintenanceByPass, IRBucketHolder<ICloudService>... blacklisted) {
-        IRBucketHolder<ICloudService> fallbackHolder = null;
-        List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(holder -> holder.get().getUniqueId()).collect(Collectors.toList());
-        for (IRBucketHolder<ICloudService> serviceHolder : getServices()) {
-            if (blackList.contains(serviceHolder.get().getUniqueId())) continue;
-            if (serviceHolder.get().isMaintenance() && !maintenanceByPass) continue;
-            if (!serviceHolder.get().getConfiguration().isFallback()) continue;
-            if (serviceHolder.get().getOnlineCount() >= serviceHolder.get().getMaxPlayers()) continue;
+    public final ICloudService getFallbackService(boolean maintenanceByPass, ICloudService... blacklisted) {
+        ICloudService fallbackHolder = null;
+        List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(holder -> holder.getUniqueId()).collect(Collectors.toList());
+        for (ICloudService serviceHolder : getServices()) {
+            if (blackList.contains(serviceHolder.getUniqueId())) continue;
+            if (serviceHolder.isMaintenance() && !maintenanceByPass) continue;
+            if (!serviceHolder.getConfiguration().isFallback()) continue;
+            if (serviceHolder.getOnlineCount() >= serviceHolder.getMaxPlayers()) continue;
             if (fallbackHolder == null) {
                 fallbackHolder = serviceHolder;
                 continue;
             }
-            if (fallbackHolder.get().getOnlineCount() > serviceHolder.get().getOnlineCount()) {
+            if (fallbackHolder.getOnlineCount() > serviceHolder.getOnlineCount()) {
                 fallbackHolder = serviceHolder;
             }
         }
@@ -219,7 +218,7 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
 
     @Override
     public boolean existsService(String name) {
-        return getServices().parallelStream().anyMatch(service -> service.get().getServiceName().equalsIgnoreCase(name));
+        return getServices().parallelStream().anyMatch(service -> service.getServiceName().equalsIgnoreCase(name));
     }
 
     @Override
@@ -238,12 +237,12 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     }
 
     @Override
-    public boolean executeCommand(IRBucketHolder<ICloudService> serviceHolder, String command) {
-        if(!serviceHolder.get().getNetworkComponentInfo().equals(CloudAPI.getInstance().getNetworkComponentInfo())) {
+    public boolean executeCommand(ICloudService serviceHolder, String command) {
+        if(!serviceHolder.getNetworkComponentInfo().equals(CloudAPI.getInstance().getNetworkComponentInfo())) {
             CloudServiceConsoleCommandPacket packet = new CloudServiceConsoleCommandPacket();
-            packet.setServiceId(serviceHolder.get().getUniqueId());
+            packet.setServiceId(serviceHolder.getUniqueId());
             packet.setCommand(command);
-            packet.getPacketData().addReceiver(serviceHolder.get().getNetworkComponentInfo());
+            packet.getPacketData().addReceiver(serviceHolder.getNetworkComponentInfo());
             packet.publishAsync();
             return true;
         }

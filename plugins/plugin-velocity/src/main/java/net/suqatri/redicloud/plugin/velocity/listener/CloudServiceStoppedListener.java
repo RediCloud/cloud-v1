@@ -28,7 +28,7 @@ public class CloudServiceStoppedListener {
                         if (!player.hasPermission("redicloud.service.notify")) continue;
                         player.sendMessage(LegacyMessageUtils.component(VelocityCloudAPI.getInstance().getChatPrefix()
                                 + "§3" + event.getServiceName() + "§8(§f"
-                                + nodeHolder.get().getName() + "§8) » §4§l■"));
+                                + nodeHolder.getName() + "§8) » §4§l■"));
                     }
                 });
     }

@@ -22,7 +22,6 @@ import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersionManager
 import net.suqatri.redicloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.redis.RedisCredentials;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.ServiceState;
@@ -120,18 +119,18 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
     public void registerStartedService() {
         this.serviceManager.getServicesAsync()
                 .onFailure(e -> this.console.error("Failed to register started service", e))
-                .onSuccess(serviceHolders -> {
-                    for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                        Optional<RegisteredServer> serverInfo = this.getProxyServer().getServer(serviceHolder.get().getServiceName());
+                .onSuccess(services -> {
+                    for (ICloudService serviceHolder : services) {
+                        Optional<RegisteredServer> serverInfo = this.getProxyServer().getServer(serviceHolder.getServiceName());
                         if(!serverInfo.isPresent()) continue;
                         this.getProxyServer().unregisterServer(serverInfo.get().getServerInfo());
                     }
 
-                    for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders) {
-                        if (serviceHolder.get().getEnvironment() == ServiceEnvironment.BUNGEECORD) continue;
-                        if(serviceHolder.get().getEnvironment() == ServiceEnvironment.VELOCITY) continue;
-                        ServerInfo serverInfo = new ServerInfo(serviceHolder.get().getServiceName(),
-                                new InetSocketAddress(serviceHolder.get().getHostName(), serviceHolder.get().getPort()));
+                    for (ICloudService serviceHolder : services) {
+                        if (serviceHolder.getEnvironment() == ServiceEnvironment.BUNGEECORD) continue;
+                        if(serviceHolder.getEnvironment() == ServiceEnvironment.VELOCITY) continue;
+                        ServerInfo serverInfo = new ServerInfo(serviceHolder.getServiceName(),
+                                new InetSocketAddress(serviceHolder.getHostName(), serviceHolder.getPort()));
                         this.getProxyServer().registerServer(serverInfo);
                         CloudAPI.getInstance().getConsole().debug("Registered service: " + serverInfo.getName());
                     }
@@ -218,7 +217,7 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
 
         this.service = null;
 
-        if (CloudAPI.getInstance().getNodeManager().getNodes().parallelStream().noneMatch(holder -> holder.get().isConnected())) {
+        if (CloudAPI.getInstance().getNodeManager().getNodes().parallelStream().noneMatch(holder -> holder.isConnected())) {
             this.console.fatal("Cluster seems to be offline! There are no connected nodes!", null);
             this.shutdown(false);
             return;
@@ -229,15 +228,15 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
             if (this.getGroupManager().existsGroup(getGroupId())) {
 
                 IServiceStartConfiguration startConfiguration = this.getGroupManager()
-                        .getGroup(this.getGroupId()).getImpl(CloudGroup.class).createServiceConfiguration();
+                        .getGroup(this.getGroupId()).createServiceConfiguration();
 
                 int id = 1;
                 List<Integer> ids = new ArrayList<>();
-                for (IRBucketHolder<ICloudService> serviceHolder : this.serviceManager.getServices()) {
-                    if (serviceHolder.get().getServiceState() == ServiceState.OFFLINE && startConfiguration.isStatic())
+                for (ICloudService serviceHolder : this.serviceManager.getServices()) {
+                    if (serviceHolder.getServiceState() == ServiceState.OFFLINE && startConfiguration.isStatic())
                         continue;
-                    if (serviceHolder.get().getGroupName().equalsIgnoreCase(startConfiguration.getGroupName())) {
-                        ids.add(serviceHolder.get().getId());
+                    if (serviceHolder.getGroupName().equalsIgnoreCase(startConfiguration.getGroupName())) {
+                        ids.add(serviceHolder.getId());
                     }
                 }
                 while (ids.contains(id)) id++;
@@ -250,14 +249,14 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
                 this.service.setMaxPlayers(50);
                 this.service.setMotd("§7•§8● §bRedi§3Cloud §8» §fA §bredis §fbased §bcluster §fcloud system§r\n    §b§l§8× §fDiscord §8➜ §3https://discord.gg/g2HV52VV4G");
                 this.service.setNodeId(null);
-                this.service = this.serviceManager.createBucket(this.service.getUniqueId().toString(), this.service).getImpl(CloudService.class);
+                this.service = (CloudService) this.serviceManager.createBucket(this.service.getUniqueId().toString(), this.service);
             } else {
                 this.console.fatal("No target group found for external service " + getServiceId(), null);
                 shutdown(false);
                 return;
             }
         } else {
-            service = this.serviceManager.getService(getServiceId()).getImpl(CloudService.class);
+            service = (CloudService) this.serviceManager.getService(getServiceId());
             if (service.getServiceState() == ServiceState.RUNNING_DEFINED || service.getServiceState() == ServiceState.RUNNING_UNDEFINED) {
                 this.runningExternal = true;
                 this.console.fatal("Can´t run external service because " + getServiceId() + " is already running!", null);
@@ -266,7 +265,7 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
             }
         }
 
-        getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service.getHolder()));
+        getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service));
 
         this.updaterTask = this.getProxyServer().getScheduler().buildTask(this.plugin, () -> {
             if (this.service.getOnlineCount() != this.getProxyServer().getPlayerCount()) {
@@ -328,7 +327,7 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
 
         if (this.service != null) {
             if (this.service.isExternal()) {
-                CloudAPI.getInstance().getEventManager().postGlobalAsync(new CloudServiceStoppedEvent(this.service.getHolder()));
+                CloudAPI.getInstance().getEventManager().postGlobalAsync(new CloudServiceStoppedEvent(this.service));
             }
         }
 

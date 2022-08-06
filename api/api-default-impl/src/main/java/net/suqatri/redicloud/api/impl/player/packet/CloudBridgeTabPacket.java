@@ -18,7 +18,7 @@ public class CloudBridgeTabPacket extends CloudPacket {
         CloudAPI.getInstance().getPlayerManager().getPlayerAsync(this.uniqueId)
             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to send title to player " + this.uniqueId, t))
             .onSuccess(playerHolder -> {
-                playerHolder.get().getBridge().sendTab(this.header, this.footer);
+                playerHolder.getBridge().sendTab(this.header, this.footer);
             });
     }
 }

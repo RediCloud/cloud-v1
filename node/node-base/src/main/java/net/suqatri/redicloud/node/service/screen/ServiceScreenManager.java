@@ -4,7 +4,6 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.node.service.screen.IScreenLine;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreenManager;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 import net.suqatri.redicloud.node.NodeLauncher;
@@ -31,19 +30,19 @@ public class ServiceScreenManager implements IServiceScreenManager {
     }
 
     @Override
-    public IServiceScreen getServiceScreen(IRBucketHolder<ICloudService> serviceHolder) {
-        if (!this.screens.containsKey(serviceHolder.get().getUniqueId())) {
-            this.screens.put(serviceHolder.get().getUniqueId(), new ServiceScreen(serviceHolder));
+    public IServiceScreen getServiceScreen(ICloudService service) {
+        if (!this.screens.containsKey(service.getUniqueId())) {
+            this.screens.put(service.getUniqueId(), new ServiceScreen(service));
         }
-        return this.screens.get(serviceHolder.get().getUniqueId());
+        return this.screens.get(service.getUniqueId());
     }
 
     @Override
     public FutureAction<IServiceScreen> join(IServiceScreen serviceScreen) {
         FutureAction<IServiceScreen> futureAction = new FutureAction<>();
 
-        serviceScreen.getServiceHolder().get().getConsoleNodeListenerIds().add(NodeLauncher.getInstance().getNode().getUniqueId());
-        serviceScreen.getServiceHolder().get().updateAsync();
+        serviceScreen.getServices().getConsoleNodeListenerIds().add(NodeLauncher.getInstance().getNode().getUniqueId());
+        serviceScreen.getServices().updateAsync();
 
         if (this.activeScreens.contains(serviceScreen)) {
             futureAction.complete(serviceScreen);
@@ -73,8 +72,8 @@ public class ServiceScreenManager implements IServiceScreenManager {
     @Override
     public void leave(IServiceScreen serviceScreen) {
 
-        serviceScreen.getServiceHolder().get().getConsoleNodeListenerIds().remove(NodeLauncher.getInstance().getNode().getUniqueId());
-        serviceScreen.getServiceHolder().get().updateAsync();
+        serviceScreen.getServices().getConsoleNodeListenerIds().remove(NodeLauncher.getInstance().getNode().getUniqueId());
+        serviceScreen.getServices().updateAsync();
 
         this.activeScreens.remove(serviceScreen);
     }
@@ -86,7 +85,7 @@ public class ServiceScreenManager implements IServiceScreenManager {
 
     @Override
     public boolean isActive(UUID serviceId) {
-        return this.activeScreens.parallelStream().anyMatch(screen -> screen.getServiceHolder().get().getUniqueId().equals(serviceId));
+        return this.activeScreens.parallelStream().anyMatch(screen -> screen.getServices().getUniqueId().equals(serviceId));
     }
 
     @Override
@@ -102,7 +101,7 @@ public class ServiceScreenManager implements IServiceScreenManager {
     @Override
     public void write(String command) {
         for (IServiceScreen activeScreen : this.activeScreens) {
-            CloudAPI.getInstance().getServiceManager().executeCommand(activeScreen.getServiceHolder(), command);
+            CloudAPI.getInstance().getServiceManager().executeCommand(activeScreen.getServices(), command);
         }
     }
 }

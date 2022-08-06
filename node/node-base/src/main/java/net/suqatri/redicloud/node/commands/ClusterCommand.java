@@ -8,7 +8,6 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.node.CloudNode;
 import net.suqatri.redicloud.api.impl.node.CloudNodeManager;
 import net.suqatri.redicloud.api.node.ICloudNode;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.node.packet.NodePingPacket;
@@ -70,12 +69,12 @@ public class ClusterCommand extends ConsoleCommand {
                     CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node " + nodeName, e))
                             .onSuccess(nodeHolder -> {
-                                if (!nodeHolder.get().isConnected()) {
+                                if (!nodeHolder.isConnected()) {
                                     commandSender.sendMessage("Node not connected!");
                                     return;
                                 }
                                 NodePingPacket packet = new NodePingPacket();
-                                packet.getPacketData().addReceiver(nodeHolder.get().getNetworkComponentInfo());
+                                packet.getPacketData().addReceiver(nodeHolder.getNetworkComponentInfo());
                                 packet.getPacketData().waitForResponse()
                                         .onFailure(e -> {
                                             if (e instanceof TimeoutException) {
@@ -102,7 +101,7 @@ public class ClusterCommand extends ConsoleCommand {
         CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)
                 .onFailure(e -> commandSender.sendMessage("Can't find node " + nodeName))
                 .onSuccess(nodeHolder -> {
-                    CloudNode node = nodeHolder.getImpl(CloudNode.class);
+                    CloudNode node = (CloudNode) nodeHolder;
                     if (node.isConnected()) {
                         commandSender.sendMessage("%tc" + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getName());
                         commandSender.sendMessage("§8   » %tcLast-IP: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getHostname());
@@ -128,8 +127,8 @@ public class ClusterCommand extends ConsoleCommand {
         CloudAPI.getInstance().getNodeManager().getNodesAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("§cFailed to get nodes", (Throwable) e))
                 .onSuccess(nodes -> {
-                    List<ICloudNode> connectedNodes = nodes.parallelStream().map(IRBucketHolder::get).filter(ICloudNode::isConnected).collect(Collectors.toList());
-                    List<ICloudNode> offlineNodes = nodes.parallelStream().map(IRBucketHolder::get).filter(node -> !node.isConnected()).collect(Collectors.toList());
+                    List<ICloudNode> connectedNodes = nodes.parallelStream().filter(ICloudNode::isConnected).collect(Collectors.toList());
+                    List<ICloudNode> offlineNodes = nodes.parallelStream().filter(node -> !node.isConnected()).collect(Collectors.toList());
                     commandSender.sendMessage("");
                     commandSender.sendMessage("Connected nodes: %hc" + connectedNodes.size());
                     commandSender.sendMessage("Offline nodes: %hc" + offlineNodes.size());

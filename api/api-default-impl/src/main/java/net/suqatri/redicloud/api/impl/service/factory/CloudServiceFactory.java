@@ -1,7 +1,6 @@
 package net.suqatri.redicloud.api.impl.service.factory;
 
 import lombok.Data;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ICloudServiceManager;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
@@ -17,7 +16,7 @@ public class CloudServiceFactory implements ICloudServiceFactory {
 
     //TODO packets to node
     @Override
-    public FutureAction<IRBucketHolder<ICloudService>> queueService(IServiceStartConfiguration configuration) {
+    public FutureAction<ICloudService> queueService(IServiceStartConfiguration configuration) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 

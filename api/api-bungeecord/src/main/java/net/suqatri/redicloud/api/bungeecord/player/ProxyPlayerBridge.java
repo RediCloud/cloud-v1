@@ -7,7 +7,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.player.RequestPlayerBridge;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceState;
 
@@ -15,25 +14,25 @@ import java.util.UUID;
 
 public class ProxyPlayerBridge extends RequestPlayerBridge {
 
-    public ProxyPlayerBridge(IRBucketHolder<ICloudPlayer> playerHolder) {
+    public ProxyPlayerBridge(ICloudPlayer playerHolder) {
         super(playerHolder);
     }
 
     @Override
     public void sendMessage(String message) {
-        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(this.getPlayerHolder().get().getUniqueId());
+        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(this.getPlayer().getUniqueId());
         if(player == null || !player.isConnected()) return;
         player.sendMessage(message);
     }
 
     @Override
-    public void connect(IRBucketHolder<ICloudService> cloudService) {
-        if(!this.getPlayerHolder().get().isConnected()) return;
-        if(cloudService.get().getServiceState() != ServiceState.RUNNING_DEFINED
-                || cloudService.get().getServiceState() != ServiceState.RUNNING_UNDEFINED) return;
-        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(this.getPlayerHolder().get().getUniqueId());
+    public void connect(ICloudService cloudService) {
+        if(!this.getPlayer().isConnected()) return;
+        if(cloudService.getServiceState() != ServiceState.RUNNING_DEFINED
+                || cloudService.getServiceState() != ServiceState.RUNNING_UNDEFINED) return;
+        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(this.getPlayer().getUniqueId());
         if(player == null || !player.isConnected()) return;
-        ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(cloudService.get().getServiceName());
+        ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(cloudService.getServiceName());
         if(serverInfo == null) return;
         player.connect(serverInfo);
     }
@@ -64,23 +63,23 @@ public class ProxyPlayerBridge extends RequestPlayerBridge {
 
     @Override
     public void disconnect(String reason) {
-        if(!this.getPlayerHolder().get().isConnected()) return;
-        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(this.getPlayerHolder().get().getUniqueId());
+        if(!this.getPlayer().isConnected()) return;
+        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(this.getPlayer().getUniqueId());
         if(player == null || !player.isConnected()) return;
         player.disconnect(reason);
     }
 
     @Override
     public void sendTab(String header, String footer) {
-        if(!this.getPlayerHolder().get().isConnected()) return;
-        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(this.getPlayerHolder().get().getUniqueId());
+        if(!this.getPlayer().isConnected()) return;
+        ProxiedPlayer player = ProxyServer.getInstance().getPlayer(this.getPlayer().getUniqueId());
         if(player == null || !player.isConnected()) return;
         player.setTabHeader(TextComponent.fromLegacyText(header), TextComponent.fromLegacyText(footer));
     }
 
     @Override
     public boolean hasPermission(String permission) {
-        ProxiedPlayer proxiedPlayer = ProxyServer.getInstance().getPlayer(this.getPlayerHolder().get().getUniqueId());
+        ProxiedPlayer proxiedPlayer = ProxyServer.getInstance().getPlayer(this.getPlayer().getUniqueId());
         if(proxiedPlayer == null || !proxiedPlayer.isConnected()) return false;
         return proxiedPlayer.hasPermission(permission);
     }

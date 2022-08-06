@@ -7,12 +7,19 @@ import java.io.Serializable;
 
 public interface IRBucketObject extends Serializable, IRUpdateAble {
 
-    IRBucketHolder<IRBucketObject> getHolder();
+    IRBucketObject update();
 
-    void update();
+    FutureAction<IRBucketObject> updateAsync();
 
-    FutureAction<Void> updateAsync();
+    String getRedisKey();
 
-    void merged();
+    String getRedisPrefix();
+
+    String getIdentifier();
+
+    default void merged(){}
+
+    IRedissonBucketManager getManager();
+    void setManager(IRedissonBucketManager manager);
 
 }

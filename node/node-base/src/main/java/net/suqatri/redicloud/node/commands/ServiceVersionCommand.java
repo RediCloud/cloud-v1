@@ -7,7 +7,6 @@ import net.suqatri.commands.annotation.*;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersion;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.redicloud.api.service.version.ServiceVersionProperty;
 import net.suqatri.redicloud.node.NodeLauncher;
@@ -47,10 +46,10 @@ public class ServiceVersionCommand extends ConsoleCommand {
             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to install default service versions", e))
             .onSuccess(versionHolders -> {
                 StringBuilder builder = new StringBuilder();
-                for (IRBucketHolder<ICloudServiceVersion> versionHolder : versionHolders) {
+                for (ICloudServiceVersion versionHolder : versionHolders) {
                     if(!builder.toString().isEmpty()) builder.append("§7, ");
                     builder.append("%hc");
-                    builder.append(versionHolder.get().getName());
+                    builder.append(versionHolder.getName());
                 }
                 commandSender.sendMessage("Installed service versions: " + builder);
             });
@@ -95,18 +94,18 @@ public class ServiceVersionCommand extends ConsoleCommand {
         CloudAPI.getInstance().getGroupManager().getGroupsAsync()
                 .onFailure(t -> commandSender.sendMessage("Failed to get groups"))
                 .onSuccess(groupHolders -> {
-                    List<IRBucketHolder<ICloudGroup>> list = new ArrayList<>();
-                    for (IRBucketHolder<ICloudGroup> groupHolder : groupHolders) {
-                        if (groupHolder.get().getServiceVersionName().equalsIgnoreCase(name)) {
+                    List<ICloudGroup> list = new ArrayList<>();
+                    for (ICloudGroup groupHolder : groupHolders) {
+                        if (groupHolder.getServiceVersionName().equalsIgnoreCase(name)) {
                             list.add(groupHolder);
                         }
                     }
                     if (!list.isEmpty()) {
                         StringBuilder builder = new StringBuilder();
-                        for (IRBucketHolder<ICloudGroup> groupIRBucketHolder : list) {
+                        for (ICloudGroup group : list) {
                             if (!builder.toString().isEmpty()) builder.append("§8, ");
                             builder.append("%hc");
-                            builder.append(groupIRBucketHolder.get().getName());
+                            builder.append(group.getName());
                         }
                         commandSender.sendMessage("Cannot delete service version %hc" + name + "%tc because it is used by groups: " + builder);
                         return;
@@ -135,8 +134,8 @@ public class ServiceVersionCommand extends ConsoleCommand {
                         CloudAPI.getInstance().getConsole().info("No service versions found");
                     } else {
                         CloudAPI.getInstance().getConsole().info("Service versions §8(%hc" + versionHolders.size() + "§8)%tc:");
-                        for (IRBucketHolder<ICloudServiceVersion> versionHolder : versionHolders) {
-                            CloudAPI.getInstance().getConsole().info("§8- %tc" + versionHolder.get().getName() + " §8| %hc" + versionHolder.get().getDownloadUrl());
+                        for (ICloudServiceVersion versionHolder : versionHolders) {
+                            CloudAPI.getInstance().getConsole().info("§8- %tc" + versionHolder.getName() + " §8| %hc" + versionHolder.getDownloadUrl());
                         }
                     }
                 });
@@ -185,17 +184,17 @@ public class ServiceVersionCommand extends ConsoleCommand {
                                 }
                                 switch (property) {
                                     case DOWNLOAD_URL:
-                                        versionHolder.get().setDownloadUrl(value);
-                                        versionHolder.get().updateAsync()
+                                        versionHolder.setDownloadUrl(value);
+                                        versionHolder.updateAsync()
                                                 .onSuccess(v -> {
-                                                    if (versionHolder.get().isPaperClip()) {
+                                                    if (versionHolder.isPaperClip()) {
                                                         CloudAPI.getInstance().getServiceVersionManager().patchAsync(versionHolder, true);
                                                     }
                                                 });
                                         break;
                                     case JAVA_COMMAND:
-                                        versionHolder.get().setJavaCommand(value);
-                                        versionHolder.get().updateAsync();
+                                        versionHolder.setJavaCommand(value);
+                                        versionHolder.updateAsync();
                                         break;
                                     case PAPER_CLIP:
                                         boolean paperClip = false;
@@ -205,10 +204,10 @@ public class ServiceVersionCommand extends ConsoleCommand {
                                             commandSender.sendMessage("Invalid value! Must be a boolean");
                                             return;
                                         }
-                                        versionHolder.get().setPaperClip(paperClip);
-                                        versionHolder.get().updateAsync()
+                                        versionHolder.setPaperClip(paperClip);
+                                        versionHolder.updateAsync()
                                                 .onSuccess(v -> {
-                                                    if (versionHolder.get().isPaperClip()) {
+                                                    if (versionHolder.isPaperClip()) {
                                                         CloudAPI.getInstance().getServiceVersionManager().patchAsync(versionHolder, true);
                                                     }
                                                 });
@@ -234,7 +233,7 @@ public class ServiceVersionCommand extends ConsoleCommand {
                     CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(serviceVersionName)
                             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while getting service version", t))
                             .onSuccess(versionHolder -> {
-                                if (!versionHolder.get().isPaperClip()) {
+                                if (!versionHolder.isPaperClip()) {
                                     CloudAPI.getInstance().getConsole().error("Service version is not paperclip");
                                     return;
                                 }

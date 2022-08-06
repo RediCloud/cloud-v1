@@ -12,7 +12,7 @@ public class CloudNodeSuggester implements SetupSuggester {
     @Override
     public List<String> suggest(Setup<?> setup, SetupEntry entry) {
         return CloudAPI.getInstance().getNodeManager().getNodes().parallelStream()
-                .map(holder -> holder.get().getName())
+                .map(holder -> holder.getName())
                 .collect(Collectors.toList());
     }
 }

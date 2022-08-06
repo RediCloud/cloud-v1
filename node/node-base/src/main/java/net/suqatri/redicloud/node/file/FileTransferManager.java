@@ -5,7 +5,6 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.node.file.IFileTransferManager;
 import net.suqatri.redicloud.api.node.file.process.IFileTransferReceiveProcess;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 import net.suqatri.redicloud.node.file.packet.*;
 import net.suqatri.redicloud.node.file.process.FileTransferSendProcess;
@@ -49,7 +48,7 @@ public class FileTransferManager implements IFileTransferManager {
         FileTransferProcessThread.getReceiveProcesses().put(transferId, this.waitingReceiveProcesses.get(transferId));
     }
 
-    public FutureAction<File> transferFolderToNode(File folder, File targetFile, String targetFilePathToDelete, IRBucketHolder<ICloudNode> holder) {
+    public FutureAction<File> transferFolderToNode(File folder, File targetFile, String targetFilePathToDelete, ICloudNode holder) {
         FutureAction<File> futureAction = new FutureAction<>();
 
         FileTransferSendProcess process = new FileTransferSendProcess();
@@ -106,7 +105,7 @@ public class FileTransferManager implements IFileTransferManager {
         }
     }
 
-    public FutureAction<Boolean> pullFile(String originalFilePath, File destinationFile, File targetFileToDelete, IRBucketHolder<ICloudNode> holder) {
+    public FutureAction<Boolean> pullFile(String originalFilePath, File destinationFile, File targetFileToDelete, ICloudNode holder) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
         if (this.pullingRequest != null) {
             futureAction.completeExceptionally(new IllegalStateException("Pulling request is already in progress!"));
@@ -116,7 +115,7 @@ public class FileTransferManager implements IFileTransferManager {
         packet.setOriginalFilePath(originalFilePath);
         packet.setDestinationFilePath(destinationFile.getPath());
         packet.setTargetFilePathToDelete(targetFileToDelete.getPath());
-        packet.getPacketData().addReceiver(holder.get().getNetworkComponentInfo());
+        packet.getPacketData().addReceiver(holder.getNetworkComponentInfo());
         packet.publishAsync();
 
         this.pullingRequest = futureAction;

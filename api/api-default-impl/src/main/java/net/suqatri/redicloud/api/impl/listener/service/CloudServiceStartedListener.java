@@ -14,7 +14,7 @@ public class CloudServiceStartedListener {
         event.getServiceAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while caching network components of service@" + event.getService().getIdentifier(), e))
                 .onSuccess(serviceHolder -> {
-                    manager.addCachedService(serviceHolder.get());
+                    manager.addCachedService(serviceHolder);
                 });
     }
 }

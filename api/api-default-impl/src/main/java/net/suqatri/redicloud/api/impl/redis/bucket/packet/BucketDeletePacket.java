@@ -15,6 +15,6 @@ public class BucketDeletePacket extends CloudPacket {
         RedissonBucketManager manager = RedissonBucketManager.getManager(this.redisPrefix);
         if (manager == null)
             throw new NullPointerException("RedissonBucketManager is null of prefix " + this.redisPrefix + "!");
-        manager.getCachedBucketHolders().remove(this.identifier);
+        manager.getCachedBucketObjects().remove(this.identifier);
     }
 }

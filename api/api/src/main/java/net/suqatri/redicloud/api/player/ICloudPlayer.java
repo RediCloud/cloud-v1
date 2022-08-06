@@ -1,6 +1,5 @@
 package net.suqatri.redicloud.api.player;
 
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketObject;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
@@ -28,9 +27,9 @@ public interface ICloudPlayer extends IRBucketObject {
 
     boolean isConnected();
 
-    FutureAction<IRBucketHolder<ICloudService>> getServer();
+    FutureAction<ICloudService> getServer();
 
-    FutureAction<IRBucketHolder<ICloudService>> getProxy();
+    FutureAction<ICloudService> getProxy();
 
     default long getSessionTime() {
         return System.currentTimeMillis() - getLastLogin();

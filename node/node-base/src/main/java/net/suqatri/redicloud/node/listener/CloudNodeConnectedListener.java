@@ -15,9 +15,9 @@ public class CloudNodeConnectedListener {
                         CloudAPI.getInstance().getConsole().error("Error while getting new connected node information!", t);
                         return;
                     }
-                    if (nodeHolder.get().getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId()))
+                    if (nodeHolder.getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId()))
                         return;
-                    CloudAPI.getInstance().getConsole().info("Node %hc" + nodeHolder.get().getName() + "%tc has been connected to the cluster!");
+                    CloudAPI.getInstance().getConsole().info("Node %hc" + nodeHolder.getName() + "%tc has been connected to the cluster!");
                 });
     }
 

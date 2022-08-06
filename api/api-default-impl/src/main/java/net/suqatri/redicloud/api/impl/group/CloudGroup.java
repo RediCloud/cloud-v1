@@ -9,7 +9,6 @@ import net.suqatri.redicloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.redicloud.api.impl.service.configuration.GroupServiceStartConfiguration;
 import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.ServiceState;
@@ -45,20 +44,20 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     private int percentToStartNewService = 80;
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion() {
+    public FutureAction<ICloudServiceVersion> getServiceVersion() {
         return CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(this.serviceVersionName);
     }
 
     @Override
-    public void setServiceVersion(IRBucketHolder<ICloudServiceVersion> serviceVersion) {
-        this.serviceVersionName = serviceVersion.get().getName();
+    public void setServiceVersion(ICloudServiceVersion serviceVersion) {
+        this.serviceVersionName = serviceVersion.getName();
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> getTemplates() {
-        FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> futureAction = new FutureAction<>();
+    public FutureAction<Collection<ICloudServiceTemplate>> getTemplates() {
+        FutureAction<Collection<ICloudServiceTemplate>> futureAction = new FutureAction<>();
 
-        FutureActionCollection<String, IRBucketHolder<ICloudServiceTemplate>> futureActionCollection = new FutureActionCollection<>();
+        FutureActionCollection<String, ICloudServiceTemplate> futureActionCollection = new FutureActionCollection<>();
         for (String templateName : templateNames) {
             futureActionCollection.addToProcess(templateName, CloudAPI.getInstance().getServiceTemplateManager().getTemplateAsync(templateName));
         }
@@ -77,18 +76,18 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     }
 
     @Override
-    public void addTemplate(IRBucketHolder<ICloudServiceTemplate> template) {
-        this.templateNames.add(template.get().getName());
+    public void addTemplate(ICloudServiceTemplate template) {
+        this.templateNames.add(template.getName());
     }
 
     @Override
-    public void removeTemplate(IRBucketHolder<ICloudServiceTemplate> template) {
-        this.templateNames.remove(template.get().getName());
+    public void removeTemplate(ICloudServiceTemplate template) {
+        this.templateNames.remove(template.getName());
     }
 
     @Override
-    public boolean hasTemplate(IRBucketHolder<ICloudServiceTemplate> template) {
-        return this.templateNames.contains(template.get().getName());
+    public boolean hasTemplate(ICloudServiceTemplate template) {
+        return this.templateNames.contains(template.getName());
     }
 
     @Override
@@ -110,43 +109,43 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(services -> (int) services
                         .parallelStream()
-                        .filter(holder -> holder.get().isGroupBased())
-                        .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(this.name))
-                        .filter(service -> service.get().getServiceState() == serviceState)
+                        .filter(holder -> holder.isGroupBased())
+                        .filter(holder -> holder.getGroupName().equalsIgnoreCase(this.name))
+                        .filter(service -> service.getServiceState() == serviceState)
                         .count());
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getConnectedServices() {
+    public FutureAction<Collection<ICloudService>> getConnectedServices() {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(holders -> holders
                         .parallelStream()
-                        .filter(holder -> holder.get().isGroupBased())
-                        .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(this.name))
-                        .filter(holder -> holder.get().getServiceState() != ServiceState.OFFLINE)
+                        .filter(ICloudService::isGroupBased)
+                        .filter(holder -> holder.getGroupName().equalsIgnoreCase(this.name))
+                        .filter(holder -> holder.getServiceState() != ServiceState.OFFLINE)
                         .collect(Collectors.toList())
                 );
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getServices() {
+    public FutureAction<Collection<ICloudService>> getServices() {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(holders -> holders
                         .parallelStream()
-                        .filter(holder -> holder.get().isGroupBased())
-                        .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(this.name))
+                        .filter(holder -> holder.isGroupBased())
+                        .filter(holder -> holder.getGroupName().equalsIgnoreCase(this.name))
                         .collect(Collectors.toList())
                 );
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudService>>> getServices(ServiceState serviceState) {
+    public FutureAction<Collection<ICloudService>> getServices(ServiceState serviceState) {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(holders -> holders
                         .parallelStream()
-                        .filter(holder -> holder.get().isGroupBased())
-                        .filter(holder -> holder.get().getGroupName().equalsIgnoreCase(this.name))
-                        .filter(holder -> holder.get().getServiceState() == serviceState)
+                        .filter(holder -> holder.isGroupBased())
+                        .filter(holder -> holder.getGroupName().equalsIgnoreCase(this.name))
+                        .filter(holder -> holder.getServiceState() == serviceState)
                         .collect(Collectors.toList()));
     }
 
@@ -162,8 +161,8 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudNode>>> getAssociatedNodes() {
-        FutureActionCollection<UUID, IRBucketHolder<ICloudNode>> futureActionCollection = new FutureActionCollection<>();
+    public FutureAction<Collection<ICloudNode>> getAssociatedNodes() {
+        FutureActionCollection<UUID, ICloudNode> futureActionCollection = new FutureActionCollection<>();
         for (UUID nodeId : this.associatedNodeIds) {
             futureActionCollection.addToProcess(nodeId, CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeId));
         }
@@ -193,22 +192,22 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
 
     //TODO improve this methode
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> getPlayers() {
-        FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> futureAction = new FutureAction<>();
+    public FutureAction<Collection<ICloudPlayer>> getPlayers() {
+        FutureAction<Collection<ICloudPlayer>> futureAction = new FutureAction<>();
 
         CloudAPI.getInstance().getPlayerManager().getConnectedPlayers()
                 .onFailure(futureAction)
                 .onSuccess(players -> {
-                    FutureActionCollection<UUID, IRBucketHolder<ICloudService>> futureActionCollection = new FutureActionCollection<>();
-                    for (IRBucketHolder<ICloudPlayer> player : players) {
-                        futureActionCollection.addToProcess(player.get().getUniqueId(), CloudAPI.getInstance().getServiceManager().getServiceAsync(player.get().getLastConnectedServerId()));
+                    FutureActionCollection<UUID, ICloudService> futureActionCollection = new FutureActionCollection<>();
+                    for (ICloudPlayer player : players) {
+                        futureActionCollection.addToProcess(player.getUniqueId(), CloudAPI.getInstance().getServiceManager().getServiceAsync(player.getLastConnectedServerId()));
                     }
                     futureActionCollection.process()
                             .onFailure(futureAction)
                             .onSuccess(playersServers -> {
-                                List<IRBucketHolder<ICloudPlayer>> list = new ArrayList<>();
-                                for (IRBucketHolder<ICloudPlayer> player : players) {
-                                    if (!playersServers.get(player.get().getUniqueId()).get().getName().equals(this.name))
+                                List<ICloudPlayer> list = new ArrayList<>();
+                                for (ICloudPlayer player : players) {
+                                    if (!playersServers.get(player.getUniqueId()).getName().equals(this.name))
                                         continue;
                                     list.add(player);
                                 }
@@ -224,8 +223,8 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
     public FutureAction<Integer> getPlayersCount() {
         return getConnectedServices().map(services -> {
             int count = 0;
-            for (IRBucketHolder<ICloudService> service : services) {
-                if (service.get().getName().equals(this.name)) count++;
+            for (ICloudService service : services) {
+                if (service.getName().equals(this.name)) count++;
             }
             return count;
         });
@@ -233,6 +232,11 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
 
     @Override
     public IServiceStartConfiguration createServiceConfiguration() {
-        return new GroupServiceStartConfiguration().applyFromGroup(this.getHolder());
+        return new GroupServiceStartConfiguration().applyFromGroup(this);
+    }
+
+    @Override
+    public String getIdentifier() {
+        return this.uniqueId.toString();
     }
 }

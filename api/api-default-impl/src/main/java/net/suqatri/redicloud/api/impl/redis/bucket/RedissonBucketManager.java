@@ -1,12 +1,12 @@
 package net.suqatri.redicloud.api.impl.redis.bucket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.redicloud.api.impl.node.CloudNode;
 import net.suqatri.redicloud.api.impl.redis.RedissonManager;
 import net.suqatri.redicloud.api.impl.redis.bucket.packet.BucketDeletePacket;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
+import net.suqatri.redicloud.api.impl.redis.bucket.packet.BucketUpdatePacket;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketObject;
 import net.suqatri.redicloud.api.redis.bucket.IRedissonBucketManager;
 import net.suqatri.redicloud.commons.function.Predicates;
@@ -20,17 +20,17 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
-public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends RedissonManager implements IRedissonBucketManager {
+public abstract class RedissonBucketManager<T extends I, I extends IRBucketObject> extends RedissonManager implements IRedissonBucketManager<T, I> {
 
     private static HashMap<String, RedissonBucketManager<?, ?>> managers = new HashMap<>();
 
-    private final ConcurrentHashMap<String, IRBucketHolder<T>> cachedBucketHolders;
-    private final Class<I> interfaceClass;
+    private final ConcurrentHashMap<String, T> cachedBucketObjects;
+    private final Class<T> interfaceClass;
     private final String redisPrefix;
 
-    public RedissonBucketManager(String prefix, Class<I> interfaceClass) {
+    public RedissonBucketManager(String prefix, Class<T> interfaceClass) {
         managers.put(prefix, this);
-        this.cachedBucketHolders = new ConcurrentHashMap<>();
+        this.cachedBucketObjects = new ConcurrentHashMap<>();
         this.interfaceClass = interfaceClass;
         this.redisPrefix = prefix;
     }
@@ -40,167 +40,240 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
     }
 
     @Override
-    public boolean isBucketHolderCached(String identifier) {
-        return this.cachedBucketHolders.containsKey(identifier);
+    public FutureAction<T> publishChangesAsync(T object) {
+        Predicates.notNull(object, "Object with identifier " + object.getIdentifier() + " is null!");
+        CloudAPI.getInstance().getConsole().trace("Updating bucket " + object.getIdentifier() + "!");
+        FutureAction<T> futureAction = new FutureAction<>();
+
+        new FutureAction<>(this.getClient().getBucket(object.getRedisKey(), getObjectCodec()).setAsync(object))
+            .onFailure(futureAction)
+            .onSuccess(a -> {
+                try {
+                    BucketUpdatePacket packet = new BucketUpdatePacket();
+                    packet.setIdentifier(object.getIdentifier());
+                    packet.setRedisPrefix(this.getRedisPrefix());
+                    packet.setJson(this.getObjectCodec().getObjectMapper().writeValueAsString(object));
+                    packet.publishAllAsync();
+                } catch (JsonProcessingException e) {
+                    futureAction.completeExceptionally(e);
+                    return;
+                }
+                futureAction.complete(object);
+            });
+
+        return futureAction;
     }
 
     @Override
-    public IRBucketHolder getCachedBucketHolder(String identifier) {
-        return this.cachedBucketHolders.get(identifier);
+    public T publishChanges(T object) {
+        Predicates.notNull(object, "Object with identifier " + object.getIdentifier() + " is null!");
+        CloudAPI.getInstance().getConsole().trace("Updating bucket " + object.getRedisKey() + "!");
+        this.getClient().getBucket(object.getRedisKey(), getObjectCodec()).set(object);
+        try {
+            BucketUpdatePacket packet = new BucketUpdatePacket();
+            packet.setIdentifier(object.getIdentifier());
+            packet.setRedisPrefix(this.getRedisPrefix());
+            packet.setJson(getObjectCodec().getObjectMapper().writeValueAsString(object));
+            packet.publishAll();
+        } catch (JsonProcessingException e) {
+            CloudAPI.getInstance().getConsole().error("Error while publishing bucket update packet for " + object.getIdentifier(), e);
+        }
+        return object;
     }
 
     @Override
-    public void removeCachedBucketHolder(String identifier) {
-        this.cachedBucketHolders.remove(identifier);
+    public boolean isCached(String identifier) {
+        return this.cachedBucketObjects.containsKey(identifier);
     }
 
     @Override
-    public FutureAction<IRBucketHolder<I>> getBucketHolderAsync(String identifier) {
-        if (this.isBucketHolderCached(identifier)) return new FutureAction(this.cachedBucketHolders.get(identifier));
-        FutureAction<IRBucketHolder<I>> futureAction = new FutureAction<>();
+    public I getCached(String identifier) {
+        return this.cachedBucketObjects.get(identifier);
+    }
+
+    @Override
+    public T getCachedImpl(String identifier) {
+        return this.cachedBucketObjects.get(identifier);
+    }
+
+    @Override
+    public void removeCache(String identifier) {
+        this.cachedBucketObjects.remove(identifier);
+    }
+
+    @Override
+    public FutureAction<I> getAsync(String identifier) {
+        if (this.isCached(identifier)) return new FutureAction<I>(this.cachedBucketObjects.get(identifier));
+        FutureAction<I> futureAction = new FutureAction<>();
 
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain '@'", futureAction);
 
         existsBucketAsync(identifier)
-                .onFailure(futureAction)
-                .onSuccess(exists -> {
-                    if (!exists) {
-                        futureAction.completeExceptionally(new NullPointerException("Bucket[" + identifier + "] doesn't exist"));
-                        return;
-                    }
-                    RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
-                    bucket.getAsync()
-                            .whenComplete((object, throwable) -> {
-                                if (throwable != null) {
-                                    futureAction.completeExceptionally(throwable);
-                                    return;
-                                }
-                                if (object == null) {
-                                    futureAction.completeExceptionally(new IllegalArgumentException("Bucket[" + identifier + "] not found! Create first before getting!"));
-                                    return;
-                                }
-                                IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, (RBucketObject) object);
-                                this.cachedBucketHolders.put(identifier, bucketHolder);
-                                futureAction.complete(bucketHolder);
-                            });
-                });
+            .onFailure(futureAction)
+            .onSuccess(exists -> {
+                if (!exists) {
+                    futureAction.completeExceptionally(new NullPointerException("Bucket[" + identifier + "] doesn't exist"));
+                    return;
+                }
+                RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
+                bucket.getAsync()
+                    .whenComplete((object, throwable) -> {
+                        if (throwable != null) {
+                            futureAction.completeExceptionally(throwable);
+                            return;
+                        }
+                        if (object == null) {
+                            futureAction.completeExceptionally(new IllegalArgumentException("Bucket[" + identifier + "] not found! Create first before getting!"));
+                            return;
+                        }
+                        object.setManager(this);
+                        this.cachedBucketObjects.put(identifier, object);
+                        futureAction.complete(object);
+                    });
+            });
         return futureAction;
     }
 
     @SneakyThrows
     @Override
-    public IRBucketHolder<I> getBucketHolder(String identifier) {
+    public I get(String identifier) {
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
-        if (this.isBucketHolderCached(identifier)) return (IRBucketHolder<I>) this.cachedBucketHolders.get(identifier);
+        if (this.isCached(identifier)) return this.cachedBucketObjects.get(identifier);
         RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
         if (!bucket.isExists())
             throw new NullPointerException("Bucket[" + getRedisKey(identifier) + "] doesn't exist");
         T object = bucket.get();
-        IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, (RBucketObject) object);
-        this.cachedBucketHolders.put(identifier, bucketHolder);
-        return bucketHolder;
+        object.setManager(this);
+        this.cachedBucketObjects.put(identifier, object);
+        return object;
     }
 
     @Override
-    public void unlink(IRBucketHolder bucketHolder) {
-        this.cachedBucketHolders.remove(bucketHolder.getIdentifier());
+    public FutureAction<T> getImplAsync(String identifier) {
+        return this.getAsync(identifier).map(object -> (T)object);
     }
 
-    public IRBucketHolder<I> createBucket(String identifier, I object) {
+    @Override
+    public T getImpl(String identifier) {
+        return (T) this.get(identifier);
+    }
+
+    @Override
+    public I createBucket(String identifier, I object) {
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (existsBucket(identifier))
             throw new IllegalArgumentException("Bucket[" + getRedisKey(identifier) + "] already exists");
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).set(object);
-        RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
-        IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, bucket.get());
-        this.cachedBucketHolders.put(identifier, bucketHolder);
-        return bucketHolder;
+        object.setManager(this);
+        this.cachedBucketObjects.put(identifier, (T) object);
+        return object;
     }
 
-    public FutureAction<IRBucketHolder<I>> createBucketAsync(String identifier, I object) {
-        FutureAction<IRBucketHolder<I>> futureAction = new FutureAction<>();
+    @Override
+    public FutureAction<I> createBucketAsync(String identifier, I object) {
+        FutureAction<I> futureAction = new FutureAction<>();
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'", futureAction);
         existsBucketAsync(identifier)
-                .onFailure(futureAction)
-                .onSuccess(exists -> {
-                    if (exists) {
-                        futureAction.completeExceptionally(new IllegalArgumentException("Bucket[" + getRedisKey(identifier) + "] already exists"));
-                        return;
-                    }
-                    getClient().getBucket(getRedisKey(identifier), getObjectCodec()).setAsync(object)
-                            .whenComplete((object1, throwable) -> {
-                                if (throwable != null) {
-                                    futureAction.completeExceptionally(throwable);
-                                    return;
-                                }
-                                RBucket<CloudNode> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
-                                IRBucketHolder bucketHolder = new RBucketHolder(identifier, this, bucket, (RBucketObject) object);
-                                this.cachedBucketHolders.put(identifier, bucketHolder);
-                                futureAction.complete(bucketHolder);
-                            });
-                });
+            .onFailure(futureAction)
+            .onSuccess(exists -> {
+                if (exists) {
+                    futureAction.completeExceptionally(new IllegalArgumentException("Bucket[" + getRedisKey(identifier) + "] already exists"));
+                    return;
+                }
+                getClient().getBucket(getRedisKey(identifier), getObjectCodec()).setAsync(object)
+                    .whenComplete((object1, throwable) -> {
+                        if (throwable != null) {
+                            futureAction.completeExceptionally(throwable);
+                            return;
+                        }
+                        object.setManager(this);
+                        this.cachedBucketObjects.put(identifier, (T) object);
+                        futureAction.complete(object);
+                    });
+            });
 
         return futureAction;
     }
 
-    public void updateBucket(String identifier, String json) {
+    public void mergeChanges(String identifier, String json) {
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
-        if (!this.isBucketHolderCached(identifier)) return;
+        if (!this.isCached(identifier)) return;
         CloudAPI.getInstance().getConsole().trace("Updating bucket: " + getRedisKey(identifier));
-        IRBucketHolder<T> bucketHolder = this.cachedBucketHolders.get(identifier);
+        T bucketHolder = this.cachedBucketObjects.get(identifier);
         if(bucketHolder == null) return; //bucket was deleted while updating
-        bucketHolder.mergeChanges(json);
+        if (json == null) throw new IllegalArgumentException("Object that the holder holds cannot be null");
+        try {
+            CloudAPI.getInstance().getConsole().trace("Merging changes for bucket " + getRedisKey(identifier) + " | cached: " + (isCached(identifier)));
+            if (this.isCached(identifier)) {
+                T object = this.getCachedImpl(identifier);
+                getObjectCodec().getObjectMapper().readerForUpdating(object).readValue(json);
+                object.setManager(this);
+                object.merged();
+            } else {
+                T object = this.getObjectCodec().getObjectMapper().readValue(json, this.getImplClass());
+                object.setManager(this);
+                this.cachedBucketObjects.put(identifier, object);
+                object.merged();
+            }
+        } catch (JsonProcessingException e) {
+            CloudAPI.getInstance().getConsole().error("Failed to merge changes of bucket " + getRedisKey(identifier), e);
+        }
     }
 
+    @Override
     public boolean existsBucket(String identifier) {
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         return getClient().getBucket(getRedisKey(identifier), getObjectCodec()).isExists();
     }
 
+    @Override
     public FutureAction<Boolean> existsBucketAsync(String identifier) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'", futureAction);
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).isExistsAsync()
-                .whenComplete((exists, throwable) -> {
-                    if (throwable != null) {
-                        futureAction.completeExceptionally(throwable);
-                        return;
-                    }
-                    futureAction.complete(exists);
-                });
+            .whenComplete((exists, throwable) -> {
+                if (throwable != null) {
+                    futureAction.completeExceptionally(throwable);
+                    return;
+                }
+                futureAction.complete(exists);
+            });
         return futureAction;
     }
 
-    public FutureAction<Collection<IRBucketHolder<I>>> getBucketHoldersAsync() {
-        FutureAction<Collection<IRBucketHolder<I>>> futureAction = new FutureAction<>();
+    @Override
+    public FutureAction<Collection<I>> getBucketHoldersAsync() {
+        FutureAction<Collection<I>> futureAction = new FutureAction<>();
         getKeys(this.redisPrefix + ":*")
-                .onFailure(futureAction)
-                .onSuccess(keys -> {
-                    FutureActionCollection<String, IRBucketHolder<I>> futureActionCollection = new FutureActionCollection<>();
-                    for (String s : keys) {
-                        futureActionCollection.addToProcess(s.split(":")[1], getBucketHolderAsync(s.split(":")[1]));
-                    }
-                    futureActionCollection.process()
-                            .onFailure(futureAction)
-                            .onSuccess(holders -> {
-                                futureAction.complete(holders.values());
-                            });
-                });
+            .onFailure(futureAction)
+            .onSuccess(keys -> {
+                FutureActionCollection<String, I> futureActionCollection = new FutureActionCollection<>();
+                for (String s : keys) {
+                    futureActionCollection.addToProcess(s.split(":")[1], getAsync(s.split(":")[1]));
+                }
+                futureActionCollection.process()
+                        .onFailure(futureAction)
+                        .onSuccess(holders -> {
+                            futureAction.complete(holders.values());
+                        });
+            });
         return futureAction;
     }
 
-    public Collection<IRBucketHolder<I>> getBucketHolders() {
-        Collection<IRBucketHolder<I>> bucketHolders = new ArrayList<>();
+    @Override
+    public Collection<I> getBucketHolders() {
+        Collection<I> bucketHolders = new ArrayList<>();
         for (String s : getClient().getKeys().getKeysByPattern(this.redisPrefix + ":*")) {
-            bucketHolders.add(getBucketHolder(s.split(":")[1]));
+            bucketHolders.add(get(s.split(":")[1]));
         }
         return bucketHolders;
     }
 
+    @Override
     public boolean deleteBucket(String identifier) {
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
-        if (this.isBucketHolderCached(identifier)) {
-            this.cachedBucketHolders.remove(identifier);
+        if (this.isCached(identifier)) {
+            this.cachedBucketObjects.remove(identifier);
         }
         CloudAPI.getInstance().getConsole().trace("Deleting bucket: " + getRedisKey(identifier));
 
@@ -213,10 +286,11 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
         return true;
     }
 
+    @Override
     public FutureAction<Boolean> deleteBucketAsync(String identifier) {
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
-        if (this.isBucketHolderCached(identifier)) {
-            this.cachedBucketHolders.remove(identifier);
+        if (this.isCached(identifier)) {
+            this.cachedBucketObjects.remove(identifier);
         }
         CloudAPI.getInstance().getConsole().trace("Deleting bucket: " + getRedisKey(identifier));
 
@@ -234,7 +308,7 @@ public abstract class RedissonBucketManager<T extends IRBucketObject, I> extends
     }
 
     @Override
-    public Class<I> getImplClass() {
+    public Class<T> getImplClass() {
         return this.interfaceClass;
     }
 

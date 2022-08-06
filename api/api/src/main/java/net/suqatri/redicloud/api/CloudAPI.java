@@ -12,7 +12,6 @@ import net.suqatri.redicloud.api.packet.ICloudPacketManager;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.player.ICloudPlayerManager;
 import net.suqatri.redicloud.api.player.IPlayerBridge;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.scheduler.IScheduler;
 import net.suqatri.redicloud.api.service.ICloudServiceManager;
 import net.suqatri.redicloud.api.service.factory.ICloudServiceFactory;
@@ -39,7 +38,7 @@ public abstract class CloudAPI {
         this.applicationType = type;
     }
 
-    public abstract IPlayerBridge createBridge(IRBucketHolder<ICloudPlayer> playerHolder);
+    public abstract IPlayerBridge createBridge(ICloudPlayer player);
 
     public abstract ExecutorService getExecutorService();
 

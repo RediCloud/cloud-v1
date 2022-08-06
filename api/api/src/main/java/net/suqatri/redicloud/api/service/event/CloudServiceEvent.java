@@ -3,7 +3,6 @@ package net.suqatri.redicloud.api.service.event;
 import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.event.CloudGlobalEvent;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
@@ -17,10 +16,10 @@ public class CloudServiceEvent extends CloudGlobalEvent {
     private final UUID nodeId;
     private final boolean external;
 
-    public CloudServiceEvent(IRBucketHolder<ICloudService> holder) {
-        this.serverId = holder.get().getUniqueId();
-        this.serviceName = holder.get().getServiceName();
-        this.nodeId = holder.get().getNodeId();
+    public CloudServiceEvent(ICloudService service) {
+        this.serverId = service.getUniqueId();
+        this.serviceName = service.getServiceName();
+        this.nodeId = service.getNodeId();
         this.external = this.nodeId == null;
     }
 
@@ -31,11 +30,11 @@ public class CloudServiceEvent extends CloudGlobalEvent {
         this.external = false;
     }
 
-    public IRBucketHolder<ICloudService> getService() {
+    public ICloudService getService() {
         return CloudAPI.getInstance().getServiceManager().getService(this.serverId);
     }
 
-    public FutureAction<IRBucketHolder<ICloudService>> getServiceAsync() {
+    public FutureAction<ICloudService> getServiceAsync() {
         return CloudAPI.getInstance().getServiceManager().getServiceAsync(this.serverId);
     }
 

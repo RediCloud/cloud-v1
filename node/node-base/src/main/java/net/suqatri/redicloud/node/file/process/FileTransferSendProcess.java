@@ -5,7 +5,6 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
 import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.node.file.process.IFileTransferSendProcess;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.file.FileUtils;
 import net.suqatri.redicloud.commons.file.ZipUtils;
@@ -23,7 +22,7 @@ import java.util.UUID;
 public class FileTransferSendProcess implements IFileTransferSendProcess {
 
     private final UUID transferId = UUID.randomUUID();
-    private IRBucketHolder<ICloudNode> receiver;
+    private ICloudNode receiver;
 
     private File originalFile;
     private String destinationFilePath;
@@ -39,7 +38,7 @@ public class FileTransferSendProcess implements IFileTransferSendProcess {
     public void process() {
         try {
 
-            if (this.receiver.get().getNetworkComponentInfo().getType() == NetworkComponentType.SERVICE) {
+            if (this.receiver.getNetworkComponentInfo().getType() == NetworkComponentType.SERVICE) {
                 this.futureAction.completeExceptionally(new IllegalArgumentException("Cannot send file to service!"));
                 return;
             }
@@ -62,7 +61,7 @@ public class FileTransferSendProcess implements IFileTransferSendProcess {
             startPacket.setDestinationFilePath(this.destinationFilePath);
             startPacket.setTransferId(this.transferId);
             startPacket.setIndexes(packetCount);
-            startPacket.getPacketData().addReceiver(this.receiver.get().getNetworkComponentInfo());
+            startPacket.getPacketData().addReceiver(this.receiver.getNetworkComponentInfo());
             startPacket.publishAsync();
             this.startPacketSent = true;
 
@@ -79,7 +78,7 @@ public class FileTransferSendProcess implements IFileTransferSendProcess {
                     data = new byte[packetSize];
                     System.arraycopy(sentData, count, data, 0, packetSize);
                 }
-                if (!this.receiver.get().isConnected()) {
+                if (!this.receiver.isConnected()) {
                     cancel();
                     return;
                 }
@@ -87,7 +86,7 @@ public class FileTransferSendProcess implements IFileTransferSendProcess {
                 packet.setTransferId(this.transferId);
                 packet.setIndexId(count);
                 packet.setFileData(data);
-                packet.getPacketData().addReceiver(this.receiver.get().getNetworkComponentInfo());
+                packet.getPacketData().addReceiver(this.receiver.getNetworkComponentInfo());
                 packet.publishAsync();
                 CloudAPI.getInstance().getConsole().debug("Send FileTransferBytesPacket with index " + index + " and transferId: " + this.transferId + " (Byte-Size: " + data.length + ")");
                 count += packetSize;
@@ -98,7 +97,7 @@ public class FileTransferSendProcess implements IFileTransferSendProcess {
 
             FileTransferCompletedPacket completedPacket = new FileTransferCompletedPacket();
             completedPacket.setTransferId(this.transferId);
-            completedPacket.getPacketData().addReceiver(this.receiver.get().getNetworkComponentInfo());
+            completedPacket.getPacketData().addReceiver(this.receiver.getNetworkComponentInfo());
             completedPacket.publishAsync();
 
             this.zipFile.delete();
@@ -118,7 +117,7 @@ public class FileTransferSendProcess implements IFileTransferSendProcess {
         if (!this.startPacketSent) return;
         FileTransferCancelPacket cancelPacket = new FileTransferCancelPacket();
         cancelPacket.setTransferId(this.transferId);
-        cancelPacket.getPacketData().addReceiver(this.receiver.get().getNetworkComponentInfo());
+        cancelPacket.getPacketData().addReceiver(this.receiver.getNetworkComponentInfo());
         cancelPacket.publishAsync();
     }
 

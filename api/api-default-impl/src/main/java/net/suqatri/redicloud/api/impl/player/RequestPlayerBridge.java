@@ -7,7 +7,6 @@ import net.suqatri.redicloud.api.impl.player.packet.*;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.player.IPlayerBridge;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceState;
 
@@ -17,56 +16,56 @@ import java.util.UUID;
 public class RequestPlayerBridge implements IPlayerBridge {
 
     @Getter
-    private final IRBucketHolder<ICloudPlayer> playerHolder;
+    private final ICloudPlayer player;
 
     @Override
     public void sendMessage(String message) {
-        if(!this.playerHolder.get().isConnected()) return;
+        if(!this.player.isConnected()) return;
         CloudBridgeMessagePacket packet = new CloudBridgeMessagePacket();
         packet.setMessage(message);
-        packet.setUniqueId(playerHolder.get().getUniqueId());
+        packet.setUniqueId(player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, playerHolder.get().getLastConnectedProxyId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedProxyId().toString()));
         packet.publishAsync();
     }
 
     @Override
     public void sendTitle(String title, String subTitle, int fadeIn, int stay, int fadeOut) {
-        if(!this.playerHolder.get().isConnected()) return;
+        if(!this.player.isConnected()) return;
         CloudBridgeTitlePacket packet = new CloudBridgeTitlePacket();
         packet.setTitle(title);
         packet.setSubtitle(subTitle);
         packet.setFadeIn(fadeIn);
         packet.setStay(stay);
         packet.setFadeOut(fadeOut);
-        packet.setUniqueId(playerHolder.get().getUniqueId());
+        packet.setUniqueId(player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, playerHolder.get().getLastConnectedServerId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedServerId().toString()));
         packet.publishAsync();
     }
 
     @Override
     public void sendActionbar(String message) {
-        if(!this.playerHolder.get().isConnected()) return;
-        if(!this.playerHolder.get().getLastConnectedServerId()
+        if(!this.player.isConnected()) return;
+        if(!this.player.getLastConnectedServerId()
                 .equals(UUID.fromString(CloudAPI.getInstance().getNetworkComponentInfo().getIdentifier()))) return;
         CloudBridgeActionbarPacket packet = new CloudBridgeActionbarPacket();
         packet.setBar(message);
-        packet.setUniqueId(playerHolder.get().getUniqueId());
+        packet.setUniqueId(player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, playerHolder.get().getLastConnectedServerId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedServerId().toString()));
         packet.publishAsync();
     }
 
     @Override
     public void sendTab(String header, String footer) {
-        if(!this.playerHolder.get().isConnected()) return;
+        if(!this.player.isConnected()) return;
         CloudBridgeTabPacket packet = new CloudBridgeTabPacket();
         packet.setHeader(header);
         packet.setFooter(footer);
-        packet.setUniqueId(playerHolder.get().getUniqueId());
+        packet.setUniqueId(player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, playerHolder.get().getLastConnectedProxyId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedProxyId().toString()));
         packet.publishAsync();
     }
 
@@ -83,15 +82,15 @@ public class RequestPlayerBridge implements IPlayerBridge {
     }
 
     @Override
-    public void connect(IRBucketHolder<ICloudService> cloudService) {
-        if(!this.playerHolder.get().isConnected()) return;
-        if(cloudService.get().getServiceState() != ServiceState.RUNNING_DEFINED
-            || cloudService.get().getServiceState() != ServiceState.RUNNING_UNDEFINED) return;
+    public void connect(ICloudService cloudService) {
+        if(!this.player.isConnected()) return;
+        if(cloudService.getServiceState() != ServiceState.RUNNING_DEFINED
+            || cloudService.getServiceState() != ServiceState.RUNNING_UNDEFINED) return;
         CloudBridgeConnectServicePacket packet = new CloudBridgeConnectServicePacket();
-        packet.setServiceId(cloudService.get().getUniqueId());
-        packet.setUniqueId(this.playerHolder.get().getUniqueId());
+        packet.setServiceId(cloudService.getUniqueId());
+        packet.setUniqueId(this.player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, playerHolder.get().getLastConnectedProxyId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, this.player.getLastConnectedProxyId().toString()));
         packet.publishAsync();
     }
 
@@ -109,12 +108,12 @@ public class RequestPlayerBridge implements IPlayerBridge {
 
     @Override
     public void disconnect(String reason) {
-        if(!this.playerHolder.get().isConnected()) return;
+        if(!this.player.isConnected()) return;
         CloudBridgeDisconnectPacket packet = new CloudBridgeDisconnectPacket();
         packet.setReason(reason);
-        packet.setUniqueId(this.playerHolder.get().getUniqueId());
+        packet.setUniqueId(this.player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, playerHolder.get().getLastConnectedProxyId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedProxyId().toString()));
         packet.publishAsync();
     }
 

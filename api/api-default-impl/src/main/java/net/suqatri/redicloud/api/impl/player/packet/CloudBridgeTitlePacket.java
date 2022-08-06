@@ -21,7 +21,7 @@ public class CloudBridgeTitlePacket extends CloudPacket {
         CloudAPI.getInstance().getPlayerManager().getPlayerAsync(this.uniqueId)
             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to send message to player " + this.uniqueId, t))
             .onSuccess(playerHolder -> {
-                playerHolder.get().getBridge().sendTitle(this.title, this.subtitle, this.fadeIn, this.stay, this.fadeOut);
+                playerHolder.getBridge().sendTitle(this.title, this.subtitle, this.fadeIn, this.stay, this.fadeOut);
             });
     }
 }

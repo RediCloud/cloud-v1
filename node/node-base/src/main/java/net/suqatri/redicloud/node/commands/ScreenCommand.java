@@ -45,7 +45,7 @@ public class ScreenCommand extends ConsoleCommand {
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting service", e))
                             .onSuccess(serviceHolder -> {
-                                if(serviceHolder.get().isExternal()) {
+                                if(serviceHolder.isExternal()) {
                                     commandSender.sendMessage("Joining external screens is not supported!");
                                     return;
                                 }
@@ -92,7 +92,7 @@ public class ScreenCommand extends ConsoleCommand {
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to join screen " + serviceName + "!", e))
                             .onSuccess(serviceHolder -> {
-                                if(serviceHolder.get().isExternal()) {
+                                if(serviceHolder.isExternal()) {
                                     commandSender.sendMessage("Joining external screens is not supported!");
                                     return;
                                 }
@@ -146,7 +146,7 @@ public class ScreenCommand extends ConsoleCommand {
         }
         commandSender.sendMessage("Active screens §8(%hc" + NodeLauncher.getInstance().getScreenManager().getActiveScreens().size() + "§8)%tc:");
         for (IServiceScreen serviceScreen : NodeLauncher.getInstance().getScreenManager().getActiveScreens()) {
-            commandSender.sendMessage("§8 » %tc" + serviceScreen.getServiceHolder().get().getServiceName());
+            commandSender.sendMessage("§8 » %tc" + serviceScreen.getServices().getServiceName());
         }
     }
 

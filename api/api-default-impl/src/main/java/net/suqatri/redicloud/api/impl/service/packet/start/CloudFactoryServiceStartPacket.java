@@ -23,7 +23,7 @@ public class CloudFactoryServiceStartPacket extends CloudPacket {
                         this.packetResponseAsync(response);
                     })
                     .onSuccess(holder -> {
-                        response.setServiceId(holder.get().getUniqueId());
+                        response.setServiceId(holder.getUniqueId());
                         this.packetResponseAsync(response);
                     });
         } else {
@@ -34,7 +34,7 @@ public class CloudFactoryServiceStartPacket extends CloudPacket {
                             this.packetResponse(response);
                         })
                         .onSuccess(holder -> {
-                            response.setServiceId(holder.get().getUniqueId());
+                            response.setServiceId(holder.getUniqueId());
                             this.packetResponseAsync(response);
                         });
             } catch (Exception e) {

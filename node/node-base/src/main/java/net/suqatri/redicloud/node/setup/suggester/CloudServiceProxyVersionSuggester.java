@@ -14,9 +14,9 @@ public class CloudServiceProxyVersionSuggester implements SetupSuggester {
     public List<String> suggest(Setup<?> setup, SetupEntry entry) {
         return CloudAPI.getInstance().getServiceVersionManager().getServiceVersions()
                 .parallelStream()
-                .filter(holder -> holder.get().getEnvironmentType() == ServiceEnvironment.BUNGEECORD
-                        || holder.get().getEnvironmentType() == ServiceEnvironment.VELOCITY)
-                .map(holder -> holder.get().getName())
+                .filter(holder -> holder.getEnvironmentType() == ServiceEnvironment.BUNGEECORD
+                        || holder.getEnvironmentType() == ServiceEnvironment.VELOCITY)
+                .map(holder -> holder.getName())
                 .collect(Collectors.toList());
     }
 }

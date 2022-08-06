@@ -1,35 +1,35 @@
 package net.suqatri.redicloud.api.impl.redis.bucket;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
 import lombok.Setter;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketObject;
+import net.suqatri.redicloud.api.redis.bucket.IRedissonBucketManager;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
 public abstract class RBucketObject implements IRBucketObject {
 
     @JsonIgnore
-    @Setter
-    private RBucketHolder holder;
+    @Setter @Getter
+    private IRedissonBucketManager manager;
 
     @Override
-    public IRBucketHolder getHolder() {
-        return this.holder;
+    public IRBucketObject update() {
+        return this.manager.publishChanges(this);
     }
 
     @Override
-    public void update() {
-        getHolder().update(this);
+    public FutureAction<IRBucketObject> updateAsync() {
+        return this.manager.publishChangesAsync(this);
     }
 
     @Override
-    public FutureAction<Void> updateAsync() {
-        return getHolder().updateAsync(this).map(v -> null);
+    public String getRedisKey() {
+        return this.manager.getRedisKey(this.getIdentifier());
     }
 
     @Override
-    public void merged() {
-
+    public String getRedisPrefix() {
+        return this.manager.getRedisPrefix();
     }
-
 }

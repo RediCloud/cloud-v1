@@ -10,7 +10,6 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.node.service.screen.IScreenLine;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.node.NodeLauncher;
@@ -52,14 +51,14 @@ public class DebugCommand extends ConsoleCommand {
     public void onServicesConnectedByGroup(CommandSender commandSender, String groupName){
         CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while getting group " + groupName, t))
-                .onSuccess(groupHolder -> {
-                   commandSender.sendMessage("Group: " + groupHolder.get().getName());
-                   groupHolder.get().getConnectedServices()
+                .onSuccess(group -> {
+                   commandSender.sendMessage("Group: " + group.getName());
+                   group.getConnectedServices()
                            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while getting services", t))
-                           .onSuccess(serviceHolders -> {
-                               commandSender.sendMessage("Services: " + serviceHolders.size());
-                               serviceHolders.forEach(serviceHolder -> {
-                                   commandSender.sendMessage("Service: " + serviceHolder.get().getName());
+                           .onSuccess(services -> {
+                               commandSender.sendMessage("Services: " + services.size());
+                               services.forEach(service -> {
+                                   commandSender.sendMessage("Service: " + service.getName());
                                });
                            });
                 });
@@ -79,13 +78,13 @@ public class DebugCommand extends ConsoleCommand {
     public void onFactoryNextId(CommandSender commandSender, String groupName) {
         CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error getting services!", t))
-                .onSuccess(serviceHolders -> {
+                .onSuccess(services -> {
                     int i = 1;
                     List<Integer> ids = new ArrayList<>();
-                    for (IRBucketHolder<ICloudService> serviceHolder : serviceHolders)
-                        if (serviceHolder.get().getGroupName().equalsIgnoreCase(groupName)) {
-                            commandSender.sendMessage(" - " + i + ": " + serviceHolder.get().getId());
-                            ids.add(serviceHolder.get().getId());
+                    for (ICloudService service : services)
+                        if (service.getGroupName().equalsIgnoreCase(groupName)) {
+                            commandSender.sendMessage(" - " + i + ": " + service.getId());
+                            ids.add(service.getId());
                         }
                     while (ids.contains(i)) i++;
                     commandSender.sendMessage("Result: " + groupName + "-" + i);
@@ -168,13 +167,15 @@ public class DebugCommand extends ConsoleCommand {
     @Subcommand("serviceversion patched")
     @Description("Show if serviceversion is patched")
     public void onServiceversionIspatched(CommandSender commandSender, String serviceVersionId) {
-        commandSender.sendMessage("ServiceVersion: " + serviceVersionId + " is patched: " + CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(serviceVersionId).get().isPatched());
+        commandSender.sendMessage("ServiceVersion: " + serviceVersionId + " is patched: " + CloudAPI.getInstance().getServiceVersionManager()
+                .getServiceVersion(serviceVersionId).isPatched());
     }
 
     @Subcommand("serviceversion downloaded")
     @Description("Show if serviceversion is downloaded")
     public void onServiceversionIsdownloaded(CommandSender commandSender, String serviceVersionId) {
-        commandSender.sendMessage("ServiceVersion: " + serviceVersionId + " is downloaded: " + CloudAPI.getInstance().getServiceVersionManager().getServiceVersion(serviceVersionId).get().isDownloaded());
+        commandSender.sendMessage("ServiceVersion: " + serviceVersionId + " is downloaded: " + CloudAPI.getInstance().getServiceVersionManager()
+                .getServiceVersion(serviceVersionId).isDownloaded());
     }
 
     @Subcommand("screen removelines")

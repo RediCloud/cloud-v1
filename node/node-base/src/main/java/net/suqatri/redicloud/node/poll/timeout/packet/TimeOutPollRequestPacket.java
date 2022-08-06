@@ -17,8 +17,8 @@ public class TimeOutPollRequestPacket extends CloudPacket {
         NodeLauncher.getInstance().getTimeOutPollManager().getPoll(this.pollId)
                 .onFailure(e -> sendResponse(TimeOutResult.ERROR))
                 .onSuccess(pool -> {
-                    if (pool.get().isOpenerId()) return;
-                    pool.get().decide()
+                    if (pool.isOpenerId()) return;
+                    pool.decide()
                             .onFailure(e -> sendResponse(TimeOutResult.ERROR))
                             .onSuccess(this::sendResponse);
                 });

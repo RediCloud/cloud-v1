@@ -16,8 +16,8 @@ public class CloudBridgeDisconnectPacket extends CloudPacket {
     public void receive() {
         CloudAPI.getInstance().getPlayerManager().getPlayerAsync(this.uniqueId)
             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to send message to player " + this.uniqueId, t))
-            .onSuccess(playerHolder -> {
-                playerHolder.get().getBridge().disconnect(this.reason);
+            .onSuccess(player -> {
+                player.getBridge().disconnect(this.reason);
             });
     }
 }

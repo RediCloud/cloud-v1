@@ -1,6 +1,5 @@
 package net.suqatri.redicloud.api.node.service.factory;
 
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
@@ -13,7 +12,7 @@ public interface ICloudServiceCopier {
 
     File copyFiles() throws IOException, Exception;
 
-    IRBucketHolder<ICloudService> getServiceHolder();
+    ICloudService getServices();
 
     File getServiceDirectory();
 

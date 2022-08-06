@@ -2,7 +2,6 @@ package net.suqatri.redicloud.api.group;
 
 import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketObject;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
@@ -42,23 +41,23 @@ public interface ICloudGroup extends IRBucketObject {
 
     void setMaxServices(int maxServices);
 
-    FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersion();
+    FutureAction<ICloudServiceVersion> getServiceVersion();
 
-    void setServiceVersion(IRBucketHolder<ICloudServiceVersion> serviceVersion);
+    void setServiceVersion(ICloudServiceVersion serviceVersion);
 
     String getServiceVersionName();
 
-    FutureAction<Collection<IRBucketHolder<ICloudServiceTemplate>>> getTemplates();
+    FutureAction<Collection<ICloudServiceTemplate>> getTemplates();
 
     void setTemplates(Collection<ICloudServiceTemplate> templates);
 
     Collection<String> getTemplateNames();
 
-    void addTemplate(IRBucketHolder<ICloudServiceTemplate> template);
+    void addTemplate(ICloudServiceTemplate template);
 
-    void removeTemplate(IRBucketHolder<ICloudServiceTemplate> template);
+    void removeTemplate(ICloudServiceTemplate template);
 
-    boolean hasTemplate(IRBucketHolder<ICloudServiceTemplate> template);
+    boolean hasTemplate(ICloudServiceTemplate template);
 
     boolean hasTemplate(String templateName);
 
@@ -66,17 +65,17 @@ public interface ICloudGroup extends IRBucketObject {
 
     FutureAction<Integer> getServicesCount(ServiceState serviceState);
 
-    FutureAction<Collection<IRBucketHolder<ICloudService>>> getConnectedServices();
+    FutureAction<Collection<ICloudService>> getConnectedServices();
 
-    FutureAction<Collection<IRBucketHolder<ICloudService>>> getServices();
+    FutureAction<Collection<ICloudService>> getServices();
 
-    FutureAction<Collection<IRBucketHolder<ICloudService>>> getServices(ServiceState serviceState);
+    FutureAction<Collection<ICloudService>> getServices(ServiceState serviceState);
 
     boolean isStatic();
 
     void setStatic(boolean staticGroup);
 
-    FutureAction<Collection<IRBucketHolder<ICloudNode>>> getAssociatedNodes();
+    FutureAction<Collection<ICloudNode>> getAssociatedNodes();
 
     void setAssociatedNodes(Collection<ICloudNode> nodes);
 
@@ -104,7 +103,7 @@ public interface ICloudGroup extends IRBucketObject {
 
     void setStartPriority(int startPriority);
 
-    FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> getPlayers();
+    FutureAction<Collection<ICloudPlayer>> getPlayers();
 
     FutureAction<Integer> getPlayersCount();
 

@@ -9,7 +9,6 @@ import net.suqatri.redicloud.api.group.GroupProperty;
 import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.impl.group.CloudGroup;
 import net.suqatri.redicloud.api.impl.service.CloudService;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.commons.ConditionChecks;
@@ -57,8 +56,8 @@ public class GroupCommand extends ConsoleCommand {
                     }
                     CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting group " + groupName, e))
-                            .onSuccess(groupHolder -> {
-                                if(groupHolder.get().getTemplateNames().contains(templateName)){
+                            .onSuccess(group -> {
+                                if(group.getTemplateNames().contains(templateName)){
                                     commandSender.sendMessage("Template is already added to this group!");
                                     return;
                                 }
@@ -71,9 +70,9 @@ public class GroupCommand extends ConsoleCommand {
                                             }
                                             CloudAPI.getInstance().getServiceTemplateManager().getTemplateAsync(templateName)
                                                     .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting template " + templateName, e))
-                                                    .onSuccess(templateHolder -> {
-                                                        groupHolder.get().addTemplate(templateHolder);
-                                                        groupHolder.get().updateAsync();
+                                                    .onSuccess(template -> {
+                                                        group.addTemplate(template);
+                                                        group.updateAsync();
                                                         commandSender.sendMessage("Template added to group");
                                                     });
                                         });
@@ -96,8 +95,8 @@ public class GroupCommand extends ConsoleCommand {
                     }
                     CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting group " + groupName, e))
-                            .onSuccess(groupHolder -> {
-                                if(!groupHolder.get().getTemplateNames().contains(templateName)){
+                            .onSuccess(group -> {
+                                if(!group.getTemplateNames().contains(templateName)){
                                     commandSender.sendMessage("Template is not added to this group!");
                                     return;
                                 }
@@ -110,9 +109,9 @@ public class GroupCommand extends ConsoleCommand {
                                             }
                                             CloudAPI.getInstance().getServiceTemplateManager().getTemplateAsync(templateName)
                                                     .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting template " + templateName, e))
-                                                    .onSuccess(templateHolder -> {
-                                                        groupHolder.get().removeTemplate(templateHolder);
-                                                        groupHolder.get().updateAsync();
+                                                    .onSuccess(template -> {
+                                                        group.removeTemplate(template);
+                                                        group.updateAsync();
                                                         commandSender.sendMessage("Template added to group");
                                                     });
                                         });
@@ -136,36 +135,36 @@ public class GroupCommand extends ConsoleCommand {
 
                     CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
                             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
-                            .onSuccess(groupHolder -> {
-                                groupHolder.get().getConnectedServices()
+                            .onSuccess(group -> {
+                                group.getConnectedServices()
                                         .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get group info", t))
                                         .onSuccess(services -> {
                                             StringBuilder builder = new StringBuilder();
                                             if (services.isEmpty()) builder.append("No services");
-                                            for (IRBucketHolder<ICloudService> service : services) {
+                                            for (ICloudService service : services) {
                                                 if (!builder.toString().isEmpty()) builder.append("§8, ");
                                                 builder.append("%hc");
-                                                builder.append(service.get().getServiceName());
+                                                builder.append(service.getServiceName());
                                             }
-                                            commandSender.sendMessage("%tcGroup info of %hc" + groupHolder.get().getName() + "§8:");
-                                            commandSender.sendMessage("§8 »%tc JVM-Flags: %hc" + Arrays.toString(groupHolder.get().getJvmArguments()));
-                                            commandSender.sendMessage("§8 »%tc Process-Arguments: %hc" + Arrays.toString(groupHolder.get().getProcessParameters()));
-                                            commandSender.sendMessage("§8 »%tc Environment: %hc" + groupHolder.get().getServiceEnvironment().name());
+                                            commandSender.sendMessage("%tcGroup info of %hc" + group.getName() + "§8:");
+                                            commandSender.sendMessage("§8 »%tc JVM-Flags: %hc" + Arrays.toString(group.getJvmArguments()));
+                                            commandSender.sendMessage("§8 »%tc Process-Arguments: %hc" + Arrays.toString(group.getProcessParameters()));
+                                            commandSender.sendMessage("§8 »%tc Environment: %hc" + group.getServiceEnvironment().name());
                                             commandSender.sendMessage("§8 »%tc Services: %hc" + builder.toString());
-                                            commandSender.sendMessage("§8 »%tc Min. Services: %hc" + groupHolder.get().getMinServices());
-                                            commandSender.sendMessage("§8 »%tc Max. Services: %hc" + groupHolder.get().getMaxServices());
-                                            commandSender.sendMessage("§8 »%tc Service-Version: %hc" + groupHolder.get().getServiceVersionName());
-                                            commandSender.sendMessage("§8 »%tc Maintenance: %hc" + groupHolder.get().isMaintenance());
+                                            commandSender.sendMessage("§8 »%tc Min. Services: %hc" + group.getMinServices());
+                                            commandSender.sendMessage("§8 »%tc Max. Services: %hc" + group.getMaxServices());
+                                            commandSender.sendMessage("§8 »%tc Service-Version: %hc" + group.getServiceVersionName());
+                                            commandSender.sendMessage("§8 »%tc Maintenance: %hc" + group.isMaintenance());
                                             StringBuilder templateBuilder = new StringBuilder();
-                                            for (String templateName : groupHolder.get().getTemplateNames()) {
+                                            for (String templateName : group.getTemplateNames()) {
                                                 if (!templateBuilder.toString().isEmpty())
                                                     templateBuilder.append("§8, %hc");
                                                 templateBuilder.append("%hc");
                                                 templateBuilder.append(templateName);
                                             }
                                             commandSender.sendMessage("§8 »%tc Templates: %hc" + templateBuilder);
-                                            if(groupHolder.get().getServiceEnvironment() == ServiceEnvironment.MINECRAFT)
-                                                commandSender.sendMessage("§8 »%tc Fallback: %hc" + groupHolder.get().isFallback());
+                                            if(group.getServiceEnvironment() == ServiceEnvironment.MINECRAFT)
+                                                commandSender.sendMessage("§8 »%tc Fallback: %hc" + group.isFallback());
                                         });
                             });
                 });
@@ -209,7 +208,7 @@ public class GroupCommand extends ConsoleCommand {
                                                             CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
                                                                     .onFailure(e2 -> CloudAPI.getInstance().getConsole().error("Failed to create group " + name, e2))
                                                                     .onSuccess(holder -> {
-                                                                        CloudAPI.getInstance().getGroupManager().addDefaultTemplates(cloudGroup.getHolder());
+                                                                        CloudAPI.getInstance().getGroupManager().addDefaultTemplates(cloudGroup);
                                                                         commandSender.sendMessage("Group %hc" + name + "%tc created");
                                                                     });
                                                         } else if (mineCraftSetupControlState == SetupControlState.CANCELLED) {
@@ -269,7 +268,7 @@ public class GroupCommand extends ConsoleCommand {
                         CloudAPI.getInstance().getGroupManager().getGroupAsync(name)
                                 .onFailure(e2 -> commandSender.sendMessage("§cFailed to delete group " + name))
                                 .onSuccess(holder -> {
-                                    CloudAPI.getInstance().getGroupManager().deleteGroupAsync(holder.get().getUniqueId())
+                                    CloudAPI.getInstance().getGroupManager().deleteGroupAsync(holder.getUniqueId())
                                             .onFailure(e3 -> commandSender.sendMessage("§cFailed to delete group " + name))
                                             .onSuccess(t -> commandSender.sendMessage("Group %hc" + name + "%tc deleted!"));
                                 });
@@ -289,8 +288,8 @@ public class GroupCommand extends ConsoleCommand {
                         return;
                     }
                     FutureActionCollection<UUID, Integer> futureActionCollection = new FutureActionCollection<>();
-                    for (IRBucketHolder<ICloudGroup> holder : holders) {
-                        futureActionCollection.addToProcess(holder.get().getUniqueId(), holder.get().getOnlineServiceCount());
+                    for (ICloudGroup holder : holders) {
+                        futureActionCollection.addToProcess(holder.getUniqueId(), holder.getOnlineServiceCount());
                     }
                     CloudAPI.getInstance().getConsole().trace("Processing online count task");
                     futureActionCollection.process()
@@ -298,8 +297,7 @@ public class GroupCommand extends ConsoleCommand {
                             .onSuccess(map -> {
                                 commandSender.sendMessage("");
                                 commandSender.sendMessage("Groups §8(%hc" + holders.size() + "§8):");
-                                for (IRBucketHolder<ICloudGroup> holder : holders) {
-                                    ICloudGroup group = holder.get();
+                                for (ICloudGroup group : holders) {
                                     commandSender.sendMessage("   " + group.getName() + " §7(" + map.get(group.getUniqueId()) + "/" + group.getMaxServices() + ")");
                                 }
                                 commandSender.sendMessage("");
@@ -321,7 +319,7 @@ public class GroupCommand extends ConsoleCommand {
                     }
                     CloudAPI.getInstance().getGroupManager().getGroupAsync(name)
                             .onFailure(e2 -> commandSender.sendMessage("§cFailed to edit group " + name))
-                            .onSuccess(groupHolder -> {
+                            .onSuccess(group -> {
                                 try {
                                     switch (key.toUpperCase()) {
                                         case "PERCENT_TO_START_NEW_SERVICE":
@@ -334,8 +332,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 commandSender.sendMessage("Value must be greater than 400");
                                                 return;
                                             }
-                                            groupHolder.get().setPercentToStartNewService(intValue);
-                                            groupHolder.get().updateAsync();
+                                            group.setPercentToStartNewService(intValue);
+                                            group.updateAsync();
                                             commandSender.sendMessage("Percent to start new service set to " + intValue);
                                             break;
                                         case "MAX_MEMORY":
@@ -349,8 +347,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 commandSender.sendMessage("Value must be greater than 400");
                                                 return;
                                             }
-                                            groupHolder.get().setMaxMemory(intValue);
-                                            groupHolder.get().updateAsync();
+                                            group.setMaxMemory(intValue);
+                                            group.updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc max memory set to %hc" + intValue);
                                             break;
                                         case "FALLBACK":
@@ -360,8 +358,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             boolean boolValue = Boolean.parseBoolean(value);
-                                            groupHolder.get().setFallback(boolValue);
-                                            groupHolder.get().updateAsync();
+                                            group.setFallback(boolValue);
+                                            group.updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc fallback set to %hc" + boolValue);
                                             break;
                                         case "MAINTENANCE":
@@ -370,14 +368,14 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             boolValue = Boolean.parseBoolean(value);
-                                            groupHolder.get().setMaintenance(boolValue);
-                                            groupHolder.get().updateAsync();
-                                            groupHolder.get().getServices()
-                                                    .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to get services of group " + groupHolder.get().getName(), e3))
+                                            group.setMaintenance(boolValue);
+                                            group.updateAsync();
+                                            group.getServices()
+                                                    .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to get services of group " + group.getName(), e3))
                                                     .onSuccess(services -> {
-                                                        for (IRBucketHolder<ICloudService> serviceHolder : services) {
-                                                            serviceHolder.get().setMaintenance(boolValue);
-                                                            serviceHolder.get().updateAsync();
+                                                        for (ICloudService service : services) {
+                                                            service.setMaintenance(boolValue);
+                                                            service.updateAsync();
                                                         }
                                                         commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
                                                     });
@@ -393,8 +391,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 commandSender.sendMessage("Value must be greater than -1");
                                                 return;
                                             }
-                                            groupHolder.get().setMaxServices(intValue);
-                                            groupHolder.get().updateAsync();
+                                            group.setMaxServices(intValue);
+                                            group.updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc max services set to %hc" + intValue);
                                             break;
                                         case "MIN_SERVICES":
@@ -408,8 +406,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 commandSender.sendMessage("Value must be greater than 0 or 0");
                                                 return;
                                             }
-                                            groupHolder.get().setMinServices(intValue);
-                                            groupHolder.get().updateAsync();
+                                            group.setMinServices(intValue);
+                                            group.updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc min services set to %hc" + intValue);
                                             break;
                                         case "START_PRIORITY":
@@ -418,8 +416,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 return;
                                             }
                                             intValue = Integer.parseInt(value);
-                                            groupHolder.get().setStartPriority(intValue);
-                                            groupHolder.get().updateAsync();
+                                            group.setStartPriority(intValue);
+                                            group.updateAsync();
                                             commandSender.sendMessage("Group %hc" + name + "%tc start priority set to %hc" + intValue);
                                             break;
                                         case "SERVICE_VERSION":
@@ -432,13 +430,13 @@ public class GroupCommand extends ConsoleCommand {
                                                     }
                                                     CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(value)
                                                         .onFailure(e4 -> CloudAPI.getInstance().getConsole().error("Failed to get service version " + value, e4))
-                                                        .onSuccess(serviceVersionHolder -> {
-                                                            if(serviceVersionHolder.get().getEnvironmentType() != groupHolder.get().getServiceEnvironment()){
+                                                        .onSuccess(serviceVersion -> {
+                                                            if(serviceVersion.getEnvironmentType() != group.getServiceEnvironment()){
                                                                 commandSender.sendMessage("Service version %hc" + value + "%tc is not compatible with group %hc" + name + "%tc");
                                                                 return;
                                                             }
-                                                            groupHolder.get().setServiceVersion(serviceVersionHolder);
-                                                            groupHolder.get().updateAsync();
+                                                            group.setServiceVersion(serviceVersion);
+                                                            group.updateAsync();
                                                             commandSender.sendMessage("Group %hc" + name + "%tc service version set to %hc" + value);
                                                         });
                                                 });
@@ -448,15 +446,15 @@ public class GroupCommand extends ConsoleCommand {
                                                 commandSender.sendMessage("Value must be a boolean");
                                                 return;
                                             }
-                                            groupHolder.get().getOnlineServiceCount()
+                                            group.getOnlineServiceCount()
                                                     .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to edit group " + name, e3))
                                                     .onSuccess(count -> {
                                                         if (count > 0) {
                                                             commandSender.sendMessage("§cCannot edit static property of group %hc" + name + "%tc while it has a connected services");
                                                             return;
                                                         }
-                                                        groupHolder.get().setStatic(Boolean.parseBoolean(value));
-                                                        groupHolder.get().updateAsync();
+                                                        group.setStatic(Boolean.parseBoolean(value));
+                                                        group.updateAsync();
                                                         commandSender.sendMessage("Group %hc" + name + "%tc static set to %hc" + Boolean.parseBoolean(value));
                                                     });
                                             break;

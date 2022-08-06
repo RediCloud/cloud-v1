@@ -1,10 +1,8 @@
 package net.suqatri.redicloud.node.service.version;
 
 import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.redicloud.api.impl.service.CloudService;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersion;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersionManager;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.redicloud.api.utils.Files;
@@ -13,7 +11,6 @@ import net.suqatri.redicloud.commons.file.FileUtils;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 import net.suqatri.redicloud.commons.function.future.FutureActionCollection;
 import net.suqatri.redicloud.node.console.ConsoleLine;
-import org.checkerframework.checker.units.qual.C;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,15 +35,15 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
     }
 
     @Override
-    public IRBucketHolder<ICloudServiceVersion> createServiceVersion(ICloudServiceVersion version, boolean fullInstall) throws IOException, InterruptedException {
-        IRBucketHolder<ICloudServiceVersion> holder = super.createServiceVersion(version, fullInstall);
+    public ICloudServiceVersion createServiceVersion(ICloudServiceVersion version, boolean fullInstall) throws IOException, InterruptedException {
+        ICloudServiceVersion holder = super.createServiceVersion(version, fullInstall);
         if(fullInstall) download(holder, true);
         return holder;
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudServiceVersion>> createServiceVersionAsync(ICloudServiceVersion version, boolean fullInstall) {
-        FutureAction<IRBucketHolder<ICloudServiceVersion>> futureAction = new FutureAction<>();
+    public FutureAction<ICloudServiceVersion> createServiceVersionAsync(ICloudServiceVersion version, boolean fullInstall) {
+        FutureAction<ICloudServiceVersion> futureAction = new FutureAction<>();
 
         createBucketAsync(version.getName(), version)
             .onFailure(futureAction)
@@ -64,38 +61,38 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
     }
 
     @Override
-    public boolean download(IRBucketHolder<ICloudServiceVersion> holder, boolean force) throws IOException, InterruptedException {
-        if (!force && holder.get().isDownloaded()) return false;
-        CloudAPI.getInstance().getConsole().debug("Downloading service version: " + holder.get().getName());
-        File file = holder.get().getFile();
-        String url = holder.get().getDownloadUrl();
+    public boolean download(ICloudServiceVersion holder, boolean force) throws IOException, InterruptedException {
+        if (!force && holder.isDownloaded()) return false;
+        CloudAPI.getInstance().getConsole().debug("Downloading service version: " + holder.getName());
+        File file = holder.getFile();
+        String url = holder.getDownloadUrl();
         FileUtils.download(url, file);
         patch(holder, false);
-        CloudAPI.getInstance().getConsole().debug("Downloaded service version: " + holder.get().getName());
+        CloudAPI.getInstance().getConsole().debug("Downloaded service version: " + holder.getName());
         return true;
     }
 
     @Override
-    public FutureAction<Boolean> downloadAsync(IRBucketHolder<ICloudServiceVersion> holder, boolean force) {
+    public FutureAction<Boolean> downloadAsync(ICloudServiceVersion holder, boolean force) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
 
-        if (!force && holder.get().isDownloaded()) {
+        if (!force && holder.isDownloaded()) {
             futureAction.complete(false);
             return futureAction;
         }
 
-        CloudAPI.getInstance().getConsole().debug("Downloading service version: " + holder.get().getName());
+        CloudAPI.getInstance().getConsole().debug("Downloading service version: " + holder.getName());
 
         CloudAPI.getInstance().getExecutorService().submit(() -> {
-            File file = holder.get().getFile();
-            String url = holder.get().getDownloadUrl();
+            File file = holder.getFile();
+            String url = holder.getDownloadUrl();
             try {
                 FileUtils.download(url, file);
-                if (holder.get().isPaperClip()) {
+                if (holder.isPaperClip()) {
                     patchAsync(holder, true)
                             .onFailure(futureAction)
                             .onSuccess(b -> {
-                                CloudAPI.getInstance().getConsole().debug("Downloaded service version: " + holder.get().getName());
+                                CloudAPI.getInstance().getConsole().debug("Downloaded service version: " + holder.getName());
                                 futureAction.complete(true);
                             });
                     return;
@@ -110,23 +107,23 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
     }
 
     @Override
-    public boolean patch(IRBucketHolder<ICloudServiceVersion> holder, boolean force) throws IOException, InterruptedException, IllegalStateException {
+    public boolean patch(ICloudServiceVersion holder, boolean force) throws IOException, InterruptedException, IllegalStateException {
 
-        if (!holder.get().isPaperClip()) return false;
+        if (!holder.isPaperClip()) return false;
 
-        if (!force && holder.get().isPatched()) return false;
+        if (!force && holder.isPatched()) return false;
 
-        logPatch("Patching service version " + holder.get().getName() + "...");
+        logPatch("Patching service version " + holder.getName() + "...");
 
         UUID id = UUID.randomUUID();
-        File processDir = new File(Files.TEMP_VERSION_FOLDER.getFile(), holder.get().getName() + "-" + id);
+        File processDir = new File(Files.TEMP_VERSION_FOLDER.getFile(), holder.getName() + "-" + id);
 
         download(holder, false);
-        org.apache.commons.io.FileUtils.copyFileToDirectory(holder.get().getFile(), processDir);
+        org.apache.commons.io.FileUtils.copyFileToDirectory(holder.getFile(), processDir);
 
-        File jarToPatch = new File(processDir, holder.get().getName() + ".jar");
+        File jarToPatch = new File(processDir, holder.getName() + ".jar");
 
-        ProcessBuilder builder = new ProcessBuilder(holder.get().getJavaCommand(), "-jar", jarToPatch.getAbsolutePath());
+        ProcessBuilder builder = new ProcessBuilder(holder.getJavaCommand(), "-jar", jarToPatch.getAbsolutePath());
         builder.directory(processDir);
 
         Process process = builder.start();
@@ -140,7 +137,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
         }
         reader.close();
         int exitCode = process.waitFor();
-        CloudAPI.getInstance().getConsole().info("Patch service version " + holder.get().getName() + " with exit code " + exitCode);
+        CloudAPI.getInstance().getConsole().info("Patch service version " + holder.getName() + " with exit code " + exitCode);
 
         if (StreamUtils.isOpen(process.getErrorStream())) {
             reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -154,9 +151,9 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
             }
             reader.close();
             if (error) {
-                logErrorPatch("There was an error while patching service version " + holder.get().getName() + "!");
+                logErrorPatch("There was an error while patching service version " + holder.getName() + "!");
                 logErrorPatch("Redownloading and repatching jar in few seconds...");
-                if (holder.get().getFile().exists()) holder.get().getFile().delete();
+                if (holder.getFile().exists()) holder.getFile().delete();
                 return this.patch(holder, true);
             }
         }
@@ -176,49 +173,49 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
             patchedJar = jarToPatch;
         }
 
-        File patchedJarDest = new File(Files.VERSIONS_FOLDER.getFile(), holder.get().getName() + ".patched.jar");
+        File patchedJarDest = new File(Files.VERSIONS_FOLDER.getFile(), holder.getName() + ".patched.jar");
         org.apache.commons.io.FileUtils.copyFile(patchedJar, patchedJarDest);
 
         org.apache.commons.io.FileUtils.deleteDirectory(processDir);
 
-        CloudAPI.getInstance().getConsole().debug("Service version " + holder.get().getName() + " successfully patched.");
+        CloudAPI.getInstance().getConsole().debug("Service version " + holder.getName() + " successfully patched.");
         return true;
     }
 
     @Override
-    public FutureAction<Boolean> patchAsync(IRBucketHolder<ICloudServiceVersion> holder, boolean force) {
+    public FutureAction<Boolean> patchAsync(ICloudServiceVersion holder, boolean force) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
 
-        if (!holder.get().isPaperClip()) {
+        if (!holder.isPaperClip()) {
             futureAction.completeExceptionally(new IllegalStateException("Service version is not paperclip!"));
             return futureAction;
         }
 
-        if (!force && !holder.get().needPatch()) {
+        if (!force && !holder.needPatch()) {
             futureAction.complete(false);
             return futureAction;
         }
 
-        CloudAPI.getInstance().getConsole().debug("Patching service version " + holder.get().getName() + "...");
+        CloudAPI.getInstance().getConsole().debug("Patching service version " + holder.getName() + "...");
 
         UUID id = UUID.randomUUID();
-        File processDir = new File(Files.TEMP_VERSION_FOLDER.getFile(), holder.get().getName() + "-" + id);
+        File processDir = new File(Files.TEMP_VERSION_FOLDER.getFile(), holder.getName() + "-" + id);
 
         downloadAsync(holder, false)
                 .onFailure(futureAction)
                 .onSuccess(b -> {
                     CloudAPI.getInstance().getExecutorService().submit(() -> {
                         try {
-                            org.apache.commons.io.FileUtils.copyFileToDirectory(holder.get().getFile(), processDir);
+                            org.apache.commons.io.FileUtils.copyFileToDirectory(holder.getFile(), processDir);
                         } catch (IOException e) {
                             futureAction.completeExceptionally(e);
                             return;
                         }
-                        File jarToPatch = new File(processDir, holder.get().getName() + ".jar");
+                        File jarToPatch = new File(processDir, holder.getName() + ".jar");
 
-                        ProcessBuilder builder = new ProcessBuilder(holder.get().getJavaCommand(), "-jar", jarToPatch.getAbsolutePath());
+                        ProcessBuilder builder = new ProcessBuilder(holder.getJavaCommand(), "-jar", jarToPatch.getAbsolutePath());
                         builder.directory(processDir);
-                        logPatch("Patching service version " + holder.get().getName() + "...");
+                        logPatch("Patching service version " + holder.getName() + "...");
 
                         try {
                             Process process = builder.start();
@@ -232,7 +229,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                             }
                             reader.close();
                             int exitCode = process.waitFor();
-                            CloudAPI.getInstance().getConsole().info("Patch service version " + holder.get().getName() + " with exit code " + exitCode);
+                            CloudAPI.getInstance().getConsole().info("Patch service version " + holder.getName() + " with exit code " + exitCode);
 
                             if (StreamUtils.isOpen(process.getErrorStream())) {
                                 reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -246,9 +243,9 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                                 }
                                 reader.close();
                                 if (error) {
-                                    logErrorPatch("There was an error while patching service version " + holder.get().getName() + "!");
+                                    logErrorPatch("There was an error while patching service version " + holder.getName() + "!");
                                     logErrorPatch("Redownloading and repatching jar in few seconds...");
-                                    if (holder.get().getFile().exists()) holder.get().getFile().delete();
+                                    if (holder.getFile().exists()) holder.getFile().delete();
                                     this.patchAsync(holder, true)
                                             .onFailure(futureAction)
                                             .onSuccess(futureAction::complete);
@@ -263,7 +260,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                         File patchedJar = null;
                         File cacheDir = new File(processDir, "cache");
                         if (!cacheDir.exists()) {
-                            futureAction.completeExceptionally(new NullPointerException("Cache directory not found! Failed to patch service version: " + holder.get().getName()));
+                            futureAction.completeExceptionally(new NullPointerException("Cache directory not found! Failed to patch service version: " + holder.getName()));
                             return;
                         }
                         for (File file : cacheDir.listFiles()) {
@@ -276,7 +273,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                             patchedJar = jarToPatch;
                         }
 
-                        File patchedJarDest = new File(Files.VERSIONS_FOLDER.getFile(), holder.get().getName() + ".patched.jar");
+                        File patchedJarDest = new File(Files.VERSIONS_FOLDER.getFile(), holder.getName() + ".patched.jar");
                         try {
                             org.apache.commons.io.FileUtils.copyFile(patchedJar, patchedJarDest);
                             org.apache.commons.io.FileUtils.deleteDirectory(processDir);
@@ -286,7 +283,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                         }
 
 
-                        CloudAPI.getInstance().getConsole().debug("Service version " + holder.get().getName() + " successfully patched.");
+                        CloudAPI.getInstance().getConsole().debug("Service version " + holder.getName() + " successfully patched.");
 
                         futureAction.complete(true);
                     });
@@ -298,8 +295,8 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
     public FutureAction<Boolean> isAnyDefaultVersionInstalled(){
         FutureAction<Boolean> futureAction = new FutureAction<>();
         CloudAPI.getInstance().getExecutorService().submit(() -> {
-            for(IRBucketHolder<ICloudServiceVersion> versionHolder : this.getServiceVersions()){
-                if(versionHolder.get().isDefaultVersion()){
+            for(ICloudServiceVersion versionHolder : this.getServiceVersions()){
+                if(versionHolder.isDefaultVersion()){
                     futureAction.complete(true);
                     return;
                 }
@@ -309,8 +306,8 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
         return futureAction;
     }
 
-    public FutureAction<Collection<IRBucketHolder<ICloudServiceVersion>>> installDefaultVersions(boolean overwrite) {
-        FutureAction<Collection<IRBucketHolder<ICloudServiceVersion>>> futureAction = new FutureAction<>();
+    public FutureAction<Collection<ICloudServiceVersion>> installDefaultVersions(boolean overwrite) {
+        FutureAction<Collection<ICloudServiceVersion>> futureAction = new FutureAction<>();
 
         List<String> names = Arrays.stream(DefaultServiceVersion.values()).parallel().map(DefaultServiceVersion::getName).collect(Collectors.toList());
 
@@ -322,22 +319,23 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                 .onFailure(futureAction)
                 .onSuccess(existsResults -> {
                     if(overwrite){
-                         FutureActionCollection<DefaultServiceVersion, IRBucketHolder<ICloudServiceVersion>> editAction = new FutureActionCollection<>();
+                         FutureActionCollection<DefaultServiceVersion, ICloudServiceVersion> editAction = new FutureActionCollection<>();
                          for (String name : names) {
                              DefaultServiceVersion defaultServiceVersion = Arrays.stream(DefaultServiceVersion.values())
                                      .parallel().filter(v -> v.getName().equals(name)).findAny().orElse(null);
                               if(existsResults.get(name)){
-                                  FutureAction<IRBucketHolder<ICloudServiceVersion>> editFutureAction = new FutureAction<>();
+                                  FutureAction<ICloudServiceVersion> editFutureAction = new FutureAction<>();
 
                                   getServiceVersionAsync(name)
                                           .onFailure(editFutureAction)
                                           .onSuccess(versionHolder -> {
-                                              versionHolder.getImpl(CloudServiceVersion.class).setName(defaultServiceVersion.getName());
-                                              versionHolder.getImpl(CloudServiceVersion.class).setDefaultVersion(true);
-                                              versionHolder.getImpl(CloudServiceVersion.class).setDownloadUrl(defaultServiceVersion.getUrl());
-                                              versionHolder.getImpl(CloudServiceVersion.class).setPaperClip(defaultServiceVersion.isPaperClip());
-                                              versionHolder.getImpl(CloudServiceVersion.class).setEnvironmentType(defaultServiceVersion.getEnvironment());
-                                              versionHolder.get().updateAsync()
+                                              CloudServiceVersion version = (CloudServiceVersion) versionHolder;
+                                              version.setName(defaultServiceVersion.getName());
+                                              version.setDefaultVersion(true);
+                                              version.setDownloadUrl(defaultServiceVersion.getUrl());
+                                              version.setPaperClip(defaultServiceVersion.isPaperClip());
+                                              version.setEnvironmentType(defaultServiceVersion.getEnvironment());
+                                              versionHolder.updateAsync()
                                                       .onFailure(editFutureAction)
                                                       .onSuccess(holder -> editFutureAction.complete(versionHolder));
                                           });
@@ -359,7 +357,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                              .onFailure(futureAction)
                              .onSuccess(r -> futureAction.complete(r.values()));
                     }else{
-                        FutureActionCollection<DefaultServiceVersion, IRBucketHolder<ICloudServiceVersion>> versionCreateAction = new FutureActionCollection<>();
+                        FutureActionCollection<DefaultServiceVersion, ICloudServiceVersion> versionCreateAction = new FutureActionCollection<>();
                         for (String name : names) {
                             if(existsResults.get(name)) continue;
                             DefaultServiceVersion defaultServiceVersion = Arrays.stream(DefaultServiceVersion.values())

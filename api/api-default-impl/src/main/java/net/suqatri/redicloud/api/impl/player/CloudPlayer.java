@@ -8,7 +8,6 @@ import net.suqatri.redicloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.redicloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.player.IPlayerBridge;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
@@ -28,11 +27,11 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
     private UUID lastConnectedProxyId;
     private boolean connected;
     @JsonIgnore
-    private IPlayerBridge bridge = CloudDefaultAPIImpl.getInstance().createBridge(this.getHolder());
+    private IPlayerBridge bridge = CloudDefaultAPIImpl.getInstance().createBridge(this);
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudService>> getServer() {
-        FutureAction<IRBucketHolder<ICloudService>> futureAction = new FutureAction<>();
+    public FutureAction<ICloudService> getServer() {
+        FutureAction<ICloudService> futureAction = new FutureAction<>();
         if (!isConnected()) {
             futureAction.completeExceptionally(new IllegalStateException("player:" + this.getUniqueId() + " is not connected"));
             return futureAction;
@@ -44,8 +43,8 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudService>> getProxy() {
-        FutureAction<IRBucketHolder<ICloudService>> futureAction = new FutureAction<>();
+    public FutureAction<ICloudService> getProxy() {
+        FutureAction<ICloudService> futureAction = new FutureAction<>();
         if (!isConnected()) {
             futureAction.completeExceptionally(new IllegalStateException("player:" + this.getUniqueId() + " is not connected"));
             return futureAction;
@@ -56,4 +55,8 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
         return futureAction;
     }
 
+    @Override
+    public String getIdentifier() {
+        return this.uniqueId.toString();
+    }
 }

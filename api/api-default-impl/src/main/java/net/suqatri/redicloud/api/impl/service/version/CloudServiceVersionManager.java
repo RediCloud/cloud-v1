@@ -3,7 +3,6 @@ package net.suqatri.redicloud.api.impl.service.version;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.version.ICloudServiceVersion;
 import net.suqatri.redicloud.api.service.version.ICloudServiceVersionManager;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
@@ -14,36 +13,36 @@ import java.util.Collection;
 public class CloudServiceVersionManager extends RedissonBucketManager<CloudServiceVersion, ICloudServiceVersion> implements ICloudServiceVersionManager {
 
     public CloudServiceVersionManager() {
-        super("serviceVersion", ICloudServiceVersion.class);
+        super("serviceVersion", CloudServiceVersion.class);
     }
 
     @Override
-    public IRBucketHolder<ICloudServiceVersion> getServiceVersion(String identifier) {
-        return this.getBucketHolder(identifier);
+    public ICloudServiceVersion getServiceVersion(String identifier) {
+        return this.get(identifier);
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudServiceVersion>> getServiceVersionAsync(String identifier) {
-        return this.getBucketHolderAsync(identifier);
+    public FutureAction<ICloudServiceVersion> getServiceVersionAsync(String identifier) {
+        return this.getAsync(identifier);
     }
 
     @Override
-    public IRBucketHolder<ICloudServiceVersion> createServiceVersion(ICloudServiceVersion version, boolean fullInstall) throws IOException, InterruptedException {
+    public ICloudServiceVersion createServiceVersion(ICloudServiceVersion version, boolean fullInstall) throws IOException, InterruptedException {
         return this.createBucket(version.getName().toLowerCase(), version);
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudServiceVersion>> createServiceVersionAsync(ICloudServiceVersion version, boolean fullInstall) {
+    public FutureAction<ICloudServiceVersion> createServiceVersionAsync(ICloudServiceVersion version, boolean fullInstall) {
         return this.createBucketAsync(version.getName().toLowerCase(), version);
     }
 
     @Override
-    public Collection<IRBucketHolder<ICloudServiceVersion>> getServiceVersions() {
+    public Collection<ICloudServiceVersion> getServiceVersions() {
         return this.getBucketHolders();
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudServiceVersion>>> getServiceVersionsAsync() {
+    public FutureAction<Collection<ICloudServiceVersion>> getServiceVersionsAsync() {
         return this.getBucketHoldersAsync();
     }
 
@@ -61,10 +60,10 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
     public boolean deleteServiceVersion(String name) {
         name = name.toLowerCase();
         StringBuilder builder = new StringBuilder();
-        for (IRBucketHolder<ICloudGroup> holder : CloudAPI.getInstance().getGroupManager().getGroups()) {
-            if (holder.get().getServiceVersionName().equalsIgnoreCase(name)) {
+        for (ICloudGroup holder : CloudAPI.getInstance().getGroupManager().getGroups()) {
+            if (holder.getServiceVersionName().equalsIgnoreCase(name)) {
                 if (!builder.toString().isEmpty()) builder.append(", ");
-                builder.append(holder.get().getName());
+                builder.append(holder.getName());
             }
         }
         if (!builder.toString().isEmpty())
@@ -79,10 +78,10 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
                 .onFailure(futureAction)
                 .onSuccess(holders -> {
                     StringBuilder builder = new StringBuilder();
-                    for (IRBucketHolder<ICloudGroup> holder : holders) {
-                        if (holder.get().getServiceVersionName().equalsIgnoreCase(name.toLowerCase())) {
+                    for (ICloudGroup holder : holders) {
+                        if (holder.getServiceVersionName().equalsIgnoreCase(name.toLowerCase())) {
                             if (!builder.toString().isEmpty()) builder.append(", ");
-                            builder.append(holder.get().getName());
+                            builder.append(holder.getName());
                         }
                     }
                     if (!builder.toString().isEmpty()) {
@@ -98,25 +97,25 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
 
     //TODO packet to node
     @Override
-    public boolean patch(IRBucketHolder<ICloudServiceVersion> holder, boolean force) throws IOException, InterruptedException {
+    public boolean patch(ICloudServiceVersion holder, boolean force) throws IOException, InterruptedException {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     //TODO packet to node
     @Override
-    public FutureAction<Boolean> patchAsync(IRBucketHolder<ICloudServiceVersion> holder, boolean force) {
+    public FutureAction<Boolean> patchAsync(ICloudServiceVersion holder, boolean force) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     //TODO packet to node
     @Override
-    public boolean download(IRBucketHolder<ICloudServiceVersion> holder, boolean force) throws IOException, InterruptedException {
+    public boolean download(ICloudServiceVersion holder, boolean force) throws IOException, InterruptedException {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     //TODO packet to node
     @Override
-    public FutureAction<Boolean> downloadAsync(IRBucketHolder<ICloudServiceVersion> holder, boolean force) {
+    public FutureAction<Boolean> downloadAsync(ICloudServiceVersion holder, boolean force) {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 }

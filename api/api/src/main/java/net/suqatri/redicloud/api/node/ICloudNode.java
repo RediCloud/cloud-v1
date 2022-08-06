@@ -1,7 +1,6 @@
 package net.suqatri.redicloud.api.node;
 
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.redis.bucket.IRBucketObject;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.utils.Files;
@@ -24,7 +23,7 @@ public interface ICloudNode extends IRBucketObject {
 
     void setTimeOut(long time);
 
-    FutureAction<Collection<IRBucketHolder<ICloudService>>> getStartedServices();
+    FutureAction<Collection<ICloudService>> getStartedServices();
 
     int getStartedServicesCount();
 

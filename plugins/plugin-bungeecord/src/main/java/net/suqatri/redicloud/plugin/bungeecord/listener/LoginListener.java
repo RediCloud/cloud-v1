@@ -51,11 +51,12 @@ public class LoginListener implements Listener {
                                 CloudAPI.getInstance().getConsole().error("Error while getting player " + event.getConnection().getUniqueId() + "!", throwable);
                                 event.getConnection().disconnect(throwable.getMessage());
                             }).onSuccess(holder -> {
-                                holder.getImpl(CloudPlayer.class).setConnected(true);
-                                holder.getImpl(CloudPlayer.class).setLastLogin(System.currentTimeMillis());
-                                holder.getImpl(CloudPlayer.class).setLastConnectedProxyId(BungeeCordCloudAPI.getInstance().getService().getUniqueId());
-                                holder.getImpl(CloudPlayer.class).setName(event.getConnection().getName());
-                                holder.get().updateAsync()
+                                CloudPlayer cloudPlayer = (CloudPlayer) holder;
+                                cloudPlayer.setConnected(true);
+                                cloudPlayer.setLastLogin(System.currentTimeMillis());
+                                cloudPlayer.setLastConnectedProxyId(BungeeCordCloudAPI.getInstance().getService().getUniqueId());
+                                cloudPlayer.setName(event.getConnection().getName());
+                                cloudPlayer.updateAsync()
                                         .onFailure(throwable -> {
                                             event.setCancelled(true);
                                             event.completeIntent(BungeeCordCloudAPI.getInstance().getPlugin());

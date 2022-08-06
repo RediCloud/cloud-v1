@@ -20,7 +20,7 @@ public class ServerSwitchListener implements Listener {
                     proxiedPlayer.disconnect(throwable.getMessage());
                     CloudAPI.getInstance().getConsole().error("Failed to get player " + proxiedPlayer.getName(), throwable);
                 })
-                .onSuccess(playerHolder -> {
+                .onSuccess(player -> {
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serverInfo.getName())
                             .onFailure(throwable -> {
                                 proxiedPlayer.disconnect(throwable.getMessage());
@@ -29,8 +29,8 @@ public class ServerSwitchListener implements Listener {
                             .onSuccess(serviceHolder -> {
                                 if (!event.getPlayer().getServer().getInfo().getName().equals(serverInfo.getName()))
                                     return;
-                                playerHolder.getImpl(CloudPlayer.class).setLastConnectedServerId(serviceHolder.get().getUniqueId());
-                                playerHolder.get().updateAsync();
+                                ((CloudPlayer)player).setLastConnectedServerId(serviceHolder.getUniqueId());
+                                player.updateAsync();
                             });
                 });
     }

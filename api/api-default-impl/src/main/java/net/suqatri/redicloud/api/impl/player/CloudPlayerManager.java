@@ -4,7 +4,6 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.player.ICloudPlayerManager;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 import net.suqatri.redicloud.commons.function.future.FutureActionCollection;
@@ -21,7 +20,7 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     private RMap<String, String> nameFetcherMap;
 
     public CloudPlayerManager() {
-        super("player", ICloudPlayer.class);
+        super("player", CloudPlayer.class);
         CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event -> {
             this.connectedList = event.getConnection().getClient().getList("fetcher:player_connected", getObjectCodec());
             this.registeredList = event.getConnection().getClient().getList("fetcher:player_registered", getObjectCodec());
@@ -30,19 +29,19 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     }
 
     @Override
-    public IRBucketHolder<ICloudPlayer> getPlayer(String playerName) {
+    public ICloudPlayer getPlayer(String playerName) {
         if (!this.nameFetcherMap.containsKey(playerName)) return null;
         return this.getPlayer(this.nameFetcherMap.get(playerName));
     }
 
     @Override
-    public IRBucketHolder<ICloudPlayer> getPlayer(UUID uniqueId) {
+    public ICloudPlayer getPlayer(UUID uniqueId) {
         return this.getPlayer(uniqueId.toString());
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudPlayer>> getPlayerAsync(String playerName) {
-        FutureAction<IRBucketHolder<ICloudPlayer>> futureAction = new FutureAction<>();
+    public FutureAction<ICloudPlayer> getPlayerAsync(String playerName) {
+        FutureAction<ICloudPlayer> futureAction = new FutureAction<>();
 
         this.nameFetcherMap.containsKeyAsync(playerName)
                 .whenComplete((contains, throwable) -> {
@@ -66,8 +65,8 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudPlayer>> getPlayerAsync(UUID uniqueId) {
-        return this.getBucketHolderAsync(uniqueId.toString());
+    public FutureAction<ICloudPlayer> getPlayerAsync(UUID uniqueId) {
+        return this.getAsync(uniqueId.toString());
     }
 
     @Override
@@ -81,14 +80,14 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     }
 
     @Override
-    public IRBucketHolder<ICloudPlayer> createPlayer(ICloudPlayer cloudPlayer) {
+    public ICloudPlayer createPlayer(ICloudPlayer cloudPlayer) {
         this.registeredList.add(cloudPlayer.getUniqueId().toString());
         this.nameFetcherMap.put(cloudPlayer.getName().toLowerCase(), cloudPlayer.getUniqueId().toString());
         return this.createBucket(cloudPlayer.getUniqueId().toString(), cloudPlayer);
     }
 
     @Override
-    public FutureAction<IRBucketHolder<ICloudPlayer>> createPlayerAsync(ICloudPlayer cloudPlayer) {
+    public FutureAction<ICloudPlayer> createPlayerAsync(ICloudPlayer cloudPlayer) {
         this.registeredList.addAsync(cloudPlayer.getUniqueId().toString());
         this.nameFetcherMap.putAsync(cloudPlayer.getName().toLowerCase(), cloudPlayer.getUniqueId().toString());
         return this.createBucketAsync(cloudPlayer.getUniqueId().toString(), cloudPlayer);
@@ -105,15 +104,15 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     }
 
     @Override
-    public FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> getConnectedPlayers() {
-        FutureAction<Collection<IRBucketHolder<ICloudPlayer>>> futureAction = new FutureAction<>();
+    public FutureAction<Collection<ICloudPlayer>> getConnectedPlayers() {
+        FutureAction<Collection<ICloudPlayer>> futureAction = new FutureAction<>();
         this.nameFetcherMap.readAllValuesAsync()
                 .whenComplete((values, throwable) -> {
                     if (throwable != null) {
                         futureAction.completeExceptionally(throwable);
                         return;
                     }
-                    FutureActionCollection<UUID, IRBucketHolder<ICloudPlayer>> futureActionCollection = new FutureActionCollection<>();
+                    FutureActionCollection<UUID, ICloudPlayer> futureActionCollection = new FutureActionCollection<>();
                     for (String value : values) {
                         UUID uniqueId = UUID.fromString(value);
                         futureActionCollection.addToProcess(uniqueId, this.getPlayerAsync(uniqueId));

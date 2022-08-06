@@ -24,4 +24,9 @@ public class CloudServiceTemplate extends RBucketObject implements ICloudService
     public String getTemplatePath(ICloudNode node) {
         return new File(node.getFilePath(Files.TEMPLATE_FOLDER), this.name).getAbsolutePath();
     }
+
+    @Override
+    public String getIdentifier() {
+        return this.name;
+    }
 }

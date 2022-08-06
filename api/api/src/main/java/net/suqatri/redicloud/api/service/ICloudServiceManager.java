@@ -1,7 +1,6 @@
 package net.suqatri.redicloud.api.service;
 
 import net.suqatri.redicloud.api.player.ICloudPlayer;
-import net.suqatri.redicloud.api.redis.bucket.IRBucketHolder;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
@@ -28,26 +27,26 @@ public interface ICloudServiceManager {
 
     UUID getServiceIdFromFetcher(String serviceName);
 
-    FutureAction<IRBucketHolder<ICloudService>> getServiceAsync(String name);
+    FutureAction<ICloudService> getServiceAsync(String name);
 
-    FutureAction<IRBucketHolder<ICloudService>> getServiceAsync(UUID uniqueId);
+    FutureAction<ICloudService> getServiceAsync(UUID uniqueId);
 
-    IRBucketHolder<ICloudService> getService(String name);
+    ICloudService getService(String name);
 
-    IRBucketHolder<ICloudService> getService(UUID uniqueId);
+    ICloudService getService(UUID uniqueId);
 
-    FutureAction<Collection<IRBucketHolder<ICloudService>>> getServicesAsync();
+    FutureAction<Collection<ICloudService>> getServicesAsync();
 
-    Collection<IRBucketHolder<ICloudService>> getServices();
+    Collection<ICloudService> getServices();
 
     FutureAction<Boolean> stopServiceAsync(UUID uniqueId, boolean force);
 
-    FutureAction<IRBucketHolder<ICloudService>> startService(IServiceStartConfiguration configuration);
+    FutureAction<ICloudService> startService(IServiceStartConfiguration configuration);
 
     ICloudServiceFactory getServiceFactory();
 
-    IRBucketHolder<ICloudService> getFallbackService(IRBucketHolder<ICloudPlayer> cloudPlayer, IRBucketHolder<ICloudService>... blacklist);
-    IRBucketHolder<ICloudService> getFallbackService(boolean maintenance, IRBucketHolder<ICloudService>... blacklist);
+    ICloudService getFallbackService(ICloudPlayer cloudPlayer, ICloudService... blacklist);
+    ICloudService getFallbackService(boolean maintenance, ICloudService... blacklist);
 
     boolean existsService(String name);
 
@@ -57,6 +56,6 @@ public interface ICloudServiceManager {
 
     FutureAction<Boolean> existsServiceAsync(UUID uniqueId);
 
-    boolean executeCommand(IRBucketHolder<ICloudService> serviceHolder, String command);
+    boolean executeCommand(ICloudService service, String command);
 
 }

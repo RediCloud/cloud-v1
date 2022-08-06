@@ -102,19 +102,23 @@ public class CloudServiceVersion extends RBucketObject implements ICloudServiceV
     }
 
     public void patch() throws IOException, InterruptedException {
-        CloudAPI.getInstance().getServiceVersionManager().patch(this.getHolder(), true);
+        CloudAPI.getInstance().getServiceVersionManager().patch(this, true);
     }
 
     public FutureAction<Boolean> patchAsync() {
-        return CloudAPI.getInstance().getServiceVersionManager().patchAsync(this.getHolder(), true);
+        return CloudAPI.getInstance().getServiceVersionManager().patchAsync(this, true);
     }
 
     public void download() throws InterruptedException, IOException {
-        CloudAPI.getInstance().getServiceVersionManager().download(this.getHolder(), true);
+        CloudAPI.getInstance().getServiceVersionManager().download(this, true);
     }
 
     public FutureAction<Boolean> downloadAsync() {
-        return CloudAPI.getInstance().getServiceVersionManager().downloadAsync(this.getHolder(), true);
+        return CloudAPI.getInstance().getServiceVersionManager().downloadAsync(this, true);
     }
 
+    @Override
+    public String getIdentifier() {
+        return this.name;
+    }
 }

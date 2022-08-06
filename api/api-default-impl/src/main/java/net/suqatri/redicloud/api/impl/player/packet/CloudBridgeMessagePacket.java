@@ -16,8 +16,8 @@ public class CloudBridgeMessagePacket extends CloudPacket {
     public void receive() {
         CloudAPI.getInstance().getPlayerManager().getPlayerAsync(this.uniqueId)
             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to send message to player " + this.uniqueId, t))
-            .onSuccess(playerHolder -> {
-                playerHolder.getBridge().sendMessage(this.message);
+            .onSuccess(player -> {
+                player.getBridge().sendMessage(this.message);
             });
     }
 }

@@ -16,8 +16,8 @@ public class FileTransferReadFailedPacket extends FileTransferPacket {
     public void receive() {
         if (CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
         CloudAPI.getInstance().getNodeManager().getNodeAsync(UUID.fromString(getPacketData().getSender().getIdentifier()))
-                .onSuccess(nodeHolder -> {
-                    CloudAPI.getInstance().getConsole().error("§cNode §f" + nodeHolder.getName() + " §cfailed to read received file for transfer " + this.getTransferId() + "! (§f" + indexesReceived + "§c/§f" + indexesSent + "§c packets received)");
+                .onSuccess(node -> {
+                    CloudAPI.getInstance().getConsole().error("§cNode §f" + node.getName() + " §cfailed to read received file for transfer " + this.getTransferId() + "! (§f" + indexesReceived + "§c/§f" + indexesSent + "§c packets received)");
                 });
     }
 

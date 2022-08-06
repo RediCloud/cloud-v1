@@ -93,11 +93,11 @@ public class ServiceVersionCommand extends ConsoleCommand {
     public void onDelete(CommandSender commandSender, String name) {
         CloudAPI.getInstance().getGroupManager().getGroupsAsync()
                 .onFailure(t -> commandSender.sendMessage("Failed to get groups"))
-                .onSuccess(groupHolders -> {
+                .onSuccess(groups -> {
                     List<ICloudGroup> list = new ArrayList<>();
-                    for (ICloudGroup groupHolder : groupHolders) {
-                        if (groupHolder.getServiceVersionName().equalsIgnoreCase(name)) {
-                            list.add(groupHolder);
+                    for (ICloudGroup group : groups) {
+                        if (group.getServiceVersionName().equalsIgnoreCase(name)) {
+                            list.add(group);
                         }
                     }
                     if (!list.isEmpty()) {

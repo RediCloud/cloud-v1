@@ -20,11 +20,11 @@ public class CloudServiceStoppedListener {
         if(event.isExternal()) return;
         CloudAPI.getInstance().getNodeManager().getNodeAsync(event.getNodeId())
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to unregister service: " + event.getServiceName(), e))
-                .onSuccess(nodeHolder -> {
+                .onSuccess(node -> {
                     for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
                         if (!player.hasPermission("redicloud.service.notify")) continue;
                         player.sendMessage(BungeeCordCloudAPI.getInstance().getChatPrefix()
-                                + "§3" + event.getServiceName() + "§8(§f" + nodeHolder.getName() + "§8) » §4§l■");
+                                + "§3" + event.getServiceName() + "§8(§f" + node.getName() + "§8) » §4§l■");
                     }
                 });
     }

@@ -13,9 +13,9 @@ public class PlayerDisconnectListener {
 
         CloudAPI.getInstance().getPlayerManager().getPlayerAsync(event.getPlayer().getUniqueId())
                 .onFailure(throwable -> CloudAPI.getInstance().getConsole().error("", throwable))
-                .onSuccess(playerHolder -> {
+                .onSuccess(player -> {
                     if (event.getPlayer().isActive()) return;
-                    CloudPlayer cloudPlayer = (CloudPlayer) playerHolder;
+                    CloudPlayer cloudPlayer = (CloudPlayer) player;
                     cloudPlayer.setLastLogout(System.currentTimeMillis());
                     cloudPlayer.setConnected(false);
                     cloudPlayer.updateAsync()

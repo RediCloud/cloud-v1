@@ -14,8 +14,8 @@ import java.util.UUID;
 
 public class ProxyPlayerBridge extends RequestPlayerBridge {
 
-    public ProxyPlayerBridge(ICloudPlayer playerHolder) {
-        super(playerHolder);
+    public ProxyPlayerBridge(ICloudPlayer player) {
+        super(player);
     }
 
     @Override

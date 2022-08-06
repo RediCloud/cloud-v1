@@ -24,7 +24,7 @@ public abstract class VelocityDefaultCloudAPI extends CloudDefaultAPIImpl<CloudS
     }
 
     @Override
-    public IPlayerBridge createBridge(ICloudPlayer playerHolder) {
-        return new VelocityPlayerBridge(playerHolder);
+    public IPlayerBridge createBridge(ICloudPlayer player) {
+        return new VelocityPlayerBridge(player);
     }
 }

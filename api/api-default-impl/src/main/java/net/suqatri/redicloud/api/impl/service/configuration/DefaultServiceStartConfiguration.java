@@ -62,10 +62,10 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
             configuration.setGroupName(interfaceConfig.getGroupName());
             CloudAPI.getInstance().getGroupManager().getGroupAsync(interfaceConfig.getGroupName())
                     .onFailure(futureAction)
-                    .onSuccess(groupHolder -> {
-                        configuration.getTemplateNames().addAll(groupHolder.getTemplateNames());
-                        configuration.setFallback(groupHolder.isFallback());
-                        configuration.setPercentToStartNewService(groupHolder.getPercentToStartNewService());
+                    .onSuccess(group -> {
+                        configuration.getTemplateNames().addAll(group.getTemplateNames());
+                        configuration.setFallback(group.isFallback());
+                        configuration.setPercentToStartNewService(group.getPercentToStartNewService());
                         futureAction.complete(configuration);
                     });
         } else {

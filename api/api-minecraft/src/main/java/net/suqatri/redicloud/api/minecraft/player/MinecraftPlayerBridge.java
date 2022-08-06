@@ -10,8 +10,8 @@ import java.util.UUID;
 
 public class MinecraftPlayerBridge extends RequestPlayerBridge {
 
-    public MinecraftPlayerBridge(ICloudPlayer playerHolder) {
-        super(playerHolder);
+    public MinecraftPlayerBridge(ICloudPlayer player) {
+        super(player);
     }
 
     @Override

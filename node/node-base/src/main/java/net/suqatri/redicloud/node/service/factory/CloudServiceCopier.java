@@ -57,12 +57,12 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                 futureActionCollection.process()
                                         .onFailure(futureAction)
                                         .onSuccess(templates -> {
-                                            for (ICloudServiceTemplate templateHolder : templates.values()) {
-                                                folders.add(templateHolder.getTemplateFolder());
+                                            for (ICloudServiceTemplate template : templates.values()) {
+                                                folders.add(template.getTemplateFolder());
                                             }
                                             this.process.getService().getServiceVersion()
                                                     .onFailure(futureAction)
-                                                    .onSuccess(serviceVersionHolder -> {
+                                                    .onSuccess(serviceVersion -> {
                                                         CloudAPI.getInstance().getExecutorService().submit(() -> {
                                                             try {
                                                                 for (File folder : folders) {
@@ -114,7 +114,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                                     return;
                                                                 }
 
-                                                                FileUtils.copyFile(serviceVersionHolder.getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
+                                                                FileUtils.copyFile(serviceVersion.getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
 
                                                                 futureAction.complete(this.getServiceDirectory());
                                                             } catch (IOException e) {
@@ -135,8 +135,8 @@ public class CloudServiceCopier implements ICloudServiceCopier {
 
         CloudAPI.getInstance().getConsole().debug("Copying files for service " + this.process.getService().getName() + "...");
 
-        ICloudServiceVersion serviceVersionHolder = this.process.getService().getServiceVersion().get(5, TimeUnit.SECONDS);
-        if (serviceVersionHolder == null)
+        ICloudServiceVersion serviceVersion = this.process.getService().getServiceVersion().get(5, TimeUnit.SECONDS);
+        if (serviceVersion == null)
             throw new NullPointerException("Service version " + this.process.getService().getConfiguration().getServiceVersionName() + "not found");
 
         if (this.templateManager.existsTemplate("global-all")) {
@@ -200,7 +200,7 @@ public class CloudServiceCopier implements ICloudServiceCopier {
 
         editFiles();
 
-        FileUtils.copyFile(serviceVersionHolder.getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
+        FileUtils.copyFile(serviceVersion.getPatchedFile(), new File(this.getServiceDirectory(), "service.jar"));
 
         CloudAPI.getInstance().getConsole().debug("Copying files for service " + this.process.getService().getName() + " finished.");
 

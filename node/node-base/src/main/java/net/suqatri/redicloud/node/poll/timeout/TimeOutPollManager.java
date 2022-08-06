@@ -57,12 +57,12 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
                                             this.createPoll(poll)
                                                     .onFailure(e1 -> CloudAPI.getInstance().getConsole().error("Error while creating timeout poll", e1))
                                                     .onSuccess(pollHolder -> {
-                                                        for (ICloudNode nodeHolder : nodes) {
-                                                            if (!nodeHolder.isConnected()) continue;
-                                                            if (nodeHolder.getUniqueId().equals(pollHolder.getTimeOutTargetId()))
+                                                        for (ICloudNode clusterNodes : nodes) {
+                                                            if (!clusterNodes.isConnected()) continue;
+                                                            if (clusterNodes.getUniqueId().equals(pollHolder.getTimeOutTargetId()))
                                                                 continue;
-                                                            pollHolder.getResults().put(nodeHolder.getUniqueId(),
-                                                                    pollHolder.getOpenerId().equals(nodeHolder.getUniqueId()) ? TimeOutResult.FAILED : TimeOutResult.UNKNOWN);
+                                                            pollHolder.getResults().put(clusterNodes.getUniqueId(),
+                                                                    pollHolder.getOpenerId().equals(clusterNodes.getUniqueId()) ? TimeOutResult.FAILED : TimeOutResult.UNKNOWN);
                                                         }
                                                         TimeOutPollRequestPacket requestPacket = new TimeOutPollRequestPacket();
                                                         requestPacket.setPollId(pollHolder.getPollId());

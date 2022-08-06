@@ -15,8 +15,8 @@ import java.util.UUID;
 
 public class VelocityPlayerBridge extends RequestPlayerBridge {
 
-    public VelocityPlayerBridge(ICloudPlayer playerHolder) {
-        super(playerHolder);
+    public VelocityPlayerBridge(ICloudPlayer player) {
+        super(player);
     }
 
     @Override

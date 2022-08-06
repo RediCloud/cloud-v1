@@ -22,13 +22,13 @@ public class CloudServiceStoppedListener {
         if(event.isExternal()) return;
         CloudAPI.getInstance().getNodeManager().getNodeAsync(event.getNodeId())
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to unregister service: " + event.getServiceName(), e))
-                .onSuccess(nodeHolder -> {
+                .onSuccess(node -> {
 
                     for (Player player : VelocityCloudAPI.getInstance().getProxyServer().getAllPlayers()) {
                         if (!player.hasPermission("redicloud.service.notify")) continue;
                         player.sendMessage(LegacyMessageUtils.component(VelocityCloudAPI.getInstance().getChatPrefix()
                                 + "§3" + event.getServiceName() + "§8(§f"
-                                + nodeHolder.getName() + "§8) » §4§l■"));
+                                + node.getName() + "§8) » §4§l■"));
                     }
                 });
     }

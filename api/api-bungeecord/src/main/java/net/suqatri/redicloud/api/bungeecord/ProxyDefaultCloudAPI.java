@@ -14,7 +14,7 @@ public abstract class ProxyDefaultCloudAPI extends CloudDefaultAPIImpl<CloudServ
     }
 
     @Override
-    public IPlayerBridge createBridge(ICloudPlayer playerHolder) {
-        return new ProxyPlayerBridge(playerHolder);
+    public IPlayerBridge createBridge(ICloudPlayer player) {
+        return new ProxyPlayerBridge(player);
     }
 }

@@ -69,7 +69,7 @@ public class FileTransferManager implements IFileTransferManager {
         FutureAction<File> futureAction = new FutureAction<>();
         CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeId)
                 .onFailure(futureAction)
-                .onSuccess(nodeHolder -> this.transferFolderToNode(folder, targetFile, targetFilePathToDelete, nodeHolder)
+                .onSuccess(node -> this.transferFolderToNode(folder, targetFile, targetFilePathToDelete, node)
                         .onFailure(futureAction)
                         .onSuccess(futureAction::complete));
 

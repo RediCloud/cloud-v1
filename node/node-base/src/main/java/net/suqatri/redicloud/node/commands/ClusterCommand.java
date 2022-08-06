@@ -68,13 +68,13 @@ public class ClusterCommand extends ConsoleCommand {
                     }
                     CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get node " + nodeName, e))
-                            .onSuccess(nodeHolder -> {
-                                if (!nodeHolder.isConnected()) {
+                            .onSuccess(node -> {
+                                if (!node.isConnected()) {
                                     commandSender.sendMessage("Node not connected!");
                                     return;
                                 }
                                 NodePingPacket packet = new NodePingPacket();
-                                packet.getPacketData().addReceiver(nodeHolder.getNetworkComponentInfo());
+                                packet.getPacketData().addReceiver(node.getNetworkComponentInfo());
                                 packet.getPacketData().waitForResponse()
                                         .onFailure(e -> {
                                             if (e instanceof TimeoutException) {
@@ -100,8 +100,8 @@ public class ClusterCommand extends ConsoleCommand {
         commandSender.sendMessage("Loading node...");
         CloudAPI.getInstance().getNodeManager().getNodeAsync(nodeName)
                 .onFailure(e -> commandSender.sendMessage("Can't find node " + nodeName))
-                .onSuccess(nodeHolder -> {
-                    CloudNode node = (CloudNode) nodeHolder;
+                .onSuccess(nodeToCast -> {
+                    CloudNode node = (CloudNode) nodeToCast;
                     if (node.isConnected()) {
                         commandSender.sendMessage("%tc" + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getName());
                         commandSender.sendMessage("§8   » %tcLast-IP: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getHostname());

@@ -58,10 +58,10 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
                 .onSuccess(template -> {
                     CloudAPI.getInstance().getGroupManager().getGroupsAsync()
                             .onFailure(futureAction)
-                            .onSuccess(groupHolders -> {
-                                for (ICloudGroup groupHolder : groupHolders) {
-                                    groupHolder.getTemplateNames().remove(template.getName());
-                                    groupHolder.updateAsync();
+                            .onSuccess(groups -> {
+                                for (ICloudGroup group : groups) {
+                                    group.getTemplateNames().remove(template.getName());
+                                    group.updateAsync();
                                 }
                                 File file = template.getTemplateFolder();
                                 if (file.exists()) {
@@ -83,9 +83,9 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
         return futureAction;
     }
 
-    public FutureAction<ICloudServiceTemplate> pushTemplate(ICloudServiceTemplate template, ICloudNode nodeHolder) {
+    public FutureAction<ICloudServiceTemplate> pushTemplate(ICloudServiceTemplate template, ICloudNode node) {
         FutureAction<ICloudServiceTemplate> futureAction = new FutureAction<>();
-        if (!nodeHolder.isConnected()) {
+        if (!node.isConnected()) {
             futureAction.completeExceptionally(new NullPointerException("Cloud node not connected!"));
             return futureAction;
         }
@@ -93,7 +93,7 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
                         template.getTemplateFolder(),
                         Files.TEMPLATE_FOLDER.getFile(),
                         new File(Files.TEMPLATE_FOLDER.getFile(), template.getName()).getPath(),
-                        nodeHolder)
+                        node)
                 .map(r -> template);
     }
 
@@ -118,26 +118,26 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
         return futureAction;
     }
 
-    public FutureAction<ICloudNode> pushAllTemplates(ICloudNode nodeHolder) {
+    public FutureAction<ICloudNode> pushAllTemplates(ICloudNode node) {
         return NodeLauncher.getInstance().getFileTransferManager().transferFolderToNode(
                         Files.TEMPLATE_FOLDER.getFile(),
                         Files.CLOUD_FOLDER.getFile(),
-                        nodeHolder.getFilePath(Files.TEMPLATE_FOLDER),
-                        nodeHolder)
-                .map(r -> nodeHolder);
+                        node.getFilePath(Files.TEMPLATE_FOLDER),
+                        node)
+                .map(r -> node);
     }
 
-    public FutureAction<Boolean> pullTemplates(ICloudNode nodeHolder) {
+    public FutureAction<Boolean> pullTemplates(ICloudNode node) {
         FutureAction<Boolean> futureAction =
                 new FutureAction<>(NodeLauncher.getInstance().getFileTransferManager()
-                        .pullFile(nodeHolder.getFilePath(Files.TEMPLATE_FOLDER)
+                        .pullFile(node.getFilePath(Files.TEMPLATE_FOLDER)
                                 , Files.CLOUD_FOLDER.getFile()
-                                , Files.TEMPLATE_FOLDER.getFile(), nodeHolder));
+                                , Files.TEMPLATE_FOLDER.getFile(), node));
 
         futureAction.onFailure(t ->
-                        CloudAPI.getInstance().getEventManager().postLocal(new FilePulledTemplatesEvent(nodeHolder.getUniqueId(), false)))
+                        CloudAPI.getInstance().getEventManager().postLocal(new FilePulledTemplatesEvent(node.getUniqueId(), false)))
                 .onSuccess(b ->
-                        CloudAPI.getInstance().getEventManager().postLocal(new FilePulledTemplatesEvent(nodeHolder.getUniqueId(), true)));
+                        CloudAPI.getInstance().getEventManager().postLocal(new FilePulledTemplatesEvent(node.getUniqueId(), true)));
 
         return futureAction;
     }
@@ -148,17 +148,17 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
                 .onFailure(futureAction)
                 .onSuccess(holders -> {
                     if (holders.size() < 2) return;
-                    ICloudNode targetNodeHolder = null;
+                    ICloudNode targetNode = null;
                     for (ICloudNode holder : holders) {
                         if (!holder.isConnected()) continue;
                         if (holder.getNetworkComponentInfo().equals(CloudAPI.getInstance().getNetworkComponentInfo()))
                             continue;
-                        if (targetNodeHolder == null) targetNodeHolder = holder;
-                        else if (targetNodeHolder.getUpTime() < holder.getUpTime())
-                            targetNodeHolder = holder;
+                        if (targetNode == null) targetNode = holder;
+                        else if (targetNode.getUpTime() < holder.getUpTime())
+                            targetNode = holder;
                     }
-                    if (targetNodeHolder == null) return;
-                    pullTemplates(targetNodeHolder)
+                    if (targetNode == null) return;
+                    pullTemplates(targetNode)
                             .onFailure(futureAction)
                             .onSuccess(r -> futureAction.complete(true));
                 });

@@ -111,23 +111,23 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             return;
         }
         this.console.info("Searching for node to sync pull templates from...");
-        ICloudNode nodeHolder = null;
+        ICloudNode node = null;
         for (ICloudNode holder : getNodeManager().getNodes()) {
             if (!holder.isConnected()) continue;
             if (holder.getUniqueId().equals(this.node.getUniqueId())) continue;
-            if (nodeHolder == null && !this.node.isFileNode()) {
-                nodeHolder = holder;
+            if (node == null && !this.node.isFileNode()) {
+                node = holder;
                 continue;
             }
             if (holder.isFileNode()) {
-                if (holder.getUpTime() > nodeHolder.getUpTime()) {
-                    nodeHolder = holder;
+                if (holder.getUpTime() > node.getUpTime()) {
+                    node = holder;
                     continue;
                 }
-                nodeHolder = holder;
+                node = holder;
             }
         }
-        if (nodeHolder == null && !this.node.isFileNode()) {
+        if (node == null && !this.node.isFileNode()) {
             this.console.warn("-----------------------------------------");
             this.console.warn("No node found to sync templates from!");
             this.console.warn("You can setup a node to pull templates from by set the node-property \"filenode\" to true!");
@@ -138,7 +138,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             runnable.run();
             return;
         }
-        if (nodeHolder == null) {
+        if (node == null) {
             this.console.info("No node found to sync templates from!");
             this.console.info("Skipping template sync!");
             this.firstTemplatePulled = true;
@@ -146,9 +146,9 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             runnable.run();
             return;
         }
-        ICloudNode targetNode = nodeHolder;
-        this.console.info("Found node to sync templates from: %hc" + nodeHolder.getName());
-        this.serviceTemplateManager.pullTemplates(nodeHolder)
+        ICloudNode targetNode = node;
+        this.console.info("Found node to sync templates from: %hc" + node.getName());
+        this.serviceTemplateManager.pullTemplates(node)
                 .onFailure(e -> {
                     this.console.error("Failed to pull templates from node " + targetNode.getName(), e);
                     this.firstTemplatePulled = true;
@@ -559,7 +559,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
                 int stopCount = 0;
                 boolean isLastNode = this.getNodeManager().getNodes().parallelStream()
-                        .filter(nodeHolder -> nodeHolder.isConnected())
+                        .filter(ICloudNode::isConnected)
                         .count() == 1;
 
                 if (this.console != null) this.console.info("Stopping services...");

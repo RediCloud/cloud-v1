@@ -51,14 +51,14 @@ public class DebugCommand extends ConsoleCommand {
     public void onServicesConnectedByGroup(CommandSender commandSender, String groupName){
         CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while getting group " + groupName, t))
-                .onSuccess(groupHolder -> {
-                   commandSender.sendMessage("Group: " + groupHolder.getName());
-                   groupHolder.getConnectedServices()
+                .onSuccess(group -> {
+                   commandSender.sendMessage("Group: " + group.getName());
+                   group.getConnectedServices()
                            .onFailure(t -> CloudAPI.getInstance().getConsole().error("Error while getting services", t))
                            .onSuccess(services -> {
                                commandSender.sendMessage("Services: " + services.size());
-                               services.forEach(serviceHolder -> {
-                                   commandSender.sendMessage("Service: " + serviceHolder.getName());
+                               services.forEach(service -> {
+                                   commandSender.sendMessage("Service: " + service.getName());
                                });
                            });
                 });

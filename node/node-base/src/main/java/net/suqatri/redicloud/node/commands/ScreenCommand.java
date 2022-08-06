@@ -44,12 +44,12 @@ public class ScreenCommand extends ConsoleCommand {
                     CloudAPI.getInstance().getConsole().trace("Get service of screen " + serviceName);
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while getting service", e))
-                            .onSuccess(serviceHolder -> {
-                                if(serviceHolder.isExternal()) {
+                            .onSuccess(service -> {
+                                if(service.isExternal()) {
                                     commandSender.sendMessage("Joining external screens is not supported!");
                                     return;
                                 }
-                                IServiceScreen serviceScreen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(serviceHolder);
+                                IServiceScreen serviceScreen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(service);
                                 if (NodeLauncher.getInstance().getScreenManager().isActive(serviceScreen)) {
                                     NodeLauncher.getInstance().getScreenManager().leave(serviceScreen);
                                     commandSender.sendMessage("Screen " + serviceName + " left!");
@@ -91,12 +91,12 @@ public class ScreenCommand extends ConsoleCommand {
                     CloudAPI.getInstance().getConsole().trace("Get service of screen " + serviceName);
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to join screen " + serviceName + "!", e))
-                            .onSuccess(serviceHolder -> {
-                                if(serviceHolder.isExternal()) {
+                            .onSuccess(service -> {
+                                if(service.isExternal()) {
                                     commandSender.sendMessage("Joining external screens is not supported!");
                                     return;
                                 }
-                                IServiceScreen serviceScreen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(serviceHolder);
+                                IServiceScreen serviceScreen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(service);
                                 if (NodeLauncher.getInstance().getScreenManager().isActive(serviceScreen)) {
                                     commandSender.sendMessage("Screen " + serviceName + " is already active!");
                                     return;
@@ -125,8 +125,8 @@ public class ScreenCommand extends ConsoleCommand {
                     CloudAPI.getInstance().getConsole().trace("Get service of screen " + serviceName);
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serviceName)
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to leave screen " + serviceName + "!", e))
-                            .onSuccess(serviceHolder -> {
-                                IServiceScreen serviceScreen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(serviceHolder);
+                            .onSuccess(service -> {
+                                IServiceScreen serviceScreen = NodeLauncher.getInstance().getScreenManager().getServiceScreen(service);
                                 if (!NodeLauncher.getInstance().getScreenManager().isActive(serviceScreen)) {
                                     commandSender.sendMessage("Screen " + serviceName + " is not active!");
                                     return;
@@ -146,7 +146,7 @@ public class ScreenCommand extends ConsoleCommand {
         }
         commandSender.sendMessage("Active screens §8(%hc" + NodeLauncher.getInstance().getScreenManager().getActiveScreens().size() + "§8)%tc:");
         for (IServiceScreen serviceScreen : NodeLauncher.getInstance().getScreenManager().getActiveScreens()) {
-            commandSender.sendMessage("§8 » %tc" + serviceScreen.getServices().getServiceName());
+            commandSender.sendMessage("§8 » %tc" + serviceScreen.getService().getServiceName());
         }
     }
 

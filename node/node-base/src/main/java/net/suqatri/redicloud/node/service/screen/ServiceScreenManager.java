@@ -41,8 +41,8 @@ public class ServiceScreenManager implements IServiceScreenManager {
     public FutureAction<IServiceScreen> join(IServiceScreen serviceScreen) {
         FutureAction<IServiceScreen> futureAction = new FutureAction<>();
 
-        serviceScreen.getServices().getConsoleNodeListenerIds().add(NodeLauncher.getInstance().getNode().getUniqueId());
-        serviceScreen.getServices().updateAsync();
+        serviceScreen.getService().getConsoleNodeListenerIds().add(NodeLauncher.getInstance().getNode().getUniqueId());
+        serviceScreen.getService().updateAsync();
 
         if (this.activeScreens.contains(serviceScreen)) {
             futureAction.complete(serviceScreen);
@@ -72,8 +72,8 @@ public class ServiceScreenManager implements IServiceScreenManager {
     @Override
     public void leave(IServiceScreen serviceScreen) {
 
-        serviceScreen.getServices().getConsoleNodeListenerIds().remove(NodeLauncher.getInstance().getNode().getUniqueId());
-        serviceScreen.getServices().updateAsync();
+        serviceScreen.getService().getConsoleNodeListenerIds().remove(NodeLauncher.getInstance().getNode().getUniqueId());
+        serviceScreen.getService().updateAsync();
 
         this.activeScreens.remove(serviceScreen);
     }
@@ -85,7 +85,7 @@ public class ServiceScreenManager implements IServiceScreenManager {
 
     @Override
     public boolean isActive(UUID serviceId) {
-        return this.activeScreens.parallelStream().anyMatch(screen -> screen.getServices().getUniqueId().equals(serviceId));
+        return this.activeScreens.parallelStream().anyMatch(screen -> screen.getService().getUniqueId().equals(serviceId));
     }
 
     @Override
@@ -101,7 +101,7 @@ public class ServiceScreenManager implements IServiceScreenManager {
     @Override
     public void write(String command) {
         for (IServiceScreen activeScreen : this.activeScreens) {
-            CloudAPI.getInstance().getServiceManager().executeCommand(activeScreen.getServices(), command);
+            CloudAPI.getInstance().getServiceManager().executeCommand(activeScreen.getService(), command);
         }
     }
 }

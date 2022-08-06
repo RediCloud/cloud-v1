@@ -19,12 +19,12 @@ public class ServerPostConnectListener {
         if(!connection.isPresent()) return;
         RegisteredServer registeredServer = connection.get().getServer();
         CloudAPI.getInstance().getConsole().trace("Player " + event.getPlayer().getUsername() + " switched to server " + registeredServer.getServerInfo().getName());
-        ICloudPlayer playerHolder= CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
-        if(playerHolder == null) return;
+        ICloudPlayer player = CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
+        if(player == null) return;
         ICloudService serviceHolder = CloudAPI.getInstance().getServiceManager()
                 .getService(registeredServer.getServerInfo().getName());
-        ((CloudPlayer)playerHolder).setLastConnectedServerId(serviceHolder.getUniqueId());
-        playerHolder.updateAsync();
+        ((CloudPlayer)player).setLastConnectedServerId(serviceHolder.getUniqueId());
+        player.updateAsync();
     }
 
 }

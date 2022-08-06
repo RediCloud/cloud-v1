@@ -14,7 +14,7 @@ public abstract class MinecraftDefaultCloudAPI<T extends RBucketObject> extends 
     }
 
     @Override
-    public IPlayerBridge createBridge(ICloudPlayer playerHolder) {
-        return new MinecraftPlayerBridge(playerHolder);
+    public IPlayerBridge createBridge(ICloudPlayer player) {
+        return new MinecraftPlayerBridge(player);
     }
 }

@@ -13,8 +13,6 @@ public class CloudServiceStartedListener {
         NetworkComponentManager manager = (NetworkComponentManager) CloudDefaultAPIImpl.getInstance().getNetworkComponentManager();
         event.getServiceAsync()
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while caching network components of service@" + event.getService().getIdentifier(), e))
-                .onSuccess(serviceHolder -> {
-                    manager.addCachedService(serviceHolder);
-                });
+                .onSuccess(manager::addCachedService);
     }
 }

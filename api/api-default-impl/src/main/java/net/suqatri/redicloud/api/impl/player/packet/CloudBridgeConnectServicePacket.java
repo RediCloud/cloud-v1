@@ -16,8 +16,8 @@ public class CloudBridgeConnectServicePacket extends CloudPacket {
     public void receive() {
         CloudAPI.getInstance().getPlayerManager().getPlayerAsync(this.uniqueId)
                 .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to send message to player " + this.uniqueId, t))
-                .onSuccess(playerHolder -> {
-                    playerHolder.getBridge().connect(this.serviceId);
+                .onSuccess(player -> {
+                    player.getBridge().connect(this.serviceId);
                 });
     }
 }

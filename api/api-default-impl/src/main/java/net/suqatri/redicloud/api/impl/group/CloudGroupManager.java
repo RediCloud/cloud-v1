@@ -108,13 +108,13 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
         FutureAction<Boolean> futureAction = new FutureAction<>();
         getGroupAsync(uniqueId)
                 .onFailure(futureAction)
-                .onSuccess(groupHolder -> {
-                    groupHolder.getConnectedServices()
+                .onSuccess(group -> {
+                    group.getConnectedServices()
                             .onFailure(futureAction)
                             .onSuccess(services -> {
                                 FutureActionCollection<UUID, Boolean> futureActionFutureAction = new FutureActionCollection<>();
-                                for (ICloudService serviceHolder : services) {
-                                    futureActionFutureAction.addToProcess(serviceHolder.getUniqueId(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(serviceHolder.getUniqueId(), true));
+                                for (ICloudService service : services) {
+                                    futureActionFutureAction.addToProcess(service.getUniqueId(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(service.getUniqueId(), true));
                                 }
                                 futureActionFutureAction.process()
                                         .onFailure(futureAction)
@@ -148,14 +148,14 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
     }
 
     @Override
-    public FutureAction<ICloudGroup> addDefaultTemplates(ICloudGroup groupHolder) {
+    public FutureAction<ICloudGroup> addDefaultTemplates(ICloudGroup group) {
         FutureAction<ICloudGroup> futureAction = new FutureAction<>();
 
         FutureActionCollection<String, Boolean> existencesCollection = new FutureActionCollection<>();
 
         existencesCollection.addToProcess("global-all",
                 CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync("global-all"));
-        switch (groupHolder.getServiceEnvironment()){
+        switch (group.getServiceEnvironment()){
             case VELOCITY: {
                 existencesCollection.addToProcess("global-velocity",
                         CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync("global-proxy"));
@@ -184,11 +184,11 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
                    .onFailure(futureAction)
                    .onSuccess(templateResults -> {
                        for (ICloudServiceTemplate value : templateResults.values()) {
-                           groupHolder.addTemplate(value);
+                           group.addTemplate(value);
                        }
-                       groupHolder.updateAsync()
+                       group.updateAsync()
                            .onFailure(futureAction)
-                           .onSuccess(s -> futureAction.complete(groupHolder));
+                           .onSuccess(s -> futureAction.complete(group));
                    });
             });
 

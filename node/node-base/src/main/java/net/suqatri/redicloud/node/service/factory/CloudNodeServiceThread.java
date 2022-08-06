@@ -76,12 +76,12 @@ public class CloudNodeServiceThread extends Thread {
                 this.checkServiceCount++;
                 if (this.checkServiceCount >= checkServiceInterval) {
                     this.checkServiceCount = 0;
-                    for (ICloudGroup groupHolder : CloudAPI.getInstance().getGroupManager().getGroups()) {
+                    for (ICloudGroup group : CloudAPI.getInstance().getGroupManager().getGroups()) {
 
-                        long count = groupHolder.getConnectedServices().getBlockOrNull()
+                        long count = group.getConnectedServices().getBlockOrNull()
                                 .parallelStream()
                                 .filter(holder -> holder.isGroupBased())
-                                .filter(holder -> holder.getGroupName().equalsIgnoreCase(groupHolder.getName()))
+                                .filter(holder -> holder.getGroupName().equalsIgnoreCase(group.getName()))
                                 .filter(holder -> holder.getServiceState() != ServiceState.OFFLINE)
                                 .filter(holder -> holder.getServiceState() != ServiceState.RUNNING_DEFINED)
                                 .filter(holder -> {
@@ -98,23 +98,23 @@ public class CloudNodeServiceThread extends Thread {
                         if(this.queue.isExists()){
                             for (IServiceStartConfiguration configuration : this.queue.readAll()) {
                                 if(!configuration.isGroupBased()) continue;
-                                if(!configuration.getGroupName().equalsIgnoreCase(groupHolder.getName())) continue;
+                                if(!configuration.getGroupName().equalsIgnoreCase(group.getName())) continue;
                                 count++;
                             }
                         }
-                        int min = groupHolder.getMinServices();
+                        int min = group.getMinServices();
 
                         if (count < min) {
-                            CloudAPI.getInstance().getConsole().trace("Group " + groupHolder.getName() + " need to start " + (min - count) + " services");
+                            CloudAPI.getInstance().getConsole().trace("Group " + group.getName() + " need to start " + (min - count) + " services");
                             for (long i = count; i < min; i++) {
-                                IServiceStartConfiguration configuration = groupHolder.createServiceConfiguration();
+                                IServiceStartConfiguration configuration = group.createServiceConfiguration();
                                 if ((this.node.getFreeMemory() - configuration.getMaxMemory()) < 0) {
                                     memoryWarningCount++;
                                     if (memoryWarningCount < memoryWarningInterval) break;
                                     memoryWarningCount = 0;
                                     long maxRam = NodeLauncher.getInstance().getNode().getMaxMemory();
                                     CloudAPI.getInstance().getConsole().warn("Not enough memory to start a required service of group "
-                                            + groupHolder.getName() + " (" + (this.node.getMemoryUsage()) + "/" + this.node.getMaxMemory() + "MB)");
+                                            + group.getName() + " (" + (this.node.getMemoryUsage()) + "/" + this.node.getMaxMemory() + "MB)");
                                     break;
                                 }
                                 this.queue.add(configuration);
@@ -159,8 +159,8 @@ public class CloudNodeServiceThread extends Thread {
 
                             CloudAPI.getInstance().getConsole().debug("Service " + configuration.getName() + " is now inside a big thread of a POWER cpu!");
                             if (configuration.isGroupBased()) {
-                                ICloudGroup groupHolder = CloudAPI.getInstance().getGroupManager().getGroup(configuration.getGroupName());
-                                if (groupHolder.getOnlineServiceCount().getBlockOrNull() >= groupHolder.getMaxServices() && groupHolder.getMaxServices() != -1) {
+                                ICloudGroup group = CloudAPI.getInstance().getGroupManager().getGroup(configuration.getGroupName());
+                                if (group.getOnlineServiceCount().getBlockOrNull() >= group.getMaxServices() && group.getMaxServices() != -1) {
                                     if (configuration.getStartListener() != null) {
                                         configuration.getStartListener().completeExceptionally(new IllegalStateException("Can't start service of group " + configuration.getGroupName() + " because max service count is reached!"));
                                     } else {

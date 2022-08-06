@@ -10,14 +10,14 @@ public class CloudNodeConnectedListener {
     @CloudListener
     public void onCloudNodeConnected(CloudNodeConnectedEvent event) {
         event.getCloudNodeAsync()
-                .whenComplete((nodeHolder, t) -> {
+                .whenComplete((node, t) -> {
                     if (t != null) {
                         CloudAPI.getInstance().getConsole().error("Error while getting new connected node information!", t);
                         return;
                     }
-                    if (nodeHolder.getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId()))
+                    if (node.getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId()))
                         return;
-                    CloudAPI.getInstance().getConsole().info("Node %hc" + nodeHolder.getName() + "%tc has been connected to the cluster!");
+                    CloudAPI.getInstance().getConsole().info("Node %hc" + node.getName() + "%tc has been connected to the cluster!");
                 });
     }
 

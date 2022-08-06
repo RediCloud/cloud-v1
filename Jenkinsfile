@@ -25,7 +25,7 @@ pipeline {
                     sh "cp -r test/node-1/storage/ build/storage/"
                     sh "cp node/node-base/build/libs/redicloud-node-base.jar build/"
                     sh "cp plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar build/storage/"
-                    sh "cp plugins/plugin-proxy/build/libs/redicloud-plugin-bungeecord.jar build/storage/"
+                    sh "cp plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar build/storage/"
                     sh "cp plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar build/storage/"                 
                     sh "cp test/node-1/start.sh build/"
                     sh "cp test/node-1/start.bat build/"

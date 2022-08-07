@@ -21,6 +21,8 @@ public interface ICloudPlayer extends IRBucketObject {
 
     String getLastIp();
 
+    boolean isCracked();
+
     UUID getLastConnectedServerId();
 
     UUID getLastConnectedProxyId();

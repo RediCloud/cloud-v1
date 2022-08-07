@@ -225,7 +225,7 @@ public class GroupCommand extends ConsoleCommand {
                                                             cloudGroup.setUniqueId(UUID.randomUUID());
                                                             cloudGroup.setName(name.replaceAll(" ", ""));
                                                             cloudGroup.setPercentToStartNewService(proxySetup.getPercentToStartNewService());
-                                                            cloudGroup.setStartPort(25565);
+                                                            cloudGroup.setStartPort(proxySetup.getStartPort());
                                                             cloudGroup.setMinServices(proxySetup.getMinServices());
                                                             cloudGroup.setMaxServices(proxySetup.getMaxServices());
                                                             cloudGroup.setStaticGroup(proxySetup.isStaticGroup());

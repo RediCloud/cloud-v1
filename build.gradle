@@ -20,7 +20,6 @@ tasks.register('buildAndCopy', Copy) {
 }
 
 tasks.register('copyToTest') {
-    println 'Deleting test files'
     project.delete(
             file("${rootDir}/test/node-1/redicloud-node-base.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-bungeecord.jar"),
@@ -31,7 +30,6 @@ tasks.register('copyToTest') {
             file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar")
     )
-    println 'Copying files'
     dependsOn copyNodeBaseToNode1
     dependsOn copyNodeBaseToNode2
     dependsOn copyMinecraftPluginToNode1
@@ -159,13 +157,17 @@ allprojects {
         maven {
             url = "https://repo1.maven.org/maven2/"
         }
+        maven {
+            url = "https://jitpack.io"
+        }
     }
 
     dependencies {
         implementation('org.projectlombok:lombok:1.18.24')
+        implementation 'de.nycode:bcrypt:2.3.0'
         annotationProcessor('org.projectlombok:lombok:1.18.24')
 
-        implementation('org.redisson:redisson:3.17.4')
+        implementation('org.redisson:redisson:3.17.5')
         implementation('com.google.guava:guava:31.1-jre')
         implementation('org.jetbrains:annotations:23.0.0')
     }

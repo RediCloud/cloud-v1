@@ -80,6 +80,7 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 - offline/online player support at the same time ❌
 - player api bridge (actionbar, messages, service connect, kick, title, tablist) ✅
 - toggle maintenance for groups/services✅
+- multi proxy (with player count sync)✅
   <br>
 
 ## Commands

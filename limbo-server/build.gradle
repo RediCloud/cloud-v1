@@ -1,0 +1,19 @@
+plugins {
+    id 'java'
+}
+
+group 'net.suqatri.redicloud.limbo'
+
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'net.suqatri.redicloud.limbo.NanoLimbo'
+    }
+}
+
+dependencies {
+    implementation 'org.spongepowered:configurate-yaml:4.1.2'
+    implementation 'io.netty:netty-all:4.1.77.Final'
+    implementation 'net.kyori:adventure-nbt:4.10.1'
+    implementation 'com.grack:nanojson:1.7'
+}

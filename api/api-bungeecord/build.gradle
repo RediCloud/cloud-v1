@@ -5,7 +5,8 @@ plugins {
 group 'net.suqatri.redicloud.api.bungeecord'
 
 dependencies {
-    compileOnly('net.md-5:bungeecord-api:1.19-R0.1-SNAPSHOT')
+    compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-proxy:12e4514813')
+    compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-api:12e4514813')
     implementation project(':api:api-default-impl')
     implementation project(':api:api')
     implementation project(':commons')

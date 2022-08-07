@@ -161,7 +161,7 @@ Follow these [steps](https://github.com/RediCloud/cloud/wiki/installation)
 
 ### Build
 
-Last Build: [jenkins](http://jenkins.suqatri.net:8443/job/redi-cloud/)
+Last Build: [jenkins](http://ci.redicloud.dev/job/redi-cloud/)
 
 Linux / OSX
 ```
@@ -183,13 +183,11 @@ gradlew.bat
 Repository
 ```
 maven {
-    url = "http://repo.suqatri.net:8081/repository/maven-snapshots/"
-    allowInsecureProtocol = true
+    url = "https://repo.redicloud.dev/repository/maven-snapshots/"
 }
 
 maven {
-    url = "http://repo.suqatri.net:8081/repository/maven-releases/"
-    allowInsecureProtocol = true
+    url = "https://repo.redicloud.dev/repository/maven-releases/"
 }
 ```
 

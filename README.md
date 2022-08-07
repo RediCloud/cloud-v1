@@ -161,7 +161,7 @@ Follow these [steps](https://github.com/RediCloud/cloud/wiki/installation)
 
 ### Build
 
-Last Build: [jenkins](http://jetkins.suqatri.net:8443/job/redi-cloud/)
+Last Build: [jenkins](http://jenkins.suqatri.net:8443/job/redi-cloud/)
 
 Linux / OSX
 ```

@@ -32,4 +32,6 @@ public interface ICloudPlayerManager {
 
     UUID fetchName(String playerName);
 
+    void updateName(UUID uniqueId, String newName, String oldName);
+
 }

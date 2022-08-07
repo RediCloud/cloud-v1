@@ -163,4 +163,10 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
         return UUID.fromString(this.nameFetcherMap.get(playerName));
     }
 
+    @Override
+    public void updateName(UUID uniqueId, String newName, String oldName) {
+        this.nameFetcherMap.remove(oldName);
+        this.nameFetcherMap.put(uniqueId.toString(), newName);
+    }
+
 }

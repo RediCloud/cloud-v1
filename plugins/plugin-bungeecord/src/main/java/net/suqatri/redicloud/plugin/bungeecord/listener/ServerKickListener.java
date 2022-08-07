@@ -15,7 +15,6 @@ public class ServerKickListener implements Listener {
                 .getFallbackService(CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId()));
         if (fallbackHolder == null) {
             event.getPlayer().disconnect("Fallback service is not available.");
-            event.setCancelled(true);
             return;
         }
         event.getPlayer().sendMessage(event.getKickReasonComponent());

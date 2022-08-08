@@ -1,7 +1,8 @@
-package net.suqatri.redicloud.api.impl.poll.timeout;
+package net.suqatri.redicloud.api.node.poll.timeout;
 
 import lombok.Data;
 import net.suqatri.redicloud.api.impl.configuration.Configuration;
+import net.suqatri.redicloud.api.node.NodeCloudDefaultAPI;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,5 +17,10 @@ public class TimeOutPoolConfiguration extends Configuration {
     @Override
     public String getIdentifier() {
         return this.identifier;
+    }
+
+    @Override
+    public void merged() {
+        NodeCloudDefaultAPI.getInstance().getTimeOutPollManager().configure(this);
     }
 }

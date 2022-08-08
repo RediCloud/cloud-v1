@@ -1,4 +1,4 @@
-package net.suqatri.redicloud.api.impl.poll.timeout;
+package net.suqatri.redicloud.api.node.poll.timeout;
 
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
@@ -13,5 +13,7 @@ public interface ITimeOutPollManager {
     FutureAction<Boolean> closePoll(ITimeOutPoll poolHolder);
 
     TimeOutPoolConfiguration getConfiguration();
+
+    void configure(TimeOutPoolConfiguration configuration);
 
 }

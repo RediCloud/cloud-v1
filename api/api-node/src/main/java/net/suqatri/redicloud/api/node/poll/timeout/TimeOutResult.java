@@ -1,4 +1,4 @@
-package net.suqatri.redicloud.api.impl.poll.timeout;
+package net.suqatri.redicloud.api.node.poll.timeout;
 
 public enum TimeOutResult {
 

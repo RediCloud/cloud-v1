@@ -12,7 +12,8 @@ public class ServerKickListener implements Listener {
     @EventHandler
     public void onServerKick(ServerKickEvent event) {
         ICloudService fallbackHolder = CloudAPI.getInstance().getServiceManager()
-                .getFallbackService(CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId()));
+                .getFallbackService(CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId()),
+                        CloudAPI.getInstance().getServiceManager().getService(event.getKickedFrom().getName()));
         if (fallbackHolder == null) {
             event.getPlayer().disconnect("Fallback service is not available.");
             return;

@@ -3,8 +3,8 @@ package net.suqatri.redicloud.node.poll.timeout;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.redicloud.api.impl.poll.timeout.ITimeOutPoll;
-import net.suqatri.redicloud.api.impl.poll.timeout.TimeOutResult;
+import net.suqatri.redicloud.api.node.poll.timeout.ITimeOutPoll;
+import net.suqatri.redicloud.api.node.poll.timeout.TimeOutResult;
 import net.suqatri.redicloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
 import net.suqatri.redicloud.api.node.ICloudNode;
@@ -29,8 +29,6 @@ import java.util.stream.Collectors;
 @Data
 public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
 
-    public static final long PACKET_RESPONSE_TIMEOUT = 5000;
-    public static final long NODE_TIMEOUT = TimeUnit.MINUTES.toMillis(5);
     @JsonIgnore
     private final HashMap<UUID, TimeOutResult> results = new HashMap<>();
     private UUID pollId;
@@ -56,7 +54,8 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
                     NodePingPacket packet = new NodePingPacket();
                     packet.getPacketData().setChannel(PacketChannel.NODE);
                     packet.getPacketData().waitForResponse()
-                            .orTimeout(PACKET_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)
+                            .orTimeout(NodeLauncher.getInstance().getTimeOutPollManager().getConfiguration()
+                                    .getPacketResponseTimeout(), TimeUnit.MILLISECONDS)
                             .onFailure(e -> {
                                 TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
                                 resultPacket.getPacketData().setChannel(PacketChannel.NODE);
@@ -111,7 +110,7 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
                         return;
                     }
                     if (failed >= min) {
-                        node.setTimeOut(System.currentTimeMillis() + NODE_TIMEOUT);
+                        node.setTimeOut(System.currentTimeMillis() + NodeLauncher.getInstance().getTimeOutPollManager().getConfiguration().getNodeTimeOut());
                         node.updateAsync();
 
                         NodeTimeOutedEvent event = new NodeTimeOutedEvent(this.timeOutTargetId, passed, failed, error, total, connected, unknown, min);

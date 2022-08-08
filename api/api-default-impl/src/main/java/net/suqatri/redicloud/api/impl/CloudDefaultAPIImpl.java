@@ -2,8 +2,10 @@ package net.suqatri.redicloud.api.impl;
 
 import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.configuration.IConfigurationManager;
 import net.suqatri.redicloud.api.event.ICloudEventManager;
 import net.suqatri.redicloud.api.group.ICloudGroupManager;
+import net.suqatri.redicloud.api.impl.configuration.ConfigurationManager;
 import net.suqatri.redicloud.api.impl.event.CloudEventManager;
 import net.suqatri.redicloud.api.impl.group.CloudGroupManager;
 import net.suqatri.redicloud.api.impl.listener.node.CloudNodeConnectedListener;
@@ -49,6 +51,7 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     private final ICloudGroupManager groupManager;
     private final ExecutorService executorService;
     private final ICloudPlayerManager playerManager;
+    private final IConfigurationManager configurationManager;
     private CloudProperties properties;
 
     public CloudDefaultAPIImpl(ApplicationType type) {
@@ -62,6 +65,7 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
         this.nodeManager = new CloudNodeManager();
         this.groupManager = new CloudGroupManager();
         this.playerManager = new CloudPlayerManager();
+        this.configurationManager = new ConfigurationManager();
     }
 
     @Override

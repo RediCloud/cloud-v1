@@ -1,6 +1,7 @@
 package net.suqatri.redicloud.api;
 
 import lombok.Getter;
+import net.suqatri.redicloud.api.configuration.IConfigurationManager;
 import net.suqatri.redicloud.api.console.ICommandManager;
 import net.suqatri.redicloud.api.console.IConsole;
 import net.suqatri.redicloud.api.event.ICloudEventManager;
@@ -37,6 +38,8 @@ public abstract class CloudAPI {
         initShutdownHook();
         this.applicationType = type;
     }
+
+    public abstract IConfigurationManager getConfigurationManager();
 
     public abstract IPlayerBridge createBridge(ICloudPlayer player);
 

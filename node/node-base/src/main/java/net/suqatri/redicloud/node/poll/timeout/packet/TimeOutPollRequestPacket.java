@@ -2,7 +2,7 @@ package net.suqatri.redicloud.node.poll.timeout.packet;
 
 import lombok.Data;
 import net.suqatri.redicloud.api.impl.packet.CloudPacket;
-import net.suqatri.redicloud.api.impl.poll.timeout.TimeOutResult;
+import net.suqatri.redicloud.api.node.poll.timeout.TimeOutResult;
 import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.node.NodeLauncher;
 

@@ -19,6 +19,8 @@ public interface ICloudPlayer extends IRBucketObject {
 
     long getLastLogout();
 
+    boolean isLoggedIn();
+
     String getLastIp();
 
     boolean isCracked();

@@ -17,6 +17,7 @@
 
 package net.suqatri.redicloud.limbo;
 
+import net.suqatri.redicloud.limbo.api.LimboCloudAPI;
 import net.suqatri.redicloud.limbo.server.LimboServer;
 import net.suqatri.redicloud.limbo.server.Logger;
 
@@ -24,7 +25,9 @@ public final class NanoLimbo {
 
     public static void main(String[] args) {
         try {
-            new LimboServer().start();
+            LimboServer server = new LimboServer();
+            server.start();
+            new LimboCloudAPI(server);
         } catch (Exception e) {
             Logger.error("Cannot start server: ", e);
         }

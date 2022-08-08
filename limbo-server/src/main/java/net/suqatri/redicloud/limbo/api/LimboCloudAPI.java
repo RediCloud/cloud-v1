@@ -11,7 +11,9 @@ import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersionManager
 import net.suqatri.redicloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.node.ICloudNode;
+import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.redis.RedisCredentials;
+import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ICloudServiceManager;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.event.CloudServiceStartedEvent;
@@ -62,6 +64,7 @@ public class LimboCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
         this.initRedis();
         this.initService();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> this.shutdown(true)));
     }
 
     private void initService(){
@@ -134,6 +137,15 @@ public class LimboCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         if(this.service != null){
             this.service.setServiceState(ServiceState.STOPPING);
             this.service.update();
+
+            if(this.service.isFallback()){
+                for (ICloudPlayer player : CloudAPI.getInstance().getPlayerManager().getConnectedPlayers().getBlockOrNull()) {
+                    if(player.getLastConnectedServerId().equals(this.service.getUniqueId())) {
+                        ICloudService fallback = CloudAPI.getInstance().getServiceManager().getFallbackService(player, this.service);
+                        player.getBridge().connect(fallback);
+                    }
+                }
+            }
         }
 
         if (this.updaterTask != null) this.updaterTask.cancel();

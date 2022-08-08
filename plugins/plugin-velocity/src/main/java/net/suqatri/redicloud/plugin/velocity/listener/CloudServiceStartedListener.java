@@ -63,8 +63,7 @@ public class CloudServiceStartedListener {
                                             Optional<RegisteredServer> registeredServer = VelocityCloudAPI.getInstance().getProxyServer()
                                                     .getServer(fallbackServer.getServiceName());
                                             if(!registeredServer.isPresent()) continue;
-                                            proxiedPlayer.get().createConnectionRequest(registeredServer.get());
-                                            CloudAPI.getInstance().getConsole().trace("Connected to " + registeredServer.get().getServerInfo().getName());
+                                            proxiedPlayer.get().createConnectionRequest(registeredServer.get()).connect();
                                         }
                                     });
                             });

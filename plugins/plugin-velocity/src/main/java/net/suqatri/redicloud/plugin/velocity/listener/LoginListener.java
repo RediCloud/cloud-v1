@@ -56,14 +56,6 @@ public class LoginListener {
             event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
             return;
         }
-        Optional<RegisteredServer> registeredServer = VelocityCloudAPI.getInstance().getProxyServer()
-                .getServer(holder.getServiceName());
-        if(!registeredServer.isPresent()){
-            event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
-            CloudAPI.getInstance().getConsole().error("Fallback service " + holder.getServiceName() + " is not registered: " + holder.getServiceName());
-            return;
-        }
-        event.getPlayer().createConnectionRequest(registeredServer.get());
     }
 }
 

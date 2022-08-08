@@ -11,6 +11,10 @@ public class ServerKickListener implements Listener {
 
     @EventHandler
     public void onServerKick(ServerKickEvent event) {
+        if(event.getKickReason().equals("You logged in from another location")){
+            event.setCancelled(true);
+            return;
+        }
         ICloudService fallbackHolder = CloudAPI.getInstance().getServiceManager()
                 .getFallbackService(CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId()),
                         CloudAPI.getInstance().getServiceManager().getService(event.getKickedFrom().getName()));

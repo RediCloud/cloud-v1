@@ -21,6 +21,10 @@ public class ServerSwitchListener implements Listener {
                     CloudAPI.getInstance().getConsole().error("Failed to get player " + proxiedPlayer.getName(), throwable);
                 })
                 .onSuccess(player -> {
+                    if(event.getFrom().getName().startsWith("Verify-") && !player.isLoggedIn()){
+                        event.getPlayer().connect(event.getFrom());
+                        return;
+                    }
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serverInfo.getName())
                             .onFailure(throwable -> {
                                 proxiedPlayer.disconnect(throwable.getMessage());

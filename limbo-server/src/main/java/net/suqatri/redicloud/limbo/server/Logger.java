@@ -31,6 +31,23 @@ public final class Logger {
         return debugLevel;
     }
 
+    public static void log(Level level, String message, Object... args) {
+        switch (level){
+            case ERROR:
+                error(message, args);
+                break;
+            case DEBUG:
+                debug(message, args);
+                break;
+            case INFO:
+                info(message, args);
+                break;
+            case WARNING:
+                warning(message, args);
+                break;
+        }
+    }
+
     public static void info(Object msg, Object... args) {
         print(Level.INFO, msg, null, args);
     }

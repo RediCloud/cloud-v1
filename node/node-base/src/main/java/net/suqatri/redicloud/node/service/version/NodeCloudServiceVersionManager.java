@@ -347,6 +347,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                                   version.setName(defaultServiceVersion.getName());
                                   version.setJavaCommand("java");
                                   version.setDefaultVersion(true);
+                                  version.setEnvironmentType(defaultServiceVersion.getEnvironment());
                                   version.setDownloadUrl(defaultServiceVersion.getUrl());
                                   version.setPaperClip(defaultServiceVersion.isPaperClip());
                                   editAction.addToProcess(defaultServiceVersion, this.createServiceVersionAsync(version, false));

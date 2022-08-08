@@ -19,18 +19,25 @@ public class CloudServiceStoppedListener {
             VelocityCloudAPI.getInstance().getProxyServer().unregisterServer(serverInfo.get().getServerInfo());
             CloudAPI.getInstance().getConsole().debug("Unregistered service: " + event.getServiceName());
         }
-        if(event.isExternal()) return;
-        CloudAPI.getInstance().getNodeManager().getNodeAsync(event.getNodeId())
-                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to unregister service: " + event.getServiceName(), e))
-                .onSuccess(node -> {
+        if(event.isExternal()) {
+            for (Player player : VelocityCloudAPI.getInstance().getProxyServer().getAllPlayers()) {
+                if (!player.hasPermission("redicloud.service.notify")) continue;
+                player.sendMessage(LegacyMessageUtils.component(VelocityCloudAPI.getInstance().getChatPrefix()
+                        + "§3" + event.getServiceName() + "§8(§fExternal§8) » §4§l■"));
+            }
+        }else{
+            CloudAPI.getInstance().getNodeManager().getNodeAsync(event.getNodeId())
+                    .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to unregister service: " + event.getServiceName(), e))
+                    .onSuccess(node -> {
 
-                    for (Player player : VelocityCloudAPI.getInstance().getProxyServer().getAllPlayers()) {
-                        if (!player.hasPermission("redicloud.service.notify")) continue;
-                        player.sendMessage(LegacyMessageUtils.component(VelocityCloudAPI.getInstance().getChatPrefix()
-                                + "§3" + event.getServiceName() + "§8(§f"
-                                + node.getName() + "§8) » §4§l■"));
-                    }
-                });
+                        for (Player player : VelocityCloudAPI.getInstance().getProxyServer().getAllPlayers()) {
+                            if (!player.hasPermission("redicloud.service.notify")) continue;
+                            player.sendMessage(LegacyMessageUtils.component(VelocityCloudAPI.getInstance().getChatPrefix()
+                                    + "§3" + event.getServiceName() + "§8(§f"
+                                    + node.getName() + "§8) » §4§l■"));
+                        }
+                    });
+        }
     }
 
 }

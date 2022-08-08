@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'net.suqatri.redicloud'
-version '1.3.6' + getCommitHash() + '-SNAPSHOT'
+version '1.4.0' + getCommitHash() + '-SNAPSHOT'
 
 def repoUser = "$System.env.REPO_USER"
 def repoPassword = "$System.env.REPO_PASSWORD"
@@ -20,7 +20,6 @@ tasks.register('buildAndCopy', Copy) {
 }
 
 tasks.register('copyToTest') {
-    println 'Deleting test files'
     project.delete(
             file("${rootDir}/test/node-1/redicloud-node-base.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-bungeecord.jar"),
@@ -29,9 +28,10 @@ tasks.register('copyToTest') {
             file("${rootDir}/test/node-2/redicloud-node-base.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar"),
-            file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar")
+            file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar"),
+            file("${rootDir}/test/node-1/storage/versions/redicloud-limbo-server.jar"),
+            file("${rootDir}/test/node-2/storage/versions/redicloud-limbo-server.jar")
     )
-    println 'Copying files'
     dependsOn copyNodeBaseToNode1
     dependsOn copyNodeBaseToNode2
     dependsOn copyMinecraftPluginToNode1
@@ -40,6 +40,8 @@ tasks.register('copyToTest') {
     dependsOn copyProxyPluginToNode2
     dependsOn copyVelocityPluginToNode1
     dependsOn copyVelocityPluginToNode2
+    dependsOn copyLimboServerToNode1
+    dependsOn copyLimboServerToNode2
 }
 
 tasks.register('projectBuild') {
@@ -62,45 +64,58 @@ tasks.register('projectBuild') {
     dependsOn ':plugins:plugin-minecraft:build'
     dependsOn ':plugins:plugin-bungeecord:build'
     dependsOn ':plugins:plugin-velocity:build'
+
+    dependsOn ':limbo-server:build'
 }
 
 tasks.register('copyNodeBaseToNode1', Copy) {
-    from "node/node-base/build/libs/redicloud-node-base.jar"
+    from 'node/node-base/build/libs/redicloud-node-base.jar'
     into 'test/node-1'
 }
 
 tasks.register('copyMinecraftPluginToNode1', Copy) {
-    from "plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar"
+    from 'plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar'
     into 'test/node-1/storage'
 }
 
 tasks.register('copyProxyPluginToNode1', Copy) {
-    from "plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar"
+    from 'plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar'
     into 'test/node-1/storage'
 }
 
 tasks.register('copyNodeBaseToNode2', Copy) {
-    from "node/node-base/build/libs/redicloud-node-base.jar"
+    from 'node/node-base/build/libs/redicloud-node-base.jar'
     into 'test/node-2'
 }
 
 tasks.register('copyMinecraftPluginToNode2', Copy) {
-    from "plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar"
+    from 'plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar'
     into 'test/node-2/storage'
 }
 
 tasks.register('copyProxyPluginToNode2', Copy) {
-    from "plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar"
+    from 'plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar'
     into 'test/node-2/storage'
 }
 tasks.register('copyVelocityPluginToNode1', Copy) {
-    from "plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar"
+    from 'plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar'
     into 'test/node-1/storage'
 }
 
 tasks.register('copyVelocityPluginToNode2', Copy) {
-    from "plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar"
+    from 'plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar'
     into 'test/node-2/storage'
+}
+
+tasks.register('copyLimboServerToNode1', Copy) {
+    from 'limbo-server/build/libs/redicloud-limbo-server.jar'
+    into 'test/node-1/storage/versions'
+    rename ('redicloud-limbo-server.jar', 'limbo.jar')
+}
+tasks.register('copyLimboServerToNode2', Copy) {
+    from 'limbo-server/build/libs/redicloud-limbo-server.jar'
+    into 'test/node-2/storage/versions'
+    rename ('redicloud-limbo-server.jar', 'limbo.jar')
 }
 
 tasks.register('publishToRepository') {
@@ -123,6 +138,8 @@ tasks.register('publishToRepository') {
     dependsOn ':plugins:plugin-minecraft:publish'
     dependsOn ':plugins:plugin-bungeecord:publish'
     dependsOn ':plugins:plugin-velocity:publish'
+
+    dependsOn ':limbo-server:publish'
 }
 
 allprojects {
@@ -131,7 +148,7 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
 
-    version '1.3.6-' + getCommitHash() + '-SNAPSHOT'
+    version '1.4.0-' + getCommitHash() + '-SNAPSHOT'
 
     sourceCompatibility = '1.8'
 
@@ -159,13 +176,17 @@ allprojects {
         maven {
             url = "https://repo1.maven.org/maven2/"
         }
+        maven {
+            url = "https://jitpack.io"
+        }
     }
 
     dependencies {
         implementation('org.projectlombok:lombok:1.18.24')
+        implementation 'de.nycode:bcrypt:2.3.0'
         annotationProcessor('org.projectlombok:lombok:1.18.24')
 
-        implementation('org.redisson:redisson:3.17.4')
+        implementation('org.redisson:redisson:3.17.5')
         implementation('com.google.guava:guava:31.1-jre')
         implementation('org.jetbrains:annotations:23.0.0')
     }

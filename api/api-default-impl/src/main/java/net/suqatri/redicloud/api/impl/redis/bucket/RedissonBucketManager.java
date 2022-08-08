@@ -128,6 +128,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
                         }
                         object.setManager(this);
                         this.cachedBucketObjects.put(identifier, object);
+                        object.init();
                         futureAction.complete(object);
                     });
             });
@@ -145,6 +146,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
         T object = bucket.get();
         object.setManager(this);
         this.cachedBucketObjects.put(identifier, object);
+        object.init();
         return object;
     }
 
@@ -166,6 +168,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).set(object);
         object.setManager(this);
         this.cachedBucketObjects.put(identifier, (T) object);
+        object.init();
         return object;
     }
 
@@ -188,6 +191,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
                         }
                         object.setManager(this);
                         this.cachedBucketObjects.put(identifier, (T) object);
+                        object.init();
                         futureAction.complete(object);
                     });
             });
@@ -213,6 +217,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
                 T object = this.getObjectCodec().getObjectMapper().readValue(json, this.getImplClass());
                 object.setManager(this);
                 this.cachedBucketObjects.put(identifier, object);
+                object.init();
                 object.merged();
             }
         } catch (JsonProcessingException e) {

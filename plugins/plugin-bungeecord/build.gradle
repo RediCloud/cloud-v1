@@ -4,6 +4,12 @@ plugins {
 
 group 'net.suqatri.redicloud.plugin.bungeecord'
 
+repositories {
+    maven {
+        url = 'https://jitpack.io'
+    }
+}
+
 dependencies {
     implementation project(':commons')
     implementation project(':api:api')
@@ -12,5 +18,6 @@ dependencies {
     implementation project(':commands:command-bungeecord')
     implementation project(':commands:command-core')
     implementation project(':commands:command-locales')
-    compileOnly('net.md-5:bungeecord-api:1.19-R0.1-SNAPSHOT')
+    compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-proxy:12e4514813')
+    compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-api:12e4514813')
 }

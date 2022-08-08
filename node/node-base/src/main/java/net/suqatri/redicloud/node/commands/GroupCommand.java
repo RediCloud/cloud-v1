@@ -244,6 +244,10 @@ public class GroupCommand extends ConsoleCommand {
                                                         }
                                                     });
                                                     break;
+                                                case LIMBO:
+                                                    //TODO: Create Limbo setup
+                                                    commandSender.sendMessage("Its currently not possible to create a Limbo Group");
+                                                    break;
                                             }
                                         });
                             } else if (groupSetupControlState == SetupControlState.CANCELLED) {

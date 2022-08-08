@@ -14,26 +14,6 @@ public class ServerPreConnectListener {
 
     @Subscribe
     public void onServerConnect(ServerPreConnectEvent event) {
-
-        if(!event.getPlayer().getCurrentServer().isPresent()) {
-            ICloudService holder = CloudAPI.getInstance().getServiceManager().getFallbackService(event.getPlayer().hasPermission("redicloud.maintenance.bypass"));
-            if (holder == null) {
-                event.setResult(ServerPreConnectEvent.ServerResult.denied());
-                event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
-                return;
-            }
-            Optional<RegisteredServer> registeredServer = VelocityCloudAPI.getInstance().getProxyServer()
-                    .getServer(holder.getServiceName());
-            if(!registeredServer.isPresent()){
-                event.setResult(ServerPreConnectEvent.ServerResult.denied());
-                event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
-                CloudAPI.getInstance().getConsole().error("Fallback service " + holder.getServiceName() + " is not registered: " + holder.getServiceName());
-                return;
-            }
-            event.setResult(ServerPreConnectEvent.ServerResult.allowed(registeredServer.get()));
-            return;
-        }
-
         RegisteredServer target = event.getOriginalServer();
 
         RegisteredServer serverInfo =

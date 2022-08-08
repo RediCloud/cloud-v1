@@ -12,6 +12,8 @@ import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ICloudServiceManager;
+import net.suqatri.redicloud.api.service.ServiceEnvironment;
+import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.api.service.factory.ICloudServiceFactory;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
@@ -178,18 +180,34 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     @Override
     public final ICloudService getFallbackService(ICloudPlayer cloudPlayer, ICloudService... blacklisted) {
         ICloudService fallbackHolder = null;
-        List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(ICloudService::getUniqueId).collect(Collectors.toList());
-        for (ICloudService serviceHolder : getServices()) {
-            if (blackList.contains(serviceHolder.getUniqueId())) continue;
-            if (serviceHolder.isMaintenance() && !cloudPlayer.getBridge().hasPermission("redicloud.maintenance.bypass")) continue;
-            if (!serviceHolder.getConfiguration().isFallback()) continue;
-            if (serviceHolder.getOnlineCount() >= serviceHolder.getMaxPlayers()) continue;
+        List<UUID> blackList = new ArrayList<>();
+        for (ICloudService service : blacklisted) blackList.add(service.getUniqueId());
+        Collection<ICloudService> services = getServices();
+        for (ICloudService service : services) {
+            if (blackList.contains(service.getUniqueId())) continue;
+            if (service.isMaintenance() && !cloudPlayer.getBridge().hasPermission("redicloud.maintenance.bypass")) continue;
+            if (!service.getConfiguration().isFallback()) continue;
+            if (service.getServiceState() != ServiceState.RUNNING_UNDEFINED) continue;
+            if (service.getEnvironment() == ServiceEnvironment.LIMBO) continue;
+            if (service.getOnlineCount() >= service.getMaxPlayers()) continue;
             if (fallbackHolder == null) {
-                fallbackHolder = serviceHolder;
+                fallbackHolder = service;
                 continue;
             }
-            if (fallbackHolder.getOnlineCount() > serviceHolder.getOnlineCount()) {
-                fallbackHolder = serviceHolder;
+            if (fallbackHolder.getOnlineCount() > service.getOnlineCount()) {
+                fallbackHolder = service;
+            }
+        }
+        if(fallbackHolder == null){
+            for (ICloudService service : services) {
+                if (blackList.contains(service.getUniqueId())) continue;
+                if (service.getServiceState() != ServiceState.RUNNING_UNDEFINED) continue;
+                if (service.getEnvironment() != ServiceEnvironment.LIMBO) continue;
+                if (!service.getServiceName().startsWith("Fallback-")) continue;
+                if (!service.getConfiguration().isFallback()) continue;
+                if (service.isMaintenance() && !cloudPlayer.getBridge().hasPermission("redicloud.maintenance.bypass")) continue;
+                fallbackHolder = service;
+                return fallbackHolder;
             }
         }
         return fallbackHolder;
@@ -199,18 +217,34 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     @Override
     public final ICloudService getFallbackService(boolean maintenanceByPass, ICloudService... blacklisted) {
         ICloudService fallbackHolder = null;
-        List<UUID> blackList = Arrays.asList(blacklisted).parallelStream().map(holder -> holder.getUniqueId()).collect(Collectors.toList());
-        for (ICloudService serviceHolder : getServices()) {
-            if (blackList.contains(serviceHolder.getUniqueId())) continue;
-            if (serviceHolder.isMaintenance() && !maintenanceByPass) continue;
-            if (!serviceHolder.getConfiguration().isFallback()) continue;
-            if (serviceHolder.getOnlineCount() >= serviceHolder.getMaxPlayers()) continue;
+        List<UUID> blackList = new ArrayList<>();
+        for (ICloudService service : blacklisted) blackList.add(service.getUniqueId());
+        Collection<ICloudService> services = getServices();
+        for (ICloudService service : services) {
+            if (blackList.contains(service.getUniqueId())) continue;
+            if (service.isMaintenance() && !maintenanceByPass) continue;
+            if (!service.getConfiguration().isFallback()) continue;
+            if (service.getServiceState() != ServiceState.RUNNING_UNDEFINED) continue;
+            if (service.getEnvironment() == ServiceEnvironment.LIMBO) continue;
+            if (service.getOnlineCount() >= service.getMaxPlayers()) continue;
             if (fallbackHolder == null) {
-                fallbackHolder = serviceHolder;
+                fallbackHolder = service;
                 continue;
             }
-            if (fallbackHolder.getOnlineCount() > serviceHolder.getOnlineCount()) {
-                fallbackHolder = serviceHolder;
+            if (fallbackHolder.getOnlineCount() > service.getOnlineCount()) {
+                fallbackHolder = service;
+            }
+        }
+        if(fallbackHolder == null){
+            for (ICloudService service : services) {
+                if (blackList.contains(service.getUniqueId())) continue;
+                if (service.getServiceState() != ServiceState.RUNNING_UNDEFINED) continue;
+                if (service.getEnvironment() != ServiceEnvironment.LIMBO) continue;
+                if (!service.getServiceName().startsWith("Fallback-")) continue;
+                if (!service.getConfiguration().isFallback()) continue;
+                if (service.isMaintenance() && !maintenanceByPass) continue;
+                fallbackHolder = service;
+                return fallbackHolder;
             }
         }
         return fallbackHolder;

@@ -53,3 +53,5 @@ findProject(':commands:command-velocity')?.name = 'command-velocity'
 include 'api:api-velocity'
 findProject(':api:api-velocity')?.name = 'api-velocity'
 
+include 'limbo-server'
+findProject(':limbo-server')?.name = 'limbo-server'

@@ -18,6 +18,7 @@ public interface IRBucketObject extends Serializable, IRUpdateAble {
     String getIdentifier();
 
     default void merged(){}
+    default void init(){}
 
     IRedissonBucketManager getManager();
     void setManager(IRedissonBucketManager manager);

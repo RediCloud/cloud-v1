@@ -4,6 +4,8 @@ import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.console.LogLevel;
 import net.suqatri.redicloud.api.group.GroupProperty;
+import net.suqatri.redicloud.api.group.ICloudGroup;
+import net.suqatri.redicloud.api.impl.group.CloudGroup;
 import net.suqatri.redicloud.api.impl.node.CloudNode;
 import net.suqatri.redicloud.api.impl.poll.timeout.ITimeOutPollManager;
 import net.suqatri.redicloud.api.impl.redis.RedisConnection;
@@ -16,6 +18,7 @@ import net.suqatri.redicloud.api.node.file.event.FilePulledTemplatesEvent;
 import net.suqatri.redicloud.api.redis.IRedisConnection;
 import net.suqatri.redicloud.api.redis.RedisCredentials;
 import net.suqatri.redicloud.api.service.ICloudService;
+import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.version.ServiceVersionProperty;
 import net.suqatri.redicloud.api.utils.Files;
@@ -339,6 +342,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     this.getEventManager().register(CloudNodeConnectedEvent.class, event -> {
                         if (this.getNodeManager().getNodes().size() == 1) {
                             this.serviceVersionManager.installDefaultVersions(false);
+
                             if(!this.serviceTemplateManager.existsTemplate("global-minecraft"))
                                 this.serviceTemplateManager.createTemplate("global-minecraft");
                             if(!this.serviceTemplateManager.existsTemplate("global-bungeecord"))
@@ -349,6 +353,24 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                                 this.serviceTemplateManager.createTemplate("global-limbo");
                             if(!this.serviceTemplateManager.existsTemplate("global-all"))
                                 this.serviceTemplateManager.createTemplate("global-all");
+
+                            if(!this.getGroupManager().existsGroup("Fallback")){
+                                CloudGroup group = new CloudGroup();
+                                group.setUniqueId(UUID.randomUUID());
+                                group.setPercentToStartNewService(100);
+                                group.setFallback(true);
+                                group.setMaxMemory(500);
+                                group.setMaintenance(false);
+                                group.setName("Fallback");
+                                group.setMaxServices(1);
+                                group.setMinServices(1);
+                                group.setServiceVersionName("limbo");
+                                group.setStartPriority(0);
+                                group.setStatic(false);
+                                group.setStartPort(25500);
+                                group.setServiceEnvironment(ServiceEnvironment.LIMBO);
+                                this.getGroupManager().createGroup(group);
+                            }
                         }
                     });
 

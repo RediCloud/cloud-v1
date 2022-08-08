@@ -49,7 +49,7 @@ pipeline {
         }
         stage("Delete temp files") {
             steps {
-                sh "rm -r build"
+                //sh "rm -r build"
             }
         }
     }

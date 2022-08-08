@@ -12,6 +12,7 @@ import org.redisson.api.RMap;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, ICloudPlayer> implements ICloudPlayerManager {
 
@@ -36,7 +37,7 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
 
     @Override
     public ICloudPlayer getPlayer(UUID uniqueId) {
-        return this.getPlayer(uniqueId.toString());
+        return this.get(uniqueId.toString());
     }
 
     @Override
@@ -55,8 +56,8 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
                                     futureAction.completeExceptionally(throwable1);
                                     return;
                                 }
-                                this.getPlayerAsync(uniqueId)
-                                        .onFailure(futureAction)
+                                this.getAsync(uniqueId)
+                                        .onFailure(futureAction::completeExceptionally)
                                         .onSuccess(futureAction::complete);
                             });
                 });
@@ -119,7 +120,10 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
                     }
                     futureActionCollection.process()
                             .onFailure(futureAction)
-                            .onSuccess(r -> futureAction.complete(r.values()));
+                            .onSuccess(r -> futureAction.complete(r.values()
+                                    .parallelStream()
+                                    .filter(ICloudPlayer::isConnected)
+                                    .collect(Collectors.toList())));
                 });
         return futureAction;
     }

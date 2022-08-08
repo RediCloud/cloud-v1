@@ -5,7 +5,6 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.group.ICloudGroup;
 import net.suqatri.redicloud.api.impl.node.CloudNode;
 import net.suqatri.redicloud.api.impl.service.CloudService;
-import net.suqatri.redicloud.api.impl.service.configuration.DefaultServiceStartConfiguration;
 import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersion;
 import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.redicloud.api.service.ICloudService;
@@ -13,8 +12,6 @@ import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.node.NodeLauncher;
-import net.suqatri.redicloud.node.service.NodeCloudServiceManager;
-import net.suqatri.redicloud.node.service.version.DefaultServiceVersion;
 import org.redisson.api.RPriorityBlockingDeque;
 import org.redisson.codec.JsonJacksonCodec;
 
@@ -42,15 +39,19 @@ public class CloudNodeServiceThread extends Thread {
     private CloudNode node;
     @Getter
     private RPriorityBlockingDeque<IServiceStartConfiguration> queue;
+    private LimboFallbackConfiguration limboFallbackConfiguration = new LimboFallbackConfiguration();
 
     public CloudNodeServiceThread(NodeCloudServiceFactory factory) {
         super("redicloud-node-service-thread");
         this.factory = factory;
         this.processes = new ConcurrentHashMap<>();
-        CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event
+        CloudAPI.getInstance().getEventManager().registerWithoutBlockWarning(RedisConnectedEvent.class, event
                 -> {
             this.queue = event.getConnection().getClient().getPriorityBlockingDeque("factory:queue", new JsonJacksonCodec());
             this.queue.trySetComparator(new CloudServiceStartComparator());
+            this.limboFallbackConfiguration = CloudAPI.getInstance().getConfigurationManager().existsConfiguration(this.limboFallbackConfiguration.getIdentifier())
+                    ? CloudAPI.getInstance().getConfigurationManager().getConfiguration(this.limboFallbackConfiguration.getIdentifier(), LimboFallbackConfiguration.class)
+                    : CloudAPI.getInstance().getConfigurationManager().createConfiguration(this.limboFallbackConfiguration);
         });
     }
 
@@ -82,9 +83,11 @@ public class CloudNodeServiceThread extends Thread {
                     this.checkServiceCount = 0;
                     for (ICloudGroup group : CloudAPI.getInstance().getGroupManager().getGroups()) {
 
+                        if(group.getName().equals("Fallback") && !this.limboFallbackConfiguration.isEnabled()) continue;
+
                         long count = group.getConnectedServices().getBlockOrNull()
                                 .parallelStream()
-                                .filter(holder -> holder.isGroupBased())
+                                .filter(ICloudService::isGroupBased)
                                 .filter(holder -> holder.getGroupName().equalsIgnoreCase(group.getName()))
                                 .filter(holder -> holder.getServiceState() != ServiceState.OFFLINE)
                                 .filter(holder -> holder.getServiceState() != ServiceState.RUNNING_DEFINED)

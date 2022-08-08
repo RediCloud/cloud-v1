@@ -55,9 +55,7 @@ public class CloudNodePortManager implements ICloudPortManager {
                 if (process.getService().getEnvironment() == ServiceEnvironment.MINECRAFT
                         ? currentPort >= 65535
                         : currentPort >= 25565
-                ) currentPort = process.getService().getEnvironment() == ServiceEnvironment.MINECRAFT
-                        ? 49152
-                        : 25500;
+                ) currentPort = process.getService().getConfiguration().getStartPort();
             }
             this.addBlockedPort(currentPort);
             process.setPort(currentPort);

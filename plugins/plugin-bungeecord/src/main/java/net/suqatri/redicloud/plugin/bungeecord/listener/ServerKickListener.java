@@ -19,6 +19,7 @@ public class ServerKickListener implements Listener {
             return;
         }
         event.getPlayer().sendMessage(event.getKickReasonComponent());
+        event.setCancelled(true);
         event.setCancelServer(ProxyServer.getInstance().getServerInfo(fallbackHolder.getServiceName()));
     }
 

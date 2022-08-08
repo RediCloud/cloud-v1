@@ -35,6 +35,10 @@ public class BukkitScheduler implements IScheduler<BukkitSchedulerTask, BukkitRe
 
     @Override
     public void runTask(Runnable runnable) {
+        if(isMainThread()) {
+            runnable.run();
+            return;
+        }
         Bukkit.getScheduler().runTask(this.javaPlugin, runnable);
     }
 

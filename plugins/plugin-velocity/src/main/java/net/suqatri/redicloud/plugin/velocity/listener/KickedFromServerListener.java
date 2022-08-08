@@ -15,8 +15,10 @@ public class KickedFromServerListener {
 
     @Subscribe
     public void onServerKick(KickedFromServerEvent event) {
+        CloudAPI.getInstance().getConsole().trace("Player " + event.getPlayer().getUsername() + " kicked from server " + event.getServer().getServerInfo().getName());
         ICloudPlayer player = CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
-        ICloudService kickedFrom = CloudAPI.getInstance().getServiceManager().getService(event.getServer().getServerInfo().getName());
+        ICloudService kickedFrom = CloudAPI.getInstance().getServiceManager()
+                .getService(event.getServer().getServerInfo().getName());
         ICloudService fallbackHolder = CloudAPI.getInstance().getServiceManager().getFallbackService(player, kickedFrom);
         if (fallbackHolder == null) {
             event.setResult(KickedFromServerEvent.DisconnectPlayer.create(LegacyMessageUtils.component("Fallback service is not available.")));

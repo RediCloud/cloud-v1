@@ -18,9 +18,7 @@ import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.file.FileWriter;
 import net.suqatri.redicloud.plugin.minecraft.command.BukkitCloudCommandManager;
 import net.suqatri.redicloud.plugin.minecraft.console.BukkitConsole;
-import net.suqatri.redicloud.plugin.minecraft.listener.PlayerJoinListener;
-import net.suqatri.redicloud.plugin.minecraft.listener.PlayerKickListener;
-import net.suqatri.redicloud.plugin.minecraft.listener.PlayerQuitListener;
+import net.suqatri.redicloud.plugin.minecraft.listener.PlayerLoginListener;
 import net.suqatri.redicloud.plugin.minecraft.listener.ServerListPingListener;
 import net.suqatri.redicloud.plugin.minecraft.scheduler.BukkitScheduler;
 import net.suqatri.redicloud.plugin.minecraft.service.CloudMinecraftServiceManager;
@@ -51,8 +49,6 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
     private BukkitTask updaterTask;
     @Setter
     private String chatPrefix = "§bRedi§3Cloud §8» §f";
-    @Setter
-    private int onlineCount = 0;
     private boolean isShutdownInitiated = false;
 
     public MinecraftCloudAPI(JavaPlugin javaPlugin) {
@@ -77,10 +73,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
 
     private void initListeners() {
         Bukkit.getPluginManager().registerEvents(new ServerListPingListener(), this.javaPlugin);
-        Bukkit.getPluginManager().registerEvents(new PlayerKickListener(), this.javaPlugin);
-        Bukkit.getPluginManager().registerEvents(new PlayerQuitListener(), this.javaPlugin);
-        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(), this.javaPlugin);
-        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(), this.javaPlugin);
+        Bukkit.getPluginManager().registerEvents(new PlayerLoginListener(), this.javaPlugin);
     }
 
     private void initThisService() {
@@ -88,13 +81,20 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
         this.service.update();
+
         getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service));
 
         this.updaterTask = Bukkit.getScheduler().runTaskTimerAsynchronously(this.javaPlugin, () -> {
-            if (this.service.getOnlineCount() != this.onlineCount) {
-                this.service.setOnlineCount(this.onlineCount);
-                this.service.updateAsync();
+            boolean update = false;
+            if (this.service.getOnlineCount() != Bukkit.getOnlinePlayers().size()) {
+                this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
+                update = true;
             }
+            if(this.service.getMaxPlayers() != Bukkit.getMaxPlayers()){
+                this.service.setMaxPlayers(Bukkit.getMaxPlayers());
+                update = true;
+            }
+            if(update) this.service.updateAsync();
         }, 0, 20);
     }
 

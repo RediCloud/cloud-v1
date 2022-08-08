@@ -25,6 +25,8 @@ public interface ICloudPacketData extends Serializable {
 
     UUID getPacketId();
 
+    PacketChannel getChannel();
+
     ICloudPacketData getResponseTargetData();
 
     void setResponseTargetData(ICloudPacketData packetData);

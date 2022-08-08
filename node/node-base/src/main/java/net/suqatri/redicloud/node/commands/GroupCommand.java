@@ -225,7 +225,7 @@ public class GroupCommand extends ConsoleCommand {
                                                             cloudGroup.setUniqueId(UUID.randomUUID());
                                                             cloudGroup.setName(name.replaceAll(" ", ""));
                                                             cloudGroup.setPercentToStartNewService(proxySetup.getPercentToStartNewService());
-                                                            cloudGroup.setStartPort(25565);
+                                                            cloudGroup.setStartPort(proxySetup.getStartPort());
                                                             cloudGroup.setMinServices(proxySetup.getMinServices());
                                                             cloudGroup.setMaxServices(proxySetup.getMaxServices());
                                                             cloudGroup.setStaticGroup(proxySetup.isStaticGroup());
@@ -326,12 +326,24 @@ public class GroupCommand extends ConsoleCommand {
                             .onSuccess(group -> {
                                 try {
                                     switch (key.toUpperCase()) {
-                                        case "PERCENT_TO_START_NEW_SERVICE":
+                                        case "START_PORT":
                                             if (!ConditionChecks.isInteger(value)) {
                                                 commandSender.sendMessage("Value must be an integer");
                                                 return;
                                             }
                                             int intValue = Integer.parseInt(value);
+                                            if(intValue < 0 || intValue > 65535) {
+                                                commandSender.sendMessage("Value must be between 0 and 65535");
+                                                return;
+                                            }
+                                            commandSender.sendMessage("Setting start port to " + intValue);
+                                            break;
+                                        case "PERCENT_TO_START_NEW_SERVICE":
+                                            if (!ConditionChecks.isInteger(value)) {
+                                                commandSender.sendMessage("Value must be an integer");
+                                                return;
+                                            }
+                                            intValue = Integer.parseInt(value);
                                             if(intValue != -1 && (intValue < 0 || intValue > 100)) {
                                                 commandSender.sendMessage("Value must be greater than 400");
                                                 return;

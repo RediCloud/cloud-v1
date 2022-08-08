@@ -200,7 +200,7 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
                 if (blackList.contains(service.getUniqueId())) continue;
                 if (service.getEnvironment() != ServiceEnvironment.LIMBO) continue;
                 if (service.isMaintenance() && !cloudPlayer.getBridge().hasPermission("redicloud.maintenance.bypass")) continue;
-                if (!service.getName().startsWith("Fallback-")) continue;
+                if (!service.getServiceName().startsWith("Fallback-")) continue;
                 if (!service.getConfiguration().isFallback()) continue;
                 fallbackHolder = service;
                 return fallbackHolder;
@@ -233,7 +233,7 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
             for (ICloudService service : services) {
                 if (blackList.contains(service.getUniqueId())) continue;
                 if (service.getEnvironment() != ServiceEnvironment.LIMBO) continue;
-                if (!service.getName().startsWith("Fallback-")) continue;
+                if (!service.getServiceName().startsWith("Fallback-")) continue;
                 if (!service.getConfiguration().isFallback()) continue;
                 if (service.isMaintenance() && !maintenanceByPass) continue;
                 fallbackHolder = service;

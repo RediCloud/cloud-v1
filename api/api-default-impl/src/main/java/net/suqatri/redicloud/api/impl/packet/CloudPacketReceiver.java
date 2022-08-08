@@ -5,6 +5,7 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.packet.ICloudPacket;
 import net.suqatri.redicloud.api.packet.ICloudPacketReceiver;
 import net.suqatri.redicloud.api.packet.ICloudPacketResponse;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 import org.redisson.api.RFuture;
 import org.redisson.api.RTopic;
@@ -17,16 +18,18 @@ public class CloudPacketReceiver implements ICloudPacketReceiver {
     private final RTopic topic;
     private final HashMap<Class, Integer> listeners;
     private final CloudPacketManager packetManager;
+    private final PacketChannel channel;
 
-    public CloudPacketReceiver(CloudPacketManager packetManager, RTopic topic) {
+    public CloudPacketReceiver(CloudPacketManager packetManager, RTopic topic, PacketChannel channel) {
         this.listeners = new HashMap<>();
         this.topic = topic;
         this.packetManager = packetManager;
+        this.channel = channel;
     }
 
     @Override
     public void receive(ICloudPacket packet) {
-        if (!CloudAPI.getInstance().getPacketManager().isRegisteredPacket(packet.getClass())) {
+        if (!CloudAPI.getInstance().getPacketManager().isRegisteredPacket(packet.getClass(), this.channel)) {
             CloudAPI.getInstance().getConsole().warn("Received packet: " + packet.getClass().getSimpleName() + " but it is not registered!");
             return;
         }

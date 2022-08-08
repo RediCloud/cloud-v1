@@ -160,7 +160,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
 
             if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
 
-            Bukkit.shutdown();
+            if(!fromHook) Bukkit.shutdown();
         });
     }
 }

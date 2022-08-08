@@ -36,7 +36,15 @@ public interface IServiceStartConfiguration {
     int getMaxMemory();
 
     default int getStartPort() {
-        return getEnvironment() == ServiceEnvironment.MINECRAFT ? 49152 : 25565;
+        switch (getEnvironment()){
+            case BUNGEECORD:
+            case VELOCITY:
+                return 25565;
+            case MINECRAFT:
+            case LIMBO:
+                return 49152;
+        }
+        return -1;
     }
 
     Collection<UUID> getPossibleNodeIds();

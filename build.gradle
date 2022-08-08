@@ -28,8 +28,8 @@ tasks.register('copyToTest') {
             file("${rootDir}/test/node-2/redicloud-node-base.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar"),
-            file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar")
-            file("${rootDir}/test/node-1/storage/versions/redicloud-limbo-server.jar")
+            file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar"),
+            file("${rootDir}/test/node-1/storage/versions/redicloud-limbo-server.jar"),
             file("${rootDir}/test/node-2/storage/versions/redicloud-limbo-server.jar")
     )
     dependsOn copyNodeBaseToNode1

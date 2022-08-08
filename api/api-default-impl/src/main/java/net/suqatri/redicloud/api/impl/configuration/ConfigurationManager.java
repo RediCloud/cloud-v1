@@ -23,22 +23,22 @@ public class ConfigurationManager extends RedissonBucketManager<Configuration, I
     }
 
     @Override
-    public <T extends IConfiguration> T create(T configuration) {
+    public <T extends IConfiguration> T createConfiguration(T configuration) {
         return (T) this.createBucket(configuration.getIdentifier(), (IConfiguration) configuration);
     }
 
     @Override
-    public boolean exists(String identifier) {
+    public boolean existsConfiguration(String identifier) {
         return this.existsBucket(identifier);
     }
 
     @Override
-    public <T extends IConfiguration> boolean delete(T configuration) {
+    public <T extends IConfiguration> boolean deleteConfiguration(T configuration) {
         return this.existsBucket(configuration.getIdentifier());
     }
 
     @Override
-    public boolean delete(String identifier) {
+    public boolean deleteConfiguration(String identifier) {
         return this.deleteBucket(identifier);
     }
 

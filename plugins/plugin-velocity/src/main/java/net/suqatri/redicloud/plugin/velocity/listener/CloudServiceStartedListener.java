@@ -54,6 +54,7 @@ public class CloudServiceStartedListener {
                                     .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get connected players!", e))
                                     .thenAcceptAsync(players -> {
                                         for (ICloudPlayer player : players) {
+                                            if(!player.getLastConnectedProxyId().equals(VelocityCloudAPI.getInstance().getService().getUniqueId())) continue;
                                             if (!fallbackIds.contains(player.getLastConnectedServerId())) continue;
                                             Optional<Player> proxiedPlayer = VelocityCloudAPI.getInstance().getProxyServer().getPlayer(player.getUniqueId());
                                             if (!proxiedPlayer.isPresent()) continue;

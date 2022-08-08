@@ -53,6 +53,7 @@ public class CloudServiceStartedListener {
                                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get connected players!", e))
                                             .thenAcceptAsync(players -> {
                                                 for (ICloudPlayer player : players) {
+                                                    if (!player.getLastConnectedProxyId().equals(BungeeCordCloudAPI.getInstance().getService().getUniqueId())) continue;
                                                     if (!fallbackIds.contains(player.getLastConnectedServerId())) continue;
                                                     ProxiedPlayer proxiedPlayer = ProxyServer.getInstance().getPlayer(player.getUniqueId());
                                                     if (proxiedPlayer == null) continue;

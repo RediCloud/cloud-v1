@@ -27,7 +27,7 @@ pipeline {
                     sh "cp plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar build/storage/"
                     sh "cp plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar build/storage/"
                     sh "cp plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar build/storage/"
-                    sh "cd build/; mkdir versions"
+                    sh "cd build/storage/; mkdir versions"
                     sh "cp limbo-server/build/libs/redicloud-limbo-server.jar build/storage/versions/limbo.jar"
                     sh "cp test/node-1/start.sh build/"
                     sh "cp test/node-1/start.bat build/"
@@ -45,6 +45,11 @@ pipeline {
         stage("Publishing") {
             steps {
                 sh "./gradlew publishToRepository --stacktrace";
+            }
+        }
+        stage("Delete temp files") {
+            steps {
+                sh "rm -r build"
             }
         }
     }

@@ -13,6 +13,7 @@ import net.suqatri.redicloud.commons.function.future.FutureAction;
 import net.suqatri.redicloud.commons.password.UpdatableBCrypt;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Getter
 @Setter
@@ -28,13 +29,25 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
     private UUID lastConnectedServerId;
     private UUID lastConnectedProxyId;
     private boolean connected;
+    @JsonIgnore
+    private IPlayerBridge bridge = CloudDefaultAPIImpl.getInstance().createBridge(this);
+
+
+    @JsonIgnore
+    private UpdatableBCrypt bcrypt;
     private boolean cracked = false;
     private String passwordHash;
     private int passwordLogRounds = 0;
-    @JsonIgnore
-    private IPlayerBridge bridge = CloudDefaultAPIImpl.getInstance().createBridge(this);
-    @JsonIgnore
-    private UpdatableBCrypt bcrypt;
+    private long sessionStart = 0L;
+    private String sessionIp;
+
+    @Override
+    public boolean isLoggedIn() {
+        if(!this.cracked) return true;
+        if(this.sessionIp == null) return false;
+        if(!this.sessionIp.equals(this.lastIp)) return false;
+        return System.currentTimeMillis()-this.sessionStart > TimeUnit.MINUTES.toMillis(60);
+    }
 
     public boolean verifyPassword(String password) {
         return bcrypt.verifyHash(password, this.passwordHash);

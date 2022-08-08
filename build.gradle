@@ -69,51 +69,53 @@ tasks.register('projectBuild') {
 }
 
 tasks.register('copyNodeBaseToNode1', Copy) {
-    from "node/node-base/build/libs/redicloud-node-base.jar"
+    from 'node/node-base/build/libs/redicloud-node-base.jar'
     into 'test/node-1'
 }
 
 tasks.register('copyMinecraftPluginToNode1', Copy) {
-    from "plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar"
+    from 'plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar'
     into 'test/node-1/storage'
 }
 
 tasks.register('copyProxyPluginToNode1', Copy) {
-    from "plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar"
+    from 'plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar'
     into 'test/node-1/storage'
 }
 
 tasks.register('copyNodeBaseToNode2', Copy) {
-    from "node/node-base/build/libs/redicloud-node-base.jar"
+    from 'node/node-base/build/libs/redicloud-node-base.jar'
     into 'test/node-2'
 }
 
 tasks.register('copyMinecraftPluginToNode2', Copy) {
-    from "plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar"
+    from 'plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar'
     into 'test/node-2/storage'
 }
 
 tasks.register('copyProxyPluginToNode2', Copy) {
-    from "plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar"
+    from 'plugins/plugin-bungeecord/build/libs/redicloud-plugin-bungeecord.jar'
     into 'test/node-2/storage'
 }
 tasks.register('copyVelocityPluginToNode1', Copy) {
-    from "plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar"
+    from 'plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar'
     into 'test/node-1/storage'
 }
 
 tasks.register('copyVelocityPluginToNode2', Copy) {
-    from "plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar"
+    from 'plugins/plugin-velocity/build/libs/redicloud-plugin-velocity.jar'
     into 'test/node-2/storage'
 }
 
 tasks.register('copyLimboServerToNode1', Copy) {
-    from "limbo-server/build/libs/redicloud-limbo-server.jar"
+    from 'limbo-server/build/libs/redicloud-limbo-server.jar'
     into 'test/node-1/storage/versions'
+    rename ('redicloud-limbo-server.jar', 'limbo.jar')
 }
 tasks.register('copyLimboServerToNode2', Copy) {
-    from "limbo-server/build/libs/redicloud-limbo-server.jar"
+    from 'limbo-server/build/libs/redicloud-limbo-server.jar'
     into 'test/node-2/storage/versions'
+    rename ('redicloud-limbo-server.jar', 'limbo.jar')
 }
 
 tasks.register('publishToRepository') {

@@ -47,10 +47,5 @@ pipeline {
                 sh "./gradlew publishToRepository --stacktrace";
             }
         }
-        stage("Delete temp files") {
-            steps {
-                //sh "rm -r build"
-            }
-        }
     }
 }

@@ -17,16 +17,23 @@ public class CloudServiceStoppedListener {
             ProxyServer.getInstance().getServers().remove(serverInfo.getName());
             CloudAPI.getInstance().getConsole().debug("Unregistered service: " + event.getServiceName());
         }
-        if(event.isExternal()) return;
-        CloudAPI.getInstance().getNodeManager().getNodeAsync(event.getNodeId())
-                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to unregister service: " + event.getServiceName(), e))
-                .onSuccess(node -> {
-                    for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
-                        if (!player.hasPermission("redicloud.service.notify")) continue;
-                        player.sendMessage(BungeeCordCloudAPI.getInstance().getChatPrefix()
-                                + "§3" + event.getServiceName() + "§8(§f" + node.getName() + "§8) » §4§l■");
-                    }
-                });
+        if(event.isExternal())  {
+            for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
+                if (!player.hasPermission("redicloud.service.notify")) continue;
+                player.sendMessage(BungeeCordCloudAPI.getInstance().getChatPrefix()
+                        + "§3" + event.getServiceName() + "§8(§fExternal§8) » §4§l■");
+            }
+        }else{
+            CloudAPI.getInstance().getNodeManager().getNodeAsync(event.getNodeId())
+                    .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to unregister service: " + event.getServiceName(), e))
+                    .onSuccess(node -> {
+                        for (ProxiedPlayer player : ProxyServer.getInstance().getPlayers()) {
+                            if (!player.hasPermission("redicloud.service.notify")) continue;
+                            player.sendMessage(BungeeCordCloudAPI.getInstance().getChatPrefix()
+                                    + "§3" + event.getServiceName() + "§8(§f" + node.getName() + "§8) » §4§l■");
+                        }
+                    });
+        }
     }
 
 }

@@ -236,6 +236,7 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
                 if (!service.getName().startsWith("Fallback-")) continue;
                 if (!service.getConfiguration().isFallback()) continue;
                 if (service.isMaintenance() && !maintenanceByPass) continue;
+                fallbackHolder = service;
                 return fallbackHolder;
             }
         }

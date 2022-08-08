@@ -8,15 +8,15 @@ public interface ICloudPacketManager {
 
     void registerForResponse(ICloudPacketData packetData);
 
-    void registerPacket(Class<? extends ICloudPacket> packet);
+    void registerPacket(Class<? extends ICloudPacket> packet, PacketChannel channel);
 
-    void unregisterPacket(Class<? extends ICloudPacket> packet);
+    void unregisterPacket(Class<? extends ICloudPacket> packet, PacketChannel channel);
 
-    boolean isRegisteredPacket(Class<? extends ICloudPacket> cloudPacket);
+    boolean isRegisteredPacket(Class<? extends ICloudPacket> cloudPacket, PacketChannel channel);
 
-    Collection<Class<? extends ICloudPacket>> getRegisteredPackets();
+    Collection<Class<? extends ICloudPacket>> getRegisteredPackets(PacketChannel channel);
 
-    ICloudPacketReceiver getReceiver();
+    ICloudPacketReceiver getReceiver(PacketChannel channel);
 
     void publish(ICloudPacket packet);
 

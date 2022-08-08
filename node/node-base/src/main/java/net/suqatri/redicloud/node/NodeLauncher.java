@@ -345,6 +345,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                                 this.serviceTemplateManager.createTemplate("global-bungeecord");
                             if(!this.serviceTemplateManager.existsTemplate("global-velocity"))
                                 this.serviceTemplateManager.createTemplate("global-velocity");
+                            if(!this.serviceTemplateManager.existsTemplate("global-limbo"))
+                                this.serviceTemplateManager.createTemplate("global-limbo");
                             if(!this.serviceTemplateManager.existsTemplate("global-all"))
                                 this.serviceTemplateManager.createTemplate("global-all");
                         }

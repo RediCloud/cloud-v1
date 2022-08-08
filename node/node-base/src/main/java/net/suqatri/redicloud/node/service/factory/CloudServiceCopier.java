@@ -40,16 +40,29 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                     if (existsGlobal) {
                         futureActionCollection.addToProcess("global-all", this.templateManager.getTemplateAsync("global-all"));
                     }
-                    String globalEnvironmentTemplate =
-                            process.getService().getEnvironment() == ServiceEnvironment.BUNGEECORD
-                            || process.getService().getEnvironment() == ServiceEnvironment.VELOCITY
-                            ? (process.getService().getEnvironment() == ServiceEnvironment.VELOCITY ? "global-velocity" : "global-bungeecord")
-                                    : "global-minecraft";
+
+                    String globalEnvironmentTemplate = "";
+                    switch (this.process.getService().getEnvironment()){
+                        case LIMBO:
+                            globalEnvironmentTemplate = "global-limbo";
+                            break;
+                        case MINECRAFT:
+                            globalEnvironmentTemplate = "global-minecraft";
+                            break;
+                        case BUNGEECORD:
+                            globalEnvironmentTemplate = "global-bungeecord";
+                            break;
+                        case VELOCITY:
+                            globalEnvironmentTemplate = "global-velocity";
+                            break;
+                    }
+
+                    String finalGlobalEnvironmentTemplate = globalEnvironmentTemplate;
                     this.templateManager.existsTemplateAsync(globalEnvironmentTemplate)
                             .onFailure(futureAction)
                             .onSuccess(existsGlobalEnvironment -> {
                                 if (existsGlobalEnvironment) {
-                                    futureActionCollection.addToProcess(globalEnvironmentTemplate, this.templateManager.getTemplateAsync(globalEnvironmentTemplate));
+                                    futureActionCollection.addToProcess(finalGlobalEnvironmentTemplate, this.templateManager.getTemplateAsync(finalGlobalEnvironmentTemplate));
                                 }
                                 for (String templateName : process.getService().getConfiguration().getTemplateNames()) {
                                     futureActionCollection.addToProcess(templateName, this.templateManager.getTemplateAsync(templateName));
@@ -87,7 +100,9 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                                                                         configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "spigot.yml"));
                                                                         configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "server.properties"));
                                                                         break;
-
+                                                                    case LIMBO:
+                                                                        configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "limbo.yml"));
+                                                                        break;
                                                                     case BUNGEECORD:
                                                                         FileUtils.copyFileToDirectory(Files.BUNGEECORD_PLUGIN_JAR.getFile(), pluginFolder);
                                                                         configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "config.yml"));
@@ -143,11 +158,21 @@ public class CloudServiceCopier implements ICloudServiceCopier {
             folders.add(this.templateManager.getTemplate("global-all").getTemplateFolder());
         }
 
-        String globalEnvironmentTemplate =
-                process.getService().getEnvironment() == ServiceEnvironment.BUNGEECORD
-                        || process.getService().getEnvironment() == ServiceEnvironment.VELOCITY
-                        ? (process.getService().getEnvironment() == ServiceEnvironment.VELOCITY ? "global-velocity" : "global-bungeecord")
-                        : "global-minecraft";
+        String globalEnvironmentTemplate = "";
+        switch (this.process.getService().getEnvironment()){
+            case LIMBO:
+                globalEnvironmentTemplate = "global-limbo";
+                break;
+            case MINECRAFT:
+                globalEnvironmentTemplate = "global-minecraft";
+                break;
+            case BUNGEECORD:
+                globalEnvironmentTemplate = "global-bungeecord";
+                break;
+            case VELOCITY:
+                globalEnvironmentTemplate = "global-velocity";
+                break;
+        }
         if (this.templateManager.existsTemplate(globalEnvironmentTemplate)) {
             folders.add(this.templateManager.getTemplate(globalEnvironmentTemplate).getTemplateFolder());
         }
@@ -187,6 +212,9 @@ public class CloudServiceCopier implements ICloudServiceCopier {
                 FileUtils.copyFileToDirectory(Files.VELOCITY_PLUGIN_JAR.getFile(), pluginFolder);
                 configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "velocity.toml"));
                 break;
+            case LIMBO:
+                configFiles.add(new File(Files.STORAGE_FOLDER.getFile(), "limbo.yml"));
+                break;
         }
 
         if (Files.SERVER_ICON.exists())
@@ -219,7 +247,18 @@ public class CloudServiceCopier implements ICloudServiceCopier {
             case VELOCITY:
                 editVelocity(new File(this.getServiceDirectory(), "velocity.toml"));
                 break;
+            case LIMBO:
+                editLimbo(new File(this.getServiceDirectory(), "limbo.yml"));
+                break;
         }
+    }
+
+    private void editLimbo(File limboFile) throws IOException {
+        FileEditor fileEditor = new FileEditor(FileEditor.Type.YML);
+        fileEditor.read(limboFile);
+        fileEditor.setValue("ip", "''");
+        fileEditor.setValue("port", String.valueOf(this.process.getPort()));
+        fileEditor.save(limboFile);
     }
 
     private void editProperties(File properties) throws IOException {

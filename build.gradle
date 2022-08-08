@@ -107,11 +107,11 @@ tasks.register('copyVelocityPluginToNode2', Copy) {
     into 'test/node-2/storage'
 }
 
-tasks.register('copyLimboServerToNode1') {
+tasks.register('copyLimboServerToNode1', Copy) {
     from "limbo-server/build/libs/redicloud-limbo-server.jar"
     into 'test/node-1/storage/versions'
 }
-tasks.register('copyLimboServerToNode2') {
+tasks.register('copyLimboServerToNode2', Copy) {
     from "limbo-server/build/libs/redicloud-limbo-server.jar"
     into 'test/node-2/storage/versions'
 }

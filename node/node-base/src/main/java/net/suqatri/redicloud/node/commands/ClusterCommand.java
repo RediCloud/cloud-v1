@@ -5,6 +5,7 @@ import net.suqatri.commands.CommandSender;
 import net.suqatri.commands.ConsoleCommand;
 import net.suqatri.commands.annotation.*;
 import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.impl.configuration.ConfigurationsReloadPacket;
 import net.suqatri.redicloud.api.impl.node.CloudNode;
 import net.suqatri.redicloud.api.impl.node.CloudNodeManager;
 import net.suqatri.redicloud.api.node.ICloudNode;
@@ -45,6 +46,18 @@ public class ClusterCommand extends ConsoleCommand {
         commandSender.sendMessage("§8   » %tcUp-Time: %hc" + node.getUpTime());
         commandSender.sendMessage("§8   » %tcServices: %hc" + node.getStartedServiceUniqueIds().size());
         commandSender.sendMessage("§8   » %tcRAM: %hc" + node.getMemoryUsage() + "/" + node.getMaxMemory() + "MB");
+    }
+
+    @Subcommand("reload config|configuration|configs|configurations")
+    @Description("Reload all configurations")
+    public void onReloadConfigs(CommandSender commandSender){
+        ConfigurationsReloadPacket packet = new ConfigurationsReloadPacket();
+        CloudAPI.getInstance().getNetworkComponentManager().getAllComponentInfoAsync()
+            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get all components", e))
+            .onSuccess(components -> {
+                packet.publishAllAsync();
+                commandSender.sendMessage("Reloaded all configurations");
+            });
     }
 
     @Subcommand("queue")

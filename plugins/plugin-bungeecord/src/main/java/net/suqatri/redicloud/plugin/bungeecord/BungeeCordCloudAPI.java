@@ -16,6 +16,7 @@ import net.suqatri.redicloud.api.impl.service.version.CloudServiceVersionManager
 import net.suqatri.redicloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.bungeecord.ProxyDefaultCloudAPI;
+import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.redis.RedisCredentials;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
@@ -214,7 +215,7 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
 
         this.service = null;
 
-        if(CloudAPI.getInstance().getNodeManager().getNodes().parallelStream().noneMatch(holder -> holder.isConnected())) {
+        if(CloudAPI.getInstance().getNodeManager().getNodes().parallelStream().noneMatch(ICloudNode::isConnected)) {
             this.console.fatal("Cluster seems to be offline! There are no connected nodes!", null);
             this.shutdown(false);
             return;

@@ -4,6 +4,7 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.node.service.screen.IScreenLine;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreenManager;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 import net.suqatri.redicloud.node.NodeLauncher;
@@ -25,8 +26,8 @@ public class ServiceScreenManager implements IServiceScreenManager {
         this.activeScreens = new ArrayList<>();
         this.screens = new ConcurrentHashMap<>();
 
-        CloudAPI.getInstance().getPacketManager().registerPacket(ScreenLinePacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(ScreenDestroyPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(ScreenLinePacket.class, PacketChannel.NODE);
+        CloudAPI.getInstance().getPacketManager().registerPacket(ScreenDestroyPacket.class, PacketChannel.NODE);
     }
 
     @Override

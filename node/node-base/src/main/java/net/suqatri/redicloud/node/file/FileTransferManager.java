@@ -5,6 +5,7 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.node.file.IFileTransferManager;
 import net.suqatri.redicloud.api.node.file.process.IFileTransferReceiveProcess;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 import net.suqatri.redicloud.node.file.packet.*;
 import net.suqatri.redicloud.node.file.process.FileTransferSendProcess;
@@ -32,12 +33,12 @@ public class FileTransferManager implements IFileTransferManager {
     }
 
     private void registerPackets() {
-        CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferStartPacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferBytesPacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferCompletedPacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferCancelPacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(FileDeletePacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(FilePullPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferStartPacket.class, PacketChannel.NODE);
+        CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferBytesPacket.class, PacketChannel.NODE);
+        CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferCompletedPacket.class, PacketChannel.NODE);
+        CloudAPI.getInstance().getPacketManager().registerPacket(FileTransferCancelPacket.class, PacketChannel.NODE);
+        CloudAPI.getInstance().getPacketManager().registerPacket(FileDeletePacket.class, PacketChannel.NODE);
+        CloudAPI.getInstance().getPacketManager().registerPacket(FilePullPacket.class, PacketChannel.NODE);
     }
 
     public void addProcessQueue(UUID transferId) {
@@ -112,6 +113,7 @@ public class FileTransferManager implements IFileTransferManager {
             return futureAction;
         }
         FilePullPacket packet = new FilePullPacket();
+        packet.getPacketData().setChannel(PacketChannel.NODE);
         packet.setOriginalFilePath(originalFilePath);
         packet.setDestinationFilePath(destinationFile.getPath());
         packet.setTargetFilePathToDelete(targetFileToDelete.getPath());

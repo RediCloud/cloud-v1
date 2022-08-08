@@ -25,6 +25,7 @@ import net.suqatri.redicloud.api.impl.utils.CloudProperties;
 import net.suqatri.redicloud.api.network.INetworkComponentManager;
 import net.suqatri.redicloud.api.node.ICloudNodeManager;
 import net.suqatri.redicloud.api.packet.ICloudPacketManager;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.player.ICloudPlayerManager;
 import net.suqatri.redicloud.api.player.IPlayerBridge;
@@ -84,18 +85,18 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     }
 
     public void registerInternalPackets() {
-        CloudAPI.getInstance().getPacketManager().registerPacket(BucketUpdatePacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(BucketDeletePacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(BucketUpdatePacket.class, PacketChannel.GLOBAL);
+        CloudAPI.getInstance().getPacketManager().registerPacket(BucketDeletePacket.class, PacketChannel.GLOBAL);
 
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudServiceConsoleCommandPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudServiceConsoleCommandPacket.class, PacketChannel.GLOBAL);
 
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudServiceInitStopPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudServiceInitStopPacket.class, PacketChannel.GLOBAL);
 
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeMessagePacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeTitlePacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeActionbarPacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeConnectServicePacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeDisconnectPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeMessagePacket.class, PacketChannel.GLOBAL);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeTitlePacket.class, PacketChannel.GLOBAL);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeActionbarPacket.class, PacketChannel.GLOBAL);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeConnectServicePacket.class, PacketChannel.GLOBAL);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeDisconnectPacket.class, PacketChannel.GLOBAL);
     }
 
     @Override

@@ -8,6 +8,7 @@ import net.suqatri.redicloud.api.impl.poll.timeout.TimeOutResult;
 import net.suqatri.redicloud.api.impl.redis.bucket.RBucketObject;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
 import net.suqatri.redicloud.api.node.ICloudNode;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.poll.timeout.event.NodeTimeOutedEvent;
 import net.suqatri.redicloud.api.service.ICloudService;
@@ -45,6 +46,7 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
                 .onSuccess(node -> {
                     if (!node.isConnected()) {
                         TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
+                        resultPacket.getPacketData().setChannel(PacketChannel.NODE);
                         resultPacket.setPollID(this.pollId);
                         resultPacket.setResult(TimeOutResult.CONNECTED);
                         resultPacket.getPacketData().addReceiver(resultPacket.getPacketData().getSender());
@@ -52,10 +54,12 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
                         return;
                     }
                     NodePingPacket packet = new NodePingPacket();
+                    packet.getPacketData().setChannel(PacketChannel.NODE);
                     packet.getPacketData().waitForResponse()
                             .orTimeout(PACKET_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)
                             .onFailure(e -> {
                                 TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
+                                resultPacket.getPacketData().setChannel(PacketChannel.NODE);
                                 resultPacket.setPollID(this.pollId);
                                 resultPacket.setResult(e instanceof TimeoutException ? TimeOutResult.FAILED : TimeOutResult.ERROR);
                                 resultPacket.getPacketData().addReceiver(resultPacket.getPacketData().getSender());
@@ -65,6 +69,7 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
                                 if(response.getErrorMessage() != null){
                                     CloudAPI.getInstance().getConsole().error("Error while process ping node packet: " + response.getErrorMessage());
                                     TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
+                                    resultPacket.getPacketData().setChannel(PacketChannel.NODE);
                                     resultPacket.setPollID(this.pollId);
                                     resultPacket.setResult(TimeOutResult.ERROR);
                                     resultPacket.getPacketData().addReceiver(resultPacket.getPacketData().getSender());
@@ -72,6 +77,7 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
                                     return;
                                 }
                                 TimeOutPollResultPacket resultPacket = new TimeOutPollResultPacket();
+                                resultPacket.getPacketData().setChannel(PacketChannel.NODE);
                                 resultPacket.setPollID(this.pollId);
                                 resultPacket.setResult(TimeOutResult.PASSED);
                                 resultPacket.getPacketData().addReceiver(resultPacket.getPacketData().getSender());

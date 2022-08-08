@@ -7,6 +7,7 @@ import net.suqatri.redicloud.api.impl.poll.timeout.TimeOutResult;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
 import net.suqatri.redicloud.api.node.ICloudNode;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.redicloud.api.redis.event.RedisDisconnectedEvent;
 import net.suqatri.redicloud.api.scheduler.IRepeatScheduler;
@@ -45,6 +46,7 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
                             if (node.getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId()))
                                 return;
                             NodePingPacket packet = new NodePingPacket();
+                            packet.getPacketData().setChannel(PacketChannel.NODE);
                             packet.getPacketData().addReceiver(node.getNetworkComponentInfo());
                             packet.getPacketData().waitForResponse()
                                     .orTimeout(TimeOutPoll.PACKET_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)
@@ -65,6 +67,7 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
                                                                     pollHolder.getOpenerId().equals(clusterNodes.getUniqueId()) ? TimeOutResult.FAILED : TimeOutResult.UNKNOWN);
                                                         }
                                                         TimeOutPollRequestPacket requestPacket = new TimeOutPollRequestPacket();
+                                                        requestPacket.getPacketData().setChannel(PacketChannel.NODE);
                                                         requestPacket.setPollId(pollHolder.getPollId());
                                                         requestPacket.publishAllAsync(NetworkComponentType.NODE);
                                                         CloudAPI.getInstance().getScheduler().runTaskLaterAsync(poll::close,

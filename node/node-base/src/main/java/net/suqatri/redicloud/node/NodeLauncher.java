@@ -13,6 +13,7 @@ import net.suqatri.redicloud.api.node.NodeCloudDefaultAPI;
 import net.suqatri.redicloud.api.node.event.CloudNodeConnectedEvent;
 import net.suqatri.redicloud.api.node.event.CloudNodeDisconnectEvent;
 import net.suqatri.redicloud.api.node.file.event.FilePulledTemplatesEvent;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.redis.IRedisConnection;
 import net.suqatri.redicloud.api.redis.RedisCredentials;
 import net.suqatri.redicloud.api.service.ICloudService;
@@ -260,8 +261,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     }
 
     private void registerPackets() {
-        this.getPacketManager().registerPacket(NodePingPacket.class);
-        this.getPacketManager().registerPacket(NodePingPacketResponse.class);
+        this.getPacketManager().registerPacket(NodePingPacket.class, PacketChannel.NODE);
+        this.getPacketManager().registerPacket(NodePingPacketResponse.class, PacketChannel.NODE);
     }
 
     private void registerListeners() {

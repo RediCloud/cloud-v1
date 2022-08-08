@@ -7,6 +7,7 @@ import net.suqatri.redicloud.api.impl.template.CloudServiceTemplateManager;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
 import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.node.file.event.FilePulledTemplatesEvent;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.template.ICloudServiceTemplate;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
@@ -73,6 +74,7 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
                                     }
                                 }
                                 FileDeletePacket packet = new FileDeletePacket();
+                                packet.getPacketData().setChannel(PacketChannel.NODE);
                                 packet.setPath(file.getPath());
                                 packet.publishAllAsync(NetworkComponentType.NODE);
                                 this.deleteBucketAsync(name.toLowerCase())

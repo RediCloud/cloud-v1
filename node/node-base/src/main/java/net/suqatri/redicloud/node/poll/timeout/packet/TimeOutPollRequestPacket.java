@@ -3,6 +3,7 @@ package net.suqatri.redicloud.node.poll.timeout.packet;
 import lombok.Data;
 import net.suqatri.redicloud.api.impl.packet.CloudPacket;
 import net.suqatri.redicloud.api.impl.poll.timeout.TimeOutResult;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.node.NodeLauncher;
 
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class TimeOutPollRequestPacket extends CloudPacket {
 
     private void sendResponse(TimeOutResult result) {
         TimeOutPollResultPacket packet = new TimeOutPollResultPacket();
+        packet.getPacketData().setChannel(PacketChannel.NODE);
         packet.setPollID(this.pollId);
         packet.setResult(result);
         packet.getPacketData().addReceiver(packet.getPacketData().getSender());

@@ -8,6 +8,7 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.node.CloudNode;
 import net.suqatri.redicloud.api.impl.node.CloudNodeManager;
 import net.suqatri.redicloud.api.node.ICloudNode;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.node.packet.NodePingPacket;
@@ -74,6 +75,7 @@ public class ClusterCommand extends ConsoleCommand {
                                     return;
                                 }
                                 NodePingPacket packet = new NodePingPacket();
+                                packet.getPacketData().setChannel(PacketChannel.NODE);
                                 packet.getPacketData().addReceiver(node.getNetworkComponentInfo());
                                 packet.getPacketData().waitForResponse()
                                         .onFailure(e -> {

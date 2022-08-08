@@ -6,6 +6,7 @@ import net.suqatri.redicloud.api.impl.CloudDefaultAPIImpl;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
 import net.suqatri.redicloud.api.node.service.screen.IScreenLine;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.service.screen.packet.ScreenLinePacket;
@@ -51,6 +52,7 @@ public class ServiceScreen implements IServiceScreen {
             if (nodeId.equals(NodeLauncher.getInstance().getNode().getUniqueId())) continue;
             if (packet == null) {
                 packet = new ScreenLinePacket();
+                packet.getPacketData().setChannel(PacketChannel.NODE);
                 packet.setServiceId(this.service.getUniqueId());
                 packet.setScreenLine(screenLine);
             }

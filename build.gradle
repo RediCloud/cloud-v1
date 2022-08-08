@@ -29,6 +29,8 @@ tasks.register('copyToTest') {
             file("${rootDir}/test/node-2/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar")
+            file("${rootDir}/test/node-1/storage/versions/redicloud-limbo-server.jar")
+            file("${rootDir}/test/node-2/storage/versions/redicloud-limbo-server.jar")
     )
     dependsOn copyNodeBaseToNode1
     dependsOn copyNodeBaseToNode2
@@ -38,6 +40,8 @@ tasks.register('copyToTest') {
     dependsOn copyProxyPluginToNode2
     dependsOn copyVelocityPluginToNode1
     dependsOn copyVelocityPluginToNode2
+    dependsOn copyLimboServerToNode1
+    dependsOn copyLimboServerToNode2
 }
 
 tasks.register('projectBuild') {
@@ -60,6 +64,8 @@ tasks.register('projectBuild') {
     dependsOn ':plugins:plugin-minecraft:build'
     dependsOn ':plugins:plugin-bungeecord:build'
     dependsOn ':plugins:plugin-velocity:build'
+
+    dependsOn ':limbo-server:build'
 }
 
 tasks.register('copyNodeBaseToNode1', Copy) {
@@ -101,6 +107,15 @@ tasks.register('copyVelocityPluginToNode2', Copy) {
     into 'test/node-2/storage'
 }
 
+tasks.register('copyLimboServerToNode1') {
+    from "limbo-server/build/libs/redicloud-limbo-server.jar"
+    into 'test/node-1/storage/versions'
+}
+tasks.register('copyLimboServerToNode2') {
+    from "limbo-server/build/libs/redicloud-limbo-server.jar"
+    into 'test/node-2/storage/versions'
+}
+
 tasks.register('publishToRepository') {
     dependsOn ':commons:publish'
     dependsOn ':api:api:publish'
@@ -121,6 +136,8 @@ tasks.register('publishToRepository') {
     dependsOn ':plugins:plugin-minecraft:publish'
     dependsOn ':plugins:plugin-bungeecord:publish'
     dependsOn ':plugins:plugin-velocity:publish'
+
+    dependsOn ':limbo-server:publish'
 }
 
 allprojects {

@@ -31,10 +31,10 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
     public TimeOutPollManager() {
         super("timeouts", TimeOutPoll.class);
         CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event -> {
-            this.configuration = CloudAPI.getInstance().getConfigurationManager().exists(this.configuration.getIdentifier())
+            this.configuration = CloudAPI.getInstance().getConfigurationManager().existsConfiguration(this.configuration.getIdentifier())
                     ? CloudAPI.getInstance().getConfigurationManager()
                         .getConfiguration(this.configuration.getIdentifier(), TimeOutPoolConfiguration.class)
-                    : CloudAPI.getInstance().getConfigurationManager().create(this.configuration);
+                    : CloudAPI.getInstance().getConfigurationManager().createConfiguration(this.configuration);
             if(this.configuration.isEnabled()) this.checker();
         });
     }
@@ -106,15 +106,5 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
     @Override
     public FutureAction<Boolean> closePoll(ITimeOutPoll poolHolder) {
         return this.deleteBucketAsync(poolHolder.getIdentifier());
-    }
-
-    @Override
-    public void configure(TimeOutPoolConfiguration configuration) {
-        if(this.task == null && configuration.isEnabled()){
-            this.checker();
-        }else if(this.task != null && !configuration.isEnabled()){
-            this.task.cancel();
-        }
-        this.configuration = configuration;
     }
 }

@@ -14,6 +14,4 @@ public interface ITimeOutPollManager {
 
     TimeOutPoolConfiguration getConfiguration();
 
-    void configure(TimeOutPoolConfiguration configuration);
-
 }

@@ -14,13 +14,4 @@ public class TimeOutPoolConfiguration extends Configuration {
     private long packetResponseTimeout = 5000;
     private long nodeTimeOut = TimeUnit.MINUTES.toMillis(5);
 
-    @Override
-    public String getIdentifier() {
-        return this.identifier;
-    }
-
-    @Override
-    public void merged() {
-        NodeCloudDefaultAPI.getInstance().getTimeOutPollManager().configure(this);
-    }
 }

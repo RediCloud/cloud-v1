@@ -371,6 +371,23 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                                 group.setServiceEnvironment(ServiceEnvironment.LIMBO);
                                 this.getGroupManager().createGroup(group);
                             }
+                            if(!this.getGroupManager().existsGroup("Verify")){
+                                CloudGroup group = new CloudGroup();
+                                group.setUniqueId(UUID.randomUUID());
+                                group.setPercentToStartNewService(100);
+                                group.setFallback(false);
+                                group.setMaxMemory(500);
+                                group.setMaintenance(false);
+                                group.setName("Verify");
+                                group.setMaxServices(1);
+                                group.setMinServices(1);
+                                group.setServiceVersionName("limbo");
+                                group.setStartPriority(0);
+                                group.setStatic(false);
+                                group.setStartPort(25500);
+                                group.setServiceEnvironment(ServiceEnvironment.LIMBO);
+                                this.getGroupManager().createGroup(group);
+                            }
                         }
                     });
 

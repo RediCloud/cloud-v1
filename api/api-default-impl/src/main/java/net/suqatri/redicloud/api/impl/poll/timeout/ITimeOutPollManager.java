@@ -12,4 +12,6 @@ public interface ITimeOutPollManager {
 
     FutureAction<Boolean> closePoll(ITimeOutPoll poolHolder);
 
+    TimeOutPoolConfiguration getConfiguration();
+
 }

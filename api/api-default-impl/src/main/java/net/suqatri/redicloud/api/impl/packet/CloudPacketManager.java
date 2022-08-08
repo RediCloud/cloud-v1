@@ -28,6 +28,7 @@ public class CloudPacketManager implements ICloudPacketManager {
 
     public CloudPacketManager() {
         this.packets = new HashMap<>();
+        this.receivers = new HashMap<>();
         this.packetWaitingList = new ConcurrentHashMap<>();
         this.waitingForResponse = new ConcurrentHashMap<>();
         CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event -> {

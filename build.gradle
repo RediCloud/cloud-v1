@@ -5,6 +5,7 @@ plugins {
 }
 
 group 'net.suqatri.redicloud'
+
 version '1.5.0' + getCommitHash() + '-SNAPSHOT'
 
 def repoUser = "$System.env.REPO_USER"

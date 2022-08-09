@@ -1,5 +1,5 @@
-![img](https://img.shields.io/nexus/r/net.suqatri.redicloud.api/api?label=release&nexusVersion=3&server=http%3A%2F%2Frepo.suqatri.net%3A8081%2F)
-![img](https://img.shields.io/nexus/s/net.suqatri.redicloud.api/api?label=snapshot&server=http%3A%2F%2Frepo.suqatri.net%3A8081)
+![img](https://img.shields.io/nexus/r/net.suqatri.redicloud.api/api?label=release&server=https%3A%2F%2Frepo.redicloud.dev)
+![img](https://img.shields.io/nexus/s/net.suqatri.redicloud.api/api?label=snapshot&server=https%3A%2F%2Frepo.redicloud.dev)
 
 # RediCloud
 
@@ -80,6 +80,8 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 - offline/online player support at the same time ❌
 - player api bridge (actionbar, messages, service connect, kick, title, tablist) ✅
 - toggle maintenance for groups/services✅
+- multi proxy (with player count sync)✅
+- limbo fallbacks🚧
   <br>
 
 ## Commands
@@ -160,7 +162,7 @@ Follow these [steps](https://github.com/RediCloud/cloud/wiki/installation)
 
 ### Build
 
-Last Build: [jenkins](http://jetkins.suqatri.net:8443/job/redi-cloud/)
+Last Build: [jenkins](http://ci.redicloud.dev/job/redi-cloud/)
 
 Linux / OSX
 ```
@@ -182,13 +184,11 @@ gradlew.bat
 Repository
 ```
 maven {
-    url = "http://repo.suqatri.net:8081/repository/maven-snapshots/"
-    allowInsecureProtocol = true
+    url = "https://repo.redicloud.dev/repository/maven-snapshots/"
 }
 
 maven {
-    url = "http://repo.suqatri.net:8081/repository/maven-releases/"
-    allowInsecureProtocol = true
+    url = "https://repo.redicloud.dev/repository/maven-releases/"
 }
 ```
 

@@ -6,6 +6,7 @@ import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.player.CloudPlayer;
 import net.suqatri.redicloud.api.service.ICloudService;
@@ -17,7 +18,7 @@ import java.util.UUID;
 
 public class LoginListener implements Listener {
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onLogin(LoginEvent event) {
         if(event.isCancelled()) return;
 
@@ -53,7 +54,7 @@ public class LoginListener implements Listener {
                         cloudPlayer.setUniqueId(uniqueId);
                         cloudPlayer.setLastIp(event.getConnection().getAddress().getHostString());
                         cloudPlayer.setLastConnectedProxyId(BungeeCordCloudAPI.getInstance().getService().getUniqueId());
-                        cloudPlayer.setCracked(initialHandler.isOnlineMode());
+                        cloudPlayer.setCracked(!initialHandler.isOnlineMode());
                         cloudPlayer.setPasswordLogRounds(10 + new Random().nextInt(30 - 10 + 1));
                         CloudAPI.getInstance().getPlayerManager().createPlayerAsync(cloudPlayer)
                                 .onFailure(throwable -> {
@@ -79,7 +80,7 @@ public class LoginListener implements Listener {
                                 cloudPlayer.setLastLogin(System.currentTimeMillis());
                                 cloudPlayer.setLastConnectedProxyId(BungeeCordCloudAPI.getInstance().getService().getUniqueId());
                                 cloudPlayer.setName(event.getConnection().getName());
-                                cloudPlayer.setCracked(initialHandler.isOnlineMode());
+                                cloudPlayer.setCracked(!initialHandler.isOnlineMode());
                                 cloudPlayer.updateAsync()
                                     .onFailure(throwable -> {
                                         event.setCancelled(true);

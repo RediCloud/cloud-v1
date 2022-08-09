@@ -36,7 +36,7 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
     private UpdatableBCrypt bcrypt;
     private boolean cracked = false;
     private String passwordHash;
-    private int passwordLogRounds = 0;
+    private int passwordLogRounds = 10;
     private String sessionIp;
 
     @JsonIgnore
@@ -56,7 +56,7 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
     }
 
     public void setPassword(String password) {
-        if(this.bcrypt == null) throw new NullPointerException("bcrypt is null of player " + this.uniqueId);
+        if(this.bcrypt == null) this.bcrypt = new UpdatableBCrypt(this.passwordLogRounds);
         this.passwordHash = this.bcrypt.hash(password);
     }
 

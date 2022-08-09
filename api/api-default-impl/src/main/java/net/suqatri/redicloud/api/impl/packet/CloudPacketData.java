@@ -7,6 +7,7 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.packet.ICloudPacketData;
 import net.suqatri.redicloud.api.packet.ICloudPacketResponse;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
 import java.util.ArrayList;
@@ -26,6 +27,8 @@ public class CloudPacketData implements ICloudPacketData {
     private FutureAction<ICloudPacketResponse> responseAction;
     @Setter
     private ICloudPacketData responseTargetData;
+    @Setter
+    private PacketChannel channel = PacketChannel.GLOBAL;
 
     public void setSender(INetworkComponentInfo sender) {
         this.sender = sender;

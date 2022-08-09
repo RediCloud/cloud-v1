@@ -170,6 +170,10 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
                 existencesCollection.addToProcess("global-minecraft",
                         CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync("global-minecraft"));
                 break;
+            case LIMBO:
+                existencesCollection.addToProcess("global-limbo",
+                        CloudAPI.getInstance().getServiceTemplateManager().existsTemplateAsync("global-limbo"));
+                break;
         }
 
         existencesCollection.process()

@@ -8,6 +8,7 @@ import net.suqatri.redicloud.api.impl.service.packet.stop.CloudServiceInitStopPa
 import net.suqatri.redicloud.api.node.ICloudNode;
 import net.suqatri.redicloud.api.node.service.factory.ICloudServiceProcess;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.ServiceState;
 import net.suqatri.redicloud.api.service.event.CloudServiceStoppedEvent;
@@ -194,6 +195,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
             ICloudNode node = CloudAPI.getInstance().getNodeManager().getNode(nodeId);
             if (screenDestroyPacket == null) {
                 screenDestroyPacket = new ScreenDestroyPacket();
+                screenDestroyPacket.getPacketData().setChannel(PacketChannel.NODE);
                 screenDestroyPacket.setServiceId(this.service.getUniqueId());
             }
             screenDestroyPacket.getPacketData().addReceiver(node.getNetworkComponentInfo());

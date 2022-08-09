@@ -13,18 +13,20 @@ import java.util.Optional;
 
 public class ServerPostConnectListener {
 
-    @Subscribe()
+    @Subscribe
     public void onServerConnect(ServerPostConnectEvent event){
         Optional<ServerConnection > connection = event.getPlayer().getCurrentServer();
         if(!connection.isPresent()) return;
         RegisteredServer registeredServer = connection.get().getServer();
-        CloudAPI.getInstance().getConsole().trace("Player " + event.getPlayer().getUsername() + " switched to server " + registeredServer.getServerInfo().getName());
-        ICloudPlayer player = CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
+        CloudPlayer player = (CloudPlayer) CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
+        CloudAPI.getInstance().getConsole().trace("Player: " + player.getName() + " connected to: " + registeredServer.getServerInfo().getName());
         if(player == null) return;
+        CloudAPI.getInstance().getConsole().trace("Player " + player.getName() + " switched to server " + registeredServer.getServerInfo().getName());
         ICloudService serviceHolder = CloudAPI.getInstance().getServiceManager()
                 .getService(registeredServer.getServerInfo().getName());
-        ((CloudPlayer)player).setLastConnectedServerId(serviceHolder.getUniqueId());
+        player.setLastConnectedServerId(serviceHolder.getUniqueId());
         player.updateAsync();
+        CloudAPI.getInstance().getConsole().trace("Player updated after server connect!");
     }
 
 }

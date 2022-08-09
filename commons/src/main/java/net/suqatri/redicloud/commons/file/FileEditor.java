@@ -5,6 +5,8 @@ import lombok.Getter;
 
 import java.io.FileWriter;
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,14 +25,20 @@ public class FileEditor {
     }
 
     public void read(File file) throws IOException {
-        try (FileReader fileReader = new FileReader(file); BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+        try (FileInputStream fis = new FileInputStream(file);
+             InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
+             BufferedReader reader = new BufferedReader(isr)
+        ) {
             String line;
-            while ((line = bufferedReader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 lines.add(line);
             }
-            fileReader.close();
-            bufferedReader.close();
+            fis.close();
+            isr.close();
+            reader.close();
             this.loadMap();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -40,7 +48,7 @@ public class FileEditor {
     }
 
     public void save(File file) throws IOException {
-        FileWriter writer = new FileWriter(file);
+        OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
         for (String s : newLine()) {
             writer.write(s + "\n");
         }

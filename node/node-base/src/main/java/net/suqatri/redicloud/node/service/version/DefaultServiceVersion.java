@@ -35,7 +35,9 @@ public enum DefaultServiceVersion {
     SPIGOT_1_16_5("spigot-1.16.5", "https://cdn.getbukkit.org/spigot/spigot-1.16.5.jar", false, ServiceEnvironment.MINECRAFT),
     SPIGOT_1_17_1("spigot-1.17.1", "https://cdn.getbukkit.org/spigot/spigot-1.17.1.jar", false, ServiceEnvironment.MINECRAFT),
     SPIGOT_1_18_2("spigot-1.18.2", "https://cdn.getbukkit.org/spigot/spigot-1.18.2.jar", false, ServiceEnvironment.MINECRAFT),
-    SPIGOT_1_19_1("spigot-1.19.1", "https://cdn.getbukkit.org/spigot/spigot-1.19.1.jar", false, ServiceEnvironment.MINECRAFT);
+    SPIGOT_1_19_1("spigot-1.19.1", "https://cdn.getbukkit.org/spigot/spigot-1.19.1.jar", false, ServiceEnvironment.MINECRAFT),
+
+    LIMBO("limbo", "", false, ServiceEnvironment.LIMBO);
 
     private final String name;
     private final String url;

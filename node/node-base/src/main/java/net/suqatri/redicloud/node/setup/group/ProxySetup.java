@@ -33,14 +33,17 @@ public class ProxySetup extends Setup<ProxySetup> {
     @Question(id = 4, question = "What is the start priority of the group?")
     private int startPriority;
 
-    @Question(id = 5, question = "What percentage does a server need to be full for a new one to start? (-1 = disable)")
+    @Question(id = 5, question = "What is the start port of the group?")
+    private int startPort;
+
+    @Question(id = 6, question = "What percentage does a server need to be full for a new one to start? (-1 = disable)")
     private int percentToStartNewService;
 
-    @Question(id = 6, question = "Should the group a static group?")
+    @Question(id = 7, question = "Should the group a static group?")
     @AnswerCompleter(value = BooleanSuggester.class)
     private boolean staticGroup;
 
-    @Question(id = 7, question = "What service version should be used for the group?")
+    @Question(id = 8, question = "What service version should be used for the group?")
     @ConditionChecker(value = ProxyServiceVersionExistsCondition.class, message = "Service version doesn't exist.")
     @AnswerCompleter(value = CloudServiceProxyVersionSuggester.class)
     private String serviceVersionName;

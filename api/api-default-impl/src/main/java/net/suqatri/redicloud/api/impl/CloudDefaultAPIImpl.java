@@ -2,8 +2,10 @@ package net.suqatri.redicloud.api.impl;
 
 import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.configuration.IConfigurationManager;
 import net.suqatri.redicloud.api.event.ICloudEventManager;
 import net.suqatri.redicloud.api.group.ICloudGroupManager;
+import net.suqatri.redicloud.api.impl.configuration.ConfigurationManager;
 import net.suqatri.redicloud.api.impl.event.CloudEventManager;
 import net.suqatri.redicloud.api.impl.group.CloudGroupManager;
 import net.suqatri.redicloud.api.impl.listener.node.CloudNodeConnectedListener;
@@ -25,6 +27,7 @@ import net.suqatri.redicloud.api.impl.utils.CloudProperties;
 import net.suqatri.redicloud.api.network.INetworkComponentManager;
 import net.suqatri.redicloud.api.node.ICloudNodeManager;
 import net.suqatri.redicloud.api.packet.ICloudPacketManager;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.player.ICloudPlayerManager;
 import net.suqatri.redicloud.api.player.IPlayerBridge;
@@ -48,6 +51,7 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     private final ICloudGroupManager groupManager;
     private final ExecutorService executorService;
     private final ICloudPlayerManager playerManager;
+    private final IConfigurationManager configurationManager;
     private CloudProperties properties;
 
     public CloudDefaultAPIImpl(ApplicationType type) {
@@ -61,6 +65,7 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
         this.nodeManager = new CloudNodeManager();
         this.groupManager = new CloudGroupManager();
         this.playerManager = new CloudPlayerManager();
+        this.configurationManager = new ConfigurationManager();
     }
 
     @Override
@@ -84,18 +89,18 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     }
 
     public void registerInternalPackets() {
-        CloudAPI.getInstance().getPacketManager().registerPacket(BucketUpdatePacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(BucketDeletePacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(BucketUpdatePacket.class, PacketChannel.GLOBAL);
+        CloudAPI.getInstance().getPacketManager().registerPacket(BucketDeletePacket.class, PacketChannel.GLOBAL);
 
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudServiceConsoleCommandPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudServiceConsoleCommandPacket.class, PacketChannel.GLOBAL);
 
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudServiceInitStopPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudServiceInitStopPacket.class, PacketChannel.GLOBAL);
 
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeMessagePacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeTitlePacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeActionbarPacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeConnectServicePacket.class);
-        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeDisconnectPacket.class);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeMessagePacket.class, PacketChannel.GLOBAL);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeTitlePacket.class, PacketChannel.GLOBAL);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeActionbarPacket.class, PacketChannel.GLOBAL);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeConnectServicePacket.class, PacketChannel.GLOBAL);
+        CloudAPI.getInstance().getPacketManager().registerPacket(CloudBridgeDisconnectPacket.class, PacketChannel.GLOBAL);
     }
 
     @Override

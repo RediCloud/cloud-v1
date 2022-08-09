@@ -32,12 +32,27 @@ public class DefaultServiceStartConfiguration implements IServiceStartConfigurat
     private List<String> processParameters;
     private List<String> jvmArguments;
     private boolean hasGroup;
-    private int startPort;
+    private int startPort = 0;
     private String serviceVersionName;
     private UUID nodeId;
     @JsonIgnore
     private FutureAction<ICloudService> startListener;
     private int percentToStartNewService;
+
+    @Override
+    public int getStartPort() {
+        if(this.startPort == 0){
+            switch (getEnvironment()){
+                case BUNGEECORD:
+                case VELOCITY:
+                    return 25565;
+                case MINECRAFT:
+                case LIMBO:
+                    return 49152;
+            }
+        }
+        return this.startPort;
+    }
 
     public static FutureAction<DefaultServiceStartConfiguration> fromInterface(IServiceStartConfiguration interfaceConfig) {
         FutureAction<DefaultServiceStartConfiguration> futureAction = new FutureAction<>();

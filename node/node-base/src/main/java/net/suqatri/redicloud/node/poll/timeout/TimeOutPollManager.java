@@ -1,12 +1,15 @@
 package net.suqatri.redicloud.node.poll.timeout;
 
+import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
-import net.suqatri.redicloud.api.impl.poll.timeout.ITimeOutPoll;
-import net.suqatri.redicloud.api.impl.poll.timeout.ITimeOutPollManager;
-import net.suqatri.redicloud.api.impl.poll.timeout.TimeOutResult;
+import net.suqatri.redicloud.api.node.poll.timeout.ITimeOutPoll;
+import net.suqatri.redicloud.api.node.poll.timeout.ITimeOutPollManager;
+import net.suqatri.redicloud.api.impl.configuration.impl.TimeOutPoolConfiguration;
+import net.suqatri.redicloud.api.node.poll.timeout.TimeOutResult;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
 import net.suqatri.redicloud.api.node.ICloudNode;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.redis.event.RedisConnectedEvent;
 import net.suqatri.redicloud.api.redis.event.RedisDisconnectedEvent;
 import net.suqatri.redicloud.api.scheduler.IRepeatScheduler;
@@ -22,10 +25,18 @@ import java.util.concurrent.TimeoutException;
 public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITimeOutPoll> implements ITimeOutPollManager {
 
     private IRepeatScheduler<?> task;
+    @Getter
+    private TimeOutPoolConfiguration configuration = new TimeOutPoolConfiguration();
 
     public TimeOutPollManager() {
         super("timeouts", TimeOutPoll.class);
-        CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event -> this.checker());
+        CloudAPI.getInstance().getEventManager().registerWithoutBlockWarning(RedisConnectedEvent.class, event -> {
+            this.configuration = CloudAPI.getInstance().getConfigurationManager().existsConfiguration(this.configuration.getIdentifier())
+                    ? CloudAPI.getInstance().getConfigurationManager()
+                        .getConfiguration(this.configuration.getIdentifier(), TimeOutPoolConfiguration.class)
+                    : CloudAPI.getInstance().getConfigurationManager().createConfiguration(this.configuration);
+            if(this.configuration.isEnabled()) this.checker();
+        });
     }
 
     private void checker() {
@@ -45,9 +56,10 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
                             if (node.getUniqueId().equals(NodeLauncher.getInstance().getNode().getUniqueId()))
                                 return;
                             NodePingPacket packet = new NodePingPacket();
+                            packet.getPacketData().setChannel(PacketChannel.NODE);
                             packet.getPacketData().addReceiver(node.getNetworkComponentInfo());
                             packet.getPacketData().waitForResponse()
-                                    .orTimeout(TimeOutPoll.PACKET_RESPONSE_TIMEOUT, TimeUnit.MILLISECONDS)
+                                    .orTimeout(this.configuration.getPacketResponseTimeout(), TimeUnit.MILLISECONDS)
                                     .onFailure(e -> {
                                         if (e.getCause() instanceof TimeoutException) {
                                             TimeOutPoll poll = new TimeOutPoll();
@@ -65,10 +77,11 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
                                                                     pollHolder.getOpenerId().equals(clusterNodes.getUniqueId()) ? TimeOutResult.FAILED : TimeOutResult.UNKNOWN);
                                                         }
                                                         TimeOutPollRequestPacket requestPacket = new TimeOutPollRequestPacket();
+                                                        requestPacket.getPacketData().setChannel(PacketChannel.NODE);
                                                         requestPacket.setPollId(pollHolder.getPollId());
                                                         requestPacket.publishAllAsync(NetworkComponentType.NODE);
                                                         CloudAPI.getInstance().getScheduler().runTaskLaterAsync(poll::close,
-                                                                TimeOutPoll.PACKET_RESPONSE_TIMEOUT + 1500, TimeUnit.MILLISECONDS);
+                                                                this.configuration.getPacketResponseTimeout() + 1500, TimeUnit.MILLISECONDS);
                                                     });
                                             return;
                                         }

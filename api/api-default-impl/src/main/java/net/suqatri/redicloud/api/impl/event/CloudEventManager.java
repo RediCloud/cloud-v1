@@ -20,11 +20,13 @@ public class CloudEventManager implements ICloudEventManager {
     private final Lock listenerLock;
     private final Map<String, List<Consumer<? extends CloudEvent>>> consumers;
     private final Lock consumerLock;
+    private final List<Consumer<? extends CloudEvent>> noBlockingWarning;
 
     public CloudEventManager() {
         this.byListenerAndPriority = new HashMap<>();
         this.byEventBaked = new ConcurrentHashMap<>();
         this.listenerLock = new ReentrantLock();
+        this.noBlockingWarning = new ArrayList<>();
         this.consumerLock = new ReentrantLock();
         this.consumers = new HashMap<>();
     }
@@ -47,7 +49,7 @@ public class CloudEventManager implements ICloudEventManager {
                 } catch (IllegalArgumentException ex) {
                     throw new Error("Method rejected target/argument: " + event, ex);
                 } catch (InvocationTargetException ex) {
-                    CloudAPI.getInstance().getConsole().error("Error dispatching event " + event + " to listener " + method.getListener(), ex.getCause());
+                    CloudAPI.getInstance().getConsole().error("Error dispatching event " + event + " to listener " + method.getListener(), ex);
                 }
 
                 long elapsed = System.nanoTime() - start;
@@ -68,9 +70,13 @@ public class CloudEventManager implements ICloudEventManager {
                     CloudAPI.getInstance().getConsole().error("Error dispatching event " + event + " to consumer " + consumer, ex);
                 }
 
-                long elapsed = System.nanoTime() - start;
-                if (elapsed > 50000000) {
-                    CloudAPI.getInstance().getConsole().warn("Consumer " + consumer.getClass().getName() + " took " + (elapsed / 1000000) + " to process event " + event.getClass().getName());
+                if(!this.noBlockingWarning.contains(consumer)) {
+                    long elapsed = System.nanoTime() - start;
+                    if (elapsed > 50000000) {
+                        CloudAPI.getInstance().getConsole().warn("Consumer " + consumer.getClass().getName() + " took " + (elapsed / 1000000) + " to process event " + event.getClass().getName());
+                    }
+                }else{
+                    this.noBlockingWarning.remove(consumer);
                 }
             }
             this.consumers.remove(event.getClass());
@@ -80,7 +86,7 @@ public class CloudEventManager implements ICloudEventManager {
     @Override
     public <T extends CloudGlobalEvent> void postGlobal(T event) {
         postLocal(event);
-        GlobalEventPacket packet = new GlobalEventPacket();
+        GlobalEventPacket<T> packet = new GlobalEventPacket<>();
         packet.setEvent(event);
         packet.publishAll();
     }
@@ -167,6 +173,19 @@ public class CloudEventManager implements ICloudEventManager {
             List<Consumer<? extends CloudEvent>> consumers = this.consumers.getOrDefault(eventClass.getName(), new ArrayList<>());
             consumers.add(consumer);
             this.consumers.put(eventClass.getName(), consumers);
+        } finally {
+            this.consumerLock.unlock();
+        }
+    }
+
+    @Override
+    public <T extends CloudEvent> void registerWithoutBlockWarning(Class<T> eventClass, Consumer<T> consumer) {
+        this.consumerLock.lock();
+        try {
+            List<Consumer<? extends CloudEvent>> consumers = this.consumers.getOrDefault(eventClass.getName(), new ArrayList<>());
+            consumers.add(consumer);
+            this.consumers.put(eventClass.getName(), consumers);
+            this.noBlockingWarning.add(consumer);
         } finally {
             this.consumerLock.unlock();
         }

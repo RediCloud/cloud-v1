@@ -15,6 +15,7 @@ public interface ICloudEventManager {
     void unregister(Object listener);
 
     <T extends CloudEvent> void register(Class<T> eventClass, Consumer<T> consumer);
+    <T extends CloudEvent> void registerWithoutBlockWarning(Class<T> eventClass, Consumer<T> consumer);
 
     <T extends CloudEvent> void unregister(Class<T> eventClass, Consumer<T> consumer);
 

@@ -12,10 +12,7 @@ import net.suqatri.redicloud.commons.function.future.FutureAction;
 import net.suqatri.redicloud.commons.function.future.FutureActionCollection;
 import net.suqatri.redicloud.node.console.ConsoleLine;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -63,6 +60,10 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
     @Override
     public boolean download(ICloudServiceVersion holder, boolean force) throws IOException, InterruptedException {
         if (!force && holder.isDownloaded()) return false;
+        if(holder.getDownloadUrl().isEmpty()){
+            if(!holder.getFile().exists()) throw new FileNotFoundException("File not found: " + holder.getFile().getAbsolutePath());
+            return true;
+        }
         CloudAPI.getInstance().getConsole().debug("Downloading service version: " + holder.getName());
         File file = holder.getFile();
         String url = holder.getDownloadUrl();
@@ -78,6 +79,15 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
 
         if (!force && holder.isDownloaded()) {
             futureAction.complete(false);
+            return futureAction;
+        }
+
+        if(holder.getDownloadUrl().isEmpty()){
+            if(!holder.getFile().exists()) {
+                futureAction.completeExceptionally(new FileNotFoundException("File not found: " + holder.getFile().getAbsolutePath()));
+                return futureAction;
+            }
+            futureAction.complete(true);
             return futureAction;
         }
 
@@ -347,6 +357,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                                   version.setName(defaultServiceVersion.getName());
                                   version.setJavaCommand("java");
                                   version.setDefaultVersion(true);
+                                  version.setEnvironmentType(defaultServiceVersion.getEnvironment());
                                   version.setDownloadUrl(defaultServiceVersion.getUrl());
                                   version.setPaperClip(defaultServiceVersion.isPaperClip());
                                   editAction.addToProcess(defaultServiceVersion, this.createServiceVersionAsync(version, false));
@@ -368,6 +379,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                             version.setDefaultVersion(true);
                             version.setDownloadUrl(defaultServiceVersion.getUrl());
                             version.setPaperClip(defaultServiceVersion.isPaperClip());
+                            version.setEnvironmentType(defaultServiceVersion.getEnvironment());
                             versionCreateAction.addToProcess(defaultServiceVersion, this.createServiceVersionAsync(version, false));
                         }
                         versionCreateAction.process()

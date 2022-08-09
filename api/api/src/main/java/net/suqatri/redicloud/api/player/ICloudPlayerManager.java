@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.api.player;
 
+import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
 import java.util.Collection;
@@ -16,8 +17,10 @@ public interface ICloudPlayerManager {
     FutureAction<ICloudPlayer> getPlayerAsync(UUID uniqueId);
 
     boolean existsPlayer(UUID uniqueId);
+    boolean existsPlayer(String name);
 
     FutureAction<Boolean> existsPlayerAsync(UUID uniqueId);
+    FutureAction<Boolean> existsPlayerAsync(String name);
 
     ICloudPlayer createPlayer(ICloudPlayer cloudPlayer);
     FutureAction<ICloudPlayer> createPlayerAsync(ICloudPlayer cloudPlayer);
@@ -28,8 +31,12 @@ public interface ICloudPlayerManager {
 
     FutureAction<Collection<ICloudPlayer>> getConnectedPlayers();
 
-    FutureAction<UUID> fetchNameAsync(String playerName);
+    FutureAction<UUID> fetchUniqueIdAsync(String playerName);
 
-    UUID fetchName(String playerName);
+    UUID fetchUniqueId(String playerName);
+
+    void updateName(UUID uniqueId, String newName, String oldName);
+
+    ICloudService getVerifyService();
 
 }

@@ -11,15 +11,15 @@ import net.suqatri.redicloud.api.network.INetworkComponentInfo;
 import net.suqatri.redicloud.api.node.service.screen.IScreenLine;
 import net.suqatri.redicloud.api.node.service.screen.IServiceScreen;
 import net.suqatri.redicloud.api.service.ICloudService;
+import net.suqatri.redicloud.api.service.ServiceEnvironment;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.file.FileTransferProcessThread;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+import java.util.stream.Collectors;
 
 @CommandAlias("debug")
 public class DebugCommand extends ConsoleCommand {

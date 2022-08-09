@@ -5,9 +5,11 @@ import net.suqatri.commands.CommandSender;
 import net.suqatri.commands.ConsoleCommand;
 import net.suqatri.commands.annotation.*;
 import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.impl.configuration.ConfigurationsReloadPacket;
 import net.suqatri.redicloud.api.impl.node.CloudNode;
 import net.suqatri.redicloud.api.impl.node.CloudNodeManager;
 import net.suqatri.redicloud.api.node.ICloudNode;
+import net.suqatri.redicloud.api.packet.PacketChannel;
 import net.suqatri.redicloud.api.service.configuration.IServiceStartConfiguration;
 import net.suqatri.redicloud.node.NodeLauncher;
 import net.suqatri.redicloud.node.node.packet.NodePingPacket;
@@ -46,6 +48,18 @@ public class ClusterCommand extends ConsoleCommand {
         commandSender.sendMessage("§8   » %tcRAM: %hc" + node.getMemoryUsage() + "/" + node.getMaxMemory() + "MB");
     }
 
+    @Subcommand("reload config|configuration|configs|configurations")
+    @Description("Reload all configurations")
+    public void onReloadConfigs(CommandSender commandSender){
+        ConfigurationsReloadPacket packet = new ConfigurationsReloadPacket();
+        CloudAPI.getInstance().getNetworkComponentManager().getAllComponentInfoAsync()
+            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get all components", e))
+            .onSuccess(components -> {
+                packet.publishAllAsync();
+                commandSender.sendMessage("Reloaded all configurations");
+            });
+    }
+
     @Subcommand("queue")
     @Description("Show the factory queue of the cluster")
     public void onQueue(CommandSender commandSender){
@@ -74,6 +88,7 @@ public class ClusterCommand extends ConsoleCommand {
                                     return;
                                 }
                                 NodePingPacket packet = new NodePingPacket();
+                                packet.getPacketData().setChannel(PacketChannel.NODE);
                                 packet.getPacketData().addReceiver(node.getNetworkComponentInfo());
                                 packet.getPacketData().waitForResponse()
                                         .onFailure(e -> {

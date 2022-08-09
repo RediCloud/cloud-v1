@@ -75,6 +75,10 @@ public class RegisterCommand extends BaseCommand {
                         player.sendMessage("§cPassword is too long! Maximum length is " + configuration.getMaxPasswordLength() + " characters.");
                         return;
                     }
+                    if(password.toLowerCase().contains(player.getName().toLowerCase()) && configuration.isPasswordCanContainsPlayerName()){
+                        player.sendMessage("§cPassword cannot contain your player name!");
+                        return;
+                    }
 
                     CloudPlayer cloudPlayer = new CloudPlayer();
 
@@ -94,26 +98,25 @@ public class RegisterCommand extends BaseCommand {
                     CloudAPI.getInstance().getConsole().debug("Registering player " + cloudPlayer.getName() + " with password-hash " + cloudPlayer.getPasswordHash());
 
                     CloudAPI.getInstance().getPlayerManager().createPlayerAsync(cloudPlayer)
-                            .onFailure(e -> {
-                                player.sendMessage("§cFailed to create player!");
-                                CloudAPI.getInstance().getConsole().error("Failed to create player", e);
-                            })
-                            .onSuccess(registeredCloudPlayer -> {
-                                player.sendMessage("§aSuccessfully logged in as " + cloudPlayer.getName() + "!");
-                                ICloudService fallback = CloudAPI.getInstance().getServiceManager().getFallbackService(cloudPlayer);
-                                if(fallback == null){
-                                    player.disconnect("No fallback service available!");
-                                    return;
-                                }
-                                ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(fallback.getName());
-                                if(serverInfo == null){
-                                    player.disconnect("No fallback service available!");
-                                    CloudAPI.getInstance().getConsole().error("Service " + fallback.getName() + " is not registered as proxy service!");
-                                    return;
-                                }
-                                player.connect(serverInfo);
-                            });
-
+                        .onFailure(e -> {
+                            player.sendMessage("§cFailed to create player!");
+                            CloudAPI.getInstance().getConsole().error("Failed to create player", e);
+                        })
+                        .thenAcceptAsync(registeredCloudPlayer -> {
+                            player.sendMessage("§aSuccessfully logged in as " + cloudPlayer.getName() + "!");
+                            ICloudService fallback = CloudAPI.getInstance().getServiceManager().getFallbackService(cloudPlayer);
+                            if(fallback == null){
+                                player.disconnect("No fallback service available!");
+                                return;
+                            }
+                            ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(fallback.getServiceName());
+                            if(serverInfo == null){
+                                player.disconnect("No fallback service available!");
+                                CloudAPI.getInstance().getConsole().warn("Service " + fallback.getServiceName() + " is not registered as proxy service!");
+                                return;
+                            }
+                            player.connect(serverInfo);
+                        });
                 });
     }
 

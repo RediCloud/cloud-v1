@@ -26,17 +26,16 @@ public class LoginListener implements Listener {
         UUID uniqueId = event.getConnection().getUniqueId();
         String name = event.getConnection().getName();
 
-        event.registerIntent(BungeeCordCloudAPI.getInstance().getPlugin());
-
         if(!initialHandler.isOnlineMode()){
             if(UUIDUtility.isPremium(uniqueId, name)){
                 event.setCancelled(true);
                 event.setCancelReason("You are a premium player. Please reconnect.");
                 return;
             }
-            //Post login event
             return;
         }
+
+        event.registerIntent(BungeeCordCloudAPI.getInstance().getPlugin());
 
         CloudAPI.getInstance().getPlayerManager().existsPlayerAsync(uniqueId)
                 .onFailure(throwable -> {

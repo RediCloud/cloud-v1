@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.plugin.bungeecord.command;
 
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -20,7 +21,14 @@ public class LoginCommand extends BaseCommand {
     @Default
     @Syntax("<Password>")
     @Description("Login to your account")
-    public void onRegister(ProxiedPlayer player, String password, String password2) {
+    public void onRegister(CommandSender commandSender, String password) {
+
+        if(!(commandSender instanceof ProxiedPlayer)){
+            commandSender.sendMessage("§cYou need to be a player to logout!");
+            return;
+        }
+
+        ProxiedPlayer player = (ProxiedPlayer) commandSender;
 
         if(!player.getServer().getInfo().getName().startsWith("Verify")){
             player.sendMessage("§cYou need to be on the verify server to register!");
@@ -70,7 +78,7 @@ public class LoginCommand extends BaseCommand {
                                 }
 
                                 PlayerConfiguration configuration = BungeeCordCloudAPI.getInstance().getPlayerManager().getConfiguration();
-                                if(!password.equals(password2)) {
+                                if(!password.equals(password)) {
                                     player.sendMessage("§cPasswords do not match!");
                                     return;
                                 }

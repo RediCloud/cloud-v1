@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.plugin.bungeecord.command;
 
+import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -14,13 +15,22 @@ import net.suqatri.redicloud.api.impl.configuration.impl.PlayerConfiguration;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.plugin.bungeecord.BungeeCordCloudAPI;
 
+import java.util.Random;
+
 @CommandAlias("register")
 public class RegisterCommand extends BaseCommand {
 
     @Default
     @Syntax("<Password> <Password>")
     @Description("Register a new account")
-    public void onRegister(ProxiedPlayer player, String password, String password2) {
+    public void onRegister(CommandSender commandSender, String password, String password2) {
+
+        if(!(commandSender instanceof ProxiedPlayer)){
+            commandSender.sendMessage("§cYou need to be a player to logout!");
+            return;
+        }
+
+        ProxiedPlayer player = (ProxiedPlayer) commandSender;
 
         if(!player.getServer().getInfo().getName().startsWith("Verify")){
             player.sendMessage("§cYou need to be on the verify server to register!");
@@ -45,7 +55,7 @@ public class RegisterCommand extends BaseCommand {
 
         CloudAPI.getInstance().getPlayerManager().existsPlayerAsync(player.getUniqueId())
                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to check player", e))
-                .onSuccess(exists -> {
+                .thenAcceptAsync(exists -> {
                     if(exists){
                         player.sendMessage("§cYou already have an account!");
                         player.sendMessage("§c/login <Password>");
@@ -67,16 +77,22 @@ public class RegisterCommand extends BaseCommand {
                     }
 
                     CloudPlayer cloudPlayer = new CloudPlayer();
+
                     cloudPlayer.setConnected(true);
-                    cloudPlayer.setSessionStart(System.currentTimeMillis());
-                    cloudPlayer.setPasswordHash(cloudPlayer.getBcrypt().hash(password));
-                    cloudPlayer.setSessionIp(player.getAddress().getAddress().getHostAddress());
                     cloudPlayer.setUniqueId(player.getUniqueId());
-                    cloudPlayer.setCracked(true);
                     cloudPlayer.setName(player.getName());
                     cloudPlayer.setLastIp(player.getAddress().getAddress().getHostAddress());
+                    cloudPlayer.setLastLogin(System.currentTimeMillis());
                     cloudPlayer.setLastConnectedProxyId(BungeeCordCloudAPI.getInstance().getService().getUniqueId());
                     cloudPlayer.setFirstLogin(System.currentTimeMillis());
+
+                    cloudPlayer.setPasswordLogRounds(10 + new Random().nextInt(30 - 10 + 1));
+                    cloudPlayer.setCracked(true);
+                    cloudPlayer.setPassword(password);
+                    cloudPlayer.setSessionIp(player.getAddress().getAddress().getHostAddress());
+                    cloudPlayer.setSessionStart(System.currentTimeMillis());
+
+                    CloudAPI.getInstance().getConsole().debug("Registering player " + cloudPlayer.getName() + " with password-hash " + cloudPlayer.getPasswordHash());
 
                     CloudAPI.getInstance().getPlayerManager().createPlayerAsync(cloudPlayer)
                             .onFailure(e -> {

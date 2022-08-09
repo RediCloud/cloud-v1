@@ -79,6 +79,7 @@ public class LoginListener implements Listener {
                                 cloudPlayer.setLastLogin(System.currentTimeMillis());
                                 cloudPlayer.setLastConnectedProxyId(BungeeCordCloudAPI.getInstance().getService().getUniqueId());
                                 cloudPlayer.setName(event.getConnection().getName());
+                                cloudPlayer.setCracked(initialHandler.isOnlineMode());
                                 cloudPlayer.updateAsync()
                                     .onFailure(throwable -> {
                                         event.setCancelled(true);

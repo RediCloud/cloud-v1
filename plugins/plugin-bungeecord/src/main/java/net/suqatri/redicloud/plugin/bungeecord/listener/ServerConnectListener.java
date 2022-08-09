@@ -16,9 +16,26 @@ public class ServerConnectListener implements Listener {
         if (event.isCancelled()) return;
 
         if(!BungeeCordCloudAPI.getInstance().getPlayerManager().isCached(event.getPlayer().getUniqueId().toString())){
-            if(!event.getTarget().getName().startsWith("Verify")){
+            if(event.getPlayer().getPendingConnection().isOnlineMode()){
                 event.setCancelled(true);
-                event.getPlayer().sendMessage("§cYou are not verified yet. Please verify first.");
+                event.getPlayer().disconnect("Error while connecting to server because cloud player is not cached");
+                return;
+            }
+            if(!event.getTarget().getName().startsWith("Verify-")){
+                ICloudService cloudService = CloudAPI.getInstance().getPlayerManager().getVerifyService();
+                if(cloudService == null){
+                    event.setCancelled(true);
+                    event.getPlayer().disconnect("Error while connecting to server because verify service is not available");
+                    return;
+                }
+                ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(cloudService.getServiceName());
+                if(serverInfo == null){
+                    event.setCancelled(true);
+                    event.getPlayer().disconnect("Error while connecting to server because verify service is not available");
+                    return;
+                }
+                if(event.getTarget().equals(serverInfo)) return;
+                event.setTarget(serverInfo);
                 return;
             }
         }

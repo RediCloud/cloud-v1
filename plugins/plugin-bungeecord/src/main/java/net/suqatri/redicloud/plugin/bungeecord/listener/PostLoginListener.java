@@ -25,10 +25,8 @@ public class PostLoginListener implements Listener {
 
         boolean isLoggedIn = false;
 
-        if(!BungeeCordCloudAPI.getInstance().getPlayerManager().existsPlayer(event.getPlayer().getUniqueId())){
-            isLoggedIn = false;
-        }else {
-            CloudPlayer cloudPlayer = (CloudPlayer) BungeeCordCloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getName());
+        if(BungeeCordCloudAPI.getInstance().getPlayerManager().existsPlayer(event.getPlayer().getUniqueId())){
+            CloudPlayer cloudPlayer = (CloudPlayer) BungeeCordCloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
             isLoggedIn = cloudPlayer.isLoggedIn();
         }
 

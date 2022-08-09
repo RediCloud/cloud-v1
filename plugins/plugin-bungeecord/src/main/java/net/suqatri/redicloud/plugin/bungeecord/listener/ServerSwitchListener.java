@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.plugin.bungeecord.listener;
 
+import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
@@ -7,6 +8,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.player.CloudPlayer;
+import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.plugin.bungeecord.BungeeCordCloudAPI;
 
 public class ServerSwitchListener implements Listener {
@@ -17,8 +19,19 @@ public class ServerSwitchListener implements Listener {
         ServerInfo serverInfo = proxiedPlayer.getServer().getInfo();
         CloudAPI.getInstance().getConsole().trace("Player " + proxiedPlayer.getName() + " switched to server " + serverInfo.getName());
         if(!BungeeCordCloudAPI.getInstance().getPlayerManager().isCached(event.getPlayer().getUniqueId().toString())) {
-            if(!event.getPlayer().getServer().getInfo().getName().startsWith("Verify")){
-                proxiedPlayer.disconnect("You are not logged in to RediCloud auth.");
+            if(!event.getPlayer().getServer().getInfo().getName().startsWith("Verify-")){
+                ICloudService cloudService = CloudAPI.getInstance().getPlayerManager().getVerifyService();
+                if(cloudService == null){
+                    event.getPlayer().disconnect("Error while connecting to server because verify service is not available");
+                    return;
+                }
+                ServerInfo verifyServer = ProxyServer.getInstance().getServerInfo(cloudService.getServiceName());
+                if(verifyServer == null){
+                    event.getPlayer().disconnect("Error while connecting to server because verify service is not available");
+                    return;
+                }
+                event.getPlayer().connect(verifyServer);
+                return;
             }
             return;
         }

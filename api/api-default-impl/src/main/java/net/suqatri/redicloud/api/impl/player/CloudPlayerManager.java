@@ -197,7 +197,7 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     public ICloudService getVerifyService() {
         for (ICloudService service : CloudAPI.getInstance().getServiceManager().getServices()) {
             if(!service.isGroupBased()) continue;
-            if(service.getGroupName().equals("Verify")) continue;
+            if(!service.getGroupName().equals("Verify")) continue;
             if(service.getServiceState() != ServiceState.RUNNING_UNDEFINED) continue;
             if(service.getEnvironment() != ServiceEnvironment.LIMBO) continue;
             return service;

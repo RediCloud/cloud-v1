@@ -69,18 +69,29 @@ public class ServerConnectListener implements Listener {
                         : event.getTarget();
 
         if (serverInfo == null) {
-            ICloudService holder = CloudAPI.getInstance().getServiceManager().getFallbackService(event.getPlayer().hasPermission("redicloud.maintenance.bypass"));
-            if (holder == null) {
+            ICloudService service = CloudAPI.getInstance().getServiceManager().getFallbackService(event.getPlayer().hasPermission("redicloud.maintenance.bypass"));
+            if (service == null) {
                 event.getPlayer().disconnect("Fallback service is not available.");
                 event.setCancelled(true);
                 return;
             }
-            if(holder.isMaintenance() && !event.getPlayer().hasPermission("redicloud.service.bypass.maintenance")) {
+            if(service.isMaintenance() && !event.getPlayer().hasPermission("redicloud.service.bypass.maintenance")) {
                 event.getPlayer().sendMessage("This service is currently under maintenance. Please try again later.");
                 event.setCancelled(true);
                 return;
             }
-            serverInfo = ProxyServer.getInstance().getServerInfo(holder.getServiceName());
+            serverInfo = ProxyServer.getInstance().getServerInfo(service.getServiceName());
+        }else{
+            ICloudService service = CloudAPI.getInstance().getServiceManager().getService(serverInfo.getName());
+            if(service.isMaintenance() && !event.getPlayer().hasPermission("redicloud.maintenance.bypass")){
+                if(event.getReason() == ServerConnectEvent.Reason.JOIN_PROXY) {
+                    event.getPlayer().disconnect("This service is currently under maintenance. Please try again later.");
+                }else{
+                    event.getPlayer().sendMessage("This service is currently under maintenance. Please try again later.");
+                }
+                event.setCancelled(true);
+                return;
+            }
         }
 
         event.setTarget(serverInfo);

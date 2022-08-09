@@ -60,7 +60,7 @@ public class LoginCommand extends BaseCommand {
                         player.sendMessage("§c/register <Password> <Password>");
                         return;
                     }
-                    CloudAPI.getInstance().getPlayerManager().getPlayerAsync(player.getName())
+                    CloudAPI.getInstance().getPlayerManager().getPlayerAsync(player.getUniqueId())
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get player", e))
                             .thenAcceptAsync(cloudPlayer -> {
 

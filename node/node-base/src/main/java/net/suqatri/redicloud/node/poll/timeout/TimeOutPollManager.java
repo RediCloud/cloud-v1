@@ -30,7 +30,7 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
 
     public TimeOutPollManager() {
         super("timeouts", TimeOutPoll.class);
-        CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event -> {
+        CloudAPI.getInstance().getEventManager().registerWithoutBlockWarning(RedisConnectedEvent.class, event -> {
             this.configuration = CloudAPI.getInstance().getConfigurationManager().existsConfiguration(this.configuration.getIdentifier())
                     ? CloudAPI.getInstance().getConfigurationManager()
                         .getConfiguration(this.configuration.getIdentifier(), TimeOutPoolConfiguration.class)

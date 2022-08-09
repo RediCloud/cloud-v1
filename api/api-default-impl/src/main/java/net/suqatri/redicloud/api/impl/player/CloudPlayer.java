@@ -30,36 +30,45 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
     private UUID lastConnectedProxyId;
     private boolean connected;
     @JsonIgnore
-    private IPlayerBridge bridge = CloudDefaultAPIImpl.getInstance().createBridge(this);
-
+    private IPlayerBridge bridge;
 
     @JsonIgnore
     private UpdatableBCrypt bcrypt;
     private boolean cracked = false;
     private String passwordHash;
     private int passwordLogRounds = 0;
-    private long sessionStart = 0L;
     private String sessionIp;
 
+    @JsonIgnore
     @Override
     public boolean isLoggedIn() {
         if(!this.cracked) return true;
         if(this.sessionIp == null) return false;
         if(!this.sessionIp.equals(this.lastIp)) return false;
-        return System.currentTimeMillis()-this.sessionStart > TimeUnit.MINUTES.toMillis(60);
+        if(!this.isConnected()){
+            return System.currentTimeMillis()-this.lastLogout > TimeUnit.MINUTES.toMillis(5);
+        }
+        return true;
     }
 
     public boolean verifyPassword(String password) {
-        return bcrypt.verifyHash(password, this.passwordHash);
+        return this.bcrypt.verifyHash(password, this.passwordHash);
     }
 
     public void setPassword(String password) {
-        this.passwordHash = bcrypt.hash(password);
+        if(this.bcrypt == null) throw new NullPointerException("bcrypt is null of player " + this.uniqueId);
+        this.passwordHash = this.bcrypt.hash(password);
     }
 
     @Override
     public void init() {
         this.bcrypt = new UpdatableBCrypt(this.passwordLogRounds);
+        this.bridge = CloudDefaultAPIImpl.getInstance().createBridge(this);
+    }
+
+    public void setPasswordLogRounds(int passwordLogRounds) {
+        this.passwordLogRounds = passwordLogRounds;
+        if(this.bcrypt == null) this.bcrypt = new UpdatableBCrypt(this.passwordLogRounds);
     }
 
     @Override

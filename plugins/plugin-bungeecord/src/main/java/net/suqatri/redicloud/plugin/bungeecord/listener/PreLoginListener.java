@@ -5,6 +5,7 @@ import net.md_5.bungee.api.event.PreLoginEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.connection.InitialHandler;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.commons.WebUniqueIdFetcher;
 import net.suqatri.redicloud.plugin.bungeecord.BungeeCordCloudAPI;
@@ -15,7 +16,7 @@ public class PreLoginListener implements Listener {
 
     private final Pattern pattern = Pattern.compile("^[a-zA-Z0-9_]{2,16}$");
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onPreLogin(PreLoginEvent event){
         PendingConnection connection = event.getConnection();
         InitialHandler initialHandler = (InitialHandler)connection;

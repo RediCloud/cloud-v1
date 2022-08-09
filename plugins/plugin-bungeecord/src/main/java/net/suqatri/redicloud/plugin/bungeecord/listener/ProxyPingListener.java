@@ -15,7 +15,7 @@ public class ProxyPingListener implements Listener {
     private int cachedNetworkOnlineCount = 0;
     private long cacheTime = 0L;
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPing(ProxyPingEvent event) {
         ServerPing serverPing = event.getResponse();
 

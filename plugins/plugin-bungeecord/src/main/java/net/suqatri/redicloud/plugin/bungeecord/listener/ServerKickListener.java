@@ -5,18 +5,21 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
+import net.md_5.bungee.event.EventPriority;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.plugin.bungeecord.BungeeCordCloudAPI;
 
 public class ServerKickListener implements Listener {
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onServerKick(ServerKickEvent event) {
-        if(event.getKickReason().equals("You logged in from another location")){
+        if(event.getKickReason().equals("You logged in from another location")) {
             event.setCancelled(true);
             return;
         }
+
+        if(!event.getPlayer().isConnected()) return;
 
         if(!BungeeCordCloudAPI.getInstance().getPlayerManager().isCached(event.getPlayer().getUniqueId().toString())){
             ICloudService verifyService = CloudAPI.getInstance().getPlayerManager().getVerifyService();
@@ -32,6 +35,7 @@ public class ServerKickListener implements Listener {
             event.setCancelServer(serverInfo);
             return;
         }
+
 
         ICloudService fallbackHolder = CloudAPI.getInstance().getServiceManager()
                 .getFallbackService(CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId()),

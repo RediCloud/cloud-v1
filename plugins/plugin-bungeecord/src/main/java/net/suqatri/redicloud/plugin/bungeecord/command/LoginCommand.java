@@ -92,7 +92,6 @@ public class LoginCommand extends BaseCommand {
                                 }
 
                                 if(impl.getBcrypt().verifyHash(password, impl.getPasswordHash())){
-                                    impl.setSessionStart(System.currentTimeMillis());
                                     impl.setSessionIp(player.getAddress().getAddress().getHostAddress());
                                     impl.updateAsync();
                                     player.sendMessage("§aSuccessfully logged in as " + cloudPlayer.getName() + "!");

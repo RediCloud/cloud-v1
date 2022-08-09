@@ -90,7 +90,6 @@ public class RegisterCommand extends BaseCommand {
                     cloudPlayer.setCracked(true);
                     cloudPlayer.setPassword(password);
                     cloudPlayer.setSessionIp(player.getAddress().getAddress().getHostAddress());
-                    cloudPlayer.setSessionStart(System.currentTimeMillis());
 
                     CloudAPI.getInstance().getConsole().debug("Registering player " + cloudPlayer.getName() + " with password-hash " + cloudPlayer.getPasswordHash());
 

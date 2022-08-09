@@ -47,7 +47,6 @@ public class LogoutCommand extends BaseCommand {
                             }
 
                             CloudPlayer impl = (CloudPlayer) cloudPlayer;
-                            impl.setSessionStart(-1L);
                             impl.setSessionIp(null);
                             impl.updateAsync();
 

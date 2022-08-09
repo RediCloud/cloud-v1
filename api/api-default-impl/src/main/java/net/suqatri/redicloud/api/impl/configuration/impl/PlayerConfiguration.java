@@ -12,5 +12,6 @@ public class PlayerConfiguration extends Configuration {
     private boolean allowCracked = false;
     private int minPasswordLength = 6;
     private int maxPasswordLength = 18;
+    private boolean passwordCanContainsPlayerName = false;
 
 }

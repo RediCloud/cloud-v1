@@ -1,8 +1,7 @@
-package net.suqatri.redicloud.api.node.poll.timeout;
+package net.suqatri.redicloud.api.impl.configuration.impl;
 
 import lombok.Data;
 import net.suqatri.redicloud.api.impl.configuration.Configuration;
-import net.suqatri.redicloud.api.node.NodeCloudDefaultAPI;
 
 import java.util.concurrent.TimeUnit;
 

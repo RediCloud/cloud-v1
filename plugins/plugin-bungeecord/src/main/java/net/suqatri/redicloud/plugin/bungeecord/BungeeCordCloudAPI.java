@@ -27,6 +27,9 @@ import net.suqatri.redicloud.api.service.event.CloudServiceStoppedEvent;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.commons.file.FileWriter;
 import net.suqatri.redicloud.plugin.bungeecord.command.BungeeCloudCommandManager;
+import net.suqatri.redicloud.plugin.bungeecord.command.LoginCommand;
+import net.suqatri.redicloud.plugin.bungeecord.command.LogoutCommand;
+import net.suqatri.redicloud.plugin.bungeecord.command.RegisterCommand;
 import net.suqatri.redicloud.plugin.bungeecord.console.ProxyConsole;
 import net.suqatri.redicloud.plugin.bungeecord.listener.*;
 import net.suqatri.redicloud.plugin.bungeecord.scheduler.BungeeScheduler;
@@ -90,8 +93,17 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
         registerInternalPackets();
         registerInternalListeners();
         initListeners();
+        initCommands();
         initThisService();
         registerStartedService();
+    }
+
+    private void initCommands(){
+        if(this.getPlayerManager().getConfiguration().isAllowCracked()){
+            this.commandManager.registerCommand(new LoginCommand());
+            this.commandManager.registerCommand(new RegisterCommand());
+            this.commandManager.registerCommand(new LogoutCommand());
+        }
     }
 
     private void initListeners() {
@@ -102,6 +114,9 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerKickListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new ServerConnectListener());
         ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PostLoginListener());
+        if(this.getPlayerManager().getConfiguration().isAllowCracked()){
+            ProxyServer.getInstance().getPluginManager().registerListener(this.plugin, new PreLoginListener());
+        }
 
         getEventManager().register(new CloudServiceStartedListener());
         getEventManager().register(new CloudServiceStoppedListener());
@@ -334,7 +349,7 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
             this.service.update();
         }
 
-        if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
+        if (this.redisConnection != null) this.redisConnection.disconnect();
 
         ProxyServer.getInstance().stop();
     }

@@ -158,7 +158,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
 
             if (this.updaterTask != null) this.updaterTask.cancel();
 
-            if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
+            if (this.redisConnection != null) this.redisConnection.disconnect();
 
             if(!fromHook) Bukkit.shutdown();
         });

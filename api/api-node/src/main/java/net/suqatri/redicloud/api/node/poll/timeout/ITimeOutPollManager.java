@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.api.node.poll.timeout;
 
+import net.suqatri.redicloud.api.impl.configuration.impl.TimeOutPoolConfiguration;
 import net.suqatri.redicloud.commons.function.future.FutureAction;
 
 import java.util.UUID;

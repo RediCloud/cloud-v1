@@ -1,5 +1,6 @@
 package net.suqatri.redicloud.plugin.velocity.listener;
 
+import com.velocitypowered.api.event.PostOrder;
 import com.velocitypowered.api.event.ResultedEvent;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.connection.LoginEvent;
@@ -9,17 +10,28 @@ import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.player.CloudPlayer;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.api.velocity.utils.LegacyMessageUtils;
+import net.suqatri.redicloud.commons.UUIDUtility;
 import net.suqatri.redicloud.plugin.velocity.VelocityCloudAPI;
 
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 public class LoginListener {
 
-    @Subscribe
+    @Subscribe(order = PostOrder.FIRST)
     public void onLogin(LoginEvent event) {
 
         UUID uniqueId = event.getPlayer().getUniqueId();
+        String name = event.getPlayer().getUsername();
+
+        if(!event.getPlayer().isOnlineMode()){
+            if(UUIDUtility.isPremium(uniqueId, name)){
+                event.getPlayer().disconnect(LegacyMessageUtils.component("You are a premium player. Please reconnect."));
+                return;
+            }
+            return;
+        }
 
         if (!CloudAPI.getInstance().getPlayerManager().existsPlayer(uniqueId)) {
             CloudPlayer cloudPlayer = new CloudPlayer();
@@ -30,6 +42,8 @@ public class LoginListener {
             cloudPlayer.setUniqueId(uniqueId);
             cloudPlayer.setLastIp(event.getPlayer().getRemoteAddress().getHostString());
             cloudPlayer.setLastConnectedProxyId(VelocityCloudAPI.getInstance().getService().getUniqueId());
+            cloudPlayer.setCracked(!event.getPlayer().isOnlineMode());
+            cloudPlayer.setPasswordLogRounds(10 + new Random().nextInt(30 - 10 + 1));
             CloudAPI.getInstance().getPlayerManager().createPlayer(cloudPlayer);
         }else{
             CloudAPI.getInstance().getConsole().trace("Player already exists!");
@@ -38,6 +52,7 @@ public class LoginListener {
             cloudPlayer.setConnected(true);
             cloudPlayer.setLastIp(event.getPlayer().getRemoteAddress().getHostString());
             cloudPlayer.setLastConnectedProxyId(VelocityCloudAPI.getInstance().getService().getUniqueId());
+            cloudPlayer.setCracked(!event.getPlayer().isOnlineMode());
             String oldName = cloudPlayer.getName();
             if(!oldName.equals(event.getPlayer().getUsername())){
                 cloudPlayer.setName(event.getPlayer().getUsername());
@@ -48,12 +63,6 @@ public class LoginListener {
         }
         if(VelocityCloudAPI.getInstance().getService().isMaintenance() && !event.getPlayer().hasPermission("redicloud.maintenance.bypass")){
             event.setResult(ResultedEvent.ComponentResult.denied(LegacyMessageUtils.component("§cThis proxy is currently under maintenance. Please try again later.")));
-            return;
-        }
-
-        ICloudService holder = CloudAPI.getInstance().getServiceManager().getFallbackService(event.getPlayer().hasPermission("redicloud.maintenance.bypass"));
-        if (holder == null) {
-            event.getPlayer().disconnect(LegacyMessageUtils.component("Fallback service is not available."));
             return;
         }
     }

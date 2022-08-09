@@ -13,8 +13,10 @@ public class ConfigurationManager extends RedissonBucketManager<Configuration, I
     public ConfigurationManager() {
         super("configuration", Configuration.class);
         CloudAPI.getInstance().getEventManager()
-                .registerWithoutBlockWarning(RedisConnectedEvent.class, event -> reloadFromDatabase());
-        CloudAPI.getInstance().getPacketManager().registerPacket(ConfigurationsReloadPacket.class, PacketChannel.GLOBAL);
+            .registerWithoutBlockWarning(RedisConnectedEvent.class, event -> {
+                CloudAPI.getInstance().getPacketManager().registerPacket(ConfigurationsReloadPacket.class, PacketChannel.GLOBAL);
+                reloadFromDatabase();
+            });
     }
 
     @Override

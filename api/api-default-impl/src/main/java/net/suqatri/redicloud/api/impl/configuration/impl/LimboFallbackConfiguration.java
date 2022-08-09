@@ -1,4 +1,4 @@
-package net.suqatri.redicloud.node.service.factory;
+package net.suqatri.redicloud.api.impl.configuration.impl;
 
 import lombok.Data;
 import net.suqatri.redicloud.api.impl.configuration.Configuration;

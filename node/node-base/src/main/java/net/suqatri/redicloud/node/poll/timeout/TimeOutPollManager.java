@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.node.poll.timeout.ITimeOutPoll;
 import net.suqatri.redicloud.api.node.poll.timeout.ITimeOutPollManager;
-import net.suqatri.redicloud.api.node.poll.timeout.TimeOutPoolConfiguration;
+import net.suqatri.redicloud.api.impl.configuration.impl.TimeOutPoolConfiguration;
 import net.suqatri.redicloud.api.node.poll.timeout.TimeOutResult;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.network.NetworkComponentType;
@@ -30,7 +30,7 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
 
     public TimeOutPollManager() {
         super("timeouts", TimeOutPoll.class);
-        CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event -> {
+        CloudAPI.getInstance().getEventManager().registerWithoutBlockWarning(RedisConnectedEvent.class, event -> {
             this.configuration = CloudAPI.getInstance().getConfigurationManager().existsConfiguration(this.configuration.getIdentifier())
                     ? CloudAPI.getInstance().getConfigurationManager()
                         .getConfiguration(this.configuration.getIdentifier(), TimeOutPoolConfiguration.class)

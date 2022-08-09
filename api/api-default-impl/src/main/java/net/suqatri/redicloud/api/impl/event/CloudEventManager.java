@@ -49,7 +49,7 @@ public class CloudEventManager implements ICloudEventManager {
                 } catch (IllegalArgumentException ex) {
                     throw new Error("Method rejected target/argument: " + event, ex);
                 } catch (InvocationTargetException ex) {
-                    CloudAPI.getInstance().getConsole().error("Error dispatching event " + event + " to listener " + method.getListener(), ex.getCause());
+                    CloudAPI.getInstance().getConsole().error("Error dispatching event " + event + " to listener " + method.getListener(), ex);
                 }
 
                 long elapsed = System.nanoTime() - start;

@@ -7,12 +7,21 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.service.ICloudService;
+import net.suqatri.redicloud.plugin.bungeecord.BungeeCordCloudAPI;
 
 public class ServerConnectListener implements Listener {
 
     @EventHandler
     public void onServerConnect(ServerConnectEvent event) {
         if (event.isCancelled()) return;
+
+        if(!BungeeCordCloudAPI.getInstance().getPlayerManager().isCached(event.getPlayer().getUniqueId().toString())){
+            if(!event.getTarget().getName().startsWith("Verify")){
+                event.setCancelled(true);
+                event.getPlayer().sendMessage("§cYou are not verified yet. Please verify first.");
+                return;
+            }
+        }
 
         ServerInfo serverInfo =
                 (event.getTarget().getName().equalsIgnoreCase("fallback")

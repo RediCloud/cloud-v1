@@ -31,7 +31,7 @@ public class ProxyPingListener implements Listener {
 
         if ((System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(2)) > cacheTime) {
             CloudAPI.getInstance().getPlayerManager().getOnlineCount()
-                    .onFailure(throwable -> event.completeIntent(BungeeCordCloudAPI.getInstance().getPlugin()))
+                    .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to get online count!", t))
                     .onSuccess(onlineCount -> cachedNetworkOnlineCount = onlineCount);
             cacheTime = System.currentTimeMillis();
         }

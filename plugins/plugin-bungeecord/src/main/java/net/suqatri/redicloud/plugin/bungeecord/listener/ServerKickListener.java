@@ -1,11 +1,13 @@
 package net.suqatri.redicloud.plugin.bungeecord.listener;
 
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.service.ICloudService;
+import net.suqatri.redicloud.plugin.bungeecord.BungeeCordCloudAPI;
 
 public class ServerKickListener implements Listener {
 
@@ -15,6 +17,22 @@ public class ServerKickListener implements Listener {
             event.setCancelled(true);
             return;
         }
+
+        if(!BungeeCordCloudAPI.getInstance().getPlayerManager().isCached(event.getPlayer().getUniqueId().toString())){
+            ICloudService verifyService = CloudAPI.getInstance().getPlayerManager().getVerifyService();
+            if(verifyService.getServiceName().equals(event.getKickedFrom().getName())){
+                event.getPlayer().disconnect("§cYou are not verified yet. Please verify first.");
+                return;
+            }
+            ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(verifyService.getServiceName());
+            if(serverInfo == null){
+                event.getPlayer().disconnect("§cVerify service is not available.");
+                return;
+            }
+            event.setCancelServer(serverInfo);
+            return;
+        }
+
         ICloudService fallbackHolder = CloudAPI.getInstance().getServiceManager()
                 .getFallbackService(CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId()),
                         CloudAPI.getInstance().getServiceManager().getService(event.getKickedFrom().getName()));
@@ -22,9 +40,14 @@ public class ServerKickListener implements Listener {
             event.getPlayer().disconnect("Fallback service is not available.");
             return;
         }
+        ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(fallbackHolder.getServiceName());
+        if(serverInfo == null){
+            event.getPlayer().disconnect("Fallback service is not available.");
+            return;
+        }
         event.getPlayer().sendMessage(event.getKickReasonComponent());
         event.setCancelled(true);
-        event.setCancelServer(ProxyServer.getInstance().getServerInfo(fallbackHolder.getServiceName()));
+        event.setCancelServer(serverInfo);
     }
 
 }

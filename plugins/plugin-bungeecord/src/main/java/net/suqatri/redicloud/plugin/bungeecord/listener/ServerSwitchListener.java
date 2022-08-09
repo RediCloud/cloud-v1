@@ -7,6 +7,7 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.player.CloudPlayer;
+import net.suqatri.redicloud.plugin.bungeecord.BungeeCordCloudAPI;
 
 public class ServerSwitchListener implements Listener {
 
@@ -15,16 +16,18 @@ public class ServerSwitchListener implements Listener {
         ProxiedPlayer proxiedPlayer = event.getPlayer();
         ServerInfo serverInfo = proxiedPlayer.getServer().getInfo();
         CloudAPI.getInstance().getConsole().trace("Player " + proxiedPlayer.getName() + " switched to server " + serverInfo.getName());
+        if(!BungeeCordCloudAPI.getInstance().getPlayerManager().isCached(event.getPlayer().getUniqueId().toString())) {
+            if(!event.getPlayer().getServer().getInfo().getName().startsWith("Verify")){
+                proxiedPlayer.disconnect("You are not logged in to RediCloud auth.");
+            }
+            return;
+        }
         CloudAPI.getInstance().getPlayerManager().getPlayerAsync(proxiedPlayer.getUniqueId())
                 .onFailure(throwable -> {
                     proxiedPlayer.disconnect(throwable.getMessage());
                     CloudAPI.getInstance().getConsole().error("Failed to get player " + proxiedPlayer.getName(), throwable);
                 })
                 .onSuccess(player -> {
-                    if(event.getFrom().getName().startsWith("Verify-") && !player.isLoggedIn()){
-                        event.getPlayer().connect(event.getFrom());
-                        return;
-                    }
                     CloudAPI.getInstance().getServiceManager().getServiceAsync(serverInfo.getName())
                             .onFailure(throwable -> {
                                 proxiedPlayer.disconnect(throwable.getMessage());

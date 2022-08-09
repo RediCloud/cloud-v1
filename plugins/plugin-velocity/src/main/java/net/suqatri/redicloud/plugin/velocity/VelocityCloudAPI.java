@@ -32,6 +32,9 @@ import net.suqatri.redicloud.api.utils.ApplicationType;
 import net.suqatri.redicloud.api.utils.Files;
 import net.suqatri.redicloud.api.velocity.VelocityDefaultCloudAPI;
 import net.suqatri.redicloud.commons.file.FileWriter;
+import net.suqatri.redicloud.plugin.velocity.command.LoginCommand;
+import net.suqatri.redicloud.plugin.velocity.command.LogoutCommand;
+import net.suqatri.redicloud.plugin.velocity.command.RegisterCommand;
 import net.suqatri.redicloud.plugin.velocity.command.VelocityCloudCommandManager;
 import net.suqatri.redicloud.plugin.velocity.console.VelocityConsole;
 import net.suqatri.redicloud.plugin.velocity.listener.*;
@@ -99,8 +102,17 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
         registerInternalPackets();
         registerInternalListeners();
         initListeners();
+        initCommands();
         initThisService();
         registerStartedService();
+    }
+
+    private void initCommands(){
+        if(this.getPlayerManager().getConfiguration().isAllowCracked()){
+            this.commandManager.registerCommand(new LoginCommand());
+            this.commandManager.registerCommand(new RegisterCommand());
+            this.commandManager.registerCommand(new LogoutCommand());
+        }
     }
 
     private void initListeners() {
@@ -111,6 +123,10 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
         this.getProxyServer().getEventManager().register(this.plugin, new ServerPreConnectListener());
         this.getProxyServer().getEventManager().register(this.plugin, new KickedFromServerListener());
         this.getProxyServer().getEventManager().register(this.plugin, new ServerPostConnectListener());
+        if(this.getPlayerManager().getConfiguration().isAllowCracked()){
+            this.getProxyServer().getEventManager().register(this.plugin, new PreLoginListener());
+            this.getProxyServer().getEventManager().register(this.plugin, new PostLoginListener());
+        }
 
         getEventManager().register(new CloudServiceStartedListener());
         getEventManager().register(new CloudServiceStoppedListener());

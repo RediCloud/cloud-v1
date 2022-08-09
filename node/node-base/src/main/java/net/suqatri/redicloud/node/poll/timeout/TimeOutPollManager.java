@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.node.poll.timeout.ITimeOutPoll;
 import net.suqatri.redicloud.api.node.poll.timeout.ITimeOutPollManager;
-import net.suqatri.redicloud.api.node.poll.timeout.TimeOutPoolConfiguration;
+import net.suqatri.redicloud.api.impl.configuration.impl.TimeOutPoolConfiguration;
 import net.suqatri.redicloud.api.node.poll.timeout.TimeOutResult;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.network.NetworkComponentType;

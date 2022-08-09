@@ -2,6 +2,7 @@ package net.suqatri.redicloud.api.impl.player;
 
 import lombok.Getter;
 import net.suqatri.redicloud.api.CloudAPI;
+import net.suqatri.redicloud.api.impl.configuration.impl.PlayerConfiguration;
 import net.suqatri.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import net.suqatri.redicloud.api.player.ICloudPlayer;
 import net.suqatri.redicloud.api.player.ICloudPlayerManager;

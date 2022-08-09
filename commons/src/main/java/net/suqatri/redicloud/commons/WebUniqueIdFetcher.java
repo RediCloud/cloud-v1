@@ -38,28 +38,30 @@ public class WebUniqueIdFetcher {
 
         FutureAction.runAsync(() -> {
             try {
-                    if (nameCache.containsKey(uniqueId)) {
-                        futureAction.complete(nameCache.get(uniqueId));
-                        return;
-                    }
-                    HttpURLConnection connection = (HttpURLConnection) new URL("https://api.minetools.eu/profile/" + uniqueId.toString()).openConnection();
-                    connection.setDoOutput(false);
-                    connection.setRequestProperty(
-                            "User-Agent",
-                            "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"
-                    );
-                    connection.setUseCaches(true);
-                    connection.connect();
+                if (nameCache.containsKey(uniqueId)) {
+                    futureAction.complete(nameCache.get(uniqueId));
+                    return;
+                }
+                HttpURLConnection connection = (HttpURLConnection) new URL("https://api.minetools.eu/profile/" + uniqueId.toString()).openConnection();
+                connection.setDoOutput(false);
+                connection.setRequestProperty(
+                        "User-Agent",
+                        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"
+                );
+                connection.setConnectTimeout(3000);
+                connection.setReadTimeout(3000);
+                connection.setUseCaches(true);
+                connection.connect();
 
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-                    String name = fetchLineByName(reader.lines());
-                    if (name != null) {
-                        nameCache.put(uniqueId, name);
-                        uniqueIdCache.put(name, uniqueId);
-                        futureAction.complete(name);
-                        return;
-                    }
-                    futureAction.completeExceptionally(new NullPointerException("Could not fetch name"));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+                String name = fetchLineByName(reader.lines());
+                if (name != null) {
+                    nameCache.put(uniqueId, name);
+                    uniqueIdCache.put(name, uniqueId);
+                    futureAction.complete(name);
+                    return;
+                }
+                futureAction.completeExceptionally(new NullPointerException("Could not fetch name"));
             }catch (Exception e){
                 futureAction.completeExceptionally(e);
             }
@@ -90,6 +92,8 @@ public class WebUniqueIdFetcher {
                         "User-Agent",
                         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11"
                 );
+                connection.setConnectTimeout(3000);
+                connection.setReadTimeout(3000);
                 connection.setUseCaches(true);
                 connection.connect();
 

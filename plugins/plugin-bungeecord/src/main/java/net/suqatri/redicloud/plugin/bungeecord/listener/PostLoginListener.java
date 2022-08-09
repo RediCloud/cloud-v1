@@ -28,6 +28,11 @@ public class PostLoginListener implements Listener {
         if(BungeeCordCloudAPI.getInstance().getPlayerManager().existsPlayer(event.getPlayer().getUniqueId())){
             CloudPlayer cloudPlayer = (CloudPlayer) BungeeCordCloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
             isLoggedIn = cloudPlayer.isLoggedIn();
+            cloudPlayer.setLastLogin(System.currentTimeMillis());
+            cloudPlayer.setConnected(true);
+            cloudPlayer.setLastIp(event.getPlayer().getPendingConnection().getAddress().getHostString());
+            cloudPlayer.setLastConnectedProxyId(BungeeCordCloudAPI.getInstance().getService().getUniqueId());
+            cloudPlayer.updateAsync();
         }
 
         if(!isLoggedIn){

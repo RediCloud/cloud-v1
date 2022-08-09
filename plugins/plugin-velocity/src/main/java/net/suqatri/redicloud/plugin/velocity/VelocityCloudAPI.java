@@ -338,7 +338,7 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
             this.service.update();
         }
 
-        if (this.redisConnection != null) this.redisConnection.getClient().shutdown();
+        if (this.redisConnection != null) this.redisConnection.disconnect();
 
         getProxyServer().shutdown();
     }

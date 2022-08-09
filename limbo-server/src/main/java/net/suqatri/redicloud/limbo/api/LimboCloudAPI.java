@@ -99,9 +99,9 @@ public class LimboCloudAPI extends CloudDefaultAPIImpl<CloudService> {
             return;
         }
         this.redisConnection = new RedisConnection(redisCredentials);
-        this.redisConnection.setConnectionPoolSize(24);
-        this.redisConnection.setConnectionMinimumIdleSize(6);
-        this.redisConnection.setSubscriptionConnectionPoolSize(10);
+        this.redisConnection.setConnectionPoolSize(16);
+        this.redisConnection.setConnectionMinimumIdleSize(3);
+        this.redisConnection.setSubscriptionConnectionPoolSize(3);
         try {
             this.redisConnection.connect();
             this.console.info("Redis connection established!");

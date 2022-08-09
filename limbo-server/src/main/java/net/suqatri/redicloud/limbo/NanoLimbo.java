@@ -29,7 +29,7 @@ public final class NanoLimbo {
             server.start();
             new LimboCloudAPI(server);
         } catch (Exception e) {
-            Logger.error("Cannot start server: ", e);
+            e.printStackTrace();
         }
     }
 

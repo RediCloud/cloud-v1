@@ -1,6 +1,5 @@
 package net.suqatri.redicloud.plugin.bungeecord.command;
 
-import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -11,7 +10,7 @@ import net.suqatri.commands.annotation.Description;
 import net.suqatri.commands.annotation.Syntax;
 import net.suqatri.redicloud.api.CloudAPI;
 import net.suqatri.redicloud.api.impl.player.CloudPlayer;
-import net.suqatri.redicloud.api.impl.player.PlayerConfiguration;
+import net.suqatri.redicloud.api.impl.configuration.impl.PlayerConfiguration;
 import net.suqatri.redicloud.api.service.ICloudService;
 import net.suqatri.redicloud.plugin.bungeecord.BungeeCordCloudAPI;
 
@@ -23,51 +22,84 @@ public class RegisterCommand extends BaseCommand {
     @Description("Register a new account")
     public void onRegister(ProxiedPlayer player, String password, String password2) {
 
-        CloudAPI.getInstance().getPlayerManager().getPlayerAsync(player.getName())
-            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get player", e))
-            .onSuccess(cloudPlayer -> {
+        if(!player.getServer().getInfo().getName().startsWith("Verify")){
+            player.sendMessage("§cYou need to be on the verify server to register!");
+            return;
+        }
 
-                if(cloudPlayer.isLoggedIn()){
-                    player.sendMessage("You are already logged in as " + cloudPlayer.getName() + "!");
-                    return;
-                }
+        if(player.getPendingConnection().isOnlineMode()){
+            player.sendMessage("§cYou are already logged in as a premium account!");
+            ICloudService cloudService = CloudAPI.getInstance().getServiceManager().getFallbackService(player.hasPermission("redicloud.maintenance.bypass"));
+            if(cloudService == null){
+                player.disconnect("§cNo service available!");
+                return;
+            }
+            ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(cloudService.getName());
+            if(serverInfo == null){
+                player.disconnect("§cNo service available!");
+                return;
+            }
+            player.connect(serverInfo);
+            return;
+        }
 
-                PlayerConfiguration configuration = BungeeCordCloudAPI.getInstance().getPlayerManager().getConfiguration();
-                if(!password.equals(password2)) {
-                    player.sendMessage("§cPasswords do not match!");
-                    return;
-                }
-                if(password.length() < configuration.getMinPasswordLength()) {
-                    player.sendMessage("§cPassword is too short! Minimum length is " + configuration.getMinPasswordLength() + " characters.");
-                    return;
-                }
-                if(password.length() > configuration.getMaxPasswordLength()) {
-                    player.sendMessage("§cPassword is too long! Maximum length is " + configuration.getMaxPasswordLength() + " characters.");
-                    return;
-                }
+        CloudAPI.getInstance().getPlayerManager().existsPlayerAsync(player.getUniqueId())
+                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to check player", e))
+                .onSuccess(exists -> {
+                    if(exists){
+                        player.sendMessage("§cYou already have an account!");
+                        player.sendMessage("§c/login <Password>");
+                        return;
+                    }
 
-                CloudPlayer impl = (CloudPlayer) cloudPlayer;
+                    PlayerConfiguration configuration = BungeeCordCloudAPI.getInstance().getPlayerManager().getConfiguration();
+                    if(!password.equals(password2)) {
+                        player.sendMessage("§cPasswords do not match!");
+                        return;
+                    }
+                    if(password.length() < configuration.getMinPasswordLength()) {
+                        player.sendMessage("§cPassword is too short! Minimum length is " + configuration.getMinPasswordLength() + " characters.");
+                        return;
+                    }
+                    if(password.length() > configuration.getMaxPasswordLength()) {
+                        player.sendMessage("§cPassword is too long! Maximum length is " + configuration.getMaxPasswordLength() + " characters.");
+                        return;
+                    }
 
-                String hash = impl.getBcrypt().hash(password);
-                impl.setPasswordHash(hash);
-                impl.setSessionStart(System.currentTimeMillis());
-                impl.setSessionIp(player.getAddress().getAddress().getHostAddress());
-                impl.updateAsync();
+                    CloudPlayer cloudPlayer = new CloudPlayer();
+                    cloudPlayer.setConnected(true);
+                    cloudPlayer.setSessionStart(System.currentTimeMillis());
+                    cloudPlayer.setPasswordHash(cloudPlayer.getBcrypt().hash(password));
+                    cloudPlayer.setSessionIp(player.getAddress().getAddress().getHostAddress());
+                    cloudPlayer.setUniqueId(player.getUniqueId());
+                    cloudPlayer.setCracked(true);
+                    cloudPlayer.setName(player.getName());
+                    cloudPlayer.setLastIp(player.getAddress().getAddress().getHostAddress());
+                    cloudPlayer.setLastConnectedProxyId(BungeeCordCloudAPI.getInstance().getService().getUniqueId());
+                    cloudPlayer.setFirstLogin(System.currentTimeMillis());
 
-                player.sendMessage("§aSuccessfully logged in as " + cloudPlayer.getName() + "!");
-                ICloudService fallback = CloudAPI.getInstance().getServiceManager().getFallbackService(cloudPlayer);
-                if(fallback == null){
-                    player.disconnect("No fallback service available!");
-                    return;
-                }
-                ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(fallback.getName());
-                if(serverInfo == null){
-                    player.disconnect("No fallback service available!");
-                    CloudAPI.getInstance().getConsole().error("Service " + fallback.getName() + " is not registered as proxy service!");
-                    return;
-                }
-                player.connect(serverInfo);
-            });
+                    CloudAPI.getInstance().getPlayerManager().createPlayerAsync(cloudPlayer)
+                            .onFailure(e -> {
+                                player.sendMessage("§cFailed to create player!");
+                                CloudAPI.getInstance().getConsole().error("Failed to create player", e);
+                            })
+                            .onSuccess(registeredCloudPlayer -> {
+                                player.sendMessage("§aSuccessfully logged in as " + cloudPlayer.getName() + "!");
+                                ICloudService fallback = CloudAPI.getInstance().getServiceManager().getFallbackService(cloudPlayer);
+                                if(fallback == null){
+                                    player.disconnect("No fallback service available!");
+                                    return;
+                                }
+                                ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(fallback.getName());
+                                if(serverInfo == null){
+                                    player.disconnect("No fallback service available!");
+                                    CloudAPI.getInstance().getConsole().error("Service " + fallback.getName() + " is not registered as proxy service!");
+                                    return;
+                                }
+                                player.connect(serverInfo);
+                            });
+
+                });
     }
 
 }

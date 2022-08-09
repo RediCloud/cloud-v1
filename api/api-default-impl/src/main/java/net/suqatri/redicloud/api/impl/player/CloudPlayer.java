@@ -46,7 +46,7 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
         if(this.sessionIp == null) return false;
         if(!this.sessionIp.equals(this.lastIp)) return false;
         if(!this.isConnected()){
-            return System.currentTimeMillis()-this.lastLogout > TimeUnit.MINUTES.toMillis(5);
+            return System.currentTimeMillis()-this.lastLogout < TimeUnit.MINUTES.toMillis(5);
         }
         return true;
     }

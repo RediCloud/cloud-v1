@@ -62,7 +62,7 @@ public class LoginCommand extends BaseCommand {
                     }
                     CloudAPI.getInstance().getPlayerManager().getPlayerAsync(player.getName())
                             .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get player", e))
-                            .onSuccess(cloudPlayer -> {
+                            .thenAcceptAsync(cloudPlayer -> {
 
                                 if(cloudPlayer.isLoggedIn()){
                                     player.sendMessage("You are already logged in as " + cloudPlayer.getName() + "!");
@@ -78,21 +78,13 @@ public class LoginCommand extends BaseCommand {
                                 }
 
                                 PlayerConfiguration configuration = BungeeCordCloudAPI.getInstance().getPlayerManager().getConfiguration();
-                                if(!password.equals(password)) {
-                                    player.sendMessage("§cPasswords do not match!");
-                                    return;
-                                }
-                                if(password.length() < configuration.getMinPasswordLength()) {
-                                    player.sendMessage("§cPassword is too short! Minimum length is " + configuration.getMinPasswordLength() + " characters.");
-                                    return;
-                                }
-                                if(password.length() > configuration.getMaxPasswordLength()) {
-                                    player.sendMessage("§cPassword is too long! Maximum length is " + configuration.getMaxPasswordLength() + " characters.");
-                                    return;
-                                }
 
                                 if(impl.getBcrypt().verifyHash(password, impl.getPasswordHash())){
                                     impl.setSessionIp(player.getAddress().getAddress().getHostAddress());
+                                    impl.setLastLogin(System.currentTimeMillis());
+                                    impl.setConnected(true);
+                                    impl.setLastIp(player.getAddress().getAddress().getHostAddress());
+                                    impl.setLastConnectedProxyId(BungeeCordCloudAPI.getInstance().getService().getUniqueId());
                                     impl.updateAsync();
                                     player.sendMessage("§aSuccessfully logged in as " + cloudPlayer.getName() + "!");
                                     ICloudService fallback = CloudAPI.getInstance().getServiceManager().getFallbackService(cloudPlayer);
@@ -100,10 +92,10 @@ public class LoginCommand extends BaseCommand {
                                         player.disconnect("No fallback service available!");
                                         return;
                                     }
-                                    ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(fallback.getName());
+                                    ServerInfo serverInfo = ProxyServer.getInstance().getServerInfo(fallback.getServiceName());
                                     if(serverInfo == null){
                                         player.disconnect("No fallback service available!");
-                                        CloudAPI.getInstance().getConsole().error("Service " + fallback.getName() + " is not registered as proxy service!");
+                                        CloudAPI.getInstance().getConsole().warn("Service " + fallback.getServiceName() + " is not registered as proxy service!");
                                         return;
                                     }
                                     player.connect(serverInfo);

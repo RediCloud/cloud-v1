@@ -46,7 +46,6 @@ public class LoginListener {
             cloudPlayer.setPasswordLogRounds(10 + new Random().nextInt(30 - 10 + 1));
             CloudAPI.getInstance().getPlayerManager().createPlayer(cloudPlayer);
         }else{
-            CloudAPI.getInstance().getConsole().trace("Player already exists!");
             CloudPlayer cloudPlayer = (CloudPlayer) CloudAPI.getInstance().getPlayerManager().getPlayer(uniqueId);
             cloudPlayer.setLastLogin(System.currentTimeMillis());
             cloudPlayer.setConnected(true);

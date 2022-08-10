@@ -15,8 +15,10 @@ pipeline {
         }
         stage("Create zip") {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                if(fileExists('build/')){
                     sh "mkdir build/"
+                }
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     sh "cp -r test/node-1/storage/ build/storage/"
                     sh "cp node/node-base/build/libs/redicloud-node-base.jar build/"
                     sh "cp plugins/plugin-minecraft/build/libs/redicloud-plugin-minecraft.jar build/storage/"

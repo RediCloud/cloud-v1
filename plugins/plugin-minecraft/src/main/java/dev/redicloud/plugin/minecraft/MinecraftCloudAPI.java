@@ -1,6 +1,8 @@
 package dev.redicloud.plugin.minecraft;
 
+import dev.redicloud.api.CloudAPI;
 import dev.redicloud.plugin.minecraft.listener.PlayerLoginListener;
+import dev.redicloud.plugin.minecraft.listener.AsyncPlayerPreLoginListener;
 import dev.redicloud.plugin.minecraft.listener.ServerListPingListener;
 import dev.redicloud.plugin.minecraft.scheduler.BukkitScheduler;
 import dev.redicloud.plugin.minecraft.service.CloudMinecraftServiceManager;
@@ -74,6 +76,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
     private void initListeners() {
         Bukkit.getPluginManager().registerEvents(new ServerListPingListener(), this.javaPlugin);
         Bukkit.getPluginManager().registerEvents(new PlayerLoginListener(), this.javaPlugin);
+        Bukkit.getPluginManager().registerEvents(new AsyncPlayerPreLoginListener(), this.javaPlugin);
     }
 
     private void initThisService() {
@@ -81,6 +84,8 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
         this.service.update();
+
+        this.console.debug("ServiceId: " + System.getenv("redicloud_service_id"));
 
         getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service));
 
@@ -123,6 +128,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
 
     @Override
     public void updateApplicationProperties(CloudService o) {
+        if(this.service == null) return;
         if (!o.getUniqueId().equals(this.service.getUniqueId())) return;
     }
 

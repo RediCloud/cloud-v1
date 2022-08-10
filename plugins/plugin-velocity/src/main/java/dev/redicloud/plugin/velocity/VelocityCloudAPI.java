@@ -275,6 +275,8 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
             }
         }
 
+        this.console.debug("ServiceId: " + (hasServiceId() ? getServiceId() : "not set"));
+
         getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service));
 
         this.updaterTask = this.getProxyServer().getScheduler().buildTask(this.plugin, () -> {
@@ -307,6 +309,7 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
 
     @Override
     public void updateApplicationProperties(CloudService object) {
+        if(this.service == null) return;
         if (!object.getUniqueId().equals(service.getUniqueId())) return;
 
     }

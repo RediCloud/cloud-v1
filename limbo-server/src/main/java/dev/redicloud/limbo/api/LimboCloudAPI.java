@@ -71,6 +71,9 @@ public class LimboCloudAPI extends CloudDefaultAPIImpl<CloudService> {
         this.service.setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.service.setOnlineCount(this.service.getOnlineCount());
         this.service.update();
+
+        this.console.debug("ServiceId: " + System.getenv("redicloud_service_id"));
+
         getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service));
 
         this.updaterTask = this.scheduler.scheduleTaskAsync(() -> {
@@ -113,6 +116,7 @@ public class LimboCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
     @Override
     public void updateApplicationProperties(CloudService object) {
+        if(this.service == null) return;
         if(!object.getUniqueId().equals(this.service.getUniqueId())) return;
         this.server.getConfig().getPingData().setDescription(object.getMotd());
         this.service.setMaxPlayers(object.getMaxPlayers());

@@ -277,6 +277,8 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
             }
         }
 
+        this.console.debug("ServiceId: " + (hasServiceId() ? getServiceId() : "not set"));
+
         getEventManager().postGlobalAsync(new CloudServiceStartedEvent(this.service));
 
         this.updaterTask = ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
@@ -309,8 +311,8 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
 
     @Override
     public void updateApplicationProperties(CloudService object) {
-        if (!object.getUniqueId().equals(service.getUniqueId())) return;
-
+        if(this.service == null) return;
+        if (!object.getUniqueId().equals(this.service.getUniqueId())) return;
     }
 
     @Override

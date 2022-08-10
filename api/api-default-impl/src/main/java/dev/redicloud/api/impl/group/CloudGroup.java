@@ -92,11 +92,13 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
 
     @Override
     public FutureAction<Integer> getOnlineServiceCount() {
-        return CloudAPI.getInstance().getServiceManager().readAllFetcherKeysAsync()
-                .map(names -> (int) names
-                        .parallelStream()
-                        .filter(name -> name.startsWith(this.getName().toLowerCase() + "-"))
-                        .count());
+        return this.getServices()
+                .map(services -> (int) services.parallelStream()
+                        .filter(service -> service.getServiceState() == ServiceState.RUNNING_DEFINED)
+                        .filter(service -> service.getServiceState() == ServiceState.RUNNING_UNDEFINED)
+                        .filter(service -> service.getServiceState() == ServiceState.STARTING)
+                        .filter(service -> service.getServiceState() == ServiceState.PREPARE)
+                        .filter(service -> service.getServiceState() == ServiceState.STOPPING).count());
     }
 
     @Override
@@ -109,7 +111,7 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(services -> (int) services
                         .parallelStream()
-                        .filter(holder -> holder.isGroupBased())
+                        .filter(ICloudService::isGroupBased)
                         .filter(holder -> holder.getGroupName().equalsIgnoreCase(this.name))
                         .filter(service -> service.getServiceState() == serviceState)
                         .count());

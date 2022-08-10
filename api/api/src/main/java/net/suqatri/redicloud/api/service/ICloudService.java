@@ -29,6 +29,8 @@ public interface ICloudService extends IRBucketObject {
 
     void executeCommand(String command);
 
+    long getLastPlayerAction();
+
     default void setFallback(boolean fallback) {
         getConfiguration().setFallback(fallback);
     }

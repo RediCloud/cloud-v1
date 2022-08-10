@@ -83,6 +83,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         this.service.setMaxRam(this.service.getConfiguration().getMaxMemory());
         this.service.setHostName(NodeLauncher.getInstance().getNode().getHostname());
         this.service.setPort(this.port);
+        this.service.setLastPlayerAction(System.currentTimeMillis());
         this.service.update();
 
         NodeLauncher.getInstance().getNode().setMemoryUsage(NodeLauncher.getInstance().getNode().getMemoryUsage()

@@ -33,6 +33,7 @@ public class CloudService extends RBucketObject implements ICloudService {
     private String hostName;
     private boolean isExternal = true;
     private boolean maintenance = false;
+    private long lastPlayerAction = -1L;
 
     @Override
     public void executeCommand(String command) {

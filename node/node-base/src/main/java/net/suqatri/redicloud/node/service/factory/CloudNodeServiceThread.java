@@ -18,6 +18,7 @@ import org.redisson.codec.JsonJacksonCodec;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class CloudNodeServiceThread extends Thread {
 
@@ -126,6 +127,20 @@ public class CloudNodeServiceThread extends Thread {
                                     continue;
                                 }
                                 this.queue.add(configuration);
+                            }
+                        }else if(count > min){
+                            int preCount = (int) count;
+                            for (ICloudService service : group.getServices().getBlockOrNull()) {
+                                if(preCount <= min) break;
+                                if((System.currentTimeMillis()-service.getLastPlayerAction()) < TimeUnit.MINUTES.toMillis(3)) continue;
+                                if(service.getOnlineCount() != 0) continue;
+                                if(service.getServiceState() == ServiceState.STOPPING){
+                                    preCount--;
+                                    continue;
+                                }
+                                CloudAPI.getInstance().getConsole().debug("Service " + service.getServiceName() + " will be stopped");
+                                CloudAPI.getInstance().getServiceManager().stopServiceAsync(service.getUniqueId(), false);
+                                preCount--;
                             }
                         }
                     }

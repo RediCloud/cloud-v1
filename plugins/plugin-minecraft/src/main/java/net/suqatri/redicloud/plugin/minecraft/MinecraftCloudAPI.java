@@ -88,6 +88,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
             boolean update = false;
             if (this.service.getOnlineCount() != Bukkit.getOnlinePlayers().size()) {
                 this.service.setOnlineCount(Bukkit.getOnlinePlayers().size());
+                this.service.setLastPlayerAction(System.currentTimeMillis());
                 update = true;
             }
             if(this.service.getMaxPlayers() != Bukkit.getMaxPlayers()){

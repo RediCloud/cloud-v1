@@ -34,8 +34,6 @@ test/node-2/static/
 test/node-1/node-base-*.jar
 test/node-2/node-base-*.jar
 
-gradle.properties
-
 redicloud-*.jar
 redicloud-*.jar
 

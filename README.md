@@ -194,5 +194,5 @@ maven {
 
 Dependencies
 ```
-implementation('net.suqatri.redicloud.api:api:VERSION')
+implementation('dev.redicloud.api:api:VERSION')
 ```

@@ -239,12 +239,11 @@ allprojects {
                 }
                 repositories {
                     maven {
-                        name 'nexus'
-                        url getRepoUrl()
-                        allowInsecureProtocol true
+                        name = "redi-cloud-repo"
+                        url = getRepoUrl()
                         credentials {
-                            username project.repoUser
-                            password project.repoPassword
+                            this.password = "$repoUser"
+                            this.username = "$repoPassword"
                         }
                     }
                 }
@@ -259,9 +258,9 @@ def isRelease() {
 
 def getRepoUrl(){
     if(isRelease()){
-        return 'https://repo.redicloud.dev/releases'
+        return 'https://repo.redicloud.dev/releases/'
     }else{
-        return 'https://repo.redicloud.dev/snapshots'
+        return 'https://repo.redicloud.dev/snapshots/'
     }
 }
 

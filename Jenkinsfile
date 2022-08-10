@@ -10,7 +10,7 @@ pipeline {
         stage("Build") {
             steps {
                 sh "chmod +x ./gradlew";
-                sh "./gradlew projectBuild --stacktrace --parallel --daemon";
+                sh "./gradlew projectBuild --stacktrace --parallel --daemon --profile";
             }
         }
         stage("Create zip") {

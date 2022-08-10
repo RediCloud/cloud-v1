@@ -48,6 +48,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
         new FutureAction<>(this.getClient().getBucket(object.getRedisKey(), getObjectCodec()).setAsync(object))
             .onFailure(futureAction)
             .onSuccess(a -> {
+                object.merged();
                 try {
                     BucketUpdatePacket packet = new BucketUpdatePacket();
                     packet.setIdentifier(object.getIdentifier());
@@ -69,6 +70,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
         Predicates.notNull(object, "Object with identifier " + object.getIdentifier() + " is null!");
         CloudAPI.getInstance().getConsole().trace("Updating bucket " + object.getRedisKey() + "!");
         this.getClient().getBucket(object.getRedisKey(), getObjectCodec()).set(object);
+        object.merged();
         try {
             BucketUpdatePacket packet = new BucketUpdatePacket();
             packet.setIdentifier(object.getIdentifier());

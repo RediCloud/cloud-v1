@@ -239,11 +239,11 @@ allprojects {
                 }
                 repositories {
                     maven {
-                        name = "redi-cloud-repo"
-                        url = getRepoUrl()
+                        name "redi-cloud-repo"
+                        url getRepoUrl()
                         credentials {
-                            this.password = "$repoUser"
-                            this.username = "$repoPassword"
+                            password project.repoUser
+                            username project.repoPassword
                         }
                     }
                 }

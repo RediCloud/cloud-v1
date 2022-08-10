@@ -129,6 +129,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
                         object.setManager(this);
                         this.cachedBucketObjects.put(identifier, object);
                         object.init();
+                        object.merged();
                         futureAction.complete(object);
                     });
             });
@@ -147,6 +148,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
         object.setManager(this);
         this.cachedBucketObjects.put(identifier, object);
         object.init();
+        object.merged();
         return object;
     }
 

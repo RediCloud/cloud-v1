@@ -259,9 +259,9 @@ def isRelease() {
 
 def getRepoUrl(){
     if(isRelease()){
-        return 'http://repo.suqatri.net:8081/repository/maven-releases/'
+        return 'https://repo.redicloud.dev/releases'
     }else{
-        return 'http://repo.suqatri.net:8081/repository/maven-snapshots/'
+        return 'https://repo.redicloud.dev/snapshots'
     }
 }
 

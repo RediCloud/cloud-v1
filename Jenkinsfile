@@ -7,12 +7,6 @@ pipeline {
     }
 
     stages {
-        stage("Clean") {
-            steps {
-                sh "chmod +x ./gradlew";
-                sh "./gradlew clean --stacktrace";
-            }
-        }
         stage("Build") {
             steps {
                 sh "./gradlew projectBuild --stacktrace";

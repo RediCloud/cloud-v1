@@ -19,7 +19,7 @@ dependencies {
     implementation project(':commands:command-core')
     implementation project(':commands:command-console')
     implementation project(':commands:command-locales')
-    implementation('org.apache.commons:commons-io:1.3.2')
+    implementation('org.apache.commons:commons-io:2.4')
     implementation('org.slf4j:slf4j-api:1.7.36')
     implementation('org.slf4j:slf4j-simple:1.7.36')
     implementation('org.jline:jline:3.21.0')

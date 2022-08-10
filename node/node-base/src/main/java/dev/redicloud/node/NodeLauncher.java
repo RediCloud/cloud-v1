@@ -490,10 +490,10 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     redisCredentials.setPassword(generellSetup.getPassword());
                     redisCredentials.setType(generellSetup.getRedisType());
                     switch (generellSetup.getRedisType()){
-                        case RedisType.CLUSTER:
+                        case CLUSTER:
                             this.initRedisNodes(redisCredentials, true, consumer);
                             break;
-                        case RedisType.SINGLE_SERVICE:
+                        case SINGLE_SERVICE:
                             new RedisSingleSetup().start((singleSetup, state1) -> {
                                 if(state1 == SetupControlState.FINISHED){
                                     redisCredentials.getNodeAddresses()

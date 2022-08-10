@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud.commands.console'
+group 'dev.redicloud.commands.console'
 
 dependencies {
     implementation project(':commands:command-core')

@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud.node.runner'
+group 'dev.redicloud.node.runner'
 
 dependencies {
     implementation project(':commons')

@@ -75,7 +75,7 @@ public class RegisterCommand extends BaseCommand {
                         player.sendMessage("§cPassword is too long! Maximum length is " + configuration.getMaxPasswordLength() + " characters.");
                         return;
                     }
-                    if(password.toLowerCase().contains(player.getName().toLowerCase()) && configuration.isPasswordCanContainsPlayerName()){
+                    if(password.toLowerCase().contains(player.getName().toLowerCase()) && !configuration.isPasswordCanContainsPlayerName()){
                         player.sendMessage("§cPassword cannot contain your player name!");
                         return;
                     }

@@ -4,9 +4,9 @@ plugins {
     id 'maven-publish'
 }
 
-group 'net.suqatri.redicloud'
+group 'dev.redicloud'
 
-version '1.5.1' + getCommitHash() + '-SNAPSHOT'
+version '1.6.0' + getCommitHash() + '-SNAPSHOT'
 
 def repoUser = "$System.env.REPO_USER"
 def repoPassword = "$System.env.REPO_PASSWORD"
@@ -149,7 +149,7 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
 
-    version '1.5.1-' + getCommitHash() + '-RELEASE'
+    version '1.6.0-' + getCommitHash() + '-RELEASE'
 
     sourceCompatibility = '1.8'
 

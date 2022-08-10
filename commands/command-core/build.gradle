@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud.commands.core'
+group 'dev.redicloud.commands.core'
 
 dependencies {
     implementation project(':commands:command-locales')

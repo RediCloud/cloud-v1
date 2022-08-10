@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud.api.bungeecord'
+group 'dev.redicloud.api.bungeecord'
 
 dependencies {
     compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-proxy:12e4514813')

@@ -2,4 +2,4 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud.commands.locales'
+group 'dev.redicloud.commands.locales'

@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud.api.node'
+group 'dev.redicloud.api.node'
 
 dependencies {
     implementation project(':api:api')

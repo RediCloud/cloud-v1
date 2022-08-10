@@ -2,12 +2,12 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud.limbo'
+group 'dev.redicloud.limbo'
 
 
 jar {
     manifest {
-        attributes 'Main-Class': 'net.suqatri.redicloud.limbo.NanoLimbo'
+        attributes 'Main-Class': 'dev.redicloud.limbo.NanoLimbo'
     }
 }
 

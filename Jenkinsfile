@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage("Build") {
             steps {
-                sh "./gradlew projectBuild --stacktrace";
+                sh "./gradlew projectBuild --stacktrace --parallel --daemon";
             }
         }
         stage("Create zip") {

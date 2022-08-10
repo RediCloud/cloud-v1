@@ -4,7 +4,7 @@ plugins {
     id 'maven-publish'
 }
 
-group 'net.suqatri.redicloud'
+group 'dev.redicloud'
 
 version '1.5.1' + getCommitHash() + '-SNAPSHOT'
 

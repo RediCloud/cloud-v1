@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud.plugin.bungeecord'
+group 'dev.redicloud.plugin.bungeecord'
 
 repositories {
     maven {

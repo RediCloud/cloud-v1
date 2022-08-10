@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud'
+group 'dev.redicloud.commons'
 
 dependencies {
     implementation('commons-io:commons-io:2.11.0')

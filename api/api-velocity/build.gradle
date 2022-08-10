@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'net.suqatri.redicloud'
+group 'dev.redicloud.api.velocity'
 
 repositories {
     maven { url = "https://nexus.velocitypowered.com/repository/maven-public/" }

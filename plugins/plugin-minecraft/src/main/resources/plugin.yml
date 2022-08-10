@@ -2,4 +2,4 @@ name: RediCloud-Plugin
 author: Suqatri
 version: 1.0-SNAPSHOT
 description: RediCloud-Plugin
-main: net.suqatri.redicloud.plugin.minecraft.MinecraftCloudPlugin
+main: dev.redicloud.plugin.minecraft.MinecraftCloudPlugin

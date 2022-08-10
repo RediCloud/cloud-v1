@@ -181,7 +181,10 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     public final ICloudService getFallbackService(ICloudPlayer cloudPlayer, ICloudService... blacklisted) {
         ICloudService fallbackHolder = null;
         List<UUID> blackList = new ArrayList<>();
-        for (ICloudService service : blacklisted) blackList.add(service.getUniqueId());
+        for (ICloudService service : blacklisted) {
+            if(service == null) continue;
+            blackList.add(service.getUniqueId());
+        }
         Collection<ICloudService> services = getServices();
         for (ICloudService service : services) {
             if (blackList.contains(service.getUniqueId())) continue;
@@ -218,7 +221,10 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
     public final ICloudService getFallbackService(boolean maintenanceByPass, ICloudService... blacklisted) {
         ICloudService fallbackHolder = null;
         List<UUID> blackList = new ArrayList<>();
-        for (ICloudService service : blacklisted) blackList.add(service.getUniqueId());
+        for (ICloudService service : blacklisted) {
+            if(service == null) continue;
+            blackList.add(service.getUniqueId());
+        }
         Collection<ICloudService> services = getServices();
         for (ICloudService service : services) {
             if (blackList.contains(service.getUniqueId())) continue;

@@ -282,6 +282,7 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
         this.updaterTask = ProxyServer.getInstance().getScheduler().schedule(this.plugin, () -> {
             if (this.service.getOnlineCount() != ProxyServer.getInstance().getOnlineCount()) {
                 this.service.setOnlineCount(ProxyServer.getInstance().getOnlineCount());
+                this.service.setLastPlayerAction(System.currentTimeMillis());
                 this.service.updateAsync();
             }
         }, 1500, 1500, TimeUnit.MILLISECONDS);

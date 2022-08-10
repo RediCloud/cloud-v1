@@ -6,7 +6,7 @@ plugins {
 
 group 'net.suqatri.redicloud'
 
-version '1.5.1' + getCommitHash() + '-RELEASE'etCommitHash() + '-RELEASE'
+version '1.5.1' + getCommitHash() + '-SNAPSHOT'
 
 def repoUser = "$System.env.REPO_USER"
 def repoPassword = "$System.env.REPO_PASSWORD"

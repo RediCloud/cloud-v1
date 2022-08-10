@@ -28,7 +28,7 @@ pipeline {
                     sh "cp test/node-1/start.bat build/"
                     sh "cp test/node-1/start_debug.sh build/"
                     sh "cp test/node-1/start_debug.bat build/"
-                    sh "cd build; tar cfv redi-cloud.zip *"
+                    sh "cd build; zip redi-cloud.zip *"
                 }
             }
             post {

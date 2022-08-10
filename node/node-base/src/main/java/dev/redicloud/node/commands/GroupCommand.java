@@ -40,6 +40,44 @@ public class GroupCommand extends ConsoleCommand {
         commandHelp.showHelp();
     }
 
+    @Subcommand("rename")
+    @Syntax("<Name> <New-Name>")
+    @Description("Rename a group")
+    @CommandCompletion("@groups")
+    public void onRename(CommandSender commandSender, String groupName, String newGroupName){
+        CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
+            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to check group existence for group name " + groupName, e))
+            .onSuccess(exists -> {
+                if(!exists){
+                    commandSender.sendMessage("Group " + groupName + " does not exist");
+                    return;
+                }
+                CloudAPI.getInstance().getGroupManager().existsGroupAsync(newGroupName)
+                        .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to check group existence for group name " + newGroupName, e))
+                        .onSuccess(newExists -> {
+                            if(newExists){
+                                commandSender.sendMessage("Group " + newGroupName + " already exists");
+                                return;
+                            }
+                            CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
+                                    .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get group for group name " + groupName, e))
+                                    .onSuccess(group -> {
+                                        group.getOnlineServiceCount()
+                                            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get online service count for group " + groupName, e))
+                                            .onSuccess(count -> {
+                                               if(count != 0){
+                                                   commandSender.sendMessage("There are " + count + " online services in group " + groupName + " connected, please stop them first");
+                                                   return;
+                                               }
+                                               ((CloudGroup)group).setName(newGroupName);
+                                               group.updateAsync();
+                                               commandSender.sendMessage("Group " + groupName + " renamed to " + newGroupName);
+                                            });
+                                    });
+                        });
+            });
+    }
+
     @Subcommand("template add")
     @Syntax("<Group> <Template>")
     @Description("Add a template to a group")

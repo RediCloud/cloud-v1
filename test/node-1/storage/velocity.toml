@@ -9,7 +9,7 @@ motd = "&#09add3A Velocity Server"
 # on the number of players online.)
 show-max-players = 500
 # Should we authenticate players with Mojang? By default, this is on.
-online-mode = true
+online-mode = false
 # If client's ISP/AS sent from this proxy is different from the one from Mojang's
 # authentication server, the player is kicked. This disallows some VPN and proxy
 # connections but is a weak form of protection.

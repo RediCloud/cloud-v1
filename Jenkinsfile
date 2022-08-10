@@ -7,20 +7,16 @@ pipeline {
     }
 
     stages {
-        stage("Clean") {
-            steps {
-                sh "chmod +x ./gradlew";
-                sh "./gradlew clean --stacktrace";
-            }
-        }
         stage("Build") {
             steps {
-                sh "./gradlew projectBuild --stacktrace";
+                sh "chmod +x ./gradlew";
+                sh "./gradlew projectBuild --stacktrace --parallel --daemon --profile";
             }
         }
         stage("Create zip") {
             steps {
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh "rm -rf build/"
                     sh "mkdir build/"
                     sh "cp -r test/node-1/storage/ build/storage/"
                     sh "cp node/node-base/build/libs/redicloud-node-base.jar build/"
@@ -33,7 +29,7 @@ pipeline {
                     sh "cp test/node-1/start.bat build/"
                     sh "cp test/node-1/start_debug.sh build/"
                     sh "cp test/node-1/start_debug.bat build/"
-                    sh "cd build; tar cfv redi-cloud.zip *"
+                    sh "cd build; zip redi-cloud.zip *"
                 }
             }
             post {

@@ -1,5 +1,6 @@
 package dev.redicloud.node.commands;
 
+import dev.redicloud.api.service.ServiceState;
 import dev.redicloud.commands.CommandHelp;
 import dev.redicloud.commands.CommandSender;
 import dev.redicloud.commands.ConsoleCommand;
@@ -38,6 +39,48 @@ public class GroupCommand extends ConsoleCommand {
     @HelpCommand
     public void onHelp(CommandHelp commandHelp) {
         commandHelp.showHelp();
+    }
+
+    @Subcommand("rename")
+    @Syntax("<Name> <New-Name>")
+    @Description("Rename a group")
+    @CommandCompletion("@groups")
+    public void onRename(CommandSender commandSender, String groupName, String newGroupName){
+        CloudAPI.getInstance().getGroupManager().existsGroupAsync(groupName)
+            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to check group existence for group name " + groupName, e))
+            .onSuccess(exists -> {
+                if(!exists){
+                    commandSender.sendMessage("Group " + groupName + " does not exist");
+                    return;
+                }
+                CloudAPI.getInstance().getGroupManager().existsGroupAsync(newGroupName)
+                        .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to check group existence for group name " + newGroupName, e))
+                        .onSuccess(newExists -> {
+                            if(newExists){
+                                commandSender.sendMessage("Group " + newGroupName + " already exists");
+                                return;
+                            }
+                            CloudAPI.getInstance().getGroupManager().getGroupAsync(groupName)
+                                    .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get group for group name " + groupName, e))
+                                    .onSuccess(group -> {
+                                        group.getServices()
+                                            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get online service count for group " + groupName, e))
+                                            .onSuccess(services -> {
+                                                for (ICloudService service : services) {
+                                                    if(service.isStatic()){
+                                                        commandSender.sendMessage("Group " + groupName + " has static service " + service.getName() + " and cannot be renamed");
+                                                        return;
+                                                    }
+                                                    commandSender.sendMessage("Group " + groupName + " has a connected service. Stop the service before renaming");
+                                                    return;
+                                                }
+                                               ((CloudGroup)group).setName(newGroupName);
+                                               group.updateAsync();
+                                               commandSender.sendMessage("Group " + groupName + " renamed to " + newGroupName);
+                                            });
+                                    });
+                        });
+            });
     }
 
     @Subcommand("template add")

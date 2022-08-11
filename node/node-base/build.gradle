@@ -7,7 +7,6 @@ group 'dev.redicloud.node'
 jar {
     manifest {
         attributes 'Main-Class': 'dev.redicloud.node.NodeLauncherMain'
-
     }
 }
 

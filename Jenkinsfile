@@ -50,7 +50,7 @@ pipeline {
                     sh "cp test/node-1/start.bat build/"
                     sh "cp test/node-1/start_debug.sh build/"
                     sh "cp test/node-1/start_debug.bat build/"
-                    sh "cd build; zip redi-cloud.zip *"
+                    sh "cd build; zip -r redi-cloud.zip *"
                 }
             }
             post {

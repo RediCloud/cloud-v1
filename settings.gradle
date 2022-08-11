@@ -55,3 +55,5 @@ findProject(':api:api-velocity')?.name = 'api-velocity'
 
 include 'limbo-server'
 findProject(':limbo-server')?.name = 'limbo-server'
+include 'auto-updater'
+

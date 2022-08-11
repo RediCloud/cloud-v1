@@ -25,7 +25,7 @@ public class RequestPlayerBridge implements IPlayerBridge {
         packet.setMessage(message);
         packet.setUniqueId(player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedProxyId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedProxyId()));
         packet.publishAsync();
     }
 
@@ -40,7 +40,7 @@ public class RequestPlayerBridge implements IPlayerBridge {
         packet.setFadeOut(fadeOut);
         packet.setUniqueId(player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedServerId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedServerId()));
         packet.publishAsync();
     }
 
@@ -48,12 +48,12 @@ public class RequestPlayerBridge implements IPlayerBridge {
     public void sendActionbar(String message) {
         if(!this.player.isConnected()) return;
         if(!this.player.getLastConnectedServerId()
-                .equals(UUID.fromString(CloudAPI.getInstance().getNetworkComponentInfo().getIdentifier()))) return;
+                .equals(CloudAPI.getInstance().getNetworkComponentInfo().getIdentifier())) return;
         CloudBridgeActionbarPacket packet = new CloudBridgeActionbarPacket();
         packet.setBar(message);
         packet.setUniqueId(player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedServerId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedServerId()));
         packet.publishAsync();
     }
 
@@ -65,7 +65,7 @@ public class RequestPlayerBridge implements IPlayerBridge {
         packet.setFooter(footer);
         packet.setUniqueId(player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedProxyId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedProxyId()));
         packet.publishAsync();
     }
 
@@ -90,7 +90,7 @@ public class RequestPlayerBridge implements IPlayerBridge {
         packet.setServiceId(cloudService.getUniqueId());
         packet.setUniqueId(this.player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, this.player.getLastConnectedProxyId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, this.player.getLastConnectedProxyId()));
         packet.publishAsync();
     }
 
@@ -113,7 +113,7 @@ public class RequestPlayerBridge implements IPlayerBridge {
         packet.setReason(reason);
         packet.setUniqueId(this.player.getUniqueId());
         packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedProxyId().toString()));
+                .getComponentInfo(NetworkComponentType.SERVICE, player.getLastConnectedProxyId()));
         packet.publishAsync();
     }
 

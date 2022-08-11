@@ -1,12 +1,13 @@
 package dev.redicloud.api.network;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public interface INetworkComponentInfo extends Serializable {
 
     String getKey();
 
-    String getIdentifier();
+    UUID getIdentifier();
 
     NetworkComponentType getType();
 

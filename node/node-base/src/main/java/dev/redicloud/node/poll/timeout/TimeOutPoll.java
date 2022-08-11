@@ -83,7 +83,7 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
                                 resultPacket.publishAsync();
                             });
                     packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager()
-                            .getComponentInfo(NetworkComponentType.NODE, this.timeOutTargetId.toString()));
+                            .getComponentInfo(NetworkComponentType.NODE, this.timeOutTargetId));
                     packet.publishAsync();
                 });
 

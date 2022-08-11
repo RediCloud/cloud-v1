@@ -5,12 +5,13 @@ import dev.redicloud.api.node.ICloudNode;
 import dev.redicloud.commons.function.future.FutureAction;
 
 import java.util.Collection;
+import java.util.UUID;
 
 public interface INetworkComponentManager {
 
-    INetworkComponentInfo getComponentInfo(String identifier);
+    INetworkComponentInfo getComponentInfo(String key);
 
-    INetworkComponentInfo getComponentInfo(NetworkComponentType type, String identifier);
+    INetworkComponentInfo getComponentInfo(NetworkComponentType type, UUID identifier);
 
     INetworkComponentInfo getComponentInfo(ICloudNode node);
 

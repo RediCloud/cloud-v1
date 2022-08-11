@@ -2,15 +2,18 @@ package dev.redicloud.api.impl.network;
 
 import dev.redicloud.api.network.INetworkComponentInfo;
 import dev.redicloud.api.network.NetworkComponentType;
+import lombok.Getter;
 
 import java.util.Objects;
+import java.util.UUID;
 
+@Getter
 public class NetworkComponentInfo implements INetworkComponentInfo {
 
-    private final String identifier;
+    private final UUID identifier;
     private final NetworkComponentType type;
 
-    public NetworkComponentInfo(NetworkComponentType type, String identifier) {
+    public NetworkComponentInfo(NetworkComponentType type, UUID identifier) {
         this.identifier = identifier;
         this.type = type;
     }
@@ -23,16 +26,6 @@ public class NetworkComponentInfo implements INetworkComponentInfo {
     @Override
     public String getKey() {
         return this.type.getPrefix() + this.identifier;
-    }
-
-    @Override
-    public String getIdentifier() {
-        return this.identifier;
-    }
-
-    @Override
-    public NetworkComponentType getType() {
-        return this.type;
     }
 
     @Override

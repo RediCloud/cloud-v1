@@ -20,7 +20,8 @@ pipeline {
                 sh "mkdir build/"
                 sh "cp test/node-1/start_auto_updater.bat build/"
                 sh "cp test/node-1/start_auto_updater.sh build/"
-                    sh "cd build; zip redi-cloud-updater.zip *"
+                sh "cp auto-updater/build/libs/redicloud-auto-updater.jar build/"
+                sh "cd build; zip redi-cloud-updater.zip *"
             }
             post {
                 success {

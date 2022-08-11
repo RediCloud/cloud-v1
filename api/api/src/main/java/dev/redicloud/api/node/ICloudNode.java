@@ -21,6 +21,8 @@ public interface ICloudNode extends IRBucketObject {
 
     long getTimeOut();
 
+    String getVersion();
+
     void setTimeOut(long time);
 
     FutureAction<Collection<ICloudService>> getStartedServices();

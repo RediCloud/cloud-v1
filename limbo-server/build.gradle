@@ -4,7 +4,6 @@ plugins {
 
 group 'dev.redicloud.limbo'
 
-
 jar {
     manifest {
         attributes 'Main-Class': 'dev.redicloud.limbo.NanoLimbo'

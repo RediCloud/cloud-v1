@@ -2,18 +2,14 @@ plugins {
     id 'java'
 }
 
-group 'dev.redicloud'
-version '1.6.3-2da00e5e-SNAPSHOT'
+group 'dev.redicloud.updater'
 
-repositories {
-    mavenCentral()
+jar {
+    manifest {
+        attributes 'Main-Class': 'dev.redicloud.updater.AutoUpdater'
+    }
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-}
-
-test {
-    useJUnitPlatform()
+    implementation project(':commons')
 }

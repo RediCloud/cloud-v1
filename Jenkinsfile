@@ -13,6 +13,22 @@ pipeline {
                 sh "./gradlew clean";
             }
         }
+        stage("Build autoupdater"){
+            steps {
+                sh "./gradlew :auto-updater:build";
+                sh "rm -rf build/"
+                sh "mkdir build/"
+                sh "cp test/node-1/start_auto_updater.bat build/"
+                sh "cp test/node-1/start_auto_updater.sh build/"
+                sh "cp auto-updater/build/libs/redicloud-auto-updater.jar build/"
+                sh "cd build; zip redi-cloud-updater.zip *"
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'build/redi-cloud-updater.zip', fingerprint: true
+                }
+            }
+        }
         stage("Build") {
             steps {
                 sh "./gradlew projectBuild --stacktrace --parallel --daemon --profile";

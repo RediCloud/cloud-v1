@@ -13,19 +13,24 @@ pipeline {
                 sh "./gradlew clean";
             }
         }
-        stage("Build cloud") {
+        stage("Build autoupdater"){
             steps {
-                sh "./gradlew projectBuild --stacktrace --parallel --daemon --profile";
-            }
-        }
-        stage("Build autoupdater") {
-            steps {
-                sh "./gradlew auto-updater:build --stacktrace --parallel --daemon --profile";
+                sh "./gradlew :auto-updater:build";
+                sh "rm -rf build/"
+                sh "mkdir build/"
+                sh "cp test/node-1/start_auto_updater.bat build/"
+                sh "cp test/node-1/start_auto_updater.sh build/"
+                    sh "cd build; zip redi-cloud-updater.zip *"
             }
             post {
                 success {
-                    archiveArtifacts artifacts: 'auto-updater/build/libs/redicloud-auto-updater.jar', fingerprint: true
+                    archiveArtifacts artifacts: 'build/redi-cloud-updater.zip', fingerprint: true
                 }
+            }
+        }
+        stage("Build") {
+            steps {
+                sh "./gradlew projectBuild --stacktrace --parallel --daemon --profile";
             }
         }
         stage("Create zip") {
@@ -44,7 +49,7 @@ pipeline {
                     sh "cp test/node-1/start.bat build/"
                     sh "cp test/node-1/start_debug.sh build/"
                     sh "cp test/node-1/start_debug.bat build/"
-                    sh "cd build; zip -r redi-cloud.zip *"
+                    sh "cd build; zip redi-cloud.zip *"
                 }
             }
             post {

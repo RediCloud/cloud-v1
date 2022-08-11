@@ -50,7 +50,7 @@ pipeline {
                     sh "cp test/node-1/start.bat build/"
                     sh "cp test/node-1/start_debug.sh build/"
                     sh "cp test/node-1/start_debug.bat build/"
-                    sh "cd build; zip redi-cloud.zip *"
+                    sh "cd build; zip -r redi-cloud.zip *"
                 }
             }
             post {
@@ -62,11 +62,6 @@ pipeline {
         stage("Publishing") {
             steps {
                 sh "./gradlew publishToRepository --stacktrace";
-            }
-        }
-        stage("Delete temp files") {
-            steps {
-                sh "rm -r build"
             }
         }
     }

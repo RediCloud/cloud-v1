@@ -29,19 +29,8 @@ public class AutoUpdater {
         log("     ");
         info("Starting AutoUpdater...");
         arguments = args;
-        boolean debugStart = Boolean.parseBoolean(getArgument("debugStart", "false"));
-        info("Start cloud in debug mode: " + debugStart);
         String branch = getArgument("branch", "main");
         info("Downloading cloud from " + branch + " branch");
-        String startFile = getArgument("startFile", OSValidator.isWindows() ? "start.bat" : "start.sh");
-        if(debugStart) startFile = startFile.split("\\.")[0] + "_debug" + startFile.split("\\.")[1];
-        File file = new File(startFile);
-        if(!file.exists()){
-            info("Cant find start file: " + file.getAbsolutePath());
-            Thread.sleep(2500);
-            return;
-        }
-        info("Setting start file to " + startFile);
         String downloadUrl = "https://ci.redicloud.dev/job/redi-cloud/job/" + branch + "/lastSuccessfulBuild/artifact/build/redi-cloud.zip";
         info("Downloading cloud files from " + downloadUrl);
         if(!download(downloadUrl)) return;
@@ -49,18 +38,9 @@ public class AutoUpdater {
         info("Unzipping cloud files");
         ZipUtils.unzipDir(new File("redi-cloud.zip"), ".");
         info("Unzipping cloud files finished");
-        /*
         info("Deleting zip file");
         new File("redi-cloud.zip").delete();
         info("Deleting zip file finished");
-         */
-        info("Starting cloud");
-
-
-        for (String s : FileUtils.readContent(file)) {
-            log("Executing: " + s);
-            Runtime.getRuntime().exec(s);
-        }
     }
 
     private static boolean download(String downloadUrl) {
@@ -117,8 +97,9 @@ public class AutoUpdater {
 
         builder.append("[");
         for (int i2 = 0; i2 < i1; i2++) {
-            builder.append("█");
+            builder.append("=");
         }
+        builder.append(">");
         for (int i2 = 0; i2 < 50 - i1; i2++) {
             builder.append(" ");
         }

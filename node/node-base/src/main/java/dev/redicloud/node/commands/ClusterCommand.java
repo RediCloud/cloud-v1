@@ -46,6 +46,7 @@ public class ClusterCommand extends ConsoleCommand {
         commandSender.sendMessage("§8   » %tcUp-Time: %hc" + node.getUpTime());
         commandSender.sendMessage("§8   » %tcServices: %hc" + node.getStartedServiceUniqueIds().size());
         commandSender.sendMessage("§8   » %tcRAM: %hc" + node.getMemoryUsage() + "/" + node.getMaxMemory() + "MB");
+        commandSender.sendMessage("§8   » %tcVersion: %hc" + node.getVersion());
     }
 
     @Subcommand("reload config|configuration|configs|configurations")
@@ -118,11 +119,12 @@ public class ClusterCommand extends ConsoleCommand {
                 .onSuccess(nodeToCast -> {
                     CloudNode node = (CloudNode) nodeToCast;
                     if (node.isConnected()) {
-                        commandSender.sendMessage("%tc" + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getName());
-                        commandSender.sendMessage("§8   » %tcLast-IP: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getHostname());
-                        commandSender.sendMessage("§8   » %tcUp-Time: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getUpTime());
-                        commandSender.sendMessage("§8   » %tcServices: " + NodeLauncher.getInstance().getConsole().getHighlightColor() + node.getStartedServiceUniqueIds().size());
+                        commandSender.sendMessage("%tc" + node.getName() + " §7[§f" + node.getUniqueId() + "§7]: %hc" + node.getName());
+                        commandSender.sendMessage("§8   » %tcLast-IP: %hc" + node.getHostname());
+                        commandSender.sendMessage("§8   » %tcUp-Time: %hc" + node.getUpTime());
+                        commandSender.sendMessage("§8   » %tcServices: %hc" + node.getStartedServiceUniqueIds().size());
                         commandSender.sendMessage("§8   » %tcRAM: %hc" + node.getMemoryUsage() + "/" + node.getMaxMemory() + "MB");
+                        commandSender.sendMessage("§8   » %tcVersion: %hc" + node.getVersion());
                     } else {
                         commandSender.sendMessage("§8➤ %tc" + node.getName() + " §7[%hc" + node.getUniqueId() + "§7]: %hcOffline");
                     }
@@ -152,6 +154,8 @@ public class ClusterCommand extends ConsoleCommand {
                         commandSender.sendMessage("§8   » %tcLast-IP: %hc" + node.getHostname());
                         commandSender.sendMessage("§8   » %tcUp-Time: %hc" + node.getUpTime());
                         commandSender.sendMessage("§8   » %tcServices: %hc" + node.getStartedServicesCount());
+                        commandSender.sendMessage("§8   » %tcRAM: %hc" + node.getMemoryUsage() + "/" + node.getMaxMemory() + "MB");
+                        commandSender.sendMessage("§8   » %tcVersion: %hc" + node.getVersion());
                     }
                     commandSender.sendMessage("");
                 });

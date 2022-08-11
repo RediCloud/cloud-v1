@@ -40,6 +40,7 @@ public class CloudNode extends RBucketObject implements ICloudNode {
     private String filePath;
     private boolean fileNode = false;
     private long timeOut = 0L;
+    private String version;
 
     @Override
     public long getFreeMemory() {

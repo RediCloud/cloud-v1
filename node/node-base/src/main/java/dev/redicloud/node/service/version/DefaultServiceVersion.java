@@ -19,6 +19,7 @@ public enum DefaultServiceVersion {
     PAPER_1_17_0("paper-1.17.1", "https://api.papermc.io/v2/projects/paper/versions/1.17.1/builds/411/downloads/paper-1.17.1-411.jar", true, ServiceEnvironment.MINECRAFT),
     PAPER_1_18_2("paper-1.18.2", "https://api.papermc.io/v2/projects/paper/versions/1.18.2/builds/387/downloads/paper-1.18.2-387.jar", true, ServiceEnvironment.MINECRAFT),
     PAPER_1_19_1("paper-1.19.1", "https://api.papermc.io/v2/projects/paper/versions/1.19.1/builds/104/downloads/paper-1.19.1-104.jar", true, ServiceEnvironment.MINECRAFT),
+    PAPER_1_19_2("paper-1.19.2", "https://api.papermc.io/v2/projects/paper/versions/1.19.2/builds/124/downloads/paper-1.19.2-124.jar", true, ServiceEnvironment.MINECRAFT),
 
     WATERFALL("waterfall", "https://api.papermc.io/v2/projects/waterfall/versions/1.19/builds/500/downloads/waterfall-1.19-500.jar", false, ServiceEnvironment.BUNGEECORD),
     BUNGEECORD("bungeecord", "https://ci.md-5.net/job/BungeeCord/lastSuccessfulBuild/artifact/bootstrap/target/BungeeCord.jar", false, ServiceEnvironment.BUNGEECORD),

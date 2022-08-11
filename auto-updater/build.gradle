@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+}
+
+group 'dev.redicloud.updater'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'dev.redicloud.updater.AutoUpdater'
+    }
+}
+
+dependencies {
+    implementation project(':commons')
+}

@@ -107,6 +107,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.registerListeners();
             this.registerPackets();
             this.scheduler.runTaskLater(() -> this.syncTemplates(() -> {
+
             }), 2, TimeUnit.SECONDS);
         });
     }
@@ -267,11 +268,13 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     }
 
     private void registerPackets() {
+        this.console.info("Registering packets...");
         this.getPacketManager().registerPacket(NodePingPacket.class, PacketChannel.NODE);
         this.getPacketManager().registerPacket(NodePingPacketResponse.class, PacketChannel.NODE);
     }
 
     private void registerListeners() {
+        this.console.info("Registering listeners...");
         this.getEventManager().register(new CloudNodeConnectedListener());
         this.getEventManager().register(new CloudNodeDisconnectListener());
         this.getEventManager().register(new CloudServiceStartedListener());
@@ -287,6 +290,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.console.setMainPrefix(this.console.translateColorCodes("§b" + System.getProperty("user.name") + "§a@§c" + node.getName() + " §f=> "));
             this.console.resetPrefix();
             this.node = node;
+            this.node.setVersion(this.getProperties().getVersion());
             this.node.setTimeOut(0L);
             this.node.setLastConnection(System.currentTimeMillis());
             this.node.setLastStart(System.currentTimeMillis());

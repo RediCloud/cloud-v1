@@ -20,7 +20,7 @@ pipeline {
         }
         stage("Build autoupdater") {
             steps {
-                sh "./gradlew autoupdater:build --stacktrace --parallel --daemon --profile";
+                sh "./gradlew auto-updater:build --stacktrace --parallel --daemon --profile";
             }
             post {
                 success {

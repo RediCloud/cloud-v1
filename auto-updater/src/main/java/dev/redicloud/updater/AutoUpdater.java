@@ -16,15 +16,15 @@ public class AutoUpdater {
 
     public static void main(String[] args) throws Exception{
         log("");
-        log("§f     _______                 __   _      ______  __                         __  ");
-        log("§f    |_   __ \\               |  ] (_)   .' ___  |[  |                       |  ] ");
-        log("§f      | |__) |  .---.   .--.| |  __   / .'   \\_| | |  .--.   __   _    .--.| |  ");
-        log("§f      |  __ /  / /__\\\\/ /'`\\' | [  |  | |        | |/ .'`\\ \\[  | | | / /'`\\' |  ");
-        log("§f     _| |  \\ \\_| \\__.,| \\__/  |  | |  \\ `.___.'\\ | || \\__. | | \\_/ |,| \\__/  |  ");
-        log("§f    |____| |___|'.__.' '.__.;__][___]  `.____ .'[___]'.__.'  '.__.'_/ '.__.;__] ");
+        log("     _______                 __   _      ______  __                         __  ");
+        log("    |_   __ \\               |  ] (_)   .' ___  |[  |                       |  ] ");
+        log("      | |__) |  .---.   .--.| |  __   / .'   \\_| | |  .--.   __   _    .--.| |  ");
+        log("      |  __ /  / /__\\\\/ /'`\\' | [  |  | |        | |/ .'`\\ \\[  | | | / /'`\\' |  ");
+        log("     _| |  \\ \\_| \\__.,| \\__/  |  | |  \\ `.___.'\\ | || \\__. | | \\_/ |,| \\__/  |  ");
+        log("    |____| |___|'.__.' '.__.;__][___]  `.____ .'[___]'.__.'  '.__.'_/ '.__.;__] ");
         log("");
         log("    A redis based cluster cloud system for Minecraft");
-        log("    §8» Discord: https://discord.gg/g2HV52VV4G");
+        log("    » Discord: https://discord.gg/g2HV52VV4G");
         log("     ");
         info("Starting AutoUpdater...");
         arguments = args;
@@ -107,7 +107,7 @@ public class AutoUpdater {
         StringBuilder builder = new StringBuilder();
 
         builder.append("[");
-        for (int i2 = 0; i2 < i; i2++) {
+        for (int i2 = 1; i2 < 10; i2++) {
             if(i2 <= i1) builder.append("█");
             else builder.append("░");
         }

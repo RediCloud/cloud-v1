@@ -40,6 +40,7 @@ pipeline {
             post {
                 success {
                     archiveArtifacts artifacts: 'build/redi-cloud.zip', fingerprint: true
+                    archiveArtifacts artifacts: 'auto-updater/build/libs/redicloud-auto-updater.jar', fingerprint: true
                 }
             }
         }

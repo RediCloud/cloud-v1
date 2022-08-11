@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -31,6 +32,10 @@ public class FileUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static Collection<String> readContent(File file) throws IOException {
+        return Files.readAllLines(file.toPath());
     }
 
     public static byte[] mergeByteArrays(Collection<byte[]> list) {

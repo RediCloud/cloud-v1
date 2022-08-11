@@ -3,6 +3,7 @@ package dev.redicloud.updater;
 import com.google.common.util.concurrent.AtomicDouble;
 import dev.redicloud.commons.MathUtils;
 import dev.redicloud.commons.OSValidator;
+import dev.redicloud.commons.file.FileUtils;
 import dev.redicloud.commons.file.ZipUtils;
 
 import java.io.*;
@@ -48,11 +49,18 @@ public class AutoUpdater {
         info("Unzipping cloud files");
         ZipUtils.unzipDir(new File("redi-cloud.zip"), ".");
         info("Unzipping cloud files finished");
+        /*
         info("Deleting zip file");
         new File("redi-cloud.zip").delete();
         info("Deleting zip file finished");
+         */
         info("Starting cloud");
-        Runtime.getRuntime().exec(startFile);
+
+
+        for (String s : FileUtils.readContent(file)) {
+            log("Executing: " + s);
+            Runtime.getRuntime().exec(s);
+        }
     }
 
     private static boolean download(String downloadUrl) {
@@ -71,7 +79,8 @@ public class AutoUpdater {
                 int x = 0;
                 while ((x = inputStream.read(data, 0, 1024)) >= 0) {
                     downloadedFileSize += x;
-                    double currentProgress = ((((double) downloadedFileSize) / ((double) completeFileSize)) * 100000d);
+
+                    final int currentProgress = (int) ((((double)downloadedFileSize) / ((double)completeFileSize)) * 100d);
 
                     progress.set(MathUtils.round(currentProgress, 2));
 
@@ -88,7 +97,7 @@ public class AutoUpdater {
         while(thread.isAlive() && !thread.isInterrupted()){
             try {
                 log(getProgress());
-                Thread.sleep(350);
+                Thread.sleep(600);
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -101,19 +110,21 @@ public class AutoUpdater {
     }
 
     private static String getProgress() {
-        int i = (int) (MathUtils.round(progress.get(), 0) / 10);
+        int i = (int) (MathUtils.round(progress.get(), 0) / 2);
         double percent = progress.get();
-        int i1 = (int) (percent / 10);
+        int i1 = (int) (percent / 2);
         StringBuilder builder = new StringBuilder();
 
         builder.append("[");
-        for (int i2 = 1; i2 < 10; i2++) {
-            if(i2 <= i1) builder.append("█");
-            else builder.append("░");
+        for (int i2 = 0; i2 < i1; i2++) {
+            builder.append("█");
+        }
+        for (int i2 = 0; i2 < 50 - i1; i2++) {
+            builder.append(" ");
         }
         builder.append("]");
 
-        return builder.toString();
+        return builder.toString() + " " + (MathUtils.round(progress.get(), 2)) + "%";
     }
 
     private static String getArgument(String key, String defaultValue) {

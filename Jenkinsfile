@@ -44,7 +44,7 @@ pipeline {
                     sh "cp test/node-1/start.bat build/"
                     sh "cp test/node-1/start_debug.sh build/"
                     sh "cp test/node-1/start_debug.bat build/"
-                    zip archive: true, dir: 'build', glob: '', zipFile: 'redi-cloud.zip';
+                    sh "cd build; zip -r redi-cloud.zip *"
                 }
             }
             post {

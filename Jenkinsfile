@@ -13,9 +13,19 @@ pipeline {
                 sh "./gradlew clean";
             }
         }
-        stage("Build") {
+        stage("Build cloud") {
             steps {
                 sh "./gradlew projectBuild --stacktrace --parallel --daemon --profile";
+            }
+        }
+        stage("Build autoupdater") {
+            steps {
+                sh "./gradlew autoupdater:build --stacktrace --parallel --daemon --profile";
+            }
+            post {
+                success {
+                    archiveArtifacts artifacts: 'auto-updater/build/libs/redicloud-auto-updater.jar', fingerprint: true
+                }
             }
         }
         stage("Create zip") {
@@ -40,7 +50,6 @@ pipeline {
             post {
                 success {
                     archiveArtifacts artifacts: 'build/redi-cloud.zip', fingerprint: true
-                    archiveArtifacts artifacts: 'auto-updater/build/libs/redicloud-auto-updater.jar', fingerprint: true
                 }
             }
         }

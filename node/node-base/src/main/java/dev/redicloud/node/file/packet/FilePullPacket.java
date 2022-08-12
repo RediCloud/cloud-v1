@@ -21,7 +21,7 @@ public class FilePullPacket extends CloudPacket {
     @Override
     public void receive() {
         if (CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
-        CloudAPI.getInstance().getNodeManager().getNodeAsync(UUID.fromString(this.getPacketData().getSender().getIdentifier()))
+        CloudAPI.getInstance().getNodeManager().getNodeAsync(this.getPacketData().getSender().getIdentifier())
                 .onSuccess(node -> NodeLauncher.getInstance().getFileTransferManager()
                         .transferFolderToNode(new File(this.originalFilePath), new File(this.destinationFilePath), this.targetFilePathToDelete, node));
     }

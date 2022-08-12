@@ -1,15 +1,25 @@
 plugins {
     id 'java'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id 'maven-publish'
+    id "maven-publish"
+    id 'io.github.gradle-nexus.publish-plugin' version '1.1.0'
+    id "java-library"
 }
 
 group 'dev.redicloud'
 
-version '1.6.5' + getCommitHash() + '-RELEASE'
+version '1.6.6' + getCommitHash() + '-SNAPSHOT'
 
-def repoUser = "$System.env.REPO_USER"
-def repoPassword = "$System.env.REPO_PASSWORD"
+nexusPublishing {
+    repositories {
+        rediCloudRepo {
+            nexusUrl = uri("https://repo.redicloud.dev/repository/maven-releases/")
+            snapshotRepositoryUrl = uri("https://repo.redicloud.dev/repository/maven-snapshots/")
+            username = "$System.env.REPO_USER"
+            password = "$System.env.REPO_PASSWORD"
+        }
+    }
+}
 
 static def hasRepoAuth() {
     return System.getenv().containsKey('REPO_USER') && System.getenv().containsKey('REPO_PASSWORD')
@@ -149,12 +159,20 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
 
-    version '1.6.5-' + getCommitHash() + '-RELEASE'
+    version '1.6.6-' + getCommitHash() + '-SNAPSHOT'
 
     sourceCompatibility = '1.8'
 
     compileJava {
         options.encoding = 'UTF-8'
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from(components.java)
+            }
+        }
     }
 
     repositories {
@@ -224,32 +242,6 @@ allprojects {
             p.store w, null
         }
          */
-    }
-
-    publishing {
-        if(hasRepoAuth()){
-            println("Repo auth found for module ${project.name}")
-            try{
-                publications {
-                    maven(MavenPublication) {
-                        artifact("build/libs/${project.name}-${project.version}.jar") {
-                            extension 'jar'
-                        }
-                    }
-                }
-                repositories {
-                    maven {
-                        name 'nexus'
-                        url getRepoUrl()
-                        allowInsecureProtocol true
-                        credentials {
-                            username project.repoUser
-                            password project.repoPassword
-                        }
-                    }
-                }
-            }catch(ignored) {}
-        }
     }
 }
 

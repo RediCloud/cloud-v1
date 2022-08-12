@@ -1,2 +1,0 @@
-- getCurrentService / getCurrentNode() via CloudAPI
-- INetworkComponentInfo -> getIdentifier -> UUID

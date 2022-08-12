@@ -54,7 +54,7 @@ public class CloudService extends RBucketObject implements ICloudService {
 
     @Override
     public INetworkComponentInfo getNetworkComponentInfo() {
-        return CloudAPI.getInstance().getNetworkComponentManager().getComponentInfo(NetworkComponentType.SERVICE, this.getUniqueId().toString());
+        return CloudAPI.getInstance().getNetworkComponentManager().getComponentInfo(NetworkComponentType.SERVICE, this.getUniqueId());
     }
 
     @Override

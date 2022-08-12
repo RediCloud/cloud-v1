@@ -3,13 +3,12 @@
 
 releases/
 
-
 test/node-1/storage/redis.*
 test/node-2/storage/redis.*
 test/node-1/templates/
 test/node-2/templates/
-test/node-1/temp/
-test/node-2/temp/
+test/node-1/tmp/
+test/node-2/tmp/
 test/node-1/storage/libs/
 test/node-2/storage/libs/
 test/node-1/storage/versions/

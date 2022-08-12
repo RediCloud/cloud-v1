@@ -16,8 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class NetworkComponentManager implements INetworkComponentManager {
 
-    private final ConcurrentHashMap<String, INetworkComponentInfo> cachedNodes = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, INetworkComponentInfo> cachedServices = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, INetworkComponentInfo> cachedNodes = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<UUID, INetworkComponentInfo> cachedServices = new ConcurrentHashMap<>();
 
     public void addCachedNode(ICloudNode node) {
         getComponentInfo(node);
@@ -28,30 +28,30 @@ public class NetworkComponentManager implements INetworkComponentManager {
     }
 
     public void removeCachedNode(ICloudNode node) {
-        this.cachedNodes.remove(node.getUniqueId().toString());
+        this.cachedNodes.remove(node.getUniqueId());
     }
 
     public void removeCachedService(ICloudService service) {
-        this.cachedServices.remove(service.getUniqueId().toString());
+        this.cachedServices.remove(service.getUniqueId());
     }
 
     public void removeCachedNode(UUID uniqueId) {
-        this.cachedNodes.remove(uniqueId.toString());
+        this.cachedNodes.remove(uniqueId);
     }
 
     public void removeCachedService(UUID uniqueId) {
-        this.cachedServices.remove(uniqueId.toString());
+        this.cachedServices.remove(uniqueId);
     }
 
     @Override
     public INetworkComponentInfo getComponentInfo(String key) {
         NetworkComponentType type = key.startsWith("node@") ? NetworkComponentType.NODE : NetworkComponentType.SERVICE;
-        String identifier = key.substring(type.name().length() + 1);
+        UUID identifier = UUID.fromString(key.substring(type.name().length() + 1));
         return this.getComponentInfo(type, identifier);
     }
 
     @Override
-    public INetworkComponentInfo getComponentInfo(NetworkComponentType type, String identifier) {
+    public INetworkComponentInfo getComponentInfo(NetworkComponentType type, UUID identifier) {
         if (type == NetworkComponentType.NODE && this.cachedNodes.containsKey(identifier))
             return this.cachedNodes.get(identifier);
         if (type == NetworkComponentType.SERVICE && this.cachedServices.containsKey(identifier))
@@ -61,16 +61,16 @@ public class NetworkComponentManager implements INetworkComponentManager {
 
     @Override
     public INetworkComponentInfo getComponentInfo(ICloudNode node) {
-        if (this.cachedNodes.containsKey(node.getUniqueId().toString()))
-            return this.cachedNodes.get(node.getUniqueId().toString());
-        return new NetworkComponentInfo(NetworkComponentType.NODE, node.getUniqueId().toString());
+        if (this.cachedNodes.containsKey(node.getUniqueId()))
+            return this.cachedNodes.get(node.getUniqueId());
+        return new NetworkComponentInfo(NetworkComponentType.NODE, node.getUniqueId());
     }
 
     @Override
     public INetworkComponentInfo getComponentInfo(ICloudService service) {
-        if (this.cachedServices.containsKey(service.getUniqueId().toString()))
-            return this.cachedServices.get(service.getUniqueId().toString());
-        return new NetworkComponentInfo(NetworkComponentType.SERVICE, service.getUniqueId().toString());
+        if (this.cachedServices.containsKey(service.getUniqueId()))
+            return this.cachedServices.get(service.getUniqueId());
+        return new NetworkComponentInfo(NetworkComponentType.SERVICE, service.getUniqueId());
     }
 
     @Override
@@ -81,15 +81,15 @@ public class NetworkComponentManager implements INetworkComponentManager {
                 .onFailure(futureAction)
                 .onSuccess(nodes -> {
                     for (ICloudNode node : nodes) {
-                        this.cachedNodes.put(node.getUniqueId().toString(),
-                                new NetworkComponentInfo(NetworkComponentType.NODE, node.getUniqueId().toString()));
+                        this.cachedNodes.put(node.getUniqueId(),
+                                new NetworkComponentInfo(NetworkComponentType.NODE, node.getUniqueId()));
                     }
                     CloudAPI.getInstance().getServiceManager().getServicesAsync()
                             .onFailure(futureAction)
                             .onSuccess(services -> {
                                 for (ICloudService service : services) {
-                                    this.cachedServices.put(service.getUniqueId().toString(),
-                                            new NetworkComponentInfo(NetworkComponentType.SERVICE, service.getUniqueId().toString()));
+                                    this.cachedServices.put(service.getUniqueId(),
+                                            new NetworkComponentInfo(NetworkComponentType.SERVICE, service.getUniqueId()));
                                 }
                                 List<INetworkComponentInfo> infos = new ArrayList<>();
                                 infos.addAll(this.cachedServices.values());
@@ -106,14 +106,14 @@ public class NetworkComponentManager implements INetworkComponentManager {
         Collection<ICloudNode> nodes = CloudAPI.getInstance().getNodeManager().getNodes();
 
         for (ICloudNode node : nodes) {
-            this.cachedNodes.put(node.getUniqueId().toString(),
-                    new NetworkComponentInfo(NetworkComponentType.NODE, node.getUniqueId().toString()));
+            this.cachedNodes.put(node.getUniqueId(),
+                    new NetworkComponentInfo(NetworkComponentType.NODE, node.getUniqueId()));
         }
 
         Collection<ICloudService> services = CloudAPI.getInstance().getServiceManager().getServices();
         for (ICloudService service : services) {
-            this.cachedServices.put(service.getUniqueId().toString(),
-                    new NetworkComponentInfo(NetworkComponentType.SERVICE, service.getUniqueId().toString()));
+            this.cachedServices.put(service.getUniqueId(),
+                    new NetworkComponentInfo(NetworkComponentType.SERVICE, service.getUniqueId()));
         }
 
         Collection<INetworkComponentInfo> result = new ArrayList<>();

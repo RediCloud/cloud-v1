@@ -56,7 +56,7 @@ public class ServiceScreen implements IServiceScreen {
                 packet.setServiceId(this.service.getUniqueId());
                 packet.setScreenLine(screenLine);
             }
-            packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager().getComponentInfo(NetworkComponentType.NODE, nodeId.toString()));
+            packet.getPacketData().addReceiver(CloudAPI.getInstance().getNetworkComponentManager().getComponentInfo(NetworkComponentType.NODE, nodeId));
         }
         if (packet != null) packet.publishAsync();
 

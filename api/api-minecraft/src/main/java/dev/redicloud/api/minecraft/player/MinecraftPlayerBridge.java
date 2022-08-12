@@ -19,7 +19,7 @@ public class MinecraftPlayerBridge extends RequestPlayerBridge {
         Player player = Bukkit.getPlayer(this.getPlayer().getUniqueId());
         if(player == null || !player.isOnline()) {
             if(this.getPlayer().getLastConnectedServerId()
-                    .equals(UUID.fromString(CloudAPI.getInstance().getNetworkComponentInfo().getIdentifier()))
+                    .equals(CloudAPI.getInstance().getNetworkComponentInfo().getIdentifier())
                     && this.getPlayer().isConnected()){
                 super.sendTitle(title, subTitle, fadeIn, stay, fadeOut);
             }
@@ -33,7 +33,7 @@ public class MinecraftPlayerBridge extends RequestPlayerBridge {
         Player player = Bukkit.getPlayer(this.getPlayer().getUniqueId());
         if(player == null || !player.isOnline()) {
             if(this.getPlayer().getLastConnectedServerId()
-                    .equals(UUID.fromString(CloudAPI.getInstance().getNetworkComponentInfo().getIdentifier()))
+                    .equals(CloudAPI.getInstance().getNetworkComponentInfo().getIdentifier())
                     && this.getPlayer().isConnected()){
                 super.sendActionbar(message);
             }

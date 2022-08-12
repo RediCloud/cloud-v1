@@ -1,16 +1,23 @@
 package dev.redicloud.api.impl.network;
 
+import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.network.INetworkComponentInfo;
 import dev.redicloud.api.network.NetworkComponentType;
+import dev.redicloud.api.node.ICloudNode;
+import dev.redicloud.api.service.ICloudService;
+import dev.redicloud.commons.function.future.FutureAction;
+import lombok.Getter;
 
 import java.util.Objects;
+import java.util.UUID;
 
+@Getter
 public class NetworkComponentInfo implements INetworkComponentInfo {
 
-    private final String identifier;
+    private final UUID identifier;
     private final NetworkComponentType type;
 
-    public NetworkComponentInfo(NetworkComponentType type, String identifier) {
+    public NetworkComponentInfo(NetworkComponentType type, UUID identifier) {
         this.identifier = identifier;
         this.type = type;
     }
@@ -25,14 +32,25 @@ public class NetworkComponentInfo implements INetworkComponentInfo {
         return this.type.getPrefix() + this.identifier;
     }
 
+
     @Override
-    public String getIdentifier() {
-        return this.identifier;
+    public FutureAction<ICloudService> getAsServiceAsync() {
+        return CloudAPI.getInstance().getServiceManager().getServiceAsync(this.identifier);
     }
 
     @Override
-    public NetworkComponentType getType() {
-        return this.type;
+    public ICloudService getAsService() {
+        return CloudAPI.getInstance().getServiceManager().getService(this.identifier);
+    }
+
+    @Override
+    public FutureAction<ICloudNode> getAsNodeAsync() {
+        return CloudAPI.getInstance().getNodeManager().getNodeAsync(this.identifier);
+    }
+
+    @Override
+    public ICloudNode getAsNode() {
+        return CloudAPI.getInstance().getNodeManager().getNode(this.identifier);
     }
 
     @Override

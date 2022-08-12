@@ -1,5 +1,5 @@
-![img](https://img.shields.io/nexus/r/net.suqatri.redicloud.api/api?label=release&server=https%3A%2F%2Frepo.redicloud.dev)
-![img](https://img.shields.io/nexus/s/net.suqatri.redicloud.api/api?label=snapshot&server=https%3A%2F%2Frepo.redicloud.dev)
+![img](https://img.shields.io/nexus/r/dev.redicloud.api/api?label=release&server=https%3A%2F%2Frepo.redicloud.dev)
+![img](https://img.shields.io/nexus/s/dev.redicloud.api/api?label=snapshot&server=https%3A%2F%2Frepo.redicloud.dev)
 
 # RediCloud
 

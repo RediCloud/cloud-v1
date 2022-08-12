@@ -1,4 +1,4 @@
 name: RediCloud-Plugin
 author: Suqatri
-version: 1.0-SNAPSHOT
+version: 1.6.6-fa09acd6-SNAPSHOT
 main: dev.redicloud.plugin.bungeecord.BungeeCordCloudPlugin

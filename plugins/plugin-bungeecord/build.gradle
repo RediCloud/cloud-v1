@@ -21,3 +21,21 @@ dependencies {
     compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-proxy:12e4514813')
     compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-api:12e4514813')
 }
+
+task createBungeePluginFile(dependsOn: processResources){
+    dependsOn processResources
+
+    def file = new File("$projectDir/src/main/resources/bungee.yml")
+
+    def parentFile = file.getParentFile()
+    while(!parentFile.exists()) {
+        parentFile.mkdirs()
+        parentFile = parentFile.getParentFile()
+    }
+    def pluginName = "name: RediCloud-Plugin"
+    def pluginAuthor = "author: Suqatri"
+    def pluginVersion = "version: " + project.version.toString()
+    def pluginMain = "main: dev.redicloud.plugin.bungeecord.BungeeCordCloudPlugin"
+    List<String> props = [pluginName, pluginAuthor, pluginVersion, pluginMain]
+    file.text = props.join("\n")
+}

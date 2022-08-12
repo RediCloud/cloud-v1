@@ -17,3 +17,20 @@ dependencies {
     compileOnly('org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT')
 }
 
+task createMinecraftPluginFile(dependsOn: processResources){
+    dependsOn processResources
+
+    def file = new File("$projectDir/src/main/resources/plugin.yml")
+
+    def parentFile = file.getParentFile()
+    while(!parentFile.exists()) {
+        parentFile.mkdirs()
+        parentFile = parentFile.getParentFile()
+    }
+    def pluginName = "name: RediCloud-Plugin"
+    def pluginAuthor = "author: Suqatri"
+    def pluginVersion = "version: " + project.version.toString()
+    def pluginMain = "main: dev.redicloud.plugin.minecraft.MinecraftCloudPlugin"
+    List<String> props = [pluginName, pluginAuthor, pluginVersion, pluginMain]
+    file.text = props.join("\n")
+}

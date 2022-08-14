@@ -13,8 +13,8 @@ version '1.6.7' + getCommitHash() + '-RELEASE'
 nexusPublishing {
     repositories {
         rediCloudRepo {
-            nexusUrl = uri("https://repo.redicloud.dev/repository/releases/")
-            snapshotRepositoryUrl = uri("https://repo.redicloud.dev/repository/snapshots/")
+            nexusUrl = uri("https://repo.redicloud.dev/repository/maven-releases/")
+            snapshotRepositoryUrl = uri("https://repo.redicloud.dev/repository/maven-snapshots/")
             username = "$System.env.REPO_USER"
             password = "$System.env.REPO_PASSWORD"
         }

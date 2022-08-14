@@ -60,8 +60,8 @@ pipeline {
             }
         }
         stage("Publishing") {
-            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                steps {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                     sh "./gradlew publishToRepository --stacktrace";
                 }
             }

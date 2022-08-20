@@ -103,7 +103,7 @@ public class CloudNode extends RBucketFetchAble implements ICloudNode {
 
     @Override
     public String getFetchKey() {
-        return this.name;
+        return this.name.toLowerCase();
     }
 
     @Override

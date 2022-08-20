@@ -2,6 +2,7 @@ package dev.redicloud.api.impl.group;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.redicloud.api.impl.redis.bucket.RBucketObject;
+import dev.redicloud.api.impl.redis.bucket.fetch.RBucketFetchAble;
 import dev.redicloud.api.impl.service.configuration.GroupServiceStartConfiguration;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class CloudGroup extends RBucketObject implements ICloudGroup {
+public class CloudGroup extends RBucketFetchAble implements ICloudGroup {
 
     private ServiceEnvironment serviceEnvironment;
     private UUID uniqueId;
@@ -239,6 +240,16 @@ public class CloudGroup extends RBucketObject implements ICloudGroup {
 
     @Override
     public String getIdentifier() {
+        return this.uniqueId.toString();
+    }
+
+    @Override
+    public String getFetchKey() {
+        return this.name.toLowerCase();
+    }
+
+    @Override
+    public String getFetchValue() {
         return this.uniqueId.toString();
     }
 }

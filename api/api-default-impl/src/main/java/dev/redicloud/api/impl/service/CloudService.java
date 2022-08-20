@@ -65,7 +65,7 @@ public class CloudService extends RBucketFetchAble implements ICloudService {
 
     @Override
     public String getFetchKey() {
-        return this.getServiceName();
+        return this.getServiceName().toLowerCase();
     }
 
     @Override

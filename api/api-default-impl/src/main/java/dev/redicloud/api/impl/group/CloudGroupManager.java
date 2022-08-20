@@ -11,7 +11,6 @@ import dev.redicloud.commons.function.future.FutureAction;
 import dev.redicloud.commons.function.future.FutureActionCollection;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 

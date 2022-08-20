@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class CloudGroupManager extends RedissonBucketFetchManager<CloudGroup, ICloudGroup> implements ICloudGroupManager {
 
     public CloudGroupManager() {
-        super("serviceGroup", CloudGroup.class, "serviceGroups");
+        super("serviceGroup", CloudGroup.class, "service_group_names");
     }
 
     @Override

@@ -12,7 +12,7 @@ import java.util.UUID;
 public class CloudNodeManager extends RedissonBucketFetchManager<CloudNode, ICloudNode> implements ICloudNodeManager {
 
     public CloudNodeManager() {
-        super("node", CloudNode.class, "nodeNames");
+        super("node", CloudNode.class, "node_names");
     }
 
     @Override

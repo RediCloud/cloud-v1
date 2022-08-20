@@ -26,7 +26,7 @@ public abstract class CloudServiceManager extends RedissonBucketFetchManager<Clo
     private RMap<String, String> serviceIdFetcherMap;
 
     public CloudServiceManager() {
-        super("service", CloudService.class, "serviceId");
+        super("service", CloudService.class, "service_ids");
     }
 
     @Override

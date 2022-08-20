@@ -1,50 +1,41 @@
 package dev.redicloud.api.impl.node;
 
-import dev.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import dev.redicloud.api.CloudAPI;
+import dev.redicloud.api.impl.redis.bucket.fetch.RedissonBucketFetchManager;
 import dev.redicloud.api.node.ICloudNode;
 import dev.redicloud.api.node.ICloudNodeManager;
 import dev.redicloud.commons.function.future.FutureAction;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.UUID;
 
-public class CloudNodeManager extends RedissonBucketManager<CloudNode, ICloudNode> implements ICloudNodeManager {
+public class CloudNodeManager extends RedissonBucketFetchManager<CloudNode, ICloudNode> implements ICloudNodeManager {
 
     public CloudNodeManager() {
-        super("node", CloudNode.class);
+        super("node", CloudNode.class, "node_names");
     }
 
     @Override
     public ICloudNode getNode(UUID uniqueId) {
-        return this.get(uniqueId.toString());
+        return this.getBucket(uniqueId.toString());
     }
 
     @Override
     public FutureAction<ICloudNode> getNodeAsync(String name) {
         FutureAction<ICloudNode> futureAction = new FutureAction<>();
 
-        getNodesAsync()
+        getFetcherValueAsync(name.toLowerCase())
+            .thenAccept(uuid -> getNodeAsync(UUID.fromString(uuid))
                 .onFailure(futureAction)
-                .onSuccess(nodes -> {
-                    Optional<ICloudNode> optional = nodes
-                            .parallelStream()
-                            .filter(node -> node.getName().equalsIgnoreCase(name))
-                            .findFirst();
-                    if (optional.isPresent()) {
-                        futureAction.complete(optional.get());
-                    } else {
-                        futureAction.completeExceptionally(new IllegalArgumentException("Node not found"));
-                    }
-                });
+                .onSuccess(futureAction::complete));
 
         return futureAction;
     }
 
     @Override
     public ICloudNode getNode(String name) {
-        return getNodes().parallelStream().filter(node -> node.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+        String uuid = getFetcherValue(name);
+        return getNode(UUID.fromString(uuid));
     }
 
     @Override
@@ -59,7 +50,7 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode, ICloudNod
 
     @Override
     public FutureAction<ICloudNode> getNodeAsync(UUID uniqueId) {
-        return this.getAsync(uniqueId.toString());
+        return this.getBucketAsync(uniqueId.toString());
     }
 
     public void shutdownCluster() {
@@ -70,12 +61,12 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode, ICloudNod
 
     public void shutdownClusterAsync() {
         getNodesAsync()
-                .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while shutting down cluster", e))
-                .onSuccess(nodes -> {
-                    for (ICloudNode node : nodes) {
-                        node.shutdown();
-                    }
-                });
+            .onFailure(e -> CloudAPI.getInstance().getConsole().error("Error while shutting down cluster", e))
+            .onSuccess(nodes -> {
+                for (ICloudNode node : nodes) {
+                    node.shutdown();
+                }
+            });
     }
 
     @Override
@@ -98,24 +89,12 @@ public class CloudNodeManager extends RedissonBucketManager<CloudNode, ICloudNod
 
     @Override
     public boolean existsNode(String name) {
-        return getNode(name) != null;
+        return containsKeyInFetcher(name.toLowerCase());
     }
 
     @Override
     public FutureAction<Boolean> existsNodeAsync(String name) {
-        FutureAction<Boolean> futureAction = new FutureAction<>();
-
-        getNodeAsync(name)
-                .onFailure(e -> {
-                    if (e instanceof NullPointerException) {
-                        futureAction.complete(false);
-                    } else {
-                        futureAction.completeExceptionally(e);
-                    }
-                })
-                .onSuccess(node -> futureAction.complete(true));
-
-        return futureAction;
+        return containsKeyInFetcherAsync(name.toLowerCase());
     }
 
 }

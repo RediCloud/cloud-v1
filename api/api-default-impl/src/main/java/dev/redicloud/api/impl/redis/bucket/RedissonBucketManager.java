@@ -12,6 +12,7 @@ import dev.redicloud.api.redis.bucket.IRedissonBucketManager;
 import dev.redicloud.commons.function.Predicates;
 import dev.redicloud.commons.function.future.FutureAction;
 import dev.redicloud.commons.function.future.FutureActionCollection;
+import org.redisson.api.RBatch;
 import org.redisson.api.RBucket;
 
 import java.util.ArrayList;
@@ -35,8 +36,9 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
         this.redisPrefix = prefix;
     }
 
-    public static RedissonBucketManager<?, ?> getManager(String prefix) {
-        return managers.get(prefix);
+    @Override
+    public RBatch createBatch() {
+        return getClient().createBatch();
     }
 
     @Override
@@ -104,7 +106,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
     }
 
     @Override
-    public FutureAction<I> getAsync(String identifier) {
+    public FutureAction<I> getBucketAsync(String identifier) {
         if (this.isCached(identifier)) return new FutureAction<I>(this.cachedBucketObjects.get(identifier));
         FutureAction<I> futureAction = new FutureAction<>();
 
@@ -129,9 +131,12 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
                             return;
                         }
                         object.setManager(this);
+
                         this.cachedBucketObjects.put(identifier, object);
+
                         object.init();
                         object.merged();
+
                         futureAction.complete(object);
                     });
             });
@@ -140,28 +145,32 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
 
     @SneakyThrows
     @Override
-    public I get(String identifier) {
+    public I getBucket(String identifier) {
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (this.isCached(identifier)) return this.cachedBucketObjects.get(identifier);
         RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
         if (!bucket.isExists())
             throw new NullPointerException("Bucket[" + getRedisKey(identifier) + "] doesn't exist");
         T object = bucket.get();
+
         object.setManager(this);
+
         this.cachedBucketObjects.put(identifier, object);
+
         object.init();
         object.merged();
+
         return object;
     }
 
     @Override
-    public FutureAction<T> getImplAsync(String identifier) {
-        return this.getAsync(identifier).map(object -> (T)object);
+    public FutureAction<T> getBucketImplAsync(String identifier) {
+        return this.getBucketAsync(identifier).map(object -> (T)object);
     }
 
     @Override
-    public T getImpl(String identifier) {
-        return (T) this.get(identifier);
+    public T getBucketImpl(String identifier) {
+        return (T) this.getBucket(identifier);
     }
 
     @Override
@@ -170,8 +179,11 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
         if (existsBucket(identifier))
             throw new IllegalArgumentException("Bucket[" + getRedisKey(identifier) + "] already exists");
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).set(object);
+
         object.setManager(this);
+
         this.cachedBucketObjects.put(identifier, (T) object);
+
         object.init();
         return object;
     }
@@ -258,7 +270,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
             .onSuccess(keys -> {
                 FutureActionCollection<String, I> futureActionCollection = new FutureActionCollection<>();
                 for (String s : keys) {
-                    futureActionCollection.addToProcess(s.split(":")[1], getAsync(s.split(":")[1]));
+                    futureActionCollection.addToProcess(s.split(":")[1], getBucketAsync(s.split(":")[1]));
                 }
                 futureActionCollection.process()
                         .onFailure(futureAction)
@@ -273,13 +285,14 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
     public Collection<I> getBucketHolders() {
         Collection<I> bucketHolders = new ArrayList<>();
         for (String s : getClient().getKeys().getKeysByPattern(this.redisPrefix + ":*")) {
-            bucketHolders.add(get(s.split(":")[1]));
+            bucketHolders.add(getBucket(s.split(":")[1]));
         }
         return bucketHolders;
     }
 
     @Override
-    public boolean deleteBucket(String identifier) {
+    public boolean deleteBucket(I object) {
+        String identifier = object.getIdentifier();
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (this.isCached(identifier)) {
             this.cachedBucketObjects.remove(identifier);
@@ -296,7 +309,8 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
     }
 
     @Override
-    public FutureAction<Boolean> deleteBucketAsync(String identifier) {
+    public FutureAction<Boolean> deleteBucketAsync(I object) {
+        String identifier = object.getIdentifier();
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (this.isCached(identifier)) {
             this.cachedBucketObjects.remove(identifier);
@@ -331,6 +345,11 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
             futureAction.complete(keys);
         });
         return futureAction;
+    }
+
+
+    public static RedissonBucketManager<?, ?> getManager(String prefix) {
+        return managers.get(prefix);
     }
 
 }

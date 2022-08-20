@@ -21,7 +21,7 @@ public class ConfigurationManager extends RedissonBucketManager<Configuration, I
 
     @Override
     public <T extends IConfiguration> T getConfiguration(String identifier, Class<T> clazz) {
-        return (T) this.get(identifier);
+        return (T) this.getBucket(identifier);
     }
 
     @Override
@@ -37,11 +37,6 @@ public class ConfigurationManager extends RedissonBucketManager<Configuration, I
     @Override
     public <T extends IConfiguration> boolean deleteConfiguration(T configuration) {
         return this.existsBucket(configuration.getIdentifier());
-    }
-
-    @Override
-    public boolean deleteConfiguration(String identifier) {
-        return this.deleteBucket(identifier);
     }
 
     @Override

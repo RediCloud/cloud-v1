@@ -63,6 +63,7 @@ public class ServiceCommand extends ConsoleCommand {
                             .onFailure(t -> CloudAPI.getInstance().getConsole().error("Failed to start services", t))
                             .onSuccess(services -> commandSender.sendMessage("Started " + amount + " services of group " + groupName));
                 });
+
     }
 
     @Subcommand("stop")

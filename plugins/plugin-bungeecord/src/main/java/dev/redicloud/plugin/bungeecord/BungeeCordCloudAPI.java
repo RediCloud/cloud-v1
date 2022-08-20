@@ -6,7 +6,7 @@ import dev.redicloud.plugin.bungeecord.command.LogoutCommand;
 import dev.redicloud.plugin.bungeecord.command.RegisterCommand;
 import dev.redicloud.plugin.bungeecord.console.ProxyConsole;
 import dev.redicloud.plugin.bungeecord.listener.*;
-import dev.redicloud.plugin.bungeecord.service.CloudProxyServiceManager;
+import dev.redicloud.plugin.bungeecord.service.CloudBungeeServiceManager;
 import lombok.Getter;
 import lombok.Setter;
 import net.md_5.bungee.api.ProxyServer;
@@ -48,7 +48,7 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
 
     private final Plugin plugin;
     private final CloudServiceFactory serviceFactory;
-    private final CloudProxyServiceManager serviceManager;
+    private final CloudBungeeServiceManager serviceManager;
     private final CloudServiceVersionManager serviceVersionManager;
     private final CloudServiceTemplateManager serviceTemplateManager;
     private final ProxyConsole console;
@@ -71,7 +71,7 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
         this.plugin = plugin;
         this.scheduler = new BungeeScheduler(this.plugin);
         this.console = new ProxyConsole(this.plugin.getLogger());
-        this.serviceManager = new CloudProxyServiceManager();
+        this.serviceManager = new CloudBungeeServiceManager();
         this.serviceFactory = new CloudServiceFactory(this.serviceManager);
         this.serviceVersionManager = new CloudServiceVersionManager();
         this.serviceTemplateManager = new CloudServiceTemplateManager();
@@ -268,7 +268,7 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
                 return;
             }
         }else{
-            service = (CloudService) this.serviceManager.getService(getServiceId());
+            service = this.serviceManager.getBucketImpl(getServiceId().toString());
             if(service.getServiceState() == ServiceState.RUNNING_DEFINED || service.getServiceState() == ServiceState.RUNNING_UNDEFINED){
                 this.runningExternal = true;
                 this.console.fatal("Can´t run external service because " + getServiceId() + " is already running!", null);
@@ -285,7 +285,9 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
             if (this.service.getOnlineCount() != ProxyServer.getInstance().getOnlineCount()) {
                 this.service.setOnlineCount(ProxyServer.getInstance().getOnlineCount());
                 this.service.setLastPlayerAction(System.currentTimeMillis());
+
                 this.service.updateAsync();
+                this.console.trace("Service " + this.service.getServiceName() + " updated");
             }
         }, 1500, 1500, TimeUnit.MILLISECONDS);
     }

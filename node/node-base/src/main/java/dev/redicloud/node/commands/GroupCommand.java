@@ -1,5 +1,6 @@
 package dev.redicloud.node.commands;
 
+import dev.redicloud.api.impl.redis.bucket.fetch.RedissonBucketFetchManager;
 import dev.redicloud.api.service.ServiceState;
 import dev.redicloud.commands.CommandHelp;
 import dev.redicloud.commands.CommandSender;
@@ -76,6 +77,8 @@ public class GroupCommand extends ConsoleCommand {
                                                 }
                                                ((CloudGroup)group).setName(newGroupName);
                                                group.updateAsync();
+                                               ((RedissonBucketFetchManager)CloudAPI.getInstance().getGroupManager()).removeFromFetcher(group.getFetchKey());
+                                               ((RedissonBucketFetchManager)CloudAPI.getInstance().getGroupManager()).putInFetcher(group.getFetchKey(), group.getFetchValue());
                                                commandSender.sendMessage("Group " + groupName + " renamed to " + newGroupName);
                                             });
                                     });
@@ -280,7 +283,10 @@ public class GroupCommand extends ConsoleCommand {
 
                                                             CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
                                                                     .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))
-                                                                    .onSuccess(holder -> commandSender.sendMessage("Group %hc" + name + "%tc created"));
+                                                                    .onSuccess(holder -> {
+                                                                        CloudAPI.getInstance().getGroupManager().addDefaultTemplates(cloudGroup);
+                                                                        commandSender.sendMessage("Group %hc" + name + "%tc created");
+                                                                    });
                                                         } else if (proxySetupControlState == SetupControlState.CANCELLED) {
                                                             commandSender.sendMessage("§cProxy Group creation cancelled");
                                                         }
@@ -288,7 +294,7 @@ public class GroupCommand extends ConsoleCommand {
                                                     break;
                                                 case LIMBO:
                                                     //TODO: Create Limbo setup
-                                                    commandSender.sendMessage("Its currently not possible to create a Limbo Group");
+                                                    commandSender.sendMessage("Its currently not possible to create a limbo group");
                                                     break;
                                             }
                                         });
@@ -429,14 +435,14 @@ public class GroupCommand extends ConsoleCommand {
                                             group.setMaintenance(boolValue);
                                             group.updateAsync();
                                             group.getServices()
-                                                    .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to get services of group " + group.getName(), e3))
-                                                    .onSuccess(services -> {
-                                                        for (ICloudService service : services) {
-                                                            service.setMaintenance(boolValue);
-                                                            service.updateAsync();
-                                                        }
-                                                        commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
-                                                    });
+                                                .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to get services of group " + group.getName(), e3))
+                                                .onSuccess(services -> {
+                                                    for (ICloudService service : services) {
+                                                        service.setMaintenance(boolValue);
+                                                        service.updateAsync();
+                                                    }
+                                                    commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
+                                                });
                                             break;
                                         case "MAX_SERVICES":
                                         case "MAX_SERVICE":

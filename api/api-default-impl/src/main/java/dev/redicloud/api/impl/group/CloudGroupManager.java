@@ -1,59 +1,58 @@
 package dev.redicloud.api.impl.group;
 
-import dev.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.group.ICloudGroup;
 import dev.redicloud.api.group.ICloudGroupManager;
+import dev.redicloud.api.impl.redis.bucket.fetch.RedissonBucketFetchManager;
 import dev.redicloud.api.service.ICloudService;
 import dev.redicloud.api.template.ICloudServiceTemplate;
 import dev.redicloud.commons.function.future.FutureAction;
 import dev.redicloud.commons.function.future.FutureActionCollection;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudGroup> implements ICloudGroupManager {
+public class CloudGroupManager extends RedissonBucketFetchManager<CloudGroup, ICloudGroup> implements ICloudGroupManager {
 
     public CloudGroupManager() {
-        super("serviceGroup", CloudGroup.class);
+        super("serviceGroup", CloudGroup.class, "service_group_names");
     }
 
     @Override
     public FutureAction<ICloudGroup> getGroupAsync(UUID uniqueId) {
-        return this.getAsync(uniqueId.toString());
+        return this.getBucketAsync(uniqueId.toString());
     }
 
     @Override
     public ICloudGroup getGroup(UUID uniqueId) {
-        return this.get(uniqueId.toString());
+        return this.getBucket(uniqueId.toString());
     }
 
     @Override
     public FutureAction<ICloudGroup> getGroupAsync(String name) {
         FutureAction<ICloudGroup> futureAction = new FutureAction<>();
 
-        getGroupsAsync()
-                .onFailure(futureAction)
-                .onSuccess(groups -> {
-                    Optional<ICloudGroup> optional = groups
-                            .parallelStream()
-                            .filter(group -> group.getName().equalsIgnoreCase(name))
-                            .findFirst();
-                    if (optional.isPresent()) {
-                        futureAction.complete(optional.get());
-                    } else {
-                        futureAction.completeExceptionally(new NullPointerException("Group not found"));
-                    }
-                });
+        containsKeyInFetcherAsync(name.toLowerCase())
+            .onFailure(futureAction)
+            .onSuccess(contains -> {
+                if (contains) {
+                    getFetcherValueAsync(name.toLowerCase())
+                        .onFailure(futureAction)
+                        .onSuccess(uuid -> getBucketAsync(uuid)
+                            .onFailure(futureAction)
+                            .onSuccess(futureAction::complete));
+                } else {
+                    futureAction.completeExceptionally(new NullPointerException("Group not found"));
+                }
+            });
 
         return futureAction;
     }
 
     @Override
     public ICloudGroup getGroup(String name) {
-        return getGroups().parallelStream().filter(group -> group.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+        return getGroup(UUID.fromString(getFetcherValue(name.toLowerCase())));
     }
 
     @Override
@@ -68,24 +67,12 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
 
     @Override
     public FutureAction<Boolean> existsGroupAsync(String name) {
-        FutureAction<Boolean> futureAction = new FutureAction<>();
-
-        getGroupAsync(name)
-                .onFailure(e -> {
-                    if (e instanceof NullPointerException) {
-                        futureAction.complete(false);
-                    } else {
-                        futureAction.completeExceptionally(e);
-                    }
-                })
-                .onSuccess(group -> futureAction.complete(true));
-
-        return futureAction;
+        return this.containsKeyInFetcherAsync(name.toLowerCase());
     }
 
     @Override
     public boolean existsGroup(String name) {
-        return getGroup(name) != null;
+        return this.containsKeyInFetcher(name.toLowerCase());
     }
 
     @Override
@@ -107,38 +94,38 @@ public class CloudGroupManager extends RedissonBucketManager<CloudGroup, ICloudG
     public FutureAction<Boolean> deleteGroupAsync(UUID uniqueId) {
         FutureAction<Boolean> futureAction = new FutureAction<>();
         getGroupAsync(uniqueId)
-                .onFailure(futureAction)
-                .onSuccess(group -> {
-                    group.getConnectedServices()
+            .onFailure(futureAction)
+            .onSuccess(group -> {
+                group.getConnectedServices()
+                    .onFailure(futureAction)
+                    .onSuccess(services -> {
+                        FutureActionCollection<UUID, Boolean> futureActionFutureAction = new FutureActionCollection<>();
+                        for (ICloudService service : services) {
+                            futureActionFutureAction.addToProcess(service.getUniqueId(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(service.getUniqueId(), true));
+                        }
+                        futureActionFutureAction.process()
                             .onFailure(futureAction)
-                            .onSuccess(services -> {
-                                FutureActionCollection<UUID, Boolean> futureActionFutureAction = new FutureActionCollection<>();
-                                for (ICloudService service : services) {
-                                    futureActionFutureAction.addToProcess(service.getUniqueId(), CloudAPI.getInstance().getServiceManager().stopServiceAsync(service.getUniqueId(), true));
-                                }
-                                futureActionFutureAction.process()
-                                        .onFailure(futureAction)
-                                        .onSuccess(s1 -> {
-                                            this.deleteBucketAsync(uniqueId.toString())
-                                                    .onFailure(futureAction)
-                                                    .onSuccess(s2 -> futureAction.complete(true));
-                                        });
+                            .onSuccess(s1 -> {
+                                this.deleteBucketAsync(group)
+                                .onFailure(futureAction)
+                                .onSuccess(s2 -> futureAction.complete(true));
                             });
-                });
+                    });
+            });
 
         return futureAction;
     }
 
     @Override
     public boolean deleteGroup(UUID uniqueId) throws Exception {
-        ICloudGroup holder = getGroup(uniqueId);
+        ICloudGroup group = getGroup(uniqueId);
         for (ICloudService service : CloudAPI.getInstance().getServiceManager().getServices()) {
             if (service.getGroup() == null) continue;
-            if (service.getGroupName().equalsIgnoreCase(holder.getName())) {
+            if (service.getGroupName().equalsIgnoreCase(group.getName())) {
                 CloudAPI.getInstance().getServiceManager().stopServiceAsync(service.getUniqueId(), true).get(5, TimeUnit.SECONDS);
             }
         }
-        this.deleteBucket(uniqueId.toString());
+        this.deleteBucket(group);
         return true;
     }
 

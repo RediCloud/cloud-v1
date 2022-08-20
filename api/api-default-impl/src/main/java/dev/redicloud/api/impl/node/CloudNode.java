@@ -2,6 +2,8 @@ package dev.redicloud.api.impl.node;
 
 import dev.redicloud.api.impl.node.packet.CloudNodeShutdownPacket;
 import dev.redicloud.api.impl.redis.bucket.RBucketObject;
+import dev.redicloud.api.impl.redis.bucket.fetch.RBucketFetchAble;
+import dev.redicloud.api.redis.bucket.fetch.IRBucketFetchAble;
 import lombok.Getter;
 import lombok.Setter;
 import dev.redicloud.api.CloudAPI;
@@ -22,7 +24,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CloudNode extends RBucketObject implements ICloudNode {
+public class CloudNode extends RBucketFetchAble implements ICloudNode {
 
     private UUID uniqueId;
     private String name;
@@ -97,5 +99,15 @@ public class CloudNode extends RBucketObject implements ICloudNode {
     public void merged() {
         if (CloudAPI.getInstance().getApplicationType() != ApplicationType.NODE) return;
         CloudDefaultAPIImpl.getInstance().updateApplicationProperties(this);
+    }
+
+    @Override
+    public String getFetchKey() {
+        return this.name.toLowerCase();
+    }
+
+    @Override
+    public String getFetchValue() {
+        return this.uniqueId.toString();
     }
 }

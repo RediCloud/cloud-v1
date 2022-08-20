@@ -1,6 +1,7 @@
 package dev.redicloud.api.impl.service;
 
 import dev.redicloud.api.impl.redis.bucket.RBucketObject;
+import dev.redicloud.api.impl.redis.bucket.fetch.RBucketFetchAble;
 import lombok.Getter;
 import lombok.Setter;
 import dev.redicloud.api.CloudAPI;
@@ -19,7 +20,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CloudService extends RBucketObject implements ICloudService {
+public class CloudService extends RBucketFetchAble implements ICloudService {
 
     private IServiceStartConfiguration configuration;
     private String motd = "Unknown";
@@ -62,4 +63,13 @@ public class CloudService extends RBucketObject implements ICloudService {
         return CloudAPI.getInstance().getServiceVersionManager().getServiceVersionAsync(this.configuration.getServiceVersionName());
     }
 
+    @Override
+    public String getFetchKey() {
+        return this.getServiceName().toLowerCase();
+    }
+
+    @Override
+    public String getFetchValue() {
+        return getUniqueId().toString();
+    }
 }

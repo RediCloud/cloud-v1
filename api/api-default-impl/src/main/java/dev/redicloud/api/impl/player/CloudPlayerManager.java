@@ -1,9 +1,8 @@
 package dev.redicloud.api.impl.player;
 
-import dev.redicloud.api.impl.redis.bucket.RedissonBucketManager;
-import lombok.Getter;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.impl.configuration.impl.PlayerConfiguration;
+import dev.redicloud.api.impl.redis.bucket.fetch.RedissonBucketFetchManager;
 import dev.redicloud.api.player.ICloudPlayer;
 import dev.redicloud.api.player.ICloudPlayerManager;
 import dev.redicloud.api.redis.event.RedisConnectedEvent;
@@ -12,27 +11,25 @@ import dev.redicloud.api.service.ServiceEnvironment;
 import dev.redicloud.api.service.ServiceState;
 import dev.redicloud.commons.function.future.FutureAction;
 import dev.redicloud.commons.function.future.FutureActionCollection;
+import lombok.Getter;
 import org.redisson.api.RList;
-import org.redisson.api.RMap;
 
 import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, ICloudPlayer> implements ICloudPlayerManager {
+public class CloudPlayerManager extends RedissonBucketFetchManager<CloudPlayer, ICloudPlayer> implements ICloudPlayerManager {
 
     private RList<String> connectedList;
     private RList<String> registeredList;
-    private RMap<String, String> nameFetcherMap;
     @Getter
     private PlayerConfiguration configuration = new PlayerConfiguration();
 
     public CloudPlayerManager() {
-        super("player", CloudPlayer.class);
+        super("player", CloudPlayer.class, "player_nameFetcher");
         CloudAPI.getInstance().getEventManager().registerWithoutBlockWarning(RedisConnectedEvent.class, event -> {
             this.connectedList = event.getConnection().getClient().getList("fetcher:player_connected", getObjectCodec());
             this.registeredList = event.getConnection().getClient().getList("fetcher:player_registered", getObjectCodec());
-            this.nameFetcherMap = event.getConnection().getClient().getMap("fetcher:player_nameFetcher", getObjectCodec());
             this.configuration = CloudAPI.getInstance().getConfigurationManager().existsConfiguration(this.configuration.getIdentifier())
                     ? CloudAPI.getInstance().getConfigurationManager().getConfiguration(this.configuration.getIdentifier(), PlayerConfiguration.class)
                     : CloudAPI.getInstance().getConfigurationManager().createConfiguration(this.configuration);
@@ -41,32 +38,31 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
 
     @Override
     public ICloudPlayer getPlayer(String playerName) {
-        if (!this.nameFetcherMap.containsKey(playerName)) return null;
-        return this.getPlayer(this.nameFetcherMap.get(playerName));
+        return this.getPlayer(this.getFetcherValue(playerName.toLowerCase()));
     }
 
     @Override
     public ICloudPlayer getPlayer(UUID uniqueId) {
-        return this.get(uniqueId.toString());
+        return this.getBucket(uniqueId.toString());
     }
 
     @Override
     public FutureAction<ICloudPlayer> getPlayerAsync(String playerName) {
         FutureAction<ICloudPlayer> futureAction = new FutureAction<>();
 
-        this.nameFetcherMap.containsKeyAsync(playerName)
+        this.containsKeyInFetcherAsync(playerName.toLowerCase())
                 .whenComplete((contains, throwable) -> {
                     if (throwable != null) {
                         futureAction.completeExceptionally(throwable);
                         return;
                     }
-                    this.nameFetcherMap.getAsync(playerName)
+                    this.getFetcherValueAsync(playerName.toLowerCase())
                             .whenComplete((uniqueId, throwable1) -> {
                                 if (throwable1 != null) {
                                     futureAction.completeExceptionally(throwable1);
                                     return;
                                 }
-                                this.getAsync(uniqueId)
+                                this.getBucketAsync(uniqueId)
                                         .onFailure(futureAction::completeExceptionally)
                                         .onSuccess(futureAction::complete);
                             });
@@ -77,7 +73,7 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
 
     @Override
     public FutureAction<ICloudPlayer> getPlayerAsync(UUID uniqueId) {
-        return this.getAsync(uniqueId.toString());
+        return this.getBucketAsync(uniqueId.toString());
     }
 
     @Override
@@ -87,12 +83,12 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
 
     @Override
     public boolean existsPlayer(String name) {
-        return this.nameFetcherMap.containsKey(name.toLowerCase());
+        return this.containsKeyInFetcher(name.toLowerCase());
     }
 
     @Override
     public FutureAction<Boolean> existsPlayerAsync(String name) {
-        return new FutureAction<>(this.nameFetcherMap.containsKeyAsync(name.toLowerCase()));
+        return new FutureAction<>(this.containsKeyInFetcherAsync(name.toLowerCase()));
     }
 
     @Override
@@ -103,14 +99,12 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     @Override
     public ICloudPlayer createPlayer(ICloudPlayer cloudPlayer) {
         this.registeredList.add(cloudPlayer.getUniqueId().toString());
-        this.nameFetcherMap.put(cloudPlayer.getName().toLowerCase(), cloudPlayer.getUniqueId().toString());
         return this.createBucket(cloudPlayer.getUniqueId().toString(), cloudPlayer);
     }
 
     @Override
     public FutureAction<ICloudPlayer> createPlayerAsync(ICloudPlayer cloudPlayer) {
         this.registeredList.addAsync(cloudPlayer.getUniqueId().toString());
-        this.nameFetcherMap.putAsync(cloudPlayer.getName().toLowerCase(), cloudPlayer.getUniqueId().toString());
         return this.createBucketAsync(cloudPlayer.getUniqueId().toString(), cloudPlayer);
     }
 
@@ -127,7 +121,7 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     @Override
     public FutureAction<Collection<ICloudPlayer>> getConnectedPlayers() {
         FutureAction<Collection<ICloudPlayer>> futureAction = new FutureAction<>();
-        this.nameFetcherMap.readAllValuesAsync()
+        this.readAllFetcherKeysAsync()
                 .whenComplete((values, throwable) -> {
                     if (throwable != null) {
                         futureAction.completeExceptionally(throwable);
@@ -152,45 +146,34 @@ public class CloudPlayerManager extends RedissonBucketManager<CloudPlayer, IClou
     public FutureAction<UUID> fetchUniqueIdAsync(String playerName) {
         FutureAction<UUID> futureAction = new FutureAction<>();
 
-        this.nameFetcherMap.containsKeyAsync(playerName)
-                .whenComplete((contains, throwable) -> {
-                    if (throwable != null) {
-                        futureAction.completeExceptionally(throwable);
-                        return;
-                    }
-                    if (contains) {
-                        this.nameFetcherMap.getAsync(playerName)
-                                .whenComplete((uuid, throwable1) -> {
-                                    if (throwable1 != null) {
-                                        futureAction.completeExceptionally(throwable1);
-                                        return;
-                                    }
-                                    futureAction.complete(UUID.fromString(uuid));
-                                });
-                        return;
-                    }
-                    this.nameFetcherMap.getAsync(playerName)
-                            .whenComplete((uuid, throwable1) -> {
-                                if (throwable1 != null) {
-                                    futureAction.completeExceptionally(throwable1);
-                                    return;
-                                }
-                                futureAction.complete(UUID.fromString(uuid));
-                            });
-                });
+        this.containsKeyInFetcherAsync(playerName.toLowerCase())
+            .whenComplete((contains, throwable) -> {
+                if (throwable != null) {
+                    futureAction.completeExceptionally(throwable);
+                    return;
+                }
+                this.getFetcherValueAsync(playerName.toLowerCase())
+                    .whenComplete((uuid, throwable1) -> {
+                        if (throwable1 != null) {
+                            futureAction.completeExceptionally(throwable1);
+                            return;
+                        }
+                        futureAction.complete(UUID.fromString(uuid));
+                    });
+            });
 
         return futureAction;
     }
 
     @Override
     public UUID fetchUniqueId(String playerName) {
-        return UUID.fromString(this.nameFetcherMap.get(playerName));
+        return UUID.fromString(this.getFetcherValue(playerName.toLowerCase()));
     }
 
     @Override
     public void updateName(UUID uniqueId, String newName, String oldName) {
-        this.nameFetcherMap.remove(oldName);
-        this.nameFetcherMap.put(uniqueId.toString(), newName);
+        this.removeFromFetcher(oldName.toLowerCase());
+        this.putInFetcher(newName.toLowerCase(), uniqueId.toString());
     }
 
     @Override

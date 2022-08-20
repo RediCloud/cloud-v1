@@ -42,8 +42,6 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
     public FutureAction<ICloudService> queueService(IServiceStartConfiguration configuration) {
         this.thread.getQueue().add(configuration);
         configuration.listenToStart();
-        configuration.getStartListener()
-                .onSuccess(holder -> this.serviceManager.putInFetcher(holder.getServiceName(), holder.getUniqueId()));
         return configuration.getStartListener();
     }
 
@@ -62,8 +60,6 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
                         NodeLauncher.getInstance().getNode().setMemoryUsage(NodeLauncher.getInstance().getNode().getMemoryUsage()
                                 - serviceHolder.getConfiguration().getMaxMemory());
                         NodeLauncher.getInstance().getNode().updateAsync();
-
-                        CloudAPI.getInstance().getServiceManager().removeFromFetcher(serviceHolder.getServiceName());
 
                         CloudAPI.getInstance().getEventManager().postGlobalAsync(new CloudServiceStoppedEvent(serviceHolder));
                         return;
@@ -93,7 +89,7 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
                                             .onSuccess(v -> futureAction.complete(true));
                                 } else {
                                     this.serviceManager.removeFromFetcher(process.getService().getServiceName());
-                                    this.serviceManager.deleteBucketAsync(process.getService().getUniqueId().toString())
+                                    this.serviceManager.deleteBucketAsync(process.getService())
                                             .onFailure(futureAction)
                                             .onSuccess(v -> futureAction.complete(true));
                                 }

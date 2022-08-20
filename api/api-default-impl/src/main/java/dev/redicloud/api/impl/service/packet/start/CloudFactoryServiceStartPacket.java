@@ -15,7 +15,7 @@ public class CloudFactoryServiceStartPacket extends CloudPacket {
 
     @Override
     public void receive() {
-        CloudFactoryServiceStartResponseCloud response = new CloudFactoryServiceStartResponseCloud();
+        CloudFactoryServiceStartResponse response = new CloudFactoryServiceStartResponse();
         if (this.async) {
             CloudAPI.getInstance().getServiceManager().startService(this.configuration)
                     .onFailure(e -> {

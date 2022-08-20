@@ -268,7 +268,7 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
                 return;
             }
         }else{
-            service = (CloudService) this.serviceManager.getService(getServiceId());
+            service = this.serviceManager.getBucketImpl(getServiceId().toString());
             if(service.getServiceState() == ServiceState.RUNNING_DEFINED || service.getServiceState() == ServiceState.RUNNING_UNDEFINED){
                 this.runningExternal = true;
                 this.console.fatal("Can´t run external service because " + getServiceId() + " is already running!", null);
@@ -285,7 +285,9 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
             if (this.service.getOnlineCount() != ProxyServer.getInstance().getOnlineCount()) {
                 this.service.setOnlineCount(ProxyServer.getInstance().getOnlineCount());
                 this.service.setLastPlayerAction(System.currentTimeMillis());
+
                 this.service.updateAsync();
+                this.console.trace("Service " + this.service.getId() + " updated");
             }
         }, 1500, 1500, TimeUnit.MILLISECONDS);
     }

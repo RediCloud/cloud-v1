@@ -97,7 +97,10 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
                 this.service.setMaxPlayers(Bukkit.getMaxPlayers());
                 update = true;
             }
-            if(update) this.service.updateAsync();
+            if(update) {
+                this.console.trace("Service " + this.service.getId() + " updated");
+                this.service.updateAsync();
+            }
         }, 0, 20);
     }
 

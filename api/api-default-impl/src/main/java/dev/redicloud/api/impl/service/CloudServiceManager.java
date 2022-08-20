@@ -1,16 +1,14 @@
 package dev.redicloud.api.impl.service;
 
-import dev.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import dev.redicloud.api.impl.redis.bucket.fetch.RedissonBucketFetchManager;
 import dev.redicloud.api.impl.service.configuration.DefaultServiceStartConfiguration;
 import dev.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartPacket;
-import dev.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartResponseCloud;
+import dev.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartResponse;
 import dev.redicloud.api.impl.service.packet.stop.CloudFactoryServiceStopPacket;
 import lombok.Getter;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.impl.service.packet.command.CloudServiceConsoleCommandPacket;
 import dev.redicloud.api.player.ICloudPlayer;
-import dev.redicloud.api.redis.event.RedisConnectedEvent;
 import dev.redicloud.api.service.ICloudService;
 import dev.redicloud.api.service.ICloudServiceManager;
 import dev.redicloud.api.service.ServiceEnvironment;
@@ -89,7 +87,7 @@ public abstract class CloudServiceManager extends RedissonBucketFetchManager<Clo
                     packet.getPacketData().waitForResponse()
                             .onFailure(futureAction)
                             .onSuccess(response -> {
-                                CloudAPI.getInstance().getServiceManager().getServiceAsync(((CloudFactoryServiceStartResponseCloud) response).getServiceId())
+                                CloudAPI.getInstance().getServiceManager().getServiceAsync(((CloudFactoryServiceStartResponse) response).getServiceId())
                                         .onFailure(futureAction)
                                         .onSuccess(futureAction::complete);
                             });

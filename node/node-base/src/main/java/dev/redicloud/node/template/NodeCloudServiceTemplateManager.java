@@ -77,7 +77,7 @@ public class NodeCloudServiceTemplateManager extends CloudServiceTemplateManager
                                 packet.getPacketData().setChannel(PacketChannel.NODE);
                                 packet.setPath(file.getPath());
                                 packet.publishAllAsync(NetworkComponentType.NODE);
-                                this.deleteBucketAsync(name.toLowerCase())
+                                this.deleteBucketAsync(template)
                                         .onFailure(futureAction)
                                         .onSuccess(r -> futureAction.complete(true));
                             });

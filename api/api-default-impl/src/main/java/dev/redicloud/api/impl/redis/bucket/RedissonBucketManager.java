@@ -12,7 +12,9 @@ import dev.redicloud.api.redis.bucket.IRedissonBucketManager;
 import dev.redicloud.commons.function.Predicates;
 import dev.redicloud.commons.function.future.FutureAction;
 import dev.redicloud.commons.function.future.FutureActionCollection;
+import org.redisson.api.RBatch;
 import org.redisson.api.RBucket;
+import org.redisson.api.RTransaction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,8 +37,9 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
         this.redisPrefix = prefix;
     }
 
-    public static RedissonBucketManager<?, ?> getManager(String prefix) {
-        return managers.get(prefix);
+    @Override
+    public RBatch createBatch() {
+        return getClient().createBatch();
     }
 
     @Override
@@ -279,7 +282,8 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
     }
 
     @Override
-    public boolean deleteBucket(String identifier) {
+    public boolean deleteBucket(I object) {
+        String identifier = object.getIdentifier();
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (this.isCached(identifier)) {
             this.cachedBucketObjects.remove(identifier);
@@ -296,7 +300,8 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
     }
 
     @Override
-    public FutureAction<Boolean> deleteBucketAsync(String identifier) {
+    public FutureAction<Boolean> deleteBucketAsync(I object) {
+        String identifier = object.getIdentifier();
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (this.isCached(identifier)) {
             this.cachedBucketObjects.remove(identifier);
@@ -331,6 +336,11 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
             futureAction.complete(keys);
         });
         return futureAction;
+    }
+
+
+    public static RedissonBucketManager<?, ?> getManager(String prefix) {
+        return managers.get(prefix);
     }
 
 }

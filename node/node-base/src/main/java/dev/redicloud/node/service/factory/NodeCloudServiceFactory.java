@@ -93,7 +93,7 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
                                             .onSuccess(v -> futureAction.complete(true));
                                 } else {
                                     this.serviceManager.removeFromFetcher(process.getService().getServiceName());
-                                    this.serviceManager.deleteBucketAsync(process.getService().getUniqueId().toString())
+                                    this.serviceManager.deleteBucketAsync(process.getService())
                                             .onFailure(futureAction)
                                             .onSuccess(v -> futureAction.complete(true));
                                 }

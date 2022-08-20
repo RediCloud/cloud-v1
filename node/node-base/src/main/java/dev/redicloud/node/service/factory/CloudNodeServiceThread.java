@@ -156,7 +156,6 @@ public class CloudNodeServiceThread extends Thread {
                             if (config.isStatic()) return;
                             if (!CloudAPI.getInstance().getServiceManager().existsService(config.getUniqueId())) return;
                             CloudAPI.getInstance().getServiceManager().removeFromFetcher(config.getName());
-                            NodeLauncher.getInstance().getServiceManager().deleteBucket(config.getUniqueId().toString());
                         });
 
                     if (this.queue.isExists()) {
@@ -282,10 +281,6 @@ public class CloudNodeServiceThread extends Thread {
                 configuration.setUniqueId(cloudService.getUniqueId());
             }
         }else{
-            if (CloudAPI.getInstance().getServiceManager().existsService(configuration.getUniqueId())) {
-                NodeLauncher.getInstance().getServiceManager().removeFromFetcher(configuration.getName() + "-" + configuration.getId(), configuration.getUniqueId());
-                NodeLauncher.getInstance().getServiceManager().deleteBucket(configuration.getUniqueId().toString());
-            }
             if(configuration.getId() < 1){
                 configuration.setId(this.getNextId(configuration.getName(), configuration.isStatic(), services));
             }

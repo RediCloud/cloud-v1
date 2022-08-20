@@ -68,7 +68,8 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
         }
         if (!builder.toString().isEmpty())
             throw new IllegalStateException("Service version " + name + " is still in use by groups: " + builder.toString());
-        return this.deleteBucket(name);
+        ICloudServiceVersion serviceVersion = this.get(name);
+        return this.deleteBucket(serviceVersion);
     }
 
     @Override
@@ -88,9 +89,11 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
                         futureAction.completeExceptionally(new IllegalStateException("Service version " + name + " is still in use by groups: " + builder.toString()));
                         return;
                     }
-                    this.deleteBucketAsync(name)
+                    getServiceVersionAsync(name)
+                        .onFailure(futureAction)
+                        .onSuccess(serviceVersion -> this.deleteBucketAsync(serviceVersion)
                             .onFailure(futureAction)
-                            .onSuccess(futureAction::complete);
+                            .onSuccess(futureAction::complete));
                 });
         return futureAction;
     }

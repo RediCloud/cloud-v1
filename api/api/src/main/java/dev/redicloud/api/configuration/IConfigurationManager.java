@@ -9,7 +9,6 @@ public interface IConfigurationManager {
     boolean existsConfiguration(String identifier);
 
     <T extends IConfiguration> boolean deleteConfiguration(T configuration);
-    boolean deleteConfiguration(String identifier);
 
     void reloadFromDatabase();
 

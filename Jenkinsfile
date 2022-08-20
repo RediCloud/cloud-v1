@@ -59,9 +59,11 @@ pipeline {
                 }
             }
         }
-        stage("Publishing") {
+        stage("Repo publishing") {
             steps {
-                sh "./gradlew publishToRepository --stacktrace";
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                    sh "./gradlew publishToRepository --stacktrace -DskipStaging=true";
+                }
             }
         }
     }

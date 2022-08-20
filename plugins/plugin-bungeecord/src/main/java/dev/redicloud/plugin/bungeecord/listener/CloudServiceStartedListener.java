@@ -34,7 +34,7 @@ public class CloudServiceStartedListener {
                     ProxyServer.getInstance().getServers().put(serverInfo.getName(), serverInfo);
                     CloudAPI.getInstance().getConsole().debug("Registered service: " + serviceHolder.getServiceName());
 
-                    if(event.getService().isFallback()) {
+                    if(serviceHolder.isFallback()) {
                         CloudAPI.getInstance().getServiceManager().getServicesAsync()
                                 .onFailure(e -> CloudAPI.getInstance().getConsole().error("Failed to get services!", e))
                                 .onSuccess(services -> {

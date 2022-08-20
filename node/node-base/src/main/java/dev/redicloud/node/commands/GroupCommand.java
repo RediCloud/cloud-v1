@@ -429,14 +429,14 @@ public class GroupCommand extends ConsoleCommand {
                                             group.setMaintenance(boolValue);
                                             group.updateAsync();
                                             group.getServices()
-                                                    .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to get services of group " + group.getName(), e3))
-                                                    .onSuccess(services -> {
-                                                        for (ICloudService service : services) {
-                                                            service.setMaintenance(boolValue);
-                                                            service.updateAsync();
-                                                        }
-                                                        commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
-                                                    });
+                                                .onFailure(e3 -> CloudAPI.getInstance().getConsole().error("Failed to get services of group " + group.getName(), e3))
+                                                .onSuccess(services -> {
+                                                    for (ICloudService service : services) {
+                                                        service.setMaintenance(boolValue);
+                                                        service.updateAsync();
+                                                    }
+                                                    commandSender.sendMessage("Group %hc" + name + "%tc maintenance set to %hc" + boolValue);
+                                                });
                                             break;
                                         case "MAX_SERVICES":
                                         case "MAX_SERVICE":

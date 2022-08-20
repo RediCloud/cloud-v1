@@ -57,7 +57,7 @@ public abstract class CloudServiceManager extends RedissonBucketFetchManager<Clo
 
     @Override
     public ICloudService getService(String name) {
-        return getService(getFetcherValue(name.toLowerCase()));
+        return getService(UUID.fromString(getFetcherValue(name.toLowerCase())));
     }
 
     @Override

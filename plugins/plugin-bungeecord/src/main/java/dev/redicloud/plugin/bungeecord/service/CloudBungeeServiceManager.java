@@ -5,7 +5,7 @@ import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.impl.service.CloudServiceManager;
 import dev.redicloud.api.service.ICloudService;
 
-public class CloudProxyServiceManager extends CloudServiceManager {
+public class CloudBungeeServiceManager extends CloudServiceManager {
 
     @Override
     public boolean executeCommand(ICloudService serviceHolder, String command) {

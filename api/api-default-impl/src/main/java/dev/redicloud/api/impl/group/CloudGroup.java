@@ -135,7 +135,7 @@ public class CloudGroup extends RBucketFetchAble implements ICloudGroup {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(holders -> holders
                         .parallelStream()
-                        .filter(holder -> holder.isGroupBased())
+                        .filter(ICloudService::isGroupBased)
                         .filter(holder -> holder.getGroupName().equalsIgnoreCase(this.name))
                         .collect(Collectors.toList())
                 );
@@ -146,7 +146,7 @@ public class CloudGroup extends RBucketFetchAble implements ICloudGroup {
         return CloudAPI.getInstance().getServiceManager().getServicesAsync()
                 .map(holders -> holders
                         .parallelStream()
-                        .filter(holder -> holder.isGroupBased())
+                        .filter(ICloudService::isGroupBased)
                         .filter(holder -> holder.getGroupName().equalsIgnoreCase(this.name))
                         .filter(holder -> holder.getServiceState() == serviceState)
                         .collect(Collectors.toList()));

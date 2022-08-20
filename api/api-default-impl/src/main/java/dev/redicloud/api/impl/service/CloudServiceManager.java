@@ -35,14 +35,14 @@ public abstract class CloudServiceManager extends RedissonBucketFetchManager<Clo
     public FutureAction<ICloudService> getServiceAsync(String name) {
         FutureAction<ICloudService> futureAction = new FutureAction<>();
 
-        this.containsKeyInFetcherAsync(name)
+        this.containsKeyInFetcherAsync(name.toLowerCase())
             .onFailure(futureAction)
             .onSuccess(contains -> {
                 if (!contains) {
                     futureAction.completeExceptionally(new IllegalArgumentException(name + " service not found"));
                     return;
                 }
-                getFetcherValueAsync(name)
+                getFetcherValueAsync(name.toLowerCase())
                     .onFailure(futureAction)
                     .onSuccess(serviceId -> getServiceAsync(serviceId)
                         .onFailure(futureAction)
@@ -59,7 +59,7 @@ public abstract class CloudServiceManager extends RedissonBucketFetchManager<Clo
 
     @Override
     public ICloudService getService(String name) {
-        return getService(getFetcherValue(name));
+        return getService(getFetcherValue(name.toLowerCase()));
     }
 
     @Override
@@ -201,7 +201,7 @@ public abstract class CloudServiceManager extends RedissonBucketFetchManager<Clo
 
     @Override
     public boolean existsService(String name) {
-        return getServices().parallelStream().anyMatch(service -> service.getServiceName().equalsIgnoreCase(name));
+        return containsKeyInFetcher(name.toLowerCase());
     }
 
     @Override
@@ -211,7 +211,7 @@ public abstract class CloudServiceManager extends RedissonBucketFetchManager<Clo
 
     @Override
     public FutureAction<Boolean> existsServiceAsync(String name) {
-        return containsKeyInFetcherAsync(name);
+        return containsKeyInFetcherAsync(name.toLowerCase());
     }
 
     @Override

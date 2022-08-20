@@ -217,7 +217,7 @@ allprojects {
         dependencies {
             configurations = [project.configurations.runtimeClasspath]
         }
-        relocate 'io.netty', 'net.suqatri.redicloud.libs.io.netty'
+        relocate 'io.netty', 'dev.redicloud.libs.io.netty'
     }
 
     task createProperties(dependsOn: processResources) {

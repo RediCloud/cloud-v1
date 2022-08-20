@@ -11,22 +11,6 @@ import java.util.UUID;
 
 public interface ICloudServiceManager {
 
-    FutureAction<Set<String>> readAllFetcherKeysAsync();
-
-    void putInFetcher(String serviceName, UUID serviceId);
-
-    void removeFromFetcher(String serviceName);
-
-    void removeFromFetcher(String serviceName, UUID serviceId);
-
-    boolean containsKeyInFetcher(String serviceName);
-
-    FutureAction<Boolean> containsKeyInFetcherAsync(String serviceName);
-
-    FutureAction<UUID> getServiceIdFromFetcherAsync(String serviceName);
-
-    UUID getServiceIdFromFetcher(String serviceName);
-
     FutureAction<ICloudService> getServiceAsync(String name);
 
     FutureAction<ICloudService> getServiceAsync(UUID uniqueId);

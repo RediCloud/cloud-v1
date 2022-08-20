@@ -1,6 +1,7 @@
 package dev.redicloud.api.impl.service;
 
 import dev.redicloud.api.impl.redis.bucket.RedissonBucketManager;
+import dev.redicloud.api.impl.redis.bucket.fetch.RedissonBucketFetchManager;
 import dev.redicloud.api.impl.service.configuration.DefaultServiceStartConfiguration;
 import dev.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartPacket;
 import dev.redicloud.api.impl.service.packet.start.CloudFactoryServiceStartResponseCloud;
@@ -21,55 +22,13 @@ import org.redisson.api.RMap;
 
 import java.util.*;
 
-public abstract class CloudServiceManager extends RedissonBucketManager<CloudService, ICloudService> implements ICloudServiceManager {
+public abstract class CloudServiceManager extends RedissonBucketFetchManager<CloudService, ICloudService> implements ICloudServiceManager {
 
     @Getter
     private RMap<String, String> serviceIdFetcherMap;
 
     public CloudServiceManager() {
-        super("service", CloudService.class);
-        CloudAPI.getInstance().getEventManager().register(RedisConnectedEvent.class, event ->
-                this.serviceIdFetcherMap = event.getConnection().getClient().getMap("fetcher:serviceId", getObjectCodec()));
-    }
-
-    @Override
-    public FutureAction<Set<String>> readAllFetcherKeysAsync() {
-        return new FutureAction<>(this.serviceIdFetcherMap.readAllKeySetAsync());
-    }
-
-    @Override
-    public void putInFetcher(String serviceName, UUID serviceId) {
-        this.serviceIdFetcherMap.putAsync(serviceName.toLowerCase(), serviceId.toString());
-    }
-
-    @Override
-    public void removeFromFetcher(String serviceName) {
-        this.serviceIdFetcherMap.removeAsync(serviceName.toLowerCase());
-    }
-
-    @Override
-    public void removeFromFetcher(String serviceName, UUID serviceId) {
-        this.serviceIdFetcherMap.removeAsync(serviceName.toLowerCase(), serviceId.toString());
-    }
-
-    @Override
-    public boolean containsKeyInFetcher(String serviceName) {
-        return this.serviceIdFetcherMap.containsKey(serviceName.toLowerCase());
-    }
-
-    @Override
-    public FutureAction<Boolean> containsKeyInFetcherAsync(String serviceName) {
-        return new FutureAction<>(this.serviceIdFetcherMap.containsKeyAsync(serviceName.toLowerCase()));
-    }
-
-    @Override
-    public FutureAction<UUID> getServiceIdFromFetcherAsync(String serviceName) {
-        return new FutureAction<>(this.serviceIdFetcherMap.getAsync(serviceName.toLowerCase())).map(UUID::fromString);
-    }
-
-    @Override
-    public UUID getServiceIdFromFetcher(String serviceName) {
-        return UUID.fromString(this.serviceIdFetcherMap.get(serviceName.toLowerCase()));
+        super("service", CloudService.class, "serviceId");
     }
 
     @Override
@@ -77,60 +36,45 @@ public abstract class CloudServiceManager extends RedissonBucketManager<CloudSer
         FutureAction<ICloudService> futureAction = new FutureAction<>();
 
         this.containsKeyInFetcherAsync(name)
-                .onFailure(futureAction)
-                .onSuccess(contains -> {
-                    if (!contains) {
-                        futureAction.completeExceptionally(new IllegalArgumentException(name + " service not found"));
-                        return;
-                    }
-                    getServiceIdFromFetcherAsync(name)
-                            .onFailure(futureAction)
-                            .onSuccess(serviceId -> getServiceAsync(serviceId)
-                                    .onFailure(futureAction)
-                                    .onSuccess(futureAction::complete));
-                });
+            .onFailure(futureAction)
+            .onSuccess(contains -> {
+                if (!contains) {
+                    futureAction.completeExceptionally(new IllegalArgumentException(name + " service not found"));
+                    return;
+                }
+                getFetcherValueAsync(name)
+                    .onFailure(futureAction)
+                    .onSuccess(serviceId -> getServiceAsync(serviceId)
+                        .onFailure(futureAction)
+                        .onSuccess(futureAction::complete));
+            });
 
         return futureAction;
     }
 
     @Override
     public FutureAction<ICloudService> getServiceAsync(UUID uniqueId) {
-        return this.getAsync(uniqueId.toString()).map(holder -> {
-            this.putInFetcher(holder.getServiceName(), holder.getUniqueId());
-            return holder;
-        });
+        return this.getAsync(uniqueId.toString());
     }
 
     @Override
     public ICloudService getService(String name) {
-        if (!containsKeyInFetcher(name)) return null;
-        return getService(getServiceIdFromFetcher(name));
+        return getService(getFetcherValue(name));
     }
 
     @Override
     public ICloudService getService(UUID uniqueId) {
-        ICloudService holder = get(uniqueId.toString());
-        putInFetcher(holder.getServiceName(), holder.getUniqueId());
-        return holder;
+        return get(uniqueId.toString());
     }
 
     @Override
     public FutureAction<Collection<ICloudService>> getServicesAsync() {
-        return this.getBucketHoldersAsync().map(services -> {
-            for (ICloudService service : services) {
-                putInFetcher(service.getServiceName(), service.getUniqueId());
-            }
-            return services;
-        });
+        return this.getBucketHoldersAsync();
     }
 
     @Override
     public Collection<ICloudService> getServices() {
-        Collection<ICloudService> services = getBucketHolders();
-        for (ICloudService service : services) {
-            putInFetcher(service.getServiceName(), service.getUniqueId());
-        }
-        return services;
+        return getBucketHolders();
     }
 
     @Override

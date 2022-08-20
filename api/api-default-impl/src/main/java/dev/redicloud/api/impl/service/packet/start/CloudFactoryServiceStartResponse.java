@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CloudFactoryServiceStartResponseCloud extends CloudPacketResponse {
+public class CloudFactoryServiceStartResponse extends CloudPacketResponse {
 
     private UUID serviceId;
 

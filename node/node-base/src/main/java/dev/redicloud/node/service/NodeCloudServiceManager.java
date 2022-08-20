@@ -31,8 +31,8 @@ public class NodeCloudServiceManager extends CloudServiceManager {
                 count++;
                 if(service.isStatic()) continue;
                 CloudAPI.getInstance().getConsole().warn("Service " + service.getServiceName() + " is still registered in redis!");
-                deleteBucketAsync(service.getIdentifier());
-                removeFromFetcher(service.getServiceName(), service.getUniqueId());
+                deleteBucketAsync(service);
+                removeFromFetcher(service.getServiceName(), service.getUniqueId().toString());
                 if (getClient().getList("screen-log:" + service.getUniqueId()).isExists()) {
                     getClient().getList("screen-log:" + service.getUniqueId()).deleteAsync();
                 }
@@ -42,7 +42,7 @@ public class NodeCloudServiceManager extends CloudServiceManager {
         }
         for (String s : readAllFetcherKeysAsync().getBlockOrNull()) {
             if(!existsService(s)) {
-                getServiceIdFetcherMap().remove(s);
+                removeFromFetcher(s);
                 continue;
             }
             ICloudService serviceHolder = getService(s);

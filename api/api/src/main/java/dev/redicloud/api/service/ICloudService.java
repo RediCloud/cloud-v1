@@ -1,6 +1,6 @@
 package dev.redicloud.api.service;
 
-import dev.redicloud.api.redis.bucket.IRBucketObject;
+import dev.redicloud.api.redis.bucket.fetch.IRBucketFetchAble;
 import dev.redicloud.api.service.configuration.IServiceStartConfiguration;
 import dev.redicloud.api.service.version.ICloudServiceVersion;
 import dev.redicloud.api.CloudAPI;
@@ -11,7 +11,7 @@ import dev.redicloud.commons.function.future.FutureAction;
 import java.util.Collection;
 import java.util.UUID;
 
-public interface ICloudService extends IRBucketObject {
+public interface ICloudService extends IRBucketFetchAble {
 
     IServiceStartConfiguration getConfiguration();
 

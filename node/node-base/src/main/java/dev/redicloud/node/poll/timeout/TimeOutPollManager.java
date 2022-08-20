@@ -105,6 +105,6 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
 
     @Override
     public FutureAction<Boolean> closePoll(ITimeOutPoll poolHolder) {
-        return this.deleteBucketAsync(poolHolder.getIdentifier());
+        return this.deleteBucketAsync(poolHolder);
     }
 }

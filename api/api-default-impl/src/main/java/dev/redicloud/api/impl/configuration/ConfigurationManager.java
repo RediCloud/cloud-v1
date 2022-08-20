@@ -40,11 +40,6 @@ public class ConfigurationManager extends RedissonBucketManager<Configuration, I
     }
 
     @Override
-    public boolean deleteConfiguration(String identifier) {
-        return this.deleteBucket(identifier);
-    }
-
-    @Override
     public void reloadFromDatabase() {
         boolean firstLoad = this.getCachedBucketObjects().isEmpty();
         this.getCachedBucketObjects().clear();

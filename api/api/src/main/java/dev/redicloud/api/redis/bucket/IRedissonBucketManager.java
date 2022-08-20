@@ -2,6 +2,7 @@ package dev.redicloud.api.redis.bucket;
 
 import dev.redicloud.api.redis.IRedissonManager;
 import dev.redicloud.commons.function.future.FutureAction;
+import org.redisson.api.RBatch;
 
 import java.util.Collection;
 
@@ -31,9 +32,11 @@ public interface IRedissonBucketManager<T extends I, I extends IRBucketObject> e
     Collection<I> getBucketHolders();
     FutureAction<Collection<I>> getBucketHoldersAsync();
 
-    boolean deleteBucket(String identifier);
-    FutureAction<Boolean> deleteBucketAsync(String identifier);
+    boolean deleteBucket(I identifier);
+    FutureAction<Boolean> deleteBucketAsync(I identifier);
 
     T publishChanges(T holder);
     FutureAction<T> publishChangesAsync(T holder);
+
+    RBatch createBatch();
 }

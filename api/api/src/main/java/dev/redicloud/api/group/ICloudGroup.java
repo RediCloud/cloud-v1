@@ -2,6 +2,7 @@ package dev.redicloud.api.group;
 
 import dev.redicloud.api.player.ICloudPlayer;
 import dev.redicloud.api.redis.bucket.IRBucketObject;
+import dev.redicloud.api.redis.bucket.fetch.IRBucketFetchAble;
 import dev.redicloud.api.service.ICloudService;
 import dev.redicloud.api.service.ServiceEnvironment;
 import dev.redicloud.api.service.ServiceState;
@@ -14,7 +15,7 @@ import dev.redicloud.commons.function.future.FutureAction;
 import java.util.Collection;
 import java.util.UUID;
 
-public interface ICloudGroup extends IRBucketObject {
+public interface ICloudGroup extends IRBucketFetchAble {
 
     UUID getUniqueId();
 

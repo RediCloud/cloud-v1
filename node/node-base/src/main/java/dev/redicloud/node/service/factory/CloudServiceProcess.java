@@ -128,8 +128,8 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                 CloudAPI.getInstance().getEventManager().postGlobalAsync(new CloudServiceStoppedEvent(this.service));
 
                 if (!this.service.isStatic())
-                    ((NodeCloudServiceManager) this.factory.getServiceManager())
-                            .deleteBucket(this.service.getUniqueId().toString());
+                    this.factory.getServiceManager()
+                            .deleteBucket(this.service);
 
                 if (StreamUtils.isOpen(this.process.getErrorStream())) {
                     CloudAPI.getInstance().getConsole().trace("Read error stream for service " + this.service.getServiceName());
@@ -166,8 +166,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                 this.destroyScreen();
                 this.factory.getPortManager().unUsePort(this);
                 if (!this.service.isStatic()) {
-                    ((NodeCloudServiceManager) this.factory.getServiceManager()).deleteBucket(this.service.getUniqueId().toString());
-                    CloudAPI.getInstance().getServiceManager().removeFromFetcher(this.service.getServiceName());
+                    this.factory.getServiceManager().deleteBucket(this.service);
                 } else {
                     this.service.setServiceState(ServiceState.OFFLINE);
                     this.service.updateAsync();

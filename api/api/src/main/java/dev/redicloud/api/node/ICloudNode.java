@@ -2,6 +2,7 @@ package dev.redicloud.api.node;
 
 import dev.redicloud.api.network.INetworkComponentInfo;
 import dev.redicloud.api.redis.bucket.IRBucketObject;
+import dev.redicloud.api.redis.bucket.fetch.IRBucketFetchAble;
 import dev.redicloud.api.service.ICloudService;
 import dev.redicloud.api.utils.Files;
 import dev.redicloud.commons.function.future.FutureAction;
@@ -9,7 +10,7 @@ import dev.redicloud.commons.function.future.FutureAction;
 import java.util.Collection;
 import java.util.UUID;
 
-public interface ICloudNode extends IRBucketObject {
+public interface ICloudNode extends IRBucketFetchAble {
 
     UUID getUniqueId();
 

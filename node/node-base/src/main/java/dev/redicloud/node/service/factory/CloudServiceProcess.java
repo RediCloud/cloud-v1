@@ -167,7 +167,6 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                 this.factory.getPortManager().unUsePort(this);
                 if (!this.service.isStatic()) {
                     this.factory.getServiceManager().deleteBucket(this.service);
-                    CloudAPI.getInstance().getServiceManager().removeFromFetcher(this.service.getServiceName());
                 } else {
                     this.service.setServiceState(ServiceState.OFFLINE);
                     this.service.updateAsync();

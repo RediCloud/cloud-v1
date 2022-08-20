@@ -155,7 +155,6 @@ public class CloudNodeServiceThread extends Thread {
                             this.queue.remove(config);
                             if (config.isStatic()) return;
                             if (!CloudAPI.getInstance().getServiceManager().existsService(config.getUniqueId())) return;
-                            CloudAPI.getInstance().getServiceManager().removeFromFetcher(config.getName());
                         });
 
                     if (this.queue.isExists()) {
@@ -318,7 +317,6 @@ public class CloudNodeServiceThread extends Thread {
             holder.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
             holder.update();
         }
-        this.factory.getServiceManager().putInFetcher(cloudService.getServiceName(), cloudService.getUniqueId());
 
         CloudServiceProcess process = new CloudServiceProcess(this.factory, holder);
         process.start();

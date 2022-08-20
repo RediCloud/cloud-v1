@@ -188,7 +188,6 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
         FutureAction<Boolean> futureAction = new FutureAction<>();
         FutureActionCollection<UUID, Boolean> futureActionCollection = new FutureActionCollection<>();
         for (ICloudService serviceHolder : services) {
-            CloudAPI.getInstance().getServiceManager().removeFromFetcher(serviceHolder.getServiceName());
             futureActionCollection.addToProcess(serviceHolder.getUniqueId(),
                     NodeLauncher.getInstance().getServiceManager().deleteBucketAsync(serviceHolder));
         }

@@ -53,7 +53,7 @@ public class CloudGroupManager extends RedissonBucketFetchManager<CloudGroup, IC
 
     @Override
     public ICloudGroup getGroup(String name) {
-        return getGroup(getFetcherValue(name.toLowerCase()));
+        return getGroup(UUID.fromString(getFetcherValue(name.toLowerCase())));
     }
 
     @Override

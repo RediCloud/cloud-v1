@@ -169,6 +169,11 @@ public class ServiceVersionCommand extends ConsoleCommand {
                                     case "clip":
                                     case "paper-clip":
                                         property = ServiceVersionProperty.PAPER_CLIP;
+                                    break;
+                                    case "java_command":
+                                    case "java":
+                                    case "command":
+                                        property = ServiceVersionProperty.JAVA_COMMAND;
                                         break;
                                 }
                                 if (property == null) {

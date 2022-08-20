@@ -17,6 +17,8 @@ public class ProxyPingListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPing(ProxyPingEvent event) {
+        if(!BungeeCordCloudAPI.getInstance().getRedisConnection().isConnected()) return;
+
         ServerPing serverPing = event.getResponse();
 
         if (serverPing.getDescription().contains("Another Bungee server") || serverPing.getDescription().contains("RediCloud") || serverPing.getDescription().contains("Just another Waterfall")) {

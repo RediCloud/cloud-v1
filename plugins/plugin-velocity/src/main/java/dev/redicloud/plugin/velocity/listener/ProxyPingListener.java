@@ -17,8 +17,9 @@ public class ProxyPingListener  {
 
     @Subscribe(order = PostOrder.LATE)
     public void onPing(ProxyPingEvent event) {
-        ServerPing.Builder builder = event.getPing().asBuilder();
+        if(!VelocityCloudAPI.getInstance().getRedisConnection().isConnected()) return;
 
+        ServerPing.Builder builder = event.getPing().asBuilder();
 
         boolean isDefaultMOTD = builder.getDescriptionComponent().isPresent();
 

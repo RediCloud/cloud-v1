@@ -42,7 +42,7 @@ public class NodeCloudServiceManager extends CloudServiceManager {
         }
         for (String s : readAllFetcherKeysAsync().getBlockOrNull()) {
             if(!existsService(s)) {
-                getServiceIdFetcherMap().remove(s);
+                removeFromFetcher(s);
                 continue;
             }
             ICloudService serviceHolder = getService(s);

@@ -2,6 +2,7 @@ package dev.redicloud.api.impl.player;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.redicloud.api.impl.redis.bucket.RBucketObject;
+import dev.redicloud.api.impl.redis.bucket.fetch.RBucketFetchAble;
 import lombok.Getter;
 import lombok.Setter;
 import dev.redicloud.api.CloudAPI;
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 @Getter
 @Setter
-public class CloudPlayer extends RBucketObject implements ICloudPlayer {
+public class CloudPlayer extends RBucketFetchAble implements ICloudPlayer {
 
 
     private UUID uniqueId;
@@ -99,6 +100,16 @@ public class CloudPlayer extends RBucketObject implements ICloudPlayer {
 
     @Override
     public String getIdentifier() {
+        return this.uniqueId.toString();
+    }
+
+    @Override
+    public String getFetchKey() {
+        return this.name.toLowerCase();
+    }
+
+    @Override
+    public String getFetchValue() {
         return this.uniqueId.toString();
     }
 }

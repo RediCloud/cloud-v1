@@ -52,7 +52,7 @@ public abstract class CloudServiceManager extends RedissonBucketFetchManager<Clo
 
     @Override
     public FutureAction<ICloudService> getServiceAsync(UUID uniqueId) {
-        return this.getAsync(uniqueId.toString());
+        return this.getBucketAsync(uniqueId.toString());
     }
 
     @Override
@@ -62,7 +62,7 @@ public abstract class CloudServiceManager extends RedissonBucketFetchManager<Clo
 
     @Override
     public ICloudService getService(UUID uniqueId) {
-        return get(uniqueId.toString());
+        return getBucket(uniqueId.toString());
     }
 
     @Override

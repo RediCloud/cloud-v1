@@ -18,12 +18,12 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
 
     @Override
     public ICloudServiceVersion getServiceVersion(String identifier) {
-        return this.get(identifier);
+        return this.getBucket(identifier);
     }
 
     @Override
     public FutureAction<ICloudServiceVersion> getServiceVersionAsync(String identifier) {
-        return this.getAsync(identifier);
+        return this.getBucketAsync(identifier);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class CloudServiceVersionManager extends RedissonBucketManager<CloudServi
         }
         if (!builder.toString().isEmpty())
             throw new IllegalStateException("Service version " + name + " is still in use by groups: " + builder.toString());
-        ICloudServiceVersion serviceVersion = this.get(name);
+        ICloudServiceVersion serviceVersion = this.getBucket(name);
         return this.deleteBucket(serviceVersion);
     }
 

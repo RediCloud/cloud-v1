@@ -15,12 +15,12 @@ public class CloudServiceTemplateManager extends RedissonBucketManager<CloudServ
 
     @Override
     public ICloudServiceTemplate getTemplate(String name) {
-        return this.get(name.toLowerCase());
+        return this.getBucket(name.toLowerCase());
     }
 
     @Override
     public FutureAction<ICloudServiceTemplate> getTemplateAsync(String name) {
-        return this.getAsync(name.toLowerCase());
+        return this.getBucketAsync(name.toLowerCase());
     }
 
     @Override

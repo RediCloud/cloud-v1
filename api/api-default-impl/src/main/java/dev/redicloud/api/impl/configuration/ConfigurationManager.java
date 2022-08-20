@@ -21,7 +21,7 @@ public class ConfigurationManager extends RedissonBucketManager<Configuration, I
 
     @Override
     public <T extends IConfiguration> T getConfiguration(String identifier, Class<T> clazz) {
-        return (T) this.get(identifier);
+        return (T) this.getBucket(identifier);
     }
 
     @Override

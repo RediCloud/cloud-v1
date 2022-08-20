@@ -10,11 +10,11 @@ public interface IRedissonBucketManager<T extends I, I extends IRBucketObject> e
 
     Class<T> getImplClass();
 
-    FutureAction<I> getAsync(String identifier);
-    I get(String identifier);
+    FutureAction<I> getBucketAsync(String identifier);
+    I getBucket(String identifier);
 
-    FutureAction<T> getImplAsync(String identifier);
-    T getImpl(String identifier);
+    FutureAction<T> getBucketImplAsync(String identifier);
+    T getBucketImpl(String identifier);
 
     boolean isCached(String identifier);
 

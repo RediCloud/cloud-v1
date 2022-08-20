@@ -43,7 +43,7 @@ public class CloudPlayerManager extends RedissonBucketFetchManager<CloudPlayer, 
 
     @Override
     public ICloudPlayer getPlayer(UUID uniqueId) {
-        return this.get(uniqueId.toString());
+        return this.getBucket(uniqueId.toString());
     }
 
     @Override
@@ -62,7 +62,7 @@ public class CloudPlayerManager extends RedissonBucketFetchManager<CloudPlayer, 
                                     futureAction.completeExceptionally(throwable1);
                                     return;
                                 }
-                                this.getAsync(uniqueId)
+                                this.getBucketAsync(uniqueId)
                                         .onFailure(futureAction::completeExceptionally)
                                         .onSuccess(futureAction::complete);
                             });
@@ -73,7 +73,7 @@ public class CloudPlayerManager extends RedissonBucketFetchManager<CloudPlayer, 
 
     @Override
     public FutureAction<ICloudPlayer> getPlayerAsync(UUID uniqueId) {
-        return this.getAsync(uniqueId.toString());
+        return this.getBucketAsync(uniqueId.toString());
     }
 
     @Override

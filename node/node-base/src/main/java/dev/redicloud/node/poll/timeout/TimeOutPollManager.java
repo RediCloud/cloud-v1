@@ -100,7 +100,7 @@ public class TimeOutPollManager extends RedissonBucketManager<TimeOutPoll, ITime
 
     @Override
     public FutureAction<ITimeOutPoll> getPoll(UUID pollId) {
-        return this.getAsync(pollId.toString());
+        return this.getBucketAsync(pollId.toString());
     }
 
     @Override

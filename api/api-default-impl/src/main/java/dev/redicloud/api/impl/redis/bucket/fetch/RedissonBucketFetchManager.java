@@ -71,7 +71,7 @@ public abstract class RedissonBucketFetchManager<T extends I, I extends IRBucket
     @Override
     public I getFromFetcher(String fetcherKey){
         String value = getFetcherValue(fetcherKey);
-        return this.get(value);
+        return this.getBucket(value);
     }
 
     @Override
@@ -81,7 +81,7 @@ public abstract class RedissonBucketFetchManager<T extends I, I extends IRBucket
         this.getFetcherValueAsync(fetcherKey)
             .onFailure(futureAction)
             .onSuccess(value -> {
-                getAsync(value)
+                getBucketAsync(value)
                     .onFailure(futureAction)
                     .onSuccess(futureAction::complete);
             });

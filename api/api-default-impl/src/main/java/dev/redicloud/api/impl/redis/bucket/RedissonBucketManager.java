@@ -14,7 +14,6 @@ import dev.redicloud.commons.function.future.FutureAction;
 import dev.redicloud.commons.function.future.FutureActionCollection;
 import org.redisson.api.RBatch;
 import org.redisson.api.RBucket;
-import org.redisson.api.RTransaction;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -107,7 +106,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
     }
 
     @Override
-    public FutureAction<I> getAsync(String identifier) {
+    public FutureAction<I> getBucketAsync(String identifier) {
         if (this.isCached(identifier)) return new FutureAction<I>(this.cachedBucketObjects.get(identifier));
         FutureAction<I> futureAction = new FutureAction<>();
 
@@ -143,7 +142,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
 
     @SneakyThrows
     @Override
-    public I get(String identifier) {
+    public I getBucket(String identifier) {
         Predicates.illegalArgument(identifier.contains(":"), "Identifier cannot contain ':'");
         if (this.isCached(identifier)) return this.cachedBucketObjects.get(identifier);
         RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
@@ -158,13 +157,13 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
     }
 
     @Override
-    public FutureAction<T> getImplAsync(String identifier) {
-        return this.getAsync(identifier).map(object -> (T)object);
+    public FutureAction<T> getBucketImplAsync(String identifier) {
+        return this.getBucketAsync(identifier).map(object -> (T)object);
     }
 
     @Override
-    public T getImpl(String identifier) {
-        return (T) this.get(identifier);
+    public T getBucketImpl(String identifier) {
+        return (T) this.getBucket(identifier);
     }
 
     @Override
@@ -261,7 +260,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
             .onSuccess(keys -> {
                 FutureActionCollection<String, I> futureActionCollection = new FutureActionCollection<>();
                 for (String s : keys) {
-                    futureActionCollection.addToProcess(s.split(":")[1], getAsync(s.split(":")[1]));
+                    futureActionCollection.addToProcess(s.split(":")[1], getBucketAsync(s.split(":")[1]));
                 }
                 futureActionCollection.process()
                         .onFailure(futureAction)
@@ -276,7 +275,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
     public Collection<I> getBucketHolders() {
         Collection<I> bucketHolders = new ArrayList<>();
         for (String s : getClient().getKeys().getKeysByPattern(this.redisPrefix + ":*")) {
-            bucketHolders.add(get(s.split(":")[1]));
+            bucketHolders.add(getBucket(s.split(":")[1]));
         }
         return bucketHolders;
     }

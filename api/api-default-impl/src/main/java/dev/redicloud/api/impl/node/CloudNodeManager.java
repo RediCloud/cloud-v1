@@ -17,7 +17,7 @@ public class CloudNodeManager extends RedissonBucketFetchManager<CloudNode, IClo
 
     @Override
     public ICloudNode getNode(UUID uniqueId) {
-        return this.get(uniqueId.toString());
+        return this.getBucket(uniqueId.toString());
     }
 
     @Override
@@ -50,7 +50,7 @@ public class CloudNodeManager extends RedissonBucketFetchManager<CloudNode, IClo
 
     @Override
     public FutureAction<ICloudNode> getNodeAsync(UUID uniqueId) {
-        return this.getAsync(uniqueId.toString());
+        return this.getBucketAsync(uniqueId.toString());
     }
 
     public void shutdownCluster() {

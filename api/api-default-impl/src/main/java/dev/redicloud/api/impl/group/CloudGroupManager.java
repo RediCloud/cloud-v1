@@ -1,6 +1,5 @@
 package dev.redicloud.api.impl.group;
 
-import dev.redicloud.api.impl.redis.bucket.RedissonBucketManager;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.group.ICloudGroup;
 import dev.redicloud.api.group.ICloudGroupManager;
@@ -22,12 +21,12 @@ public class CloudGroupManager extends RedissonBucketFetchManager<CloudGroup, IC
 
     @Override
     public FutureAction<ICloudGroup> getGroupAsync(UUID uniqueId) {
-        return this.getAsync(uniqueId.toString());
+        return this.getBucketAsync(uniqueId.toString());
     }
 
     @Override
     public ICloudGroup getGroup(UUID uniqueId) {
-        return this.get(uniqueId.toString());
+        return this.getBucket(uniqueId.toString());
     }
 
     @Override
@@ -40,7 +39,7 @@ public class CloudGroupManager extends RedissonBucketFetchManager<CloudGroup, IC
                 if (contains) {
                     getFetcherValueAsync(name.toLowerCase())
                         .onFailure(futureAction)
-                        .onSuccess(uuid -> getAsync(uuid)
+                        .onSuccess(uuid -> getBucketAsync(uuid)
                             .onFailure(futureAction)
                             .onSuccess(futureAction::complete));
                 } else {

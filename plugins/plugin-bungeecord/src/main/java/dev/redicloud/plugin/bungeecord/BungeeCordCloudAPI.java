@@ -287,7 +287,7 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
                 this.service.setLastPlayerAction(System.currentTimeMillis());
 
                 this.service.updateAsync();
-                this.console.trace("Service " + this.service.getId() + " updated");
+                this.console.trace("Service " + this.service.getServiceName() + " updated");
             }
         }, 1500, 1500, TimeUnit.MILLISECONDS);
     }

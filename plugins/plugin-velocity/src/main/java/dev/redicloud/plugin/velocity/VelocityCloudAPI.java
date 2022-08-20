@@ -285,7 +285,7 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
 
                 this.service.setLastPlayerAction(System.currentTimeMillis());
                 this.service.updateAsync();
-                this.console.trace("Service " + this.service.getId() + " updated");
+                this.console.trace("Service " + this.service.getServiceName() + " updated");
             }
         }).repeat(1500, TimeUnit.MILLISECONDS).schedule();
     }

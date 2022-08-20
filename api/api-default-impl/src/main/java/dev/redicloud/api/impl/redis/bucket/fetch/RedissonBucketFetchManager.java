@@ -122,7 +122,7 @@ public abstract class RedissonBucketFetchManager<T extends I, I extends IRBucket
                                     futureAction.completeExceptionally(throwable);
                                     return;
                                 }
-                                
+
                                 object.setManager(this);
 
                                 this.getCachedBucketObjects().put(identifier, (T) object);

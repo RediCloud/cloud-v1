@@ -131,9 +131,12 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
                             return;
                         }
                         object.setManager(this);
+
                         this.cachedBucketObjects.put(identifier, object);
+
                         object.init();
                         object.merged();
+
                         futureAction.complete(object);
                     });
             });
@@ -149,10 +152,14 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
         if (!bucket.isExists())
             throw new NullPointerException("Bucket[" + getRedisKey(identifier) + "] doesn't exist");
         T object = bucket.get();
+
         object.setManager(this);
+
         this.cachedBucketObjects.put(identifier, object);
+
         object.init();
         object.merged();
+
         return object;
     }
 
@@ -172,8 +179,11 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
         if (existsBucket(identifier))
             throw new IllegalArgumentException("Bucket[" + getRedisKey(identifier) + "] already exists");
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).set(object);
+
         object.setManager(this);
+
         this.cachedBucketObjects.put(identifier, (T) object);
+
         object.init();
         return object;
     }

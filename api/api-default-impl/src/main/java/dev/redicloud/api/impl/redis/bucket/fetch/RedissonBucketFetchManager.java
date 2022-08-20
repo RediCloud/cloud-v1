@@ -95,6 +95,7 @@ public abstract class RedissonBucketFetchManager<T extends I, I extends IRBucket
         if (existsBucket(identifier))
             throw new IllegalArgumentException("Bucket[" + getRedisKey(identifier) + "] already exists");
         getClient().getBucket(getRedisKey(identifier), getObjectCodec()).set(object);
+
         object.setManager(this);
 
         this.getCachedBucketObjects().put(identifier, (T) object);
@@ -121,8 +122,10 @@ public abstract class RedissonBucketFetchManager<T extends I, I extends IRBucket
                                     futureAction.completeExceptionally(throwable);
                                     return;
                                 }
+
                                 object.setManager(this);
 
+                                this.isCached()
                                 this.getCachedBucketObjects().put(identifier, (T) object);
                                 this.putInFetcher(object.getFetchKey(), object.getFetchValue());
 

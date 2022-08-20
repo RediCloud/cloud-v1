@@ -35,7 +35,7 @@ public abstract class CloudServiceManager extends RedissonBucketFetchManager<Clo
     public FutureAction<ICloudService> getServiceAsync(String name) {
         FutureAction<ICloudService> futureAction = new FutureAction<>();
 
-        this.containsKeyInFetcherAsync(name.toLowerCase())
+        containsKeyInFetcherAsync(name.toLowerCase())
             .onFailure(futureAction)
             .onSuccess(contains -> {
                 if (!contains) {
@@ -44,7 +44,7 @@ public abstract class CloudServiceManager extends RedissonBucketFetchManager<Clo
                 }
                 getFetcherValueAsync(name.toLowerCase())
                     .onFailure(futureAction)
-                    .onSuccess(serviceId -> getServiceAsync(serviceId)
+                    .onSuccess(serviceId -> getServiceAsync(UUID.fromString(serviceId))
                         .onFailure(futureAction)
                         .onSuccess(futureAction::complete));
             });

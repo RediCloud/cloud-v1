@@ -283,7 +283,10 @@ public class GroupCommand extends ConsoleCommand {
 
                                                             CloudAPI.getInstance().getGroupManager().createGroupAsync(cloudGroup)
                                                                     .onFailure(e2 -> commandSender.sendMessage("§cFailed to create group " + name))
-                                                                    .onSuccess(holder -> commandSender.sendMessage("Group %hc" + name + "%tc created"));
+                                                                    .onSuccess(holder -> {
+                                                                        CloudAPI.getInstance().getGroupManager().addDefaultTemplates(cloudGroup);
+                                                                        commandSender.sendMessage("Group %hc" + name + "%tc created");
+                                                                    });
                                                         } else if (proxySetupControlState == SetupControlState.CANCELLED) {
                                                             commandSender.sendMessage("§cProxy Group creation cancelled");
                                                         }
@@ -291,7 +294,7 @@ public class GroupCommand extends ConsoleCommand {
                                                     break;
                                                 case LIMBO:
                                                     //TODO: Create Limbo setup
-                                                    commandSender.sendMessage("Its currently not possible to create a Limbo Group");
+                                                    commandSender.sendMessage("Its currently not possible to create a limbo group");
                                                     break;
                                             }
                                         });

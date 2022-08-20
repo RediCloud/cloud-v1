@@ -17,7 +17,7 @@ test/node-1/external/
 test/node-2/external/
 
 plugins/plugin-bungeecord/src/main/resources/bungee.yml
-plugins/plugin-proxy/src/main/resources/plugin.yml
+plugins/plugin-minecraft/src/main/resources/plugin.yml
 
 *.log
 *.lck

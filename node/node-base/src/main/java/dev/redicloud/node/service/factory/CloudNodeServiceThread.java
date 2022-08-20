@@ -1,5 +1,6 @@
 package dev.redicloud.node.service.factory;
 
+import dev.redicloud.api.impl.redis.bucket.fetch.RedissonBucketFetchManager;
 import lombok.Getter;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.group.ICloudGroup;
@@ -151,11 +152,7 @@ public class CloudNodeServiceThread extends Thread {
                     //Remove stopped service from start config queue
                     this.queue.readAll().stream()
                         .filter(config -> this.waitForRemove.contains(config.getUniqueId()))
-                        .forEach(config -> {
-                            this.queue.remove(config);
-                            if (config.isStatic()) return;
-                            if (!CloudAPI.getInstance().getServiceManager().existsService(config.getUniqueId())) return;
-                        });
+                        .forEach(config -> this.queue.remove(config));
 
                     if (this.queue.isExists()) {
 
@@ -317,6 +314,8 @@ public class CloudNodeServiceThread extends Thread {
             holder.setNodeId(NodeLauncher.getInstance().getNode().getUniqueId());
             holder.update();
         }
+
+        ((RedissonBucketFetchManager)CloudAPI.getInstance().getServiceManager()).putInFetcher(holder.getFetchKey(), holder.getFetchValue());
 
         CloudServiceProcess process = new CloudServiceProcess(this.factory, holder);
         process.start();

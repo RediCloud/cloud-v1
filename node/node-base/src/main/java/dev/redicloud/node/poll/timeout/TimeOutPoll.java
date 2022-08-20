@@ -1,6 +1,7 @@
 package dev.redicloud.node.poll.timeout;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import dev.redicloud.api.impl.redis.bucket.fetch.RedissonBucketFetchManager;
 import dev.redicloud.node.node.packet.NodePingPacket;
 import dev.redicloud.node.poll.timeout.packet.TimeOutPollResultPacket;
 import lombok.Data;
@@ -190,6 +191,8 @@ public class TimeOutPoll extends RBucketObject implements ITimeOutPoll {
         for (ICloudService serviceHolder : services) {
             futureActionCollection.addToProcess(serviceHolder.getUniqueId(),
                     NodeLauncher.getInstance().getServiceManager().deleteBucketAsync(serviceHolder));
+            ((RedissonBucketFetchManager)CloudAPI.getInstance().getServiceManager())
+                    .removeFromFetcher(serviceHolder.getFetchKey(), serviceHolder.getFetchValue());
         }
         futureActionCollection.process()
             .onFailure(futureAction)

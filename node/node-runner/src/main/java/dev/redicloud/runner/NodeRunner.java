@@ -1,39 +1,38 @@
 package dev.redicloud.runner;
 
-import dev.redicloud.runner.dependency.DependencyLoader;
+import dev.redicloud.dependency.DependencyLoader;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class NodeRunner {
 
     public static void main(String[] args) {
+        DependencyLoader dependencyLoader = new DependencyLoader(new File("storage/libs")
+                        , new File("storage/libs/repo")
+                        , new File("storage/libs/info"), new File("storage/libs/blacklist"));
 
-        //TODO fix Files class
-        //DependencyLoader dependencyLoader = new DependencyLoader(Files.LIBS_FOLDER.getFile(), Files.LIBS_REPO_FOLDER.getFile(), Files.LIBS_INFO_FOLDER.getFile(), Files.LIBS_BLACKLIST_FOLDER.getFile());
-        DependencyLoader dependencyLoader = null;
+        dependencyLoader.loadDependencies();
 
-        List<URL> urls = dependencyLoader.getInstalledDependencies().parallelStream().map(advancedDependency -> {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        URLClassLoader urlClassLoader = new URLClassLoader(dependencyLoader.getInstalledDependencies().parallelStream().map(advancedDependency -> {
             try {
                 return advancedDependency.getDownloadedFile().getParentFile().toURI().toURL();
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
             return null;
-        }).collect(Collectors.toList());
+        }).toArray(URL[]::new), classLoader);
 
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        URLClassLoader urlClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]), classLoader);
         Thread.currentThread().setContextClassLoader(urlClassLoader);
         try {
             Class<?> clazz = urlClassLoader.loadClass("dev.redicloud.node.NodeLauncherMain");
             Method method = clazz.getMethod("main", String[].class);
-            method.invoke(null, args);
+            method.invoke(null, (Object) args);
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
                  IllegalAccessException e) {
             e.printStackTrace();

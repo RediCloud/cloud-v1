@@ -2,4 +2,4 @@ plugins {
     id 'java'
 }
 
-group 'dev.redicloud'
+group 'dev.redicloud.dependency.agent'

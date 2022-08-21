@@ -1,4 +1,4 @@
-package dev.redicloud.runner.dependency.classloader;
+package dev.redicloud.dependency.classloader;
 
 public class ClassLoaderDebug {
 

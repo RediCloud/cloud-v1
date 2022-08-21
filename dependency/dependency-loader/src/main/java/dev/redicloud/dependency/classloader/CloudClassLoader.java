@@ -1,4 +1,4 @@
-package dev.redicloud.runner.dependency.classloader;
+package dev.redicloud.dependency.classloader;
 
 import java.net.URL;
 import java.net.URLClassLoader;

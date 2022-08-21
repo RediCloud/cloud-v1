@@ -1,4 +1,4 @@
-package dev.redicloud.runner.dependency.utils;
+package dev.redicloud.dependency.utils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

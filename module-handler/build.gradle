@@ -1,0 +1,10 @@
+plugins {
+    id 'java'
+}
+
+group 'dev.redicloud'
+
+dependencies {
+    implementation project(':api:api')
+    implementation project(':commons')
+}

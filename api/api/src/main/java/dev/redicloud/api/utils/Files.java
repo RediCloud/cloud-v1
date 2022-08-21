@@ -21,7 +21,6 @@ public enum Files {
     LIBS_BLACKLIST_FOLDER("storage/libs/blacklist"),
     LIBS_REPO_FOLDER("storage/libs/repo"),
     LIBS_INFO_FOLDER("storage/libs/info"),
-    RUNNER_JAR("runner.jar"),
     NODE_JAR("redicloud-node-base.jar"),
     MINECRAFT_PLUGIN_JAR("storage/redicloud-plugin-minecraft.jar"),
     BUNGEECORD_PLUGIN_JAR("storage/redicloud-plugin-bungeecord.jar"),

@@ -1,6 +1,5 @@
 package dev.redicloud.module;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.utils.ApplicationType;
 import dev.redicloud.api.utils.Files;

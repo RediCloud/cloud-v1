@@ -13,4 +13,6 @@ dependencies {
     implementation('org.apache.maven:maven-aether-provider:3.3.9')
     implementation('cglib:cglib:3.3.0')
     implementation('com.fasterxml.jackson.core:jackson-databind:2.13.3')
+
+    implementation project(':dependency:dependency-loader')
 }

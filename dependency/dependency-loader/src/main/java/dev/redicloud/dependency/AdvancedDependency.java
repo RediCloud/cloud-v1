@@ -1,7 +1,7 @@
-package dev.redicloud.runner.dependency;
+package dev.redicloud.dependency;
 
-import dev.redicloud.runner.dependency.utils.Downloader;
-import dev.redicloud.runner.dependency.utils.WebContentLoader;
+import dev.redicloud.dependency.utils.Downloader;
+import dev.redicloud.dependency.utils.WebContentLoader;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,14 +1,21 @@
-package dev.redicloud.runner.dependency;
+package dev.redicloud.dependency;
 
+import dev.redicloud.dependency.classloader.URLClassPath;
 import lombok.Getter;
+import net.bytebuddy.agent.ByteBuddyAgent;
+import sun.management.VMManagement;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -135,6 +142,64 @@ public class DependencyLoader {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void addJarFiles(List<File> files) throws Exception {
+        if(ClassLoader.getSystemClassLoader() instanceof URLClassLoader && getJavaVersion() <= 8) {
+            System.out.println("Using java 8 URLClassLoader!");
+            List<URL> urls = files.parallelStream().map(file -> {
+                try {
+                    return file.toURI().toURL();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            try{
+                URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+                Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+                method.setAccessible(true);
+                for (URL url : urls) {
+                    method.invoke(classLoader, url);
+                }
+                method.setAccessible(false);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }else if(this.getClass().getClassLoader() instanceof URLClassLoader){
+            System.out.println("Using URLClassLoader (" + this.getClass().getClassLoader().getClass().getName() + ") with custom ClassPath!");
+            List<URL> urls = files.parallelStream().map(file -> {
+                try {
+                    return file.toURI().toURL();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            URLClassPath classPath = new URLClassPath((URLClassLoader) this.getClass().getClassLoader());
+            for (URL url : urls) {
+                classPath.addUrl(url);
+            }
+        }else {
+            System.out.println("Using ByteBuddyAgent!");
+            for (File file : files) {
+                //TODO
+                ByteBuddyAgent.attach(new File("storage/libs/dependency-agent.jar"),
+                        String.valueOf(getCurrentProcessId()), file.getAbsolutePath());
+            }
+        }
+    }
+
+    private static int getCurrentProcessId() throws Exception {
+        RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
+        Field jvm = runtime.getClass().getDeclaredField("jvm");
+        jvm.setAccessible(true);
+
+        VMManagement management = (VMManagement) jvm.get(runtime);
+        Method method = management.getClass().getDeclaredMethod("getProcessId");
+        method.setAccessible(true);
+
+        return (Integer) method.invoke(management);
     }
 
 }

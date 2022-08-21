@@ -1,4 +1,4 @@
-package dev.redicloud.runner.dependency;
+package dev.redicloud.dependency;
 
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;

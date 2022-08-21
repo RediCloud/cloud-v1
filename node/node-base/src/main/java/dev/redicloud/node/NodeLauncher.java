@@ -107,7 +107,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.registerListeners();
             this.registerPackets();
             this.scheduler.runTaskLater(() -> this.syncTemplates(() -> {
-
             }), 2, TimeUnit.SECONDS);
         });
     }

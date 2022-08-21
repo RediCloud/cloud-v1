@@ -3,6 +3,7 @@ package dev.redicloud.module;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.utils.ApplicationType;
 import dev.redicloud.api.utils.Files;
+import dev.redicloud.dependency.DependencyLoader;
 import org.redisson.codec.JsonJacksonCodec;
 
 import java.io.File;
@@ -20,8 +21,10 @@ public class ModuleHandler {
     private final List<String> errorWhileLoading;
     private final File moduleFolder = Files.MODULES_FOLDER.getFile();
     private final ApplicationType applicationType;
+    private final DependencyLoader dependencyLoader;
 
-    public ModuleHandler(ApplicationType applicationType) {
+    public ModuleHandler(DependencyLoader loader, ApplicationType applicationType) {
+        this.dependencyLoader = loader;
         this.applicationType = applicationType;
         if(!this.moduleFolder.getParentFile().exists()) this.moduleFolder.getParentFile().mkdirs();
         if(!this.moduleFolder.exists()) this.moduleFolder.mkdirs();
@@ -130,9 +133,15 @@ public class ModuleHandler {
         if(isBlockedLoading(description.getName())) return true;
 
         if(description.getFile() != null) {
-            //TODO load classes from file
+            try {
+                this.dependencyLoader.addJarFiles(Collections.singletonList(description.getFile()));
+            } catch (Exception e) {
+                CloudAPI.getInstance().getConsole().error("Can't load module " + description.getName() + " because of an error while loading into class path!");
+                blockLoading(description);
+                return true;
+            }
         }
-        //Load here dependency via dependency loader...
+        //TODO: Load here dependency via dependency loader...
         try {
             CloudAPI.getInstance().getConsole().info("Loading " + description.getName() + " module with " + getClass().getClassLoader().getClass().getName() + "!");
             if(!description.canLoad()){

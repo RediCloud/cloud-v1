@@ -34,10 +34,13 @@ public enum Files {
     LOG_FILE("storage/logs/redicloud-%time%.log"),
     REDIS_CONFIG("storage/redis.json");
 
-    private final String path;
+    private String path;
 
     Files(String path) {
-        this.path = path.replaceAll("%version%", CloudAPI.getInstance().getProperties().getVersion());
+        this.path = path;
+        if(CloudAPI.getInstance() != null) {
+            this.path = path.replaceAll("%version%", CloudAPI.getInstance().getProperties().getVersion());;
+        }
     }
 
     public File getFile() {

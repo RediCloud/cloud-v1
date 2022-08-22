@@ -24,7 +24,7 @@ public class ModuleHandler {
     private final DependencyLoader dependencyLoader;
 
     public ModuleHandler(DependencyLoader loader, ApplicationType applicationType) {
-        this.moduleFolder = new File("modules"); //TODO: Files.MODULE_FOLDER.getFile()
+        this.moduleFolder = Files.MODULES_FOLDER.getFile();
         this.dependencyLoader = loader;
         this.applicationType = applicationType;
         if(!this.moduleFolder.exists()) this.moduleFolder.mkdirs();

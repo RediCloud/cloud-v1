@@ -19,14 +19,14 @@ public class ModuleHandler {
     private final LinkedHashMap<ModuleDescription, CloudModule> onlyLoadedModules;
     private final List<ModuleDescription> toLoad;
     private final List<String> errorWhileLoading;
-    private final File moduleFolder = Files.MODULES_FOLDER.getFile();
+    private final File moduleFolder;
     private final ApplicationType applicationType;
     private final DependencyLoader dependencyLoader;
 
     public ModuleHandler(DependencyLoader loader, ApplicationType applicationType) {
+        this.moduleFolder = new File("modules"); //TODO: Files.MODULE_FOLDER.getFile()
         this.dependencyLoader = loader;
         this.applicationType = applicationType;
-        if(!this.moduleFolder.getParentFile().exists()) this.moduleFolder.getParentFile().mkdirs();
         if(!this.moduleFolder.exists()) this.moduleFolder.mkdirs();
         this.enabledModules = new LinkedHashMap<>();
         this.onlyLoadedModules = new LinkedHashMap<>();

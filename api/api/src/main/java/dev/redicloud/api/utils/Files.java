@@ -21,7 +21,7 @@ public enum Files {
     LIBS_BLACKLIST_FOLDER("storage/libs/blacklist"),
     LIBS_REPO_FOLDER("storage/libs/repo"),
     LIBS_INFO_FOLDER("storage/libs/info"),
-    NODE_JAR("storage/redicloud-node-base.jar"),
+    NODE_JAR("redicloud-node-base.jar"),
     NODE_RUNNER_JAR("redicloud-runner.jar"),
     DEPENDENCY_AGENT("storage/libs/dependency-agent.jar"),
     MINECRAFT_PLUGIN_JAR("storage/redicloud-plugin-minecraft.jar"),
@@ -41,7 +41,7 @@ public enum Files {
     }
 
     public File getFile() {
-        return new File(path);
+        return new File(this.path);
     }
 
     public void createIfNotExists() {

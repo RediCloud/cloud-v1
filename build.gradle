@@ -32,11 +32,10 @@ tasks.register('buildAndCopy', Copy) {
 
 tasks.register('copyToTest') {
     project.delete(
-            file("${rootDir}/test/node-1/storage/redicloud-node-base.jar"),
+            file("${rootDir}/test/node-1/redicloud-node-base.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-minecraft.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-velocity.jar"),
-            file("${rootDir}/test/node-2/storage/redicloud-node-base.jar"),
             file("${rootDir}/test/node-2/redicloud-runner.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar"),
@@ -56,6 +55,8 @@ tasks.register('copyToTest') {
     dependsOn copyLimboServerToNode2
     dependsOn copyNodeRunnerToNode1
     dependsOn copyNodeRunnerToNode2
+    dependsOn copyDependencyAgentToNode1
+    dependsOn copyDependencyAgentToNode2
 }
 
 tasks.register('projectBuild') {
@@ -92,7 +93,7 @@ tasks.register('projectBuild') {
 
 tasks.register('copyNodeBaseToNode1', Copy) {
     from 'node/node-base/build/libs/redicloud-node-base.jar'
-    into 'test/node-1/storage'
+    into 'test/node-1'
 }
 
 tasks.register('copyMinecraftPluginToNode1', Copy) {
@@ -107,7 +108,7 @@ tasks.register('copyProxyPluginToNode1', Copy) {
 
 tasks.register('copyNodeBaseToNode2', Copy) {
     from 'node/node-base/build/libs/redicloud-node-base.jar'
-    into 'test/node-2/storage'
+    into 'test/node-2'
 }
 
 tasks.register('copyMinecraftPluginToNode2', Copy) {
@@ -148,6 +149,16 @@ tasks.register('copyNodeRunnerToNode1', Copy) {
 tasks.register('copyNodeRunnerToNode2', Copy) {
     from 'node/node-runner/build/libs/redicloud-runner.jar'
     into 'test/node-2/'
+}
+
+tasks.register('copyDependencyAgentToNode1', Copy) {
+    from 'dependency/dependency-agent/build/libs/redicloud-dependency-agent.jar'
+    into 'test/node-1/storage/libs/'
+}
+
+tasks.register('copyDependencyAgentToNode2', Copy) {
+    from 'dependency/dependency-agent/build/libs/redicloud-dependency-agent.jar'
+    into 'test/node-2/storage/libs/'
 }
 
 tasks.register('publishToRepository') {

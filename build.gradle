@@ -32,7 +32,7 @@ tasks.register('buildAndCopy', Copy) {
 
 tasks.register('copyToTest') {
     project.delete(
-            file("${rootDir}/test/node-1/redicloud-node-base.jar"),
+            file("${rootDir}/test/node-1/storage/redicloud-node-base.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-minecraft.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-velocity.jar"),
@@ -54,6 +54,8 @@ tasks.register('copyToTest') {
     dependsOn copyVelocityPluginToNode2
     dependsOn copyLimboServerToNode1
     dependsOn copyLimboServerToNode2
+    dependsOn copyNodeRunnerToNode1
+    dependsOn copyNodeRunnerToNode2
 }
 
 tasks.register('projectBuild') {

@@ -7,6 +7,7 @@ import lombok.Getter;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -17,6 +18,8 @@ public class ModuleDescription implements Serializable {
     private final String version = null;
     private final HashMap<ApplicationType, String> mainClasses = null;
     private final File file = null;
+    private final String description = null;
+    private final String author = null;
 
     private final List<String> dependModules = null;
     private final List<String> softDependModules = null;

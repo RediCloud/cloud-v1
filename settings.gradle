@@ -68,3 +68,6 @@ findProject(':dependency:dependency-loader')?.name = 'dependency-loader'
 include 'dependency:dependency-agent'
 findProject(':dependency:dependency-agent')?.name = 'dependency-agent'
 
+include 'modules:test-module'
+findProject(':modules:test-module')?.name = 'test-module'
+

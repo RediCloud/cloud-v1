@@ -4,6 +4,12 @@ plugins {
 
 group 'dev.redicloud.node.runner'
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'dev.redicloud.runner.NodeRunner'
+    }
+}
+
 dependencies {
     implementation project(':commons')
     implementation('org.eclipse.aether:aether-impl:1.1.0')
@@ -15,4 +21,8 @@ dependencies {
     implementation('com.fasterxml.jackson.core:jackson-databind:2.13.3')
 
     implementation project(':dependency:dependency-loader')
+}
+
+shadowJar {
+    archiveFileName.set("redicloud-runner.jar")
 }

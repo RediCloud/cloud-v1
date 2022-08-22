@@ -1,5 +1,6 @@
 package dev.redicloud.limbo.api;
 
+import dev.redicloud.dependency.DependencyLoader;
 import lombok.Getter;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.console.ICommandManager;
@@ -50,8 +51,8 @@ public class LimboCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private boolean isShutdownInitiated = false;
     private RepeatSchedulerTask updaterTask;
 
-    public LimboCloudAPI(LimboServer server) {
-        super(ApplicationType.SERVICE_MINECRAFT);
+    public LimboCloudAPI(DependencyLoader dependencyLoader, LimboServer server) {
+        super(ApplicationType.SERVICE_MINECRAFT, dependencyLoader);
         instance = this;
         this.server = server;
         this.console = new LimboConsole();

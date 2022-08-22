@@ -36,7 +36,8 @@ tasks.register('copyToTest') {
             file("${rootDir}/test/node-1/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-minecraft.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-velocity.jar"),
-            file("${rootDir}/test/node-2/redicloud-node-base.jar"),
+            file("${rootDir}/test/node-2/storage/redicloud-node-base.jar"),
+            file("${rootDir}/test/node-2/redicloud-runner.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar"),
@@ -76,12 +77,17 @@ tasks.register('projectBuild') {
     dependsOn ':plugins:plugin-bungeecord:build'
     dependsOn ':plugins:plugin-velocity:build'
 
+    dependsOn ':dependency:dependency-loader'
+    dependsOn ':dependency:dependency-agent'
+
     dependsOn ':limbo-server:build'
+
+    dependsOn ':modules:test-module'
 }
 
 tasks.register('copyNodeBaseToNode1', Copy) {
     from 'node/node-base/build/libs/redicloud-node-base.jar'
-    into 'test/node-1'
+    into 'test/node-1/storage'
 }
 
 tasks.register('copyMinecraftPluginToNode1', Copy) {
@@ -96,7 +102,7 @@ tasks.register('copyProxyPluginToNode1', Copy) {
 
 tasks.register('copyNodeBaseToNode2', Copy) {
     from 'node/node-base/build/libs/redicloud-node-base.jar'
-    into 'test/node-2'
+    into 'test/node-2/storage'
 }
 
 tasks.register('copyMinecraftPluginToNode2', Copy) {
@@ -129,6 +135,16 @@ tasks.register('copyLimboServerToNode2', Copy) {
     rename ('redicloud-limbo-server.jar', 'limbo.jar')
 }
 
+tasks.register('copyNodeRunnerToNode1', Copy) {
+    from 'node/node-runner/build/libs/redicloud-runner.jar'
+    into 'test/node-1/'
+}
+
+tasks.register('copyNodeRunnerToNode2', Copy) {
+    from 'node/node-runner/build/libs/redicloud-runner.jar'
+    into 'test/node-2/'
+}
+
 tasks.register('publishToRepository') {
     dependsOn ':commons:publish'
     dependsOn ':api:api:publish'
@@ -151,6 +167,9 @@ tasks.register('publishToRepository') {
     dependsOn ':plugins:plugin-velocity:publish'
 
     dependsOn ':limbo-server:publish'
+
+    dependsOn ':dependency:dependency-loader:publish'
+    dependsOn ':dependency:dependency-agent:publish'
 }
 
 allprojects {

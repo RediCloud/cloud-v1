@@ -3,3 +3,8 @@ plugins {
 }
 
 group 'dev.redicloud.modules.test'
+
+dependencies {
+    compileOnly project(':module-handler')
+    compileOnly project(':api:api')
+}

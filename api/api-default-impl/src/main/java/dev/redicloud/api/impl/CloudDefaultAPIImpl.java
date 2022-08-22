@@ -19,6 +19,7 @@ import dev.redicloud.api.impl.service.packet.stop.CloudServiceInitStopPacket;
 import dev.redicloud.api.impl.utils.CloudProperties;
 import dev.redicloud.api.player.IPlayerBridge;
 import dev.redicloud.dependency.DependencyLoader;
+import dev.redicloud.module.ModuleHandler;
 import lombok.Getter;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.configuration.IConfigurationManager;
@@ -53,11 +54,13 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     private final ExecutorService executorService;
     private final ICloudPlayerManager playerManager;
     private final IConfigurationManager configurationManager;
+    private final ModuleHandler moduleHandler;
     private CloudProperties properties;
 
     public CloudDefaultAPIImpl(ApplicationType type, DependencyLoader dependencyLoader) {
         super(type, dependencyLoader);
         instance = this;
+        this.moduleHandler = new ModuleHandler(dependencyLoader, type);
         this.loadProperties();
         this.executorService = Executors.newCachedThreadPool();
         this.eventManager = new CloudEventManager();

@@ -58,8 +58,15 @@ tasks.register('copyToTest') {
 
 tasks.register('projectBuild') {
     dependsOn ':commons:build'
+
+    dependsOn ':dependency:dependency-loader:build'
+    dependsOn ':dependency:dependency-agent:build'
+
     dependsOn ':api:api:build'
     dependsOn ':api:api-default-impl:build'
+
+    dependsOn ':module-handler:build'
+    dependsOn ':modules:test-module:build'
 
     dependsOn ':commands:command-locales:build'
     dependsOn ':commands:command-core:build'
@@ -77,12 +84,8 @@ tasks.register('projectBuild') {
     dependsOn ':plugins:plugin-bungeecord:build'
     dependsOn ':plugins:plugin-velocity:build'
 
-    dependsOn ':dependency:dependency-loader'
-    dependsOn ':dependency:dependency-agent'
-
     dependsOn ':limbo-server:build'
 
-    dependsOn ':modules:test-module'
 }
 
 tasks.register('copyNodeBaseToNode1', Copy) {

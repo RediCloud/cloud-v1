@@ -8,4 +8,5 @@ dependencies {
     implementation project(':api:api')
     implementation project(':commons')
     implementation project(':dependency:dependency-loader')
+    implementation project(':module-handler')
 }

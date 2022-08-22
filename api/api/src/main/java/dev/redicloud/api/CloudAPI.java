@@ -33,13 +33,11 @@ public abstract class CloudAPI {
 
     private final ApplicationType applicationType;
     private final DependencyLoader dependencyLoader;
-    private final ModuleHandler moduleHandler;
 
     private boolean shutdownHookAdded = false;
 
     public CloudAPI(ApplicationType type, DependencyLoader dependencyLoader) {
         instance = this;
-        this.moduleHandler = new ModuleHandler(dependencyLoader, type);
         this.dependencyLoader = dependencyLoader;
         initShutdownHook();
         this.applicationType = type;

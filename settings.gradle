@@ -62,12 +62,11 @@ findProject(':auto-updater')?.name = 'auto-updater'
 include 'module-handler'
 findProject(':module-handler')?.name = 'module-handler'
 
+include 'modules:test-module'
+findProject('modules:test-module')?.name = 'test-module'
+
 include 'dependency:dependency-loader'
 findProject(':dependency:dependency-loader')?.name = 'dependency-loader'
 
 include 'dependency:dependency-agent'
 findProject(':dependency:dependency-agent')?.name = 'dependency-agent'
-
-include 'modules:test-module'
-findProject(':modules:test-module')?.name = 'test-module'
-

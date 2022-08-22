@@ -7,6 +7,7 @@ group 'dev.redicloud.api.bungeecord'
 dependencies {
     compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-proxy:12e4514813')
     compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-api:12e4514813')
+    implementation project(':dependency:dependency-loader')
     implementation project(':api:api-default-impl')
     implementation project(':api:api')
     implementation project(':commons')

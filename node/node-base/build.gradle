@@ -4,12 +4,6 @@ plugins {
 
 group 'dev.redicloud.node'
 
-jar {
-    manifest {
-        attributes 'Main-Class': 'dev.redicloud.node.NodeLauncherMain'
-    }
-}
-
 dependencies {
     implementation project(':api:api')
     implementation project(':api:api-default-impl')
@@ -18,6 +12,8 @@ dependencies {
     implementation project(':commands:command-core')
     implementation project(':commands:command-console')
     implementation project(':commands:command-locales')
+    implementation project(':module-handler')
+    implementation project(':dependency:dependency-loader')
     implementation('org.apache.commons:commons-io:2.4')
     implementation('org.slf4j:slf4j-api:1.7.36')
     implementation('org.slf4j:slf4j-simple:1.7.36')

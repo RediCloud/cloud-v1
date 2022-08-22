@@ -7,4 +7,5 @@ group 'net.suqatri.redicloud.api.impl'
 dependencies {
     implementation project(':api:api')
     implementation project(':commons')
+    implementation project(':dependency:dependency-loader')
 }

@@ -18,6 +18,8 @@ dependencies {
     implementation project(':commands:command-bungeecord')
     implementation project(':commands:command-core')
     implementation project(':commands:command-locales')
+    implementation project(':dependency:dependency-loader')
+    implementation project(':module-handler')
     compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-proxy:12e4514813')
     compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-api:12e4514813')
 }

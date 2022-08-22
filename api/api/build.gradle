@@ -6,4 +6,6 @@ group 'dev.redicloud.api'
 
 dependencies {
     implementation project(':commons')
+    implementation project(':dependency:dependency-loader')
+    implementation project(':module-handler')
 }

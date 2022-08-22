@@ -1,7 +1,7 @@
 name: Bug Report
 description: Report a bug or console error
 labels:
-  - unconfirmed
+  - need confirm
   - bug
 body:
   - type: markdown

@@ -20,7 +20,6 @@ import dev.redicloud.api.template.ICloudServiceTemplateManager;
 import dev.redicloud.api.utils.ApplicationType;
 import dev.redicloud.api.utils.ICloudProperties;
 import dev.redicloud.dependency.DependencyLoader;
-import dev.redicloud.module.ModuleHandler;
 import lombok.Getter;
 
 import java.util.concurrent.ExecutorService;

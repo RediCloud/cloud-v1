@@ -1,5 +1,6 @@
 package dev.redicloud.plugin.minecraft;
 
+import dev.redicloud.dependency.DependencyLoader;
 import dev.redicloud.plugin.minecraft.listener.PlayerLoginListener;
 import dev.redicloud.plugin.minecraft.listener.ServerListPingListener;
 import dev.redicloud.plugin.minecraft.scheduler.BukkitScheduler;
@@ -51,8 +52,8 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
     private String chatPrefix = "§bRedi§3Cloud §8» §f";
     private boolean isShutdownInitiated = false;
 
-    public MinecraftCloudAPI(JavaPlugin javaPlugin) {
-        super();
+    public MinecraftCloudAPI(DependencyLoader dependencyLoader, JavaPlugin javaPlugin) {
+        super(dependencyLoader);
         instance = this;
         this.javaPlugin = javaPlugin;
         this.console = new BukkitConsole(this.javaPlugin.getLogger());

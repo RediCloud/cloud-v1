@@ -192,10 +192,10 @@ public class ModuleHandler {
         for (File file : this.moduleFolder.listFiles()) {
             if (file.isFile() && file.getName().endsWith( ".jar" )) {
                 try (JarFile jar = new JarFile(file)) {
-                    JarEntry pdf = jar.getJarEntry( "module.json" );
-                    if(pdf == null) continue;
+                    JarEntry entry = jar.getJarEntry( "module.json" );
+                    if(entry == null) continue;
 
-                    try (InputStream in = jar.getInputStream(pdf)) {
+                    try (InputStream in = jar.getInputStream(entry)) {
                         ModuleDescription moduleDescription = codec.getObjectMapper().readValue(in, ModuleDescription.class);
                         if(!moduleDescription.canLoad()) continue;
                         this.toLoad.add(moduleDescription);

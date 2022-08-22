@@ -1,5 +1,6 @@
 package dev.redicloud.plugin.bungeecord;
 
+import dev.redicloud.dependency.DependencyLoader;
 import dev.redicloud.plugin.bungeecord.command.BungeeCloudCommandManager;
 import dev.redicloud.plugin.bungeecord.command.LoginCommand;
 import dev.redicloud.plugin.bungeecord.command.LogoutCommand;
@@ -65,8 +66,8 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
     private boolean isShutdownInitiated = false;
     private boolean runningExternal = false;
 
-    public BungeeCordCloudAPI(Plugin plugin) {
-        super();
+    public BungeeCordCloudAPI(DependencyLoader dependencyLoader, Plugin plugin) {
+        super(dependencyLoader);
         instance = this;
         this.plugin = plugin;
         this.scheduler = new BungeeScheduler(this.plugin);

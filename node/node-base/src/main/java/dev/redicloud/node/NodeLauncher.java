@@ -1,6 +1,9 @@
 package dev.redicloud.node;
 
 import dev.redicloud.api.redis.RedisType;
+import dev.redicloud.api.utils.ApplicationType;
+import dev.redicloud.dependency.DependencyLoader;
+import dev.redicloud.module.ModuleHandler;
 import dev.redicloud.node.commands.*;
 import dev.redicloud.node.console.CommandConsoleManager;
 import dev.redicloud.node.console.NodeConsole;
@@ -85,7 +88,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private boolean restarting = false;
     private String hostName;
 
-    public NodeLauncher(String[] args) throws Exception {
+    public NodeLauncher(DependencyLoader dependencyLoader, String[] args) throws Exception {
+        super(dependencyLoader);
         instance = this;
         this.hostName = IPUtils.getPublicIP();
         this.scheduler = new Scheduler();
@@ -107,6 +111,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.registerListeners();
             this.registerPackets();
             this.scheduler.runTaskLater(() -> this.syncTemplates(() -> {
+                getModuleHandler().loadModules();
             }), 2, TimeUnit.SECONDS);
         });
     }

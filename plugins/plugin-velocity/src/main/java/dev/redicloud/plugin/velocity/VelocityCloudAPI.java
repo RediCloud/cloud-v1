@@ -5,6 +5,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import com.velocitypowered.api.scheduler.ScheduledTask;
+import dev.redicloud.dependency.DependencyLoader;
 import dev.redicloud.plugin.velocity.console.VelocityConsole;
 import dev.redicloud.plugin.velocity.listener.*;
 import lombok.Getter;
@@ -68,8 +69,8 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
     private boolean isShutdownInitiated = false;
     private boolean runningExternal = false;
 
-    public VelocityCloudAPI(ProxyServer proxyServer, VelocityCloudPlugin plugin) {
-        super(proxyServer);
+    public VelocityCloudAPI(DependencyLoader dependencyLoader, ProxyServer proxyServer, VelocityCloudPlugin plugin) {
+        super(dependencyLoader, proxyServer);
         instance = this;
         this.plugin = plugin;
         this.scheduler = new VelocityScheduler(this.plugin);

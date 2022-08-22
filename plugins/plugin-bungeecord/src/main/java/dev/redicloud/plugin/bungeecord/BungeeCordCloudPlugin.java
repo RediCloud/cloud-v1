@@ -1,8 +1,12 @@
 package dev.redicloud.plugin.bungeecord;
 
+import dev.redicloud.api.utils.Files;
+import dev.redicloud.dependency.DependencyLoader;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import dev.redicloud.api.service.ServiceState;
+
+import java.io.File;
 
 public class BungeeCordCloudPlugin extends Plugin {
 
@@ -10,20 +14,25 @@ public class BungeeCordCloudPlugin extends Plugin {
 
     @Override
     public void onLoad() {
-        cloudAPI = new BungeeCordCloudAPI(this);
+        DependencyLoader dependencyLoader = new DependencyLoader(Files.LIBS_FOLDER.getFile(),
+                Files.LIBS_REPO_FOLDER.getFile(),
+                Files.LIBS_INFO_FOLDER.getFile(),
+                Files.LIBS_BLACKLIST_FOLDER.getFile());
+        this.cloudAPI = new BungeeCordCloudAPI(dependencyLoader, this);
+        this.cloudAPI.getModuleHandler().loadModules();
     }
 
     @Override
     public void onEnable() {
-        if (cloudAPI == null) throw new IllegalStateException("CloudAPI is not initialized yet!");
-        cloudAPI.registerStartedService();
-        cloudAPI.getService().setServiceState(ServiceState.RUNNING_UNDEFINED);
-        cloudAPI.getService().setOnlineCount(ProxyServer.getInstance().getOnlineCount());
-        cloudAPI.getService().update();
+        if (this.cloudAPI == null) throw new IllegalStateException("CloudAPI is not initialized yet!");
+        this.cloudAPI.registerStartedService();
+        this.cloudAPI.getService().setServiceState(ServiceState.RUNNING_UNDEFINED);
+        this.cloudAPI.getService().setOnlineCount(ProxyServer.getInstance().getOnlineCount());
+        this.cloudAPI.getService().update();
     }
 
     @Override
     public void onDisable() {
-        cloudAPI.shutdown(false);
+        this.cloudAPI.shutdown(false);
     }
 }

@@ -31,8 +31,8 @@ public class NodeRunner {
         Thread.currentThread().setContextClassLoader(urlClassLoader);
         try {
             Class<?> clazz = urlClassLoader.loadClass("dev.redicloud.node.NodeLauncherMain");
-            Method method = clazz.getMethod("main", String[].class);
-            method.invoke(null, (Object) args);
+            Method method = clazz.getMethod("launch", DependencyLoader.class, String[].class);
+            method.invoke(null, dependencyLoader, args);
         } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
                  IllegalAccessException e) {
             e.printStackTrace();

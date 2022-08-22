@@ -8,9 +8,9 @@ public abstract class CloudModule {
     @Getter
     private final ModuleDescription description = null;
 
-    void onLoad(){}
-    void onEnable(){}
-    void onDisable(){}
+    public void onLoad(){}
+    public void onEnable(){}
+    public void onDisable(){}
 
     public CloudAPI getApi(){
         return CloudAPI.getInstance();

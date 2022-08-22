@@ -18,7 +18,7 @@ public class NodeRunner {
                         , new File("storage/libs/info"), new File("storage/libs/blacklist"));
 
         dependencyLoader.loadDependencies();
-        dependencyLoader.addJarFiles(Collections.singletonList(new File("storage/redicloud-node-base.jar")));
+        dependencyLoader.addJarFiles(Collections.singletonList(new File("redicloud-node-base.jar")));
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         URLClassLoader urlClassLoader = new URLClassLoader(dependencyLoader.getInstalledDependencies().parallelStream().map(advancedDependency -> {

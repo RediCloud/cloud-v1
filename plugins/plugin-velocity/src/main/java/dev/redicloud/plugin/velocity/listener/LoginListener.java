@@ -59,7 +59,11 @@ public class LoginListener {
             }
             if (VelocityCloudAPI.getInstance().getService().isMaintenance() && !event.getPlayer().hasPermission("redicloud.maintenance.bypass")) {
                 CloudAPI.getInstance().getConsole().trace("Maintenance is enabled and player dont have permission redicloud.maintenance.bypass");
-                event.setResult(ResultedEvent.ComponentResult.denied(LegacyMessageUtils.component("§cThis proxy is currently under maintenance. Please try again later.")));
+                event.setResult(ResultedEvent.ComponentResult
+                        .denied(LegacyMessageUtils.component(
+                        "§cThis proxy is currently under maintenance. Please try again later.")));
+                event.getPlayer().disconnect(LegacyMessageUtils.component(
+                        "§cThis proxy is currently under maintenance. Please try again later."));
                 return;
             }
         }catch (Exception e){
@@ -67,6 +71,8 @@ public class LoginListener {
             event.setResult(ResultedEvent.ComponentResult.denied(
                     LegacyMessageUtils.component(
                             "§cAn error occurred while handling your login. Please try again later.")));
+            event.getPlayer().disconnect(LegacyMessageUtils.component(
+                    "§cAn error occurred while handling your login. Please try again later."));
         }
     }
 }

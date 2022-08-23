@@ -86,6 +86,7 @@ public class LoginCommand extends BaseCommand {
                                     impl.setLastIp(player.getAddress().getAddress().getHostAddress());
                                     impl.setLastConnectedProxyId(BungeeCordCloudAPI.getInstance().getService().getUniqueId());
                                     impl.updateAsync();
+                                    BungeeCordCloudAPI.getInstance().getPlayerManager().getConnectedList().addAsync(cloudPlayer.getUniqueId().toString());
                                     player.sendMessage("§aSuccessfully logged in as " + cloudPlayer.getName() + "!");
                                     ICloudService fallback = CloudAPI.getInstance().getServiceManager().getFallbackService(cloudPlayer);
                                     if(fallback == null){

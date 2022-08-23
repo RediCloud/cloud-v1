@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 public class CloudPlayerManager extends RedissonBucketFetchManager<CloudPlayer, ICloudPlayer> implements ICloudPlayerManager {
 
+    @Getter
     private RList<String> connectedList;
     private RList<String> registeredList;
     @Getter

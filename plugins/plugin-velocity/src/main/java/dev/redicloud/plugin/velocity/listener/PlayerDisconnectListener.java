@@ -5,6 +5,7 @@ import com.velocitypowered.api.event.connection.DisconnectEvent;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.impl.player.CloudPlayer;
 import dev.redicloud.api.impl.player.CloudPlayerManager;
+import dev.redicloud.plugin.velocity.VelocityCloudAPI;
 
 public class PlayerDisconnectListener {
 
@@ -24,6 +25,7 @@ public class PlayerDisconnectListener {
                                 if (event.getPlayer().isActive()) return;
                                 ((CloudPlayerManager) CloudAPI.getInstance().getPlayerManager()).removeCache(event.getPlayer().getUniqueId().toString());
                             });
+                    VelocityCloudAPI.getInstance().getPlayerManager().getConnectedList().removeAsync(cloudPlayer.getUniqueId().toString());
                 });
     }
 

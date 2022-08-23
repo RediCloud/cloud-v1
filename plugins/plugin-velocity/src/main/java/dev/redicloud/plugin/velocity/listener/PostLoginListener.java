@@ -12,7 +12,6 @@ public class PostLoginListener {
 
     @Subscribe(order = PostOrder.FIRST)
     public void onPostLogin(PostLoginEvent event){
-        if(event.getPlayer().isOnlineMode()) return;
 
         boolean isLoggedIn = false;
         if(VelocityCloudAPI.getInstance().getPlayerManager().existsPlayer(event.getPlayer().getUniqueId())){
@@ -25,6 +24,8 @@ public class PostLoginListener {
             cloudPlayer.updateAsync();
             if(isLoggedIn) VelocityCloudAPI.getInstance().getPlayerManager().getConnectedList().addAsync(cloudPlayer.getUniqueId().toString());
         }
+
+        if(event.getPlayer().isOnlineMode()) return;
 
         if(isLoggedIn){
             event.getPlayer().sendMessage(LegacyMessageUtils.component("You are logged in as " + event.getPlayer().getUsername() + "!"));

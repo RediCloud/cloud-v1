@@ -38,7 +38,7 @@ public class CloudPlayerManager extends RedissonBucketFetchManager<CloudPlayer, 
 
     @Override
     public ICloudPlayer getPlayer(String playerName) {
-        return this.getPlayer(this.getFetcherValue(playerName.toLowerCase()));
+        return this.getPlayer(UUID.fromString(this.getFetcherValue(playerName.toLowerCase())));
     }
 
     @Override

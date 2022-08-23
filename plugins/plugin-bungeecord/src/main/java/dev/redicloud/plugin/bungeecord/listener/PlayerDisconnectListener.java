@@ -27,6 +27,7 @@ public class PlayerDisconnectListener implements Listener {
                                     if (event.getPlayer().isConnected()) return;
                                     ((CloudPlayerManager) CloudAPI.getInstance().getPlayerManager()).removeCache(event.getPlayer().getUniqueId().toString());
                                 });
+                        BungeeCordCloudAPI.getInstance().getPlayerManager().getConnectedList().removeAsync(cloudPlayer.getUniqueId().toString());
                     });
         }
     }

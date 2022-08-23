@@ -21,28 +21,36 @@ public class CloudNodePortManager implements ICloudPortManager {
         FutureAction<Integer> futureAction = new FutureAction<>();
 
         CloudAPI.getInstance().getExecutorService().submit(() -> {
+
             int startPort = process.getService().getConfiguration().getStartPort();
+
             boolean inRange = process.getService().getEnvironment() == ServiceEnvironment.MINECRAFT
                     ? (startPort >= 49152 && startPort <= 65535)
                     : (startPort >= 25500 && startPort <= 25600);
+
             if(process.getService().getEnvironment() == ServiceEnvironment.LIMBO) {
                 inRange = (startPort >= 25500 && startPort <= 65535);
             }
+
             int currentPort = !inRange ? ((process.getService().getEnvironment() == ServiceEnvironment.BUNGEECORD
                     || process.getService().getEnvironment() == ServiceEnvironment.VELOCITY)
                     ? 25565 : 49152)
                     : process.getService().getConfiguration().getStartPort();
+
             if (!inRange) {
+
                 if (process.getService().getEnvironment() == ServiceEnvironment.MINECRAFT) {
                     CloudAPI.getInstance().getConsole().warn("Service " + process.getService().getServiceName()
                             + " has invalid start port " + process.getService().getConfiguration().getStartPort()
                             + " (must be in range 49152-65535)");
                     CloudAPI.getInstance().getConsole().warn("Using default start port 49152");
+
                 } else if(process.getService().getEnvironment() == ServiceEnvironment.LIMBO) {
                     CloudAPI.getInstance().getConsole().warn("Service " + process.getService().getServiceName()
                             + " has invalid start port " + process.getService().getConfiguration().getStartPort()
                             + " (must be in range 25500-65535)");
                     CloudAPI.getInstance().getConsole().warn("Using default start port 25565");
+
                 }else{
                     CloudAPI.getInstance().getConsole().warn("Service " + process.getService().getServiceName()
                             + " has invalid start port " + process.getService().getConfiguration().getStartPort()
@@ -50,6 +58,7 @@ public class CloudNodePortManager implements ICloudPortManager {
                     CloudAPI.getInstance().getConsole().warn("Using default start port 25565");
                 }
             }
+
             while (isInUse(currentPort) || isPortBlocked(currentPort)) {
                 currentPort++;
                 if (process.getService().getEnvironment() == ServiceEnvironment.MINECRAFT

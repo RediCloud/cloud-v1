@@ -42,6 +42,7 @@ public class CloudNodeServiceThread extends Thread {
     private CloudNode node;
     @Getter
     private RPriorityBlockingDeque<IServiceStartConfiguration> queue;
+    @Getter
     private LimboFallbackConfiguration limboFallbackConfiguration = new LimboFallbackConfiguration();
 
     public CloudNodeServiceThread(NodeCloudServiceFactory factory) {
@@ -318,7 +319,7 @@ public class CloudNodeServiceThread extends Thread {
             holder.update();
         }
 
-        ((RedissonBucketFetchManager)CloudAPI.getInstance().getServiceManager()).putInFetcher(holder.getFetchKey(), holder.getFetchValue());
+        ((RedissonBucketFetchManager<?, ?>)CloudAPI.getInstance().getServiceManager()).putInFetcher(holder.getFetchKey(), holder.getFetchValue());
 
         CloudServiceProcess process = new CloudServiceProcess(this.factory, holder);
         process.start();

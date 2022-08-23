@@ -58,6 +58,7 @@ public class LoginListener {
                 CloudAPI.getInstance().getConsole().trace("Player updated!");
             }
             if (VelocityCloudAPI.getInstance().getService().isMaintenance() && !event.getPlayer().hasPermission("redicloud.maintenance.bypass")) {
+                CloudAPI.getInstance().getConsole().trace("Maintenance is enabled and player dont have permission redicloud.maintenance.bypass");
                 event.setResult(ResultedEvent.ComponentResult.denied(LegacyMessageUtils.component("§cThis proxy is currently under maintenance. Please try again later.")));
                 return;
             }

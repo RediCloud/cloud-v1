@@ -117,8 +117,8 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
         this.getProxyServer().getEventManager().register(this.plugin, new ServerPreConnectListener());
         this.getProxyServer().getEventManager().register(this.plugin, new KickedFromServerListener());
         this.getProxyServer().getEventManager().register(this.plugin, new ServerPostConnectListener());
+        this.getProxyServer().getEventManager().register(this.plugin, new PreLoginListener());
         if(this.getPlayerManager().getConfiguration().isAllowCracked()){
-            this.getProxyServer().getEventManager().register(this.plugin, new PreLoginListener());
             this.getProxyServer().getEventManager().register(this.plugin, new PostLoginListener());
         }
 

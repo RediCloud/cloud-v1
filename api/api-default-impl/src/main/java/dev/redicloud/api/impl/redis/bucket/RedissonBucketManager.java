@@ -116,7 +116,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
             .onFailure(futureAction)
             .onSuccess(exists -> {
                 if (!exists) {
-                    futureAction.completeExceptionally(new NullPointerException("Bucket[" + identifier + "] doesn't exist"));
+                    futureAction.completeExceptionally(new NullPointerException("Bucket[" + getRedisKey(identifier) + "] doesn't exist"));
                     return;
                 }
                 RBucket<T> bucket = getClient().getBucket(getRedisKey(identifier), getObjectCodec());
@@ -127,7 +127,7 @@ public abstract class RedissonBucketManager<T extends I, I extends IRBucketObjec
                             return;
                         }
                         if (object == null) {
-                            futureAction.completeExceptionally(new IllegalArgumentException("Bucket[" + identifier + "] not found! Create first before getting!"));
+                            futureAction.completeExceptionally(new IllegalArgumentException("Bucket[" + getRedisKey(identifier) + "] not found! Create first before getting!"));
                             return;
                         }
                         object.setManager(this);

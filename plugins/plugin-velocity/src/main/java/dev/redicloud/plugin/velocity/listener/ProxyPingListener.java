@@ -17,7 +17,7 @@ public class ProxyPingListener  {
 
     @Subscribe(order = PostOrder.LATE)
     public void onPing(ProxyPingEvent event) {
-        if(!VelocityCloudAPI.getInstance().isShutdownInitiated()) return;
+        if(VelocityCloudAPI.getInstance().isShutdownInitiated()) return;
 
         ServerPing.Builder builder = event.getPing().asBuilder();
 

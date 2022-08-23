@@ -42,6 +42,7 @@ public class CloudNodeServiceThread extends Thread {
     private CloudNode node;
     @Getter
     private RPriorityBlockingDeque<IServiceStartConfiguration> queue;
+    @Getter
     private LimboFallbackConfiguration limboFallbackConfiguration = new LimboFallbackConfiguration();
 
     public CloudNodeServiceThread(NodeCloudServiceFactory factory) {

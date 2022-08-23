@@ -319,7 +319,7 @@ public class CloudNodeServiceThread extends Thread {
             holder.update();
         }
 
-        ((RedissonBucketFetchManager)CloudAPI.getInstance().getServiceManager()).putInFetcher(holder.getFetchKey(), holder.getFetchValue());
+        ((RedissonBucketFetchManager<?, ?>)CloudAPI.getInstance().getServiceManager()).putInFetcher(holder.getFetchKey(), holder.getFetchValue());
 
         CloudServiceProcess process = new CloudServiceProcess(this.factory, holder);
         process.start();

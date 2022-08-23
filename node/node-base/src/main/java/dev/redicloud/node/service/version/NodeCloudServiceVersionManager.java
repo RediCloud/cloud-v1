@@ -164,6 +164,7 @@ public class NodeCloudServiceVersionManager extends CloudServiceVersionManager {
                 logErrorPatch("There was an error while patching service version " + holder.getName() + "!");
                 logErrorPatch("Redownloading and repatching jar in few seconds...");
                 if (holder.getFile().exists()) holder.getFile().delete();
+                if(processDir.exists()) processDir.delete();
                 return this.patch(holder, true);
             }
         }

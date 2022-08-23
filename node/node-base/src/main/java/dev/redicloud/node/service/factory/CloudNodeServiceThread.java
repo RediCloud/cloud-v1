@@ -88,7 +88,10 @@ public class CloudNodeServiceThread extends Thread {
 
                         if(group.getName().equals("Fallback") && !this.limboFallbackConfiguration.isEnabled()) continue;
 
-                        long count = group.getConnectedServices().getBlockOrNull()
+                        Collection<ICloudService> services = group.getConnectedServices().getBlockOrNull();
+                        if(services == null) continue;
+
+                        long count = services
                                 .parallelStream()
                                 .filter(ICloudService::isGroupBased)
                                 .filter(holder -> holder.getGroupName().equalsIgnoreCase(group.getName()))

@@ -44,6 +44,13 @@ public enum Files {
     }
 
     public File getFile() {
+        if(CloudAPI.getInstance() == null) return new File(this.path);
+        switch (CloudAPI.getInstance().getNetworkComponentInfo().getType()) {
+            case NODE:
+                return new File(this.path);
+            case SERVICE:
+                return new File(CloudAPI.getInstance().getNetworkComponentInfo().getAsNode().getFilePath(this));
+        }
         return new File(this.path);
     }
 

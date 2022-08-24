@@ -3,6 +3,7 @@ package dev.redicloud.dependency;
 import dev.redicloud.dependency.classloader.URLClassPath;
 import lombok.Getter;
 import net.bytebuddy.agent.ByteBuddyAgent;
+import sun.java2d.loops.ProcessPath;
 import sun.management.VMManagement;
 
 import java.io.File;
@@ -28,10 +29,10 @@ public class DependencyLoader {
     private final List<AdvancedDependency> injectedDependencies;
     private final List<AdvancedDependency> queuedDependencies;
     private final List<String> queuedRepositories;
-    private File dependencyFolder;
-    private File repositoryFolder;
-    private File infoFolder;
-    private File blackListFolder;
+    private final File dependencyFolder;
+    private final File repositoryFolder;
+    private final File infoFolder;
+    private final File blackListFolder;
 
     public DependencyLoader(File dependencyFolder, File repositoryFolder, File infoFolder, File blackListFolder) {
         loader = this;
@@ -81,7 +82,7 @@ public class DependencyLoader {
 
     public List<File> loadDependencies(List<String> repositories, List<AdvancedDependency> dependencies) {
         if (dependencies.isEmpty()) return Collections.emptyList();
-        List<String> dependenciesString = dependencies.parallelStream().map(dependency -> dependency.getName()).collect(Collectors.toList());
+        List<String> dependenciesString = dependencies.parallelStream().map(CloudDependency::getName).collect(Collectors.toList());
         for (String s : dependenciesString) {
             System.out.println("- " + s);
         }
@@ -89,7 +90,7 @@ public class DependencyLoader {
         for (AdvancedDependency dependency : dependencies) {
             allDependencies.addAll(collectSubdependencies(dependency, repositories, new ArrayList<>()));
         }
-        List<File> dependencyFiles = allDependencies.parallelStream().map(dependency -> dependency.getDownloadedFile()).collect(Collectors.toList());
+        List<File> dependencyFiles = allDependencies.parallelStream().map(AdvancedDependency::getDownloadedFile).collect(Collectors.toList());
         for (File dependencyFile : dependencyFiles) {
             System.out.println("- " + dependencyFile.getName());
         }
@@ -184,22 +185,14 @@ public class DependencyLoader {
             System.out.println("Using ByteBuddyAgent!");
             for (File file : files) {
                 //TODO
-                ByteBuddyAgent.attach(new File("storage/libs/dependency-agent.jar"),
+                ByteBuddyAgent.attach(new File("storage/libs/redicloud-dependency-agent.jar"),
                         String.valueOf(getCurrentProcessId()), file.getAbsolutePath());
             }
         }
     }
 
     private static int getCurrentProcessId() throws Exception {
-        RuntimeMXBean runtime = ManagementFactory.getRuntimeMXBean();
-        Field jvm = runtime.getClass().getDeclaredField("jvm");
-        jvm.setAccessible(true);
-
-        VMManagement management = (VMManagement) jvm.get(runtime);
-        Method method = management.getClass().getDeclaredMethod("getProcessId");
-        method.setAccessible(true);
-
-        return (Integer) method.invoke(management);
+        return Integer.parseInt(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
     }
 
 }

@@ -44,12 +44,9 @@ public enum Files {
     }
 
     public File getFile() {
-        if(CloudAPI.getInstance() == null) return new File(this.path);
-        switch (CloudAPI.getInstance().getNetworkComponentInfo().getType()) {
-            case NODE:
-                return new File(this.path);
-            case SERVICE:
-                return new File(CloudAPI.getInstance().getNetworkComponentInfo().getAsNode().getFilePath(this));
+        String path = this.path;
+        if(System.getenv().containsKey("redicloud_files_" + name().toLowerCase())){
+            path = System.getenv("redicloud_files_" + name().toLowerCase());
         }
         return new File(this.path);
     }

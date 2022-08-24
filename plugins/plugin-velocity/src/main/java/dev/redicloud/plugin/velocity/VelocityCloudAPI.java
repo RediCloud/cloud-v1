@@ -5,6 +5,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.proxy.server.ServerInfo;
 import com.velocitypowered.api.scheduler.ScheduledTask;
+import dev.redicloud.api.node.ICloudNode;
 import dev.redicloud.dependency.DependencyLoader;
 import dev.redicloud.plugin.velocity.console.VelocityConsole;
 import dev.redicloud.plugin.velocity.listener.*;
@@ -82,11 +83,6 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
         this.commandManager = new VelocityCloudCommandManager(this.getProxyServer(), this.plugin);
         this.playerManager = new CloudPlayerManager();
 
-        if (!hasRedisFilePath()) {
-            this.console.fatal("Redis file path is not set as environment variable!", null);
-            this.shutdown(false);
-            return;
-        }
         if (!hasServiceId() && !hasGroupId()) {
             this.console.fatal("Group id is not set as environment variable!", null);
             this.shutdown(false);
@@ -172,27 +168,6 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
         return System.getenv().containsKey("redicloud_service_id");
     }
 
-    private String getRedisFilePath() {
-        if (System.getenv().containsKey("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())) {
-            return System.getenv("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase());
-        }
-        for (String inputArgument : getStartArguments()) {
-            if (inputArgument.startsWith("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())) {
-                String[] split = inputArgument.split("=");
-                if (split.length == 2) {
-                    return split[1];
-                }
-            }
-        }
-        return null;
-    }
-
-    private boolean hasRedisFilePath() {
-        return System.getenv().containsKey("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())
-                || getStartArguments().parallelStream()
-                .anyMatch(s -> s.startsWith("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase()));
-    }
-
     private boolean isRunningExternal() {
         return (System.getenv().containsKey("redicloud_external")
                 && System.getenv("redicloud_external").equals("true"))
@@ -226,7 +201,7 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
 
         this.service = null;
 
-        if (CloudAPI.getInstance().getNodeManager().getNodes().parallelStream().noneMatch(holder -> holder.isConnected())) {
+        if (CloudAPI.getInstance().getNodeManager().getNodes().parallelStream().noneMatch(ICloudNode::isConnected)) {
             this.console.fatal("Cluster seems to be offline! There are no connected nodes!", null);
             this.shutdown(false);
             return;
@@ -292,9 +267,8 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
     private void initRedis() {
         RedisCredentials redisCredentials;
         try {
-            String path = getRedisFilePath();
-            this.console.debug("Using redis config file: " + path);
-            redisCredentials = FileWriter.readObject(new File(path), RedisCredentials.class);
+            this.console.debug("Using redis config file: " + Files.REDIS_CONFIG.getFile().getAbsolutePath());
+            redisCredentials = FileWriter.readObject(Files.REDIS_CONFIG.getFile(), RedisCredentials.class);
         } catch (Exception e) {
             this.console.error("Failed to read redis.json file! Please check your credentials.");
             return;

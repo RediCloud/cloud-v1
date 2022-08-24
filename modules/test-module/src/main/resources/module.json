@@ -1,4 +1,5 @@
 {
+  "@class" : "dev.redicloud.module.ModuleDescription",
   "name" : "Test-Module",
   "version" : "1.0.0",
   "mainClasses" : "dev.redicloud.module.test.TestModule",

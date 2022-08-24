@@ -191,7 +191,6 @@ public class ModuleHandler {
 
                     try (InputStream in = jar.getInputStream(entry)) {
                         ModuleDescription moduleDescription = codec.getObjectMapper().readValue(in, ModuleDescription.class);
-                        if(!moduleDescription.canLoad()) continue;
                         this.toLoad.add(moduleDescription);
                     }
                 } catch (Exception e) {

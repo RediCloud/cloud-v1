@@ -88,7 +88,7 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 ## Commands
 
 <details>
-  <summary>Generell help</summary>
+  <summary>Generel help</summary>
   <picture>
     <source srcset="https://user-images.githubusercontent.com/44299323/182188868-0af2454b-0e33-40aa-a73a-afbf2230a907.png" media="(min-width: 600px)">
     <img src="https://user-images.githubusercontent.com/44299323/182188868-0af2454b-0e33-40aa-a73a-afbf2230a907.png">

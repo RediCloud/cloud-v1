@@ -87,11 +87,12 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 
 ## Commands
 
+
 <details>
   <summary>Generel help</summary>
   <picture>
-    <source srcset="https://user-images.githubusercontent.com/44299323/182188868-0af2454b-0e33-40aa-a73a-afbf2230a907.png" media="(min-width: 600px)">
-    <img src="https://user-images.githubusercontent.com/44299323/182188868-0af2454b-0e33-40aa-a73a-afbf2230a907.png">
+    <source srcset="https://content.redicloud.dev/github-img/generel_help.png" media="(min-width: 600px)">
+    <img src="https://content.redicloud.dev/github-img/generel_help.png">
   </picture>
 </details>
 
@@ -99,40 +100,40 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 <details>
   <summary>Cluster help</summary>
   <picture>
-    <source srcset="https://user-images.githubusercontent.com/44299323/182185673-7e7e0b15-36e9-4e71-8f35-6e1ca23841f5.png" media="(min-width: 600px)">
-    <img src="https://user-images.githubusercontent.com/44299323/182185673-7e7e0b15-36e9-4e71-8f35-6e1ca23841f5.png">
+    <source srcset="https://content.redicloud.dev/github-img/cluster_help.png" media="(min-width: 600px)">
+    <img src="https://content.redicloud.dev/github-img/cluster_help.png">
   </picture>
 </details>
 
 <details>
   <summary>Template help</summary>
   <picture>
-    <source srcset="https://user-images.githubusercontent.com/44299323/182185726-c3108728-b2ea-4c85-9ca2-fd3bf82a8a55.png" media="(min-width: 600px)">
-    <img src="https://user-images.githubusercontent.com/44299323/182185726-c3108728-b2ea-4c85-9ca2-fd3bf82a8a55.png">
+    <source srcset="https://content.redicloud.dev/github-img/template_help.png" media="(min-width: 600px)">
+    <img src="https://content.redicloud.dev/github-img/template_help.png">
   </picture>
 </details>
 
 <details>
   <summary>Group help</summary>
   <picture>
-    <source srcset="https://user-images.githubusercontent.com/44299323/182185775-892ef2de-aec5-47fd-92ee-3b7739ff1bea.png" media="(min-width: 600px)">
-    <img src="https://user-images.githubusercontent.com/44299323/182185775-892ef2de-aec5-47fd-92ee-3b7739ff1bea.png">
+    <source srcset="https://content.redicloud.dev/github-img/group_help.png" media="(min-width: 600px)">
+    <img src="https://content.redicloud.dev/github-img/group_help.png">
   </picture>
 </details>
 
 <details>
   <summary>Service verison help</summary>
   <picture>
-    <source srcset="https://user-images.githubusercontent.com/44299323/182185840-a14821df-79db-4ee8-821a-0dcff5fdc188.png" media="(min-width: 600px)">
-    <img src="https://user-images.githubusercontent.com/44299323/182185840-a14821df-79db-4ee8-821a-0dcff5fdc188.png">
+    <source srcset="https://content.redicloud.dev/github-img/service_version_help.png" media="(min-width: 600px)">
+    <img src="https://content.redicloud.dev/github-img/service_version_help.png">
   </picture>
 </details>
 
 <details>
   <summary>Service help</summary>
   <picture>
-    <source srcset="https://user-images.githubusercontent.com/44299323/182185923-c8c1532e-58ba-43fd-992b-2714839011ee.png" media="(min-width: 600px)">
-    <img src="https://user-images.githubusercontent.com/44299323/182185923-c8c1532e-58ba-43fd-992b-2714839011ee.png">
+    <source srcset="https://content.redicloud.dev/github-img/service_help.png" media="(min-width: 600px)">
+    <img src="https://content.redicloud.dev/github-img/service_help.png">
   </picture>
 </details>
 
@@ -140,8 +141,8 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 <details>
   <summary>Screen help</summary>
   <picture>
-    <source srcset="https://user-images.githubusercontent.com/44299323/182185958-e310bfc5-51ad-413b-8a5f-6426a76eed5d.png" media="(min-width: 600px)">
-    <img src="https://user-images.githubusercontent.com/44299323/182185958-e310bfc5-51ad-413b-8a5f-6426a76eed5d.png">
+    <source srcset="https://content.redicloud.dev/github-img/screen_help.png" media="(min-width: 600px)">
+    <img src="https://content.redicloud.dev/github-img/screen_help.png">
   </picture>
 </details>
 

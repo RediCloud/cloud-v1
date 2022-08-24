@@ -1,11 +1,7 @@
 {
   "name" : "Test-Module",
   "version" : "1.0.0",
-  "mainClasses" : {
-    "NODE" : "dev.redicloud.module.test.TestModule",
-    "SERVICE_MINECRAFT" : "dev.redicloud.module.test.TestModule",
-    "SERVICE_PROXY" : "dev.redicloud.module.test.TestModule"
-  },
+  "mainClasses" : "dev.redicloud.module.test.TestModule",
   "description": "Test-Module",
   "author": "Suqatri"
 }

@@ -1,39 +1,34 @@
 package dev.redicloud.module;
 
-import dev.redicloud.api.CloudAPI;
-import dev.redicloud.api.utils.ApplicationType;
-import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
-@Getter
+@Getter @NoArgsConstructor
 public class ModuleDescription implements Serializable {
 
-    private final String name = null;
-    private final String version = null;
-    private final HashMap<ApplicationType, String> mainClasses = null;
-    private final File file = null;
-    private final String description = null;
-    private final String author = null;
+    private String name;
+    private String version;
+    private String mainClasses;
+    private File file;
+    private String description;
+    private String author;
 
-    private final List<String> dependModules = null;
-    private final List<String> softDependModules = null;
+    private List<String> dependModules;
+    private List<String> softDependModules;
 
-    public ModuleDescription(){}
     private ModuleDescription(String name){
-
-    }
-
-    public boolean canLoad(){
-        for (ApplicationType applicationType : mainClasses.keySet())
-            if(applicationType == CloudAPI.getInstance().getApplicationType()) return true;
-
-        return false;
+        this.name = name;
+        this.version = null;
+        this.mainClasses = null;
+        this.file = null;
+        this.description = null;
+        this.author = null;
+        this.dependModules = null;
+        this.softDependModules = null;
     }
 
     public static ModuleDescription ofName(String name){

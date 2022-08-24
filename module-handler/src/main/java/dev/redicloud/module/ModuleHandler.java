@@ -144,16 +144,10 @@ public class ModuleHandler {
         //TODO: Load here dependency via dependency loader...
         try {
             CloudAPI.getInstance().getConsole().info("Loading " + description.getName() + " module with " + getClass().getClassLoader().getClass().getName() + "!");
-            if(!description.canLoad()){
-                CloudAPI.getInstance().getConsole()
-                        .debug("Can´t find main class for type " + CloudAPI.getInstance().getApplicationType().name());
-                blockLoading(description);
-                return true;
-            }
-            Class mainClass = getClass().getClassLoader().loadClass(description.getMainClasses().get(this.applicationType));
+            Class<?> mainClass = getClass().getClassLoader().loadClass(description.getMainClasses());
             CloudModule cloudModule = (CloudModule) mainClass.newInstance();
 
-            Class clazzToModify = mainClass;
+            Class<?> clazzToModify = mainClass;
             while(!clazzToModify.getName().equals(CloudModule.class.getName())){
                 if(clazzToModify.getSuperclass() == null){
                     CloudAPI.getInstance().getConsole()

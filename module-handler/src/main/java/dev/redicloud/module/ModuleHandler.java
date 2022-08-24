@@ -151,7 +151,7 @@ public class ModuleHandler {
         //TODO: Load here dependency via dependency loader...
         try {
             CloudAPI.getInstance().getConsole().info("Loading " + description.getName() + " module with " + getClass().getClassLoader().getClass().getName() + "!");
-            Class<?> mainClass = getClass().getClassLoader().loadClass(description.getMainClasses());
+            Class<?> mainClass = Thread.currentThread().getContextClassLoader().loadClass(description.getMainClasses());
             CloudModule cloudModule = (CloudModule) mainClass.newInstance();
 
             Class<?> clazzToModify = mainClass;
@@ -173,7 +173,7 @@ public class ModuleHandler {
             cloudModule.onLoad();
             this.onlyLoadedModules.put(description, cloudModule);
         } catch (ClassNotFoundException e) {
-            CloudAPI.getInstance().getConsole().error("Can´t find main class of module " + description.getName() + " (" + description.getMainClasses() + ") for type " + this.applicationType.name() + "!", e);
+            CloudAPI.getInstance().getConsole().error("Can´t find main class of module " + description.getName() + " (" + description.getMainClasses() + ")", e);
         } catch (Exception e) {
             e.printStackTrace();
         }

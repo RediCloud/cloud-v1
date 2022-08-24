@@ -21,6 +21,7 @@ public class MinecraftCloudPlugin extends JavaPlugin {
     public void onEnable() {
         this.cloudAPI = new MinecraftCloudAPI(dependencyLoader, this);
         this.cloudAPI.getModuleHandler().loadModules();
+        this.cloudAPI.getModuleHandler().enableModules();
     }
 
     @Override

@@ -36,6 +36,7 @@ public class VelocityCloudPlugin {
         this.cloudAPI.getService().setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.cloudAPI.getService().setOnlineCount(this.proxyServer.getPlayerCount());
         this.cloudAPI.getService().update();
+        this.cloudAPI.getModuleHandler().enableModules();
     }
 
     @Subscribe

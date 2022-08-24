@@ -26,9 +26,12 @@ public class BungeeCordCloudPlugin extends Plugin {
     public void onEnable() {
         if (this.cloudAPI == null) throw new IllegalStateException("CloudAPI is not initialized yet!");
         this.cloudAPI.registerStartedService();
+
         this.cloudAPI.getService().setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.cloudAPI.getService().setOnlineCount(ProxyServer.getInstance().getOnlineCount());
         this.cloudAPI.getService().update();
+
+        this.cloudAPI.getModuleHandler().enableModules();
     }
 
     @Override

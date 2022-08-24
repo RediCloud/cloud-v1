@@ -150,7 +150,7 @@ public class ModuleHandler {
         }
         //TODO: Load here dependency via dependency loader...
         try {
-            CloudAPI.getInstance().getConsole().info("Loading " + description.getName() + " module with " + getClass().getClassLoader().getClass().getName() + "!");
+            CloudAPI.getInstance().getConsole().trace("Loading " + description.getName() + " module with " + Thread.currentThread().getContextClassLoader().getClass().getName() + "!");
             Class<?> mainClass = Thread.currentThread().getContextClassLoader().loadClass(description.getMainClasses());
             CloudModule cloudModule = (CloudModule) mainClass.newInstance();
 

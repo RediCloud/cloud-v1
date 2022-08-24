@@ -41,7 +41,9 @@ tasks.register('copyToTest') {
             file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar"),
             file("${rootDir}/test/node-1/storage/versions/redicloud-limbo-server.jar"),
-            file("${rootDir}/test/node-2/storage/versions/redicloud-limbo-server.jar")
+            file("${rootDir}/test/node-2/storage/versions/redicloud-limbo-server.jar"),
+            file("${rootDir}/test/node-1/storage/libs/redicloud-dependency-agent.jar"),
+            file("${rootDir}/test/node-2/storage/libs/redicloud-dependency-agent.jar")
     )
     dependsOn copyNodeBaseToNode1
     dependsOn copyNodeBaseToNode2

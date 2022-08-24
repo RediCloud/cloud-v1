@@ -1,6 +1,7 @@
 package dev.redicloud.module;
 
 import dev.redicloud.api.CloudAPI;
+import dev.redicloud.api.console.LogLevel;
 import dev.redicloud.api.utils.ApplicationType;
 import dev.redicloud.api.utils.Files;
 import dev.redicloud.dependency.DependencyLoader;
@@ -37,7 +38,11 @@ public class ModuleHandler {
     public void loadModules(){
         detectModules();
         if(this.toLoad.isEmpty()) {
-            CloudAPI.getInstance().getConsole().info("Detected no module to load!");
+            if(CloudAPI.getInstance().getConsole().canLog(LogLevel.DEBUG)){
+                CloudAPI.getInstance().getConsole().info("Detected no module to load in folder " + moduleFolder.getAbsolutePath());
+            }else{
+                CloudAPI.getInstance().getConsole().info("Detected no module to load!");
+            }
             return;
         }else{
             CloudAPI.getInstance().getConsole().info("Detected " + this.toLoad.size() + " to load!");
@@ -59,6 +64,8 @@ public class ModuleHandler {
 
     public void unloadModules(){
         this.enabledModules.values().forEach(CloudModule::onDisable);
+        this.enabledModules.clear();
+        this.onlyLoadedModules.clear();
     }
 
     public boolean isLoaded(ModuleDescription moduleDescription){

@@ -42,8 +42,8 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
         ├ Hub
         ├ Practice
         ├ FFA
-        ├ BedWars (took over from from Node-2)
-        └ SkyWars (took over from from Node-2)
+        ├ BedWars (took over from Node-2)
+        └ SkyWars (took over from Node-2)
         
       Node-2 (failed)    
 

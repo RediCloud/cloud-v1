@@ -48,7 +48,7 @@ public enum Files {
         if(System.getenv().containsKey("redicloud_files_" + name().toLowerCase())){
             path = System.getenv("redicloud_files_" + name().toLowerCase());
         }
-        return new File(this.path);
+        return new File(path);
     }
 
     public void createIfNotExists() {

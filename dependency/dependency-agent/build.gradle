@@ -3,3 +3,10 @@ plugins {
 }
 
 group 'dev.redicloud.dependency.agent'
+
+
+jar {
+    manifest {
+        attributes 'Agent-Class': 'dev.redicloud.dependency.agent.ClassPathAgent'
+    }
+}

@@ -328,6 +328,10 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
         if(this.isShutdownInitiated) return;
         this.isShutdownInitiated = true;
 
+        if(this.getModuleHandler() != null){
+            this.getModuleHandler().unloadModules();
+        }
+
         if(this.service != null){
             this.service.setServiceState(ServiceState.STOPPING);
             this.service.update();

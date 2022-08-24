@@ -144,6 +144,10 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
             if(this.isShutdownInitiated) return;
             this.isShutdownInitiated = true;
 
+            if(this.getModuleHandler() != null){
+                this.getModuleHandler().unloadModules();
+            }
+
             this.service.setServiceState(ServiceState.STOPPING);
             this.service.update();
 

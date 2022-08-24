@@ -33,6 +33,7 @@ public class BungeeCordCloudPlugin extends Plugin {
 
     @Override
     public void onDisable() {
+        if(this.cloudAPI == null) return;
         this.cloudAPI.shutdown(false);
     }
 }

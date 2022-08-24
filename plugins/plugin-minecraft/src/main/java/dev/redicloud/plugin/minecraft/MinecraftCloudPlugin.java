@@ -25,6 +25,7 @@ public class MinecraftCloudPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if(this.cloudAPI == null) return;
         this.cloudAPI.shutdown(true);
     }
 }

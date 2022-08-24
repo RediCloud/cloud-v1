@@ -594,6 +594,10 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         if (this.shutdownInitialized) return;
         this.shutdownInitialized = true;
 
+        if(this.getModuleHandler() != null){
+            this.getModuleHandler().unloadModules();
+        }
+
         if(this.console != null) {
             if(this.console.getCurrentSetup() != null) this.console.getCurrentSetup().exit(false);
         }

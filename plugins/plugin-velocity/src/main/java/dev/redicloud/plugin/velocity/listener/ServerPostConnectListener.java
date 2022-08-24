@@ -7,6 +7,7 @@ import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.impl.player.CloudPlayer;
 import dev.redicloud.api.service.ICloudService;
+import dev.redicloud.plugin.velocity.VelocityCloudAPI;
 
 import java.util.Optional;
 
@@ -17,9 +18,8 @@ public class ServerPostConnectListener {
         Optional<ServerConnection > connection = event.getPlayer().getCurrentServer();
         if(!connection.isPresent()) return;
         RegisteredServer registeredServer = connection.get().getServer();
+        if(!VelocityCloudAPI.getInstance().getPlayerManager().isCached(event.getPlayer().getUniqueId().toString())) return;
         CloudPlayer player = (CloudPlayer) CloudAPI.getInstance().getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
-        CloudAPI.getInstance().getConsole().trace("Player: " + player.getName() + " connected to: " + registeredServer.getServerInfo().getName());
-        if(player == null) return;
         CloudAPI.getInstance().getConsole().trace("Player " + player.getName() + " switched to server " + registeredServer.getServerInfo().getName());
         ICloudService serviceHolder = CloudAPI.getInstance().getServiceManager()
                 .getService(registeredServer.getServerInfo().getName());

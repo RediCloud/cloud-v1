@@ -16,7 +16,6 @@ public class PostLoginListener implements Listener {
             return;
         }
 
-        if(event.getPlayer().getPendingConnection().isOnlineMode()) return;
 
         boolean isLoggedIn = false;
 
@@ -28,7 +27,12 @@ public class PostLoginListener implements Listener {
             cloudPlayer.setLastIp(event.getPlayer().getPendingConnection().getAddress().getHostString());
             cloudPlayer.setLastConnectedProxyId(BungeeCordCloudAPI.getInstance().getService().getUniqueId());
             cloudPlayer.updateAsync();
+            if(isLoggedIn){
+                BungeeCordCloudAPI.getInstance().getPlayerManager().getConnectedList().addAsync(cloudPlayer.getUniqueId().toString());
+            }
         }
+
+        if(event.getPlayer().getPendingConnection().isOnlineMode()) return;
 
         if(isLoggedIn){
             event.getPlayer().sendMessage("You are logged in as " + event.getPlayer().getName() + "!");

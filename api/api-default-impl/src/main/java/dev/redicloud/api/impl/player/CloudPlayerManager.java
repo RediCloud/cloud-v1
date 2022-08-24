@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 public class CloudPlayerManager extends RedissonBucketFetchManager<CloudPlayer, ICloudPlayer> implements ICloudPlayerManager {
 
+    @Getter
     private RList<String> connectedList;
     private RList<String> registeredList;
     @Getter
@@ -38,7 +39,7 @@ public class CloudPlayerManager extends RedissonBucketFetchManager<CloudPlayer, 
 
     @Override
     public ICloudPlayer getPlayer(String playerName) {
-        return this.getPlayer(this.getFetcherValue(playerName.toLowerCase()));
+        return this.getPlayer(UUID.fromString(this.getFetcherValue(playerName.toLowerCase())));
     }
 
     @Override

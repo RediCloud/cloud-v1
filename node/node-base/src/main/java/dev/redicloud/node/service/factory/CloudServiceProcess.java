@@ -59,10 +59,22 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                 this.service.getServiceName() + "-" + this.service.getUniqueId());
         if (!this.serviceDirectory.exists()) this.serviceDirectory.mkdirs();
 
-        this.factory.getPortManager().getUnusedPort(this).get(5, TimeUnit.SECONDS);
+        try {
+            this.factory.getPortManager().getUnusedPort(this).get(10, TimeUnit.SECONDS);
+        }catch (Exception e){
+            CloudAPI.getInstance().getConsole().fatal("Could not get unused port for service " + this.service.getServiceName(), e);
+            this.stopProcess(true);
+            return false;
+        }
 
-        CloudServiceCopier copier = new CloudServiceCopier(this, CloudAPI.getInstance().getServiceTemplateManager());
-        copier.copyFiles();
+        try {
+            CloudServiceCopier copier = new CloudServiceCopier(this, CloudAPI.getInstance().getServiceTemplateManager());
+            copier.copyFiles();
+        }catch (Exception e){
+            CloudAPI.getInstance().getConsole().fatal("Could not copy service files for service " + this.service.getServiceName(), e);
+            this.stopProcess(true);
+            return false;
+        }
 
         CloudAPI.getInstance().getConsole().debug("Starting cloud service process " + this.service.getServiceName() + " on port " + this.port);
 

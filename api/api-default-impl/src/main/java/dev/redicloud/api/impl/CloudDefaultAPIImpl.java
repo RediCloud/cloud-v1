@@ -52,7 +52,7 @@ public abstract class CloudDefaultAPIImpl<T extends RBucketObject> extends Cloud
     private final ICloudNodeManager nodeManager;
     private final ICloudGroupManager groupManager;
     private final ExecutorService executorService;
-    private final ICloudPlayerManager playerManager;
+    private final CloudPlayerManager playerManager;
     private final IConfigurationManager configurationManager;
     private final ModuleHandler moduleHandler;
     private CloudProperties properties;

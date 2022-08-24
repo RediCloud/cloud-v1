@@ -42,6 +42,7 @@ public class CloudNodeServiceThread extends Thread {
     private CloudNode node;
     @Getter
     private RPriorityBlockingDeque<IServiceStartConfiguration> queue;
+    @Getter
     private LimboFallbackConfiguration limboFallbackConfiguration = new LimboFallbackConfiguration();
 
     public CloudNodeServiceThread(NodeCloudServiceFactory factory) {
@@ -88,7 +89,10 @@ public class CloudNodeServiceThread extends Thread {
 
                         if(group.getName().equals("Fallback") && !this.limboFallbackConfiguration.isEnabled()) continue;
 
-                        long count = group.getConnectedServices().getBlockOrNull()
+                        Collection<ICloudService> services = group.getConnectedServices().getBlockOrNull();
+                        if(services == null) continue;
+
+                        long count = services
                                 .parallelStream()
                                 .filter(ICloudService::isGroupBased)
                                 .filter(holder -> holder.getGroupName().equalsIgnoreCase(group.getName()))
@@ -299,7 +303,9 @@ public class CloudNodeServiceThread extends Thread {
             cloudService.setServiceState(ServiceState.PREPARE);
             cloudService.setMaintenance(configuration.isGroupBased()
                     && CloudAPI.getInstance().getGroupManager().getGroup(configuration.getGroupName()).isMaintenance());
-            cloudService.setMaxPlayers(50);
+            cloudService.setMaxPlayers(cloudService.isGroupBased() ?
+                    CloudAPI.getInstance().getGroupManager().getGroup(configuration.getGroupName()).getMaxPlayers()
+                    : 50);
             if (configuration.getEnvironment() == ServiceEnvironment.BUNGEECORD || configuration.getEnvironment() == ServiceEnvironment.VELOCITY) {
                 cloudService.setMotd("§7•§8● §bRedi§3Cloud §8» §fA §bredis §fbased §bcluster §fcloud system§r\n    §b§l§8× §fDiscord §8➜ §3https://discord.gg/g2HV52VV4G");
             } else {
@@ -315,7 +321,7 @@ public class CloudNodeServiceThread extends Thread {
             holder.update();
         }
 
-        ((RedissonBucketFetchManager)CloudAPI.getInstance().getServiceManager()).putInFetcher(holder.getFetchKey(), holder.getFetchValue());
+        ((RedissonBucketFetchManager<?, ?>)CloudAPI.getInstance().getServiceManager()).putInFetcher(holder.getFetchKey(), holder.getFetchValue());
 
         CloudServiceProcess process = new CloudServiceProcess(this.factory, holder);
         process.start();

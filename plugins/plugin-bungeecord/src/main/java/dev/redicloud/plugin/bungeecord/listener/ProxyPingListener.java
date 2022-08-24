@@ -17,7 +17,7 @@ public class ProxyPingListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPing(ProxyPingEvent event) {
-        if(!BungeeCordCloudAPI.getInstance().getRedisConnection().isConnected()) return;
+        if(BungeeCordCloudAPI.getInstance().isShutdownInitiated()) return;
 
         ServerPing serverPing = event.getResponse();
 

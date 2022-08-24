@@ -104,6 +104,8 @@ public class RegisterCommand extends BaseCommand {
                             CloudAPI.getInstance().getConsole().error("Failed to create player", e);
                         })
                         .thenAcceptAsync(registeredCloudPlayer -> {
+                            VelocityCloudAPI.getInstance().getPlayerManager().getConnectedList().addAsync(cloudPlayer.getUniqueId().toString());
+
                             player.sendMessage(LegacyMessageUtils.component("§aSuccessfully logged in as " + cloudPlayer.getName() + "!"));
                             ICloudService fallback = CloudAPI.getInstance().getServiceManager().getFallbackService(cloudPlayer);
                             if(fallback == null){

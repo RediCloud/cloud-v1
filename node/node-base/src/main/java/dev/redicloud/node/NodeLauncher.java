@@ -375,7 +375,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                                 group.setMaintenance(false);
                                 group.setName("Fallback");
                                 group.setMaxServices(1);
-                                group.setMinServices(1);
+                                group.setMinServices(this.serviceFactory.getThread().getLimboFallbackConfiguration().isEnabled() ? 1 : 0);
                                 group.setServiceVersionName("limbo");
                                 group.setStartPriority(0);
                                 group.setStatic(false);
@@ -392,7 +392,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                                 group.setMaintenance(false);
                                 group.setName("Verify");
                                 group.setMaxServices(1);
-                                group.setMinServices(1);
+                                group.setMinServices(this.getPlayerManager().getConfiguration().isAllowCracked() ? 1 : 0);
                                 group.setServiceVersionName("limbo");
                                 group.setStartPriority(0);
                                 group.setStatic(false);

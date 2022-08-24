@@ -103,6 +103,7 @@ public class RegisterCommand extends BaseCommand {
                             CloudAPI.getInstance().getConsole().error("Failed to create player", e);
                         })
                         .thenAcceptAsync(registeredCloudPlayer -> {
+                            BungeeCordCloudAPI.getInstance().getPlayerManager().getConnectedList().addAsync(cloudPlayer.getUniqueId().toString());
                             player.sendMessage("§aSuccessfully logged in as " + cloudPlayer.getName() + "!");
                             ICloudService fallback = CloudAPI.getInstance().getServiceManager().getFallbackService(cloudPlayer);
                             if(fallback == null){

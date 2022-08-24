@@ -6,6 +6,7 @@ import com.velocitypowered.api.event.connection.PreLoginEvent;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.velocity.utils.LegacyMessageUtils;
 import dev.redicloud.commons.WebUniqueIdFetcher;
+import dev.redicloud.plugin.velocity.VelocityCloudAPI;
 
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -17,6 +18,11 @@ public class PreLoginListener  {
     @Subscribe(order = PostOrder.FIRST)
     public void onPreLogin(PreLoginEvent event){
         String name = event.getUsername();
+
+        if(!VelocityCloudAPI.getInstance().getPlayerManager().getConfiguration().isAllowCracked()){
+            event.setResult(PreLoginEvent.PreLoginComponentResult.forceOnlineMode());
+            return;
+        }
 
         if(name.length() > 16){
             event.setResult(PreLoginEvent.PreLoginComponentResult

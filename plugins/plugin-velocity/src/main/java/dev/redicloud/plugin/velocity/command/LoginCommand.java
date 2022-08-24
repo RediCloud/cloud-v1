@@ -87,6 +87,7 @@ public class LoginCommand extends BaseCommand {
                                     impl.setLastIp(player.getRemoteAddress().getAddress().getHostAddress());
                                     impl.setLastConnectedProxyId(VelocityCloudAPI.getInstance().getService().getUniqueId());
                                     impl.updateAsync();
+                                    VelocityCloudAPI.getInstance().getPlayerManager().getConnectedList().addAsync(cloudPlayer.getUniqueId().toString());
                                     player.sendMessage(LegacyMessageUtils.component("§aYou are now logged in as " + impl.getName() + "!"));
                                     ICloudService fallback = CloudAPI.getInstance().getServiceManager().getFallbackService(cloudPlayer);
                                     if(fallback == null){

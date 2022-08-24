@@ -96,8 +96,8 @@ public class ModuleHandler {
         if(isLoaded(description)) return false;
 
         List<String> dependModules = new ArrayList<>();
-        dependModules.addAll(description.getDependModules());
-        dependModules.addAll(description.getSoftDependModules());
+        if(description.getDependModules() != null) dependModules.addAll(description.getDependModules());
+        if(description.getSoftDependModules() != null) dependModules.addAll(description.getSoftDependModules());
         for (String dependModuleName : dependModules) {
             if(isLoaded(ModuleDescription.ofName(dependModuleName))) continue;
             if(this.toLoad.parallelStream().noneMatch(module -> module.getName().equals(dependModuleName))){

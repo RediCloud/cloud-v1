@@ -23,6 +23,9 @@ public interface ICloudGroup extends IRBucketFetchAble {
 
     String getName();
 
+    int getMaxPlayers();
+    void setMaxPlayers(int maxPlayers);
+
     int getPercentToStartNewService();
     void setPercentToStartNewService(int percentToStartNewService);
 

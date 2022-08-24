@@ -522,6 +522,20 @@ public class GroupCommand extends ConsoleCommand {
                                                         commandSender.sendMessage("Group %hc" + name + "%tc static set to %hc" + Boolean.parseBoolean(value));
                                                     });
                                             break;
+                                        case "MAX_PLAYER":
+                                        case "MAX_PLAYERS":
+                                            if(!ConditionChecks.isInteger(value)){
+                                                commandSender.sendMessage("Value must be an integer");
+                                                return;
+                                            }
+                                            intValue = Integer.parseInt(value);
+                                            if(intValue < 0){
+                                                commandSender.sendMessage("Value must be greater than 0 or 0");
+                                                return;
+                                            }
+                                            group.setMaxPlayers(intValue);
+
+                                            break;
                                         default:
                                             StringBuilder builder = new StringBuilder();
                                             for (GroupProperty property : GroupProperty.values()) {

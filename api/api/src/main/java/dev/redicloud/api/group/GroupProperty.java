@@ -10,6 +10,7 @@ public enum GroupProperty {
     MAINTENANCE,
     SERVICE_VERSION,
     PERCENT_TO_START_NEW_SERVICE,
-    STATIC;
+    STATIC,
+    MAX_PLAYER;
 
 }

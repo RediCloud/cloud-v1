@@ -43,6 +43,7 @@ public class CloudGroup extends RBucketFetchAble implements ICloudGroup {
     private String serviceVersionName;
     private boolean fallback = false;
     private int percentToStartNewService = 80;
+    private int maxPlayers = 0;
 
     @Override
     public FutureAction<ICloudServiceVersion> getServiceVersion() {

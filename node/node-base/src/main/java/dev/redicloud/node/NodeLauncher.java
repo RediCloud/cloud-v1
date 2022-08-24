@@ -1,9 +1,9 @@
 package dev.redicloud.node;
 
-import dev.redicloud.api.redis.RedisType;
-import dev.redicloud.api.utils.ApplicationType;
+import dev.redicloud.api.group.ICloudGroup;
+import dev.redicloud.api.service.version.ICloudServiceVersion;
+import dev.redicloud.api.template.ICloudServiceTemplate;
 import dev.redicloud.dependency.DependencyLoader;
-import dev.redicloud.module.ModuleHandler;
 import dev.redicloud.node.commands.*;
 import dev.redicloud.node.console.CommandConsoleManager;
 import dev.redicloud.node.console.NodeConsole;
@@ -83,8 +83,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
     private CloudNode node;
     private FileTransferManager fileTransferManager;
     private NodeCloudServiceTemplateManager serviceTemplateManager;
-    private boolean skipTemplateSync = false;
-    private boolean firstTemplatePulled = false;
+    private boolean skipFileSync = false;
+    private boolean firstFilePulled = false;
     private boolean restarting = false;
     private String hostName;
 
@@ -110,19 +110,19 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.registerInternalPackets();
             this.registerListeners();
             this.registerPackets();
-            this.scheduler.runTaskLater(() -> this.syncTemplates(() -> {
+            this.scheduler.runTaskLater(() -> this.syncFiles(() -> {
                 getModuleHandler().loadModules();
             }), 2, TimeUnit.SECONDS);
         });
     }
 
-    private void syncTemplates(Runnable runnable) {
-        if (this.skipTemplateSync) {
-            this.console.info("Skipping template sync!");
+    private void syncFiles(Runnable runnable) {
+        if (this.skipFileSync) {
+            this.console.info("Skipping file sync!");
             runnable.run();
             return;
         }
-        this.console.info("Searching for node to sync pull templates from...");
+        this.console.info("Searching for node to sync pull files from...");
         ICloudNode node = null;
         for (ICloudNode holder : getNodeManager().getNodes()) {
             if (!holder.isConnected()) continue;
@@ -141,11 +141,11 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         }
         if (node == null && !this.node.isFileNode()) {
             this.console.warn("-----------------------------------------");
-            this.console.warn("No node found to sync templates from!");
-            this.console.warn("You can setup a node to pull templates from by set the node-property \"filenode\" to true!");
-            this.console.warn("You can also setup multiple nodes to pull templates from. The cluster will use the node with the highest uptime!");
+            this.console.warn("No node found to sync files from!");
+            this.console.warn("You can setup a node to pull files from by set the node-property \"filenode\" to true!");
+            this.console.warn("You can also setup multiple nodes to pull files from. The cluster will use the node with the highest uptime!");
             this.console.warn("-----------------------------------------");
-            this.firstTemplatePulled = true;
+            this.firstFilePulled = true;
             getEventManager().postLocal(new FilePulledTemplatesEvent(null, false));
             runnable.run();
             return;
@@ -153,22 +153,22 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         if (node == null) {
             this.console.info("No node found to sync templates from!");
             this.console.info("Skipping template sync!");
-            this.firstTemplatePulled = true;
+            this.firstFilePulled = true;
             getEventManager().postLocal(new FilePulledTemplatesEvent(null, false));
             runnable.run();
             return;
         }
         ICloudNode targetNode = node;
-        this.console.info("Found node to sync templates from: %hc" + node.getName());
+        this.console.info("Found node to sync files from: %hc" + node.getName());
         this.serviceTemplateManager.pullTemplates(node)
                 .onFailure(e -> {
-                    this.console.error("Failed to pull templates from node " + targetNode.getName(), e);
-                    this.firstTemplatePulled = true;
+                    this.console.error("Failed to pull files from node " + targetNode.getName(), e);
+                    this.firstFilePulled = true;
                     runnable.run();
                 })
                 .onSuccess(s -> {
-                    this.console.info("Successfully pulled templates from node %hc" + targetNode.getName());
-                    this.firstTemplatePulled = true;
+                    this.console.info("Successfully pulled files from node %hc" + targetNode.getName());
+                    this.firstFilePulled = true;
                     runnable.run();
                 });
 
@@ -211,7 +211,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                         continue;
                     }
                     case "--skiptempaltesync": {
-                        this.skipTemplateSync = true;
+                        this.skipFileSync = true;
                         continue;
                     }
                 }
@@ -224,33 +224,33 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
 
         this.commandManager.getCommandCompletions().registerCompletion("services", context ->
                 this.serviceManager.getServices().parallelStream()
-                        .map(holder -> holder.getServiceName())
+                        .map(ICloudService::getServiceName)
                         .collect(Collectors.toList()));
         this.commandManager.getCommandCompletions().registerCompletion("running_services", context ->
                 this.serviceManager.getServices().parallelStream()
                         .filter(holder -> holder.getServiceState() != ServiceState.STOPPING)
-                        .map(holder -> holder.getServiceName())
+                        .map(ICloudService::getServiceName)
                         .collect(Collectors.toList()));
         this.commandManager.getCommandCompletions().registerCompletion("groups", context ->
                 this.getGroupManager().getGroups().parallelStream()
-                        .map(holder -> holder.getName())
+                        .map(ICloudGroup::getName)
                         .collect(Collectors.toList()));
         this.commandManager.getCommandCompletions().registerCompletion("service_versions", context ->
                 this.getServiceVersionManager().getServiceVersions().parallelStream()
-                        .map(holder -> holder.getName())
+                        .map(ICloudServiceVersion::getName)
                         .collect(Collectors.toList()));
         this.commandManager.getCommandCompletions().registerCompletion("service_templates", context ->
                 this.getServiceTemplateManager().getAllTemplates().parallelStream()
-                        .map(holder -> holder.getName())
+                        .map(ICloudServiceTemplate::getName)
                         .collect(Collectors.toList()));
         this.commandManager.getCommandCompletions().registerCompletion("nodes", context ->
                 this.getNodeManager().getNodes().parallelStream()
-                        .map(holder -> holder.getName())
+                        .map(ICloudNode::getName)
                         .collect(Collectors.toList()));
         this.commandManager.getCommandCompletions().registerCompletion("connected_nodes", context ->
                 this.getNodeManager().getNodes().parallelStream()
-                        .filter(holder -> holder.isConnected())
-                        .map(holder -> holder.getName())
+                        .filter(ICloudNode::isConnected)
+                        .map(ICloudNode::getName)
                         .collect(Collectors.toList()));
         this.commandManager.getCommandCompletions().registerAsyncCompletion("group_properties", context ->
                 Arrays.stream(GroupProperty.values()).parallel().map(Enum::name).collect(Collectors.toList()));

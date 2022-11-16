@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 @Getter
@@ -147,7 +148,6 @@ public class DependencyLoader {
 
     public void addJarFiles(List<File> files) throws Exception {
         if(ClassLoader.getSystemClassLoader() instanceof URLClassLoader && getJavaVersion() <= 8) {
-            System.out.println("Using java 8 URLClassLoader!");
             List<URL> urls = files.parallelStream().map(file -> {
                 try {
                     return file.toURI().toURL();
@@ -167,8 +167,7 @@ public class DependencyLoader {
             }catch (Exception e){
                 e.printStackTrace();
             }
-        }else if(this.getClass().getClassLoader() instanceof URLClassLoader){
-            System.out.println("Using URLClassLoader (" + this.getClass().getClassLoader().getClass().getName() + ") with custom ClassPath!");
+        }else if(Thread.currentThread().getContextClassLoader() instanceof URLClassLoader){
             List<URL> urls = files.parallelStream().map(file -> {
                 try {
                     return file.toURI().toURL();
@@ -177,12 +176,11 @@ public class DependencyLoader {
                 }
                 return null;
             }).filter(Objects::nonNull).collect(Collectors.toList());
-            URLClassPath classPath = new URLClassPath((URLClassLoader) this.getClass().getClassLoader());
+            URLClassPath classPath = new URLClassPath((URLClassLoader) Thread.currentThread().getContextClassLoader());
             for (URL url : urls) {
                 classPath.addUrl(url);
             }
         }else {
-            System.out.println("Using ByteBuddyAgent!");
             for (File file : files) {
                 //TODO
                 ByteBuddyAgent.attach(new File("storage/libs/redicloud-dependency-agent.jar"),

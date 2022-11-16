@@ -247,16 +247,6 @@ allprojects {
         implementation('org.jetbrains:annotations:23.0.0')
     }
 
-    tasks.jar.dependsOn tasks.shadowJar
-
-    shadowJar {
-        archiveFileName.set("redicloud-${project.name}.jar")
-        dependencies {
-            configurations = [project.configurations.runtimeClasspath]
-        }
-        relocate 'io.netty', 'dev.redicloud.libs.io.netty'
-    }
-
     task createProperties(dependsOn: processResources) {
         def file = new File("$projectDir/src/main/resources/redicloud.properties")
 

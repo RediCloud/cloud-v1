@@ -14,3 +14,13 @@ dependencies {
 
     implementation 'net.bytebuddy:byte-buddy-agent:1.12.10'
 }
+
+tasks.jar.dependsOn tasks.shadowJar
+
+shadowJar {
+    archiveFileName.set("redicloud-${project.name}.jar")
+    dependencies {
+        configurations = [project.configurations.runtimeClasspath]
+    }
+    relocate 'io.netty', 'dev.redicloud.libs.io.netty'
+}

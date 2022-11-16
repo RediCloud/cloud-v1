@@ -7,3 +7,13 @@ group 'dev.redicloud.commands.console'
 dependencies {
     implementation project(':commands:command-core')
 }
+
+tasks.jar.dependsOn tasks.shadowJar
+
+shadowJar {
+    archiveFileName.set("redicloud-${project.name}.jar")
+    dependencies {
+        configurations = [project.configurations.runtimeClasspath]
+    }
+    relocate 'io.netty', 'dev.redicloud.libs.io.netty'
+}

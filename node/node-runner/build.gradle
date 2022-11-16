@@ -11,7 +11,6 @@ jar {
 }
 
 dependencies {
-    implementation project(':commons')
     implementation('org.eclipse.aether:aether-impl:1.1.0')
     implementation('org.eclipse.aether:aether-connector-basic:1.1.0')
     implementation('org.eclipse.aether:aether-transport-file:1.1.0')
@@ -20,9 +19,15 @@ dependencies {
     implementation('cglib:cglib:3.3.0')
     implementation('com.fasterxml.jackson.core:jackson-databind:2.13.3')
 
+    implementation project(':commons')
     implementation project(':dependency:dependency-loader')
 }
 
+tasks.jar.dependsOn tasks.shadowJar
+
 shadowJar {
     archiveFileName.set("redicloud-runner.jar")
+    dependencies {
+        configurations = [project.configurations.runtimeClasspath]
+    }
 }

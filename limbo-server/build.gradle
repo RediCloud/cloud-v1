@@ -23,3 +23,13 @@ dependencies {
     implementation('org.slf4j:slf4j-api:1.7.36')
     implementation('org.slf4j:slf4j-simple:1.7.36')
 }
+
+tasks.jar.dependsOn tasks.shadowJar
+
+shadowJar {
+    archiveFileName.set("redicloud-${project.name}.jar")
+    dependencies {
+        configurations = [project.configurations.runtimeClasspath]
+    }
+    relocate 'io.netty', 'dev.redicloud.libs.io.netty'
+}

@@ -148,32 +148,15 @@ public class ModuleHandler {
                 return true;
             }
         }
-        //TODO: Load here dependency via dependency loader...
         try {
             CloudAPI.getInstance().getConsole().trace("Loading " + description.getName() + " module with " + Thread.currentThread().getContextClassLoader().getClass().getName() + "!");
-            Class<?> mainClass = Thread.currentThread().getContextClassLoader().loadClass(description.getMainClasses());
-            CloudModule cloudModule = (CloudModule) mainClass.newInstance();
 
-            Class<?> clazzToModify = mainClass;
-            while(!clazzToModify.getName().equals(CloudModule.class.getName())){
-                if(clazzToModify.getSuperclass() == null){
-                    CloudAPI.getInstance().getConsole()
-                            .error(mainClass.getName() + " is not a CloudModule!");
-                    blockLoading(description);
-                    return true;
-                }
-                clazzToModify = clazzToModify.getSuperclass();
-            }
+            ModuleClassLoader classLoader = new ModuleClassLoader(description);
+            CloudModule cloudModule = classLoader.loadClass();
 
-            Field descriptionField = clazzToModify.getDeclaredField("description");
-            descriptionField.setAccessible(true);
-            descriptionField.set(cloudModule, description);
-            descriptionField.setAccessible(false);
-
-            cloudModule.onLoad();
             this.onlyLoadedModules.put(description, cloudModule);
         } catch (ClassNotFoundException e) {
-            CloudAPI.getInstance().getConsole().error("Can´t find main class of module " + description.getName() + " (" + description.getMainClasses() + ")", e);
+            CloudAPI.getInstance().getConsole().error("Can´t find main class of module " + description.getName() + " (" + description.getMainClasse() + ")", e);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,6 +181,7 @@ public class ModuleHandler {
 
                     try (InputStream in = jar.getInputStream(entry)) {
                         ModuleDescription moduleDescription = codec.getObjectMapper().readValue(in, ModuleDescription.class);
+                        moduleDescription.setFile(file);
                         this.toLoad.add(moduleDescription);
                     }
                 } catch (Exception e) {

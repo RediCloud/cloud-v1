@@ -2,17 +2,18 @@ package dev.redicloud.module;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.File;
 import java.io.Serializable;
 import java.util.List;
 
-@Getter @NoArgsConstructor
+@Getter @NoArgsConstructor @Setter
 public class ModuleDescription implements Serializable {
 
     private String name;
     private String version;
-    private String mainClasses;
+    private String mainClasse;
     private File file;
     private String description;
     private String author;
@@ -23,7 +24,7 @@ public class ModuleDescription implements Serializable {
     private ModuleDescription(String name){
         this.name = name;
         this.version = null;
-        this.mainClasses = null;
+        this.mainClasse = null;
         this.file = null;
         this.description = null;
         this.author = null;

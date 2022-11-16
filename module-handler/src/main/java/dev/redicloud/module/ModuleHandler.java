@@ -9,7 +9,6 @@ import org.redisson.codec.JsonJacksonCodec;
 
 import java.io.File;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -149,14 +148,14 @@ public class ModuleHandler {
             }
         }
         try {
-            CloudAPI.getInstance().getConsole().trace("Loading " + description.getName() + " module with " + Thread.currentThread().getContextClassLoader().getClass().getName() + "!");
+            CloudAPI.getInstance().getConsole().trace("Loading " + description.getName() + " module with " + Thread.currentThread().getContextClassLoader().getClass().getName() + "! (" + description.getFile().getAbsolutePath() + ")");
 
             ModuleClassLoader classLoader = new ModuleClassLoader(description);
             CloudModule cloudModule = classLoader.loadClass();
 
             this.onlyLoadedModules.put(description, cloudModule);
         } catch (ClassNotFoundException e) {
-            CloudAPI.getInstance().getConsole().error("Can´t find main class of module " + description.getName() + " (" + description.getMainClasse() + ")", e);
+            CloudAPI.getInstance().getConsole().error("Can´t find main class of module " + description.getName() + " (" + description.getMainClass() + ")", e);
         } catch (Exception e) {
             e.printStackTrace();
         }

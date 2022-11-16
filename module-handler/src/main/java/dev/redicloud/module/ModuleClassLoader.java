@@ -17,7 +17,7 @@ public class ModuleClassLoader extends URLClassLoader {
     }
 
     public CloudModule loadClass() throws Exception{
-        Class<?> bootstrap = loadClass(description.getMainClasse());
+        Class<?> bootstrap = loadClass(description.getMainClass());
         CloudModule cloudModule = (CloudModule) bootstrap.newInstance();
 
         cloudModule.setClassLoader(this);

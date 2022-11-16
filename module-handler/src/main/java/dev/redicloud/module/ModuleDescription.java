@@ -13,7 +13,7 @@ public class ModuleDescription implements Serializable {
 
     private String name;
     private String version;
-    private String mainClasse;
+    private String mainClass;
     private File file;
     private String description;
     private String author;
@@ -24,7 +24,7 @@ public class ModuleDescription implements Serializable {
     private ModuleDescription(String name){
         this.name = name;
         this.version = null;
-        this.mainClasse = null;
+        this.mainClass = null;
         this.file = null;
         this.description = null;
         this.author = null;

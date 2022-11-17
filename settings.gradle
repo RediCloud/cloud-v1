@@ -1,4 +1,5 @@
 rootProject.name = 'redi-cloud'
+
 include 'api:api'
 findProject(':api:api')?.name = 'api'
 
@@ -70,3 +71,7 @@ findProject(':dependency:dependency-loader')?.name = 'dependency-loader'
 
 include 'dependency:dependency-agent'
 findProject(':dependency:dependency-agent')?.name = 'dependency-agent'
+
+include 'modules:cloudflare'
+findProject(':modules:cloudflare')?.name = 'cloudflare'
+

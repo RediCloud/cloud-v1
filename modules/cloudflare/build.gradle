@@ -1,0 +1,12 @@
+plugins {
+    id 'java'
+}
+
+group 'dev.redicloud.module.cloudflare'
+
+dependencies {
+    implementation('com.github.robinbraemer:cloudflareapi:1.4.1')
+    implementation project(':module-handler')
+    implementation project(':api:api')
+    implementation project(':api:api-default-impl')
+}

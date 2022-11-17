@@ -9,4 +9,5 @@ dependencies {
     implementation project(':module-handler')
     implementation project(':api:api')
     implementation project(':api:api-default-impl')
+    implementation project(':commons')
 }

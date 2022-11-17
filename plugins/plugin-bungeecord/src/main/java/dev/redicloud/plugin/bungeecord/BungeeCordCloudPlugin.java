@@ -2,6 +2,8 @@ package dev.redicloud.plugin.bungeecord;
 
 import dev.redicloud.api.utils.Files;
 import dev.redicloud.dependency.DependencyLoader;
+import dev.redicloud.module.ModuleHandler;
+import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Plugin;
 import dev.redicloud.api.service.ServiceState;
@@ -19,6 +21,7 @@ public class BungeeCordCloudPlugin extends Plugin {
                 Files.LIBS_INFO_FOLDER.getFile(),
                 Files.LIBS_BLACKLIST_FOLDER.getFile());
         this.cloudAPI = new BungeeCordCloudAPI(dependencyLoader, this);
+        ModuleHandler.setParentClassLoader(this.getClass().getClassLoader());
         this.cloudAPI.getModuleHandler().loadModules();
     }
 

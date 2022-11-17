@@ -9,6 +9,7 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import dev.redicloud.api.service.ServiceState;
 import dev.redicloud.api.utils.Files;
 import dev.redicloud.dependency.DependencyLoader;
+import dev.redicloud.module.ModuleHandler;
 import org.slf4j.Logger;
 
 @Plugin(id = "redicloud-plugin", name = "RediCloud-Plugin", version = "1.0-SNAPSHOT", authors = "Suqatri")
@@ -27,6 +28,7 @@ public class VelocityCloudPlugin {
                 Files.LIBS_REPO_FOLDER.getFile(),
                 Files.LIBS_INFO_FOLDER.getFile(),
                 Files.LIBS_BLACKLIST_FOLDER.getFile());
+        ModuleHandler.setParentClassLoader(this.getClass().getClassLoader());
     }
 
     @Subscribe

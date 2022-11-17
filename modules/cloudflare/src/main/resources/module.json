@@ -1,0 +1,8 @@
+{
+  "@class" : "dev.redicloud.module.ModuleDescription",
+  "name" : "CloudFlare-Module",
+  "version" : "1.0.0",
+  "mainClass" : "dev.redicloud.module.cloudflare.CloudFlareModule",
+  "description": "CloudFlare-Module",
+  "author": "Suqatri"
+}

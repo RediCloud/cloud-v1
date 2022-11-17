@@ -2,7 +2,6 @@ package dev.redicloud.module.cloudflare;
 
 import dev.redicloud.module.cloudflare.configuration.CloudFlareDomainEntryConfiguration;
 import eu.roboflax.cloudflare.CloudflareAccess;
-import eu.roboflax.cloudflare.CloudflareRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

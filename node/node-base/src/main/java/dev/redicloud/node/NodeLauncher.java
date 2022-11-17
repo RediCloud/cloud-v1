@@ -414,7 +414,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     cloudNode.setTimeOut(0L);
                     FileWriter.writeObject(connectionInformation, Files.NODE_JSON.getFile());
                     cloudNode = (CloudNode) this.getNodeManager().createNode(cloudNode);
-                    consumer.accept(cloudNode);
+                    try { consumer.accept(cloudNode); }catch (Exception ex) { ex.printStackTrace(); }
 
                 }
             });
@@ -450,7 +450,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             connectionInformation.applyToNode(this.node);
         }
 
-        consumer.accept(this.node);
+        try { consumer.accept(this.node); }catch (Exception e) { e.printStackTrace(); }
     }
 
     private void initRedisNodes(RedisCredentials redisCredentials, boolean first, Consumer<RedisConnection> consumer){
@@ -477,7 +477,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.redisConnection.connect();
             FileWriter.writeObject(redisCredentials, Files.REDIS_CONFIG.getFile());
             this.console.info("Redis connection established!");
-            consumer.accept(this.redisConnection);
+            try { consumer.accept(this.redisConnection); }catch (Exception e) { e.printStackTrace(); }
         } catch (Exception e) {
             this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
             this.console.info("Restarting redis setup in 10 seconds...");
@@ -512,7 +512,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                                         this.redisConnection.connect();
                                         FileWriter.writeObject(redisCredentials, Files.REDIS_CONFIG.getFile());
                                         this.console.info("Redis connection established!");
-                                        consumer.accept(this.redisConnection);
+                                        try { consumer.accept(this.redisConnection); } catch (Exception e) { e.printStackTrace(); }
                                     } catch (Exception e) {
                                         this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
                                         this.console.info("Restarting redis setup in 10 seconds...");
@@ -545,7 +545,7 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             try {
                 this.redisConnection.connect();
                 this.console.info("Redis connection established!");
-                consumer.accept(this.redisConnection);
+                try { consumer.accept(this.redisConnection); }catch (Exception e) { e.printStackTrace(); }
             } catch (Exception e) {
                 this.console.error("§cFailed to connect to redis server. Please check your credentials.", e);
                 this.console.info("Trying to reconnect in 10 seconds...");

@@ -178,14 +178,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         if (args.length > 0) {
             for (String argument : args) {
                 switch (argument.split("=")[0]) {
-                    default: {
-                        if (argument.split("=").length > 1) {
-                            this.console.debug("Argument key: " + argument.split("=")[0]);
-                            this.console.debug("Argument value: " + argument.split("=")[1]);
-                        } else {
-                            this.console.debug("Argument: " + argument);
-                        }
-                    }
                     case "--test": {
                         this.console.setLogLevel(LogLevel.TRACE);
                         this.console.setCleanConsoleMode(false);
@@ -212,6 +204,15 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
                     }
                     case "--skiptempaltesync": {
                         this.skipFileSync = true;
+                        continue;
+                    }
+                    default: {
+                        if (argument.split("=").length > 1) {
+                            this.console.debug("Argument key: " + argument.split("=")[0]);
+                            this.console.debug("Argument value: " + argument.split("=")[1]);
+                        } else {
+                            this.console.debug("Argument: " + argument);
+                        }
                         continue;
                     }
                 }

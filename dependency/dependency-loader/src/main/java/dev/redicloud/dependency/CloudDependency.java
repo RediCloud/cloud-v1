@@ -1,4 +1,4 @@
-package dev.redicloud.runner.dependency;
+package dev.redicloud.dependency;
 
 import lombok.Getter;
 

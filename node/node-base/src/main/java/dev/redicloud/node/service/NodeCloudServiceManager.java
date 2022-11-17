@@ -50,13 +50,13 @@ public class NodeCloudServiceManager extends CloudServiceManager {
                 serviceHolder = getService(s);
             }catch (NullPointerException e){
                 removeFromFetcher(s);
-                CloudAPI.getInstance().getConsole().warn("Removed " + serviceHolder.getServiceName() + " services from fetcher!");
-                return;
+                CloudAPI.getInstance().getConsole().warn("Removed " + s + " service from fetcher!");
+                continue;
             }
             if(serviceHolder.isExternal()) continue;
             if(!serviceHolder.getNodeId().equals(nodeIdToCheck)) continue;
             removeFromFetcher(serviceHolder.getIdentifier());
-            CloudAPI.getInstance().getConsole().warn("Removed " + serviceHolder.getServiceName() + " services from fetcher!");
+            CloudAPI.getInstance().getConsole().warn("Removed " + serviceHolder.getServiceName() + " service from fetcher!");
         }
     }
 

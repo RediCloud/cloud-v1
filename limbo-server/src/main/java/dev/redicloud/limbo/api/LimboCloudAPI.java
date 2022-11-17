@@ -1,5 +1,6 @@
 package dev.redicloud.limbo.api;
 
+import dev.redicloud.dependency.DependencyLoader;
 import lombok.Getter;
 import dev.redicloud.api.CloudAPI;
 import dev.redicloud.api.console.ICommandManager;
@@ -50,8 +51,8 @@ public class LimboCloudAPI extends CloudDefaultAPIImpl<CloudService> {
     private boolean isShutdownInitiated = false;
     private RepeatSchedulerTask updaterTask;
 
-    public LimboCloudAPI(LimboServer server) {
-        super(ApplicationType.SERVICE_MINECRAFT);
+    public LimboCloudAPI(DependencyLoader dependencyLoader, LimboServer server) {
+        super(ApplicationType.SERVICE_MINECRAFT, dependencyLoader);
         instance = this;
         this.server = server;
         this.console = new LimboConsole();
@@ -94,7 +95,7 @@ public class LimboCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
         RedisCredentials redisCredentials;
         try {
-            redisCredentials = FileWriter.readObject(new File(System.getenv("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())), RedisCredentials.class);
+            redisCredentials = FileWriter.readObject(Files.REDIS_CONFIG.getFile(), RedisCredentials.class);
         } catch (Exception e) {
             this.console.error("Failed to read redis.json file! Please check your credentials.", e);
             System.out.println(1);

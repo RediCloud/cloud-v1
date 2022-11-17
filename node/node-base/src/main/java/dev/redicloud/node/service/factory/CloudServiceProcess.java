@@ -84,7 +84,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
         environment.put("redicloud_path", NodeLauncher.getInstance().getNode().getFilePath());
         environment.put("redicloud_log_level", NodeLauncher.getInstance().getConsole().getLogLevel().name());
         for (Files value : Files.values()) {
-            environment.put("redicloud_files_" + value.name().toLowerCase(), value.getFile().getAbsolutePath());
+            environment.put("redicloud_files_" + value.name().toLowerCase(), value.getFile().toPath().toAbsolutePath().toString());
         }
         builder.directory(this.serviceDirectory);
         builder.command(getStartCommand(this.service.getServiceVersion().get(3, TimeUnit.SECONDS)));

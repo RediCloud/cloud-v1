@@ -17,6 +17,8 @@
 
 package dev.redicloud.limbo;
 
+import dev.redicloud.api.utils.Files;
+import dev.redicloud.dependency.DependencyLoader;
 import dev.redicloud.limbo.api.LimboCloudAPI;
 import dev.redicloud.limbo.server.LimboServer;
 
@@ -26,7 +28,11 @@ public final class NanoLimbo {
         try {
             LimboServer server = new LimboServer();
             server.start();
-            new LimboCloudAPI(server);
+            DependencyLoader dependencyLoader = new DependencyLoader(Files.LIBS_FOLDER.getFile(),
+                    Files.LIBS_REPO_FOLDER.getFile(),
+                    Files.LIBS_INFO_FOLDER.getFile(),
+                    Files.LIBS_BLACKLIST_FOLDER.getFile());
+            new LimboCloudAPI(dependencyLoader, server);
         } catch (Exception e) {
             e.printStackTrace();
         }

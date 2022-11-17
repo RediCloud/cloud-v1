@@ -6,11 +6,12 @@ import dev.redicloud.api.player.ICloudPlayer;
 import dev.redicloud.api.player.IPlayerBridge;
 import dev.redicloud.api.utils.ApplicationType;
 import dev.redicloud.api.bungeecord.player.ProxyPlayerBridge;
+import dev.redicloud.dependency.DependencyLoader;
 
 public abstract class ProxyDefaultCloudAPI extends CloudDefaultAPIImpl<CloudService> {
 
-    public ProxyDefaultCloudAPI() {
-        super(ApplicationType.SERVICE_PROXY);
+    public ProxyDefaultCloudAPI(DependencyLoader dependencyLoader) {
+        super(ApplicationType.SERVICE_PROXY, dependencyLoader);
     }
 
     @Override

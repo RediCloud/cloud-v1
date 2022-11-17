@@ -19,7 +19,9 @@ import dev.redicloud.api.service.version.ICloudServiceVersionManager;
 import dev.redicloud.api.template.ICloudServiceTemplateManager;
 import dev.redicloud.api.utils.ApplicationType;
 import dev.redicloud.api.utils.ICloudProperties;
+import dev.redicloud.dependency.DependencyLoader;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.concurrent.ExecutorService;
 
@@ -30,10 +32,13 @@ public abstract class CloudAPI {
     private static CloudAPI instance;
 
     private final ApplicationType applicationType;
-    private boolean shutdownHookAdded = false;
+    private final DependencyLoader dependencyLoader;
 
-    public CloudAPI(ApplicationType type) {
+    private final boolean shutdownHookAdded = false;
+
+    public CloudAPI(ApplicationType type, DependencyLoader dependencyLoader) {
         instance = this;
+        this.dependencyLoader = dependencyLoader;
         initShutdownHook();
         this.applicationType = type;
     }

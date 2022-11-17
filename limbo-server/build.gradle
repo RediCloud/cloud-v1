@@ -11,13 +11,25 @@ jar {
 }
 
 dependencies {
-    implementation 'org.spongepowered:configurate-yaml:4.1.2'
-    implementation 'io.netty:netty-all:4.1.79.Final'
-    implementation 'net.kyori:adventure-nbt:4.11.0'
-    implementation 'com.grack:nanojson:1.7'
     implementation project(':api:api')
     implementation project(':api:api-default-impl')
     implementation project(':commons')
+    implementation project(':dependency:dependency-loader')
+
+    implementation ('org.spongepowered:configurate-yaml:4.1.2')
+    implementation ('io.netty:netty-all:4.1.79.Final')
+    implementation ('net.kyori:adventure-nbt:4.11.0')
+    implementation ('com.grack:nanojson:1.7')
     implementation('org.slf4j:slf4j-api:1.7.36')
     implementation('org.slf4j:slf4j-simple:1.7.36')
+}
+
+tasks.jar.dependsOn tasks.shadowJar
+
+shadowJar {
+    archiveFileName.set("redicloud-${project.name}.jar")
+    dependencies {
+        configurations = [project.configurations.runtimeClasspath]
+    }
+    relocate 'io.netty', 'dev.redicloud.libs.io.netty'
 }

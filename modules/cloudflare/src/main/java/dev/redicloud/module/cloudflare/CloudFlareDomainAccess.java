@@ -6,6 +6,10 @@ import eu.roboflax.cloudflare.CloudflareRequest;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/*
+    CloudFlare api docs: https://api.cloudflare.com
+ */
+
 @RequiredArgsConstructor
 @Getter
 public class CloudFlareDomainAccess {
@@ -18,9 +22,6 @@ public class CloudFlareDomainAccess {
         return this.access.isThreadPoolInitialized();
     }
 
-    public void test(){
-        new CloudflareRequest(Category.ZONE)
-    }
 
     public void init() {
         if(this.isInitialized()) return;

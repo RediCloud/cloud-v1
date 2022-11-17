@@ -8,7 +8,7 @@ plugins {
 
 group 'dev.redicloud'
 
-version '1.6.10' + getCommitHash() + '-SNAPSHOT'
+version '1.7.0' + getCommitHash() + '-SNAPSHOT'
 
 nexusPublishing {
     repositories {
@@ -196,7 +196,7 @@ allprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'maven-publish'
 
-    version '1.6.10-' + getCommitHash() + '-SNAPSHOT'
+    version '1.7.0-' + getCommitHash() + '-SNAPSHOT'
 
     sourceCompatibility = '1.8'
 

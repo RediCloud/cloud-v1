@@ -1,12 +1,14 @@
 package dev.redicloud.node;
 
+import dev.redicloud.dependency.DependencyLoader;
+
 import java.text.SimpleDateFormat;
 
 public class NodeLauncherMain {
 
     public static String[] ARGUMENTS;
 
-    public static void main(String[] args) {
+    public static void launch(DependencyLoader dependencyLoader, String[] args) {
         ARGUMENTS = args;
         System.out.println("Arguments: " + args.length);
         long sleep = -1L;
@@ -23,7 +25,7 @@ public class NodeLauncherMain {
                 System.out.println("Starting node at " + sdf.format(System.currentTimeMillis() + sleep));
                 Thread.sleep(sleep);
             }
-            new NodeLauncher(args);
+            new NodeLauncher(dependencyLoader, args);
         } catch (Exception e) {
             System.out.println("Failed to run node:");
             e.printStackTrace();

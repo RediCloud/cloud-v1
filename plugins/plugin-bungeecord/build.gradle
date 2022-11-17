@@ -18,6 +18,8 @@ dependencies {
     implementation project(':commands:command-bungeecord')
     implementation project(':commands:command-core')
     implementation project(':commands:command-locales')
+    implementation project(':dependency:dependency-loader')
+    implementation project(':module-handler')
     compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-proxy:12e4514813')
     compileOnly('com.github.SpigotMC.BungeeCord:bungeecord-api:12e4514813')
 }
@@ -38,4 +40,14 @@ task createBungeePluginFile(dependsOn: processResources){
     def pluginMain = "main: dev.redicloud.plugin.bungeecord.BungeeCordCloudPlugin"
     List<String> props = [pluginName, pluginAuthor, pluginVersion, pluginMain]
     file.text = props.join("\n")
+}
+
+tasks.jar.dependsOn tasks.shadowJar
+
+shadowJar {
+    archiveFileName.set("redicloud-${project.name}.jar")
+    dependencies {
+        configurations = [project.configurations.runtimeClasspath]
+    }
+    relocate 'io.netty', 'dev.redicloud.libs.io.netty'
 }

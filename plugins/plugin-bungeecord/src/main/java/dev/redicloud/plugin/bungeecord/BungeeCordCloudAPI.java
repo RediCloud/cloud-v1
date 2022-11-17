@@ -1,5 +1,6 @@
 package dev.redicloud.plugin.bungeecord;
 
+import dev.redicloud.dependency.DependencyLoader;
 import dev.redicloud.plugin.bungeecord.command.BungeeCloudCommandManager;
 import dev.redicloud.plugin.bungeecord.command.LoginCommand;
 import dev.redicloud.plugin.bungeecord.command.LogoutCommand;
@@ -65,8 +66,8 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
     private boolean isShutdownInitiated = false;
     private boolean runningExternal = false;
 
-    public BungeeCordCloudAPI(Plugin plugin) {
-        super();
+    public BungeeCordCloudAPI(DependencyLoader dependencyLoader, Plugin plugin) {
+        super(dependencyLoader);
         instance = this;
         this.plugin = plugin;
         this.scheduler = new BungeeScheduler(this.plugin);
@@ -78,11 +79,6 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
         this.commandManager = new BungeeCloudCommandManager(this.plugin);
         this.playerManager = new CloudPlayerManager();
 
-        if(!hasRedisFilePath()){
-            this.console.fatal("Redis file path is not set as environment variable!", null);
-            this.shutdown(false);
-            return;
-        }
         if(!hasServiceId() && !hasGroupId()){
             this.console.fatal("Group id is not set as environment variable!", null);
             this.shutdown(false);
@@ -174,27 +170,6 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
 
     private boolean hasServiceId(){
         return System.getenv().containsKey("redicloud_service_id");
-    }
-
-    private String getRedisFilePath(){
-        if(System.getenv().containsKey("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())) {
-            return System.getenv("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase());
-        }
-        for (String inputArgument : getStartArguments()) {
-            if(inputArgument.startsWith("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())){
-                String[] split = inputArgument.split("=");
-                if(split.length == 2){
-                    return split[1];
-                }
-            }
-        }
-        return null;
-    }
-
-    private boolean hasRedisFilePath(){
-        return System.getenv().containsKey("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())
-                || getStartArguments().parallelStream()
-                .anyMatch(s -> s.startsWith("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase()));
     }
 
     private boolean isRunningExternal(){
@@ -295,9 +270,8 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
     private void initRedis() {
         RedisCredentials redisCredentials;
         try {
-            String path = getRedisFilePath();
-            this.console.debug("Using redis config file: " + path);
-            redisCredentials = FileWriter.readObject(new File(path), RedisCredentials.class);
+            this.console.debug("Using redis config file: " + Files.REDIS_CONFIG.getFile().getAbsolutePath());
+            redisCredentials = FileWriter.readObject(Files.REDIS_CONFIG.getFile(), RedisCredentials.class);
         } catch (Exception e) {
             this.console.error("Failed to read redis.json file! Please check your credentials.");
             return;
@@ -326,6 +300,10 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
     public void shutdown(boolean fromHook) {
         if(this.isShutdownInitiated) return;
         this.isShutdownInitiated = true;
+
+        if(this.getModuleHandler() != null){
+            this.getModuleHandler().unloadModules();
+        }
 
         if(this.service != null){
             this.service.setServiceState(ServiceState.STOPPING);

@@ -1,14 +1,23 @@
-package dev.redicloud.runner.dependency;
+package dev.redicloud.dependency;
 
+import dev.redicloud.dependency.classloader.URLClassPath;
 import lombok.Getter;
+import net.bytebuddy.agent.ByteBuddyAgent;
+import sun.java2d.loops.ProcessPath;
+import sun.management.VMManagement;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.*;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 @Getter
@@ -21,10 +30,10 @@ public class DependencyLoader {
     private final List<AdvancedDependency> injectedDependencies;
     private final List<AdvancedDependency> queuedDependencies;
     private final List<String> queuedRepositories;
-    private File dependencyFolder;
-    private File repositoryFolder;
-    private File infoFolder;
-    private File blackListFolder;
+    private final File dependencyFolder;
+    private final File repositoryFolder;
+    private final File infoFolder;
+    private final File blackListFolder;
 
     public DependencyLoader(File dependencyFolder, File repositoryFolder, File infoFolder, File blackListFolder) {
         loader = this;
@@ -74,7 +83,7 @@ public class DependencyLoader {
 
     public List<File> loadDependencies(List<String> repositories, List<AdvancedDependency> dependencies) {
         if (dependencies.isEmpty()) return Collections.emptyList();
-        List<String> dependenciesString = dependencies.parallelStream().map(dependency -> dependency.getName()).collect(Collectors.toList());
+        List<String> dependenciesString = dependencies.parallelStream().map(CloudDependency::getName).collect(Collectors.toList());
         for (String s : dependenciesString) {
             System.out.println("- " + s);
         }
@@ -82,7 +91,7 @@ public class DependencyLoader {
         for (AdvancedDependency dependency : dependencies) {
             allDependencies.addAll(collectSubdependencies(dependency, repositories, new ArrayList<>()));
         }
-        List<File> dependencyFiles = allDependencies.parallelStream().map(dependency -> dependency.getDownloadedFile()).collect(Collectors.toList());
+        List<File> dependencyFiles = allDependencies.parallelStream().map(AdvancedDependency::getDownloadedFile).collect(Collectors.toList());
         for (File dependencyFile : dependencyFiles) {
             System.out.println("- " + dependencyFile.getName());
         }
@@ -135,6 +144,53 @@ public class DependencyLoader {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public void addJarFiles(List<File> files) throws Exception {
+        if(ClassLoader.getSystemClassLoader() instanceof URLClassLoader && getJavaVersion() <= 8) {
+            List<URL> urls = files.parallelStream().map(file -> {
+                try {
+                    return file.toURI().toURL();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            try{
+                URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+                Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+                method.setAccessible(true);
+                for (URL url : urls) {
+                    method.invoke(classLoader, url);
+                }
+                method.setAccessible(false);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }else if(Thread.currentThread().getContextClassLoader() instanceof URLClassLoader){
+            List<URL> urls = files.parallelStream().map(file -> {
+                try {
+                    return file.toURI().toURL();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }).filter(Objects::nonNull).collect(Collectors.toList());
+            URLClassPath classPath = new URLClassPath((URLClassLoader) Thread.currentThread().getContextClassLoader());
+            for (URL url : urls) {
+                classPath.addUrl(url);
+            }
+        }else {
+            for (File file : files) {
+                //TODO
+                ByteBuddyAgent.attach(new File("storage/libs/redicloud-dependency-agent.jar"),
+                        String.valueOf(getCurrentProcessId()), file.getAbsolutePath());
+            }
+        }
+    }
+
+    private static int getCurrentProcessId() throws Exception {
+        return Integer.parseInt(ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
     }
 
 }

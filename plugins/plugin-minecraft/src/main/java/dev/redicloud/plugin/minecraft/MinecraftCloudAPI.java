@@ -1,5 +1,6 @@
 package dev.redicloud.plugin.minecraft;
 
+import dev.redicloud.dependency.DependencyLoader;
 import dev.redicloud.plugin.minecraft.listener.PlayerLoginListener;
 import dev.redicloud.plugin.minecraft.listener.ServerListPingListener;
 import dev.redicloud.plugin.minecraft.scheduler.BukkitScheduler;
@@ -51,8 +52,8 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
     private String chatPrefix = "§bRedi§3Cloud §8» §f";
     private boolean isShutdownInitiated = false;
 
-    public MinecraftCloudAPI(JavaPlugin javaPlugin) {
-        super();
+    public MinecraftCloudAPI(DependencyLoader dependencyLoader, JavaPlugin javaPlugin) {
+        super(dependencyLoader);
         instance = this;
         this.javaPlugin = javaPlugin;
         this.console = new BukkitConsole(this.javaPlugin.getLogger());
@@ -107,7 +108,7 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
     private void initRedis() {
         RedisCredentials redisCredentials;
         try {
-            redisCredentials = FileWriter.readObject(new File(System.getenv("redicloud_files_" + Files.REDIS_CONFIG.name().toLowerCase())), RedisCredentials.class);
+            redisCredentials = FileWriter.readObject(Files.REDIS_CONFIG.getFile(), RedisCredentials.class);
         } catch (Exception e) {
             this.console.error("Failed to read redis.json file! Please check your credentials.", e);
             Bukkit.getPluginManager().disablePlugin(this.javaPlugin);
@@ -142,6 +143,10 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
         getScheduler().runTask(() -> {
             if(this.isShutdownInitiated) return;
             this.isShutdownInitiated = true;
+
+            if(this.getModuleHandler() != null){
+                this.getModuleHandler().unloadModules();
+            }
 
             this.service.setServiceState(ServiceState.STOPPING);
             this.service.update();

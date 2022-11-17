@@ -1,0 +1,8 @@
+{
+  "@class" : "dev.redicloud.module.ModuleDescription",
+  "name" : "Test-Module",
+  "version" : "1.0.0",
+  "mainClass" : "dev.redicloud.module.test.TestModule",
+  "description": "Test-Module",
+  "author": "Suqatri"
+}

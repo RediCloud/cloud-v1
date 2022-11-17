@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+group 'dev.redicloud.dependency.agent'
+
+
+jar {
+    manifest {
+        attributes 'Agent-Class': 'dev.redicloud.dependency.agent.ClassPathAgent'
+    }
+}
+
+tasks.jar.dependsOn tasks.shadowJar
+
+shadowJar {
+    archiveFileName.set("redicloud-${project.name}.jar")
+    dependencies {
+        configurations = [project.configurations.runtimeClasspath]
+    }
+    relocate 'io.netty', 'dev.redicloud.libs.io.netty'
+}

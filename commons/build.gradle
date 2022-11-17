@@ -8,3 +8,13 @@ dependencies {
     implementation('commons-io:commons-io:2.11.0')
     implementation('org.mindrot:jbcrypt:0.4')
 }
+
+tasks.jar.dependsOn tasks.shadowJar
+
+shadowJar {
+    archiveFileName.set("redicloud-${project.name}.jar")
+    dependencies {
+        configurations = [project.configurations.runtimeClasspath]
+    }
+    relocate 'io.netty', 'dev.redicloud.libs.io.netty'
+}

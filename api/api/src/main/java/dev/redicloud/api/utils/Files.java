@@ -21,8 +21,9 @@ public enum Files {
     LIBS_BLACKLIST_FOLDER("storage/libs/blacklist"),
     LIBS_REPO_FOLDER("storage/libs/repo"),
     LIBS_INFO_FOLDER("storage/libs/info"),
-    RUNNER_JAR("runner.jar"),
     NODE_JAR("redicloud-node-base.jar"),
+    NODE_RUNNER_JAR("redicloud-runner.jar"),
+    DEPENDENCY_AGENT("storage/libs/dependency-agent.jar"),
     MINECRAFT_PLUGIN_JAR("storage/redicloud-plugin-minecraft.jar"),
     BUNGEECORD_PLUGIN_JAR("storage/redicloud-plugin-bungeecord.jar"),
     VELOCITY_PLUGIN_JAR("storage/redicloud-plugin-velocity.jar"),
@@ -33,13 +34,20 @@ public enum Files {
     LOG_FILE("storage/logs/redicloud-%time%.log"),
     REDIS_CONFIG("storage/redis.json");
 
-    private final String path;
+    private String path;
 
     Files(String path) {
-        this.path = path.replaceAll("%version%", CloudAPI.getInstance().getProperties().getVersion());
+        this.path = path;
+        if(CloudAPI.getInstance() != null && CloudAPI.getInstance().getProperties() != null) {
+            this.path = path.replaceAll("%version%", CloudAPI.getInstance().getProperties().getVersion());;
+        }
     }
 
     public File getFile() {
+        String path = this.path;
+        if(System.getenv().containsKey("redicloud_files_" + name().toLowerCase())){
+            path = System.getenv("redicloud_files_" + name().toLowerCase());
+        }
         return new File(path);
     }
 

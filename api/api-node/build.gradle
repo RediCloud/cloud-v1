@@ -8,4 +8,15 @@ dependencies {
     implementation project(':api:api')
     implementation project(':api:api-default-impl')
     implementation project(':commons')
+    implementation project(':dependency:dependency-loader')
+}
+
+tasks.jar.dependsOn tasks.shadowJar
+
+shadowJar {
+    archiveFileName.set("redicloud-${project.name}.jar")
+    dependencies {
+        configurations = [project.configurations.runtimeClasspath]
+    }
+    relocate 'io.netty', 'dev.redicloud.libs.io.netty'
 }

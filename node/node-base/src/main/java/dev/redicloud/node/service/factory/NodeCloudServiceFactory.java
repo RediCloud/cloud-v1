@@ -31,7 +31,7 @@ public class NodeCloudServiceFactory extends CloudServiceFactory implements IClo
         this.serviceManager = serviceManager;
         this.portManager = new CloudNodePortManager();
         this.thread = new CloudNodeServiceThread(this);
-        if (NodeLauncher.getInstance().isFirstTemplatePulled()) {
+        if (NodeLauncher.getInstance().isFirstFilePulled()) {
             this.thread.start();
         } else {
             CloudAPI.getInstance().getEventManager().register(FilePulledTemplatesEvent.class, event -> this.thread.start());

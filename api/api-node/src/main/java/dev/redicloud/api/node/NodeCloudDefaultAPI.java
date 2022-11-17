@@ -3,6 +3,7 @@ package dev.redicloud.api.node;
 import dev.redicloud.api.impl.CloudDefaultAPIImpl;
 import dev.redicloud.api.impl.node.CloudNode;
 import dev.redicloud.api.node.service.screen.IServiceScreenManager;
+import dev.redicloud.dependency.DependencyLoader;
 import lombok.Getter;
 import dev.redicloud.api.node.poll.timeout.ITimeOutPollManager;
 import dev.redicloud.api.node.file.IFileTransferManager;
@@ -13,8 +14,8 @@ public abstract class NodeCloudDefaultAPI extends CloudDefaultAPIImpl<CloudNode>
     @Getter
     private static NodeCloudDefaultAPI instance;
 
-    public NodeCloudDefaultAPI() {
-        super(ApplicationType.NODE);
+    public NodeCloudDefaultAPI(DependencyLoader dependencyLoader) {
+        super(ApplicationType.NODE, dependencyLoader);
         instance = this;
     }
 

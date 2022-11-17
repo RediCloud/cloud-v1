@@ -36,12 +36,14 @@ tasks.register('copyToTest') {
             file("${rootDir}/test/node-1/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-minecraft.jar"),
             file("${rootDir}/test/node-1/storage/redicloud-plugin-velocity.jar"),
-            file("${rootDir}/test/node-2/redicloud-node-base.jar"),
+            file("${rootDir}/test/node-2/redicloud-runner.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-bungeecord.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-minecraft.jar"),
             file("${rootDir}/test/node-2/storage/redicloud-plugin-velocity.jar"),
             file("${rootDir}/test/node-1/storage/versions/redicloud-limbo-server.jar"),
-            file("${rootDir}/test/node-2/storage/versions/redicloud-limbo-server.jar")
+            file("${rootDir}/test/node-2/storage/versions/redicloud-limbo-server.jar"),
+            file("${rootDir}/test/node-1/storage/libs/redicloud-dependency-agent.jar"),
+            file("${rootDir}/test/node-2/storage/libs/redicloud-dependency-agent.jar")
     )
     dependsOn copyNodeBaseToNode1
     dependsOn copyNodeBaseToNode2
@@ -53,12 +55,23 @@ tasks.register('copyToTest') {
     dependsOn copyVelocityPluginToNode2
     dependsOn copyLimboServerToNode1
     dependsOn copyLimboServerToNode2
+    dependsOn copyNodeRunnerToNode1
+    dependsOn copyNodeRunnerToNode2
+    dependsOn copyDependencyAgentToNode1
+    dependsOn copyDependencyAgentToNode2
 }
 
 tasks.register('projectBuild') {
     dependsOn ':commons:build'
+
+    dependsOn ':dependency:dependency-loader:build'
+    dependsOn ':dependency:dependency-agent:build'
+
     dependsOn ':api:api:build'
     dependsOn ':api:api-default-impl:build'
+
+    dependsOn ':module-handler:build'
+    dependsOn ':modules:test-module:build'
 
     dependsOn ':commands:command-locales:build'
     dependsOn ':commands:command-core:build'
@@ -77,6 +90,7 @@ tasks.register('projectBuild') {
     dependsOn ':plugins:plugin-velocity:build'
 
     dependsOn ':limbo-server:build'
+
 }
 
 tasks.register('copyNodeBaseToNode1', Copy) {
@@ -129,6 +143,26 @@ tasks.register('copyLimboServerToNode2', Copy) {
     rename ('redicloud-limbo-server.jar', 'limbo.jar')
 }
 
+tasks.register('copyNodeRunnerToNode1', Copy) {
+    from 'node/node-runner/build/libs/redicloud-runner.jar'
+    into 'test/node-1/'
+}
+
+tasks.register('copyNodeRunnerToNode2', Copy) {
+    from 'node/node-runner/build/libs/redicloud-runner.jar'
+    into 'test/node-2/'
+}
+
+tasks.register('copyDependencyAgentToNode1', Copy) {
+    from 'dependency/dependency-agent/build/libs/redicloud-dependency-agent.jar'
+    into 'test/node-1/storage/libs/'
+}
+
+tasks.register('copyDependencyAgentToNode2', Copy) {
+    from 'dependency/dependency-agent/build/libs/redicloud-dependency-agent.jar'
+    into 'test/node-2/storage/libs/'
+}
+
 tasks.register('publishToRepository') {
     dependsOn ':commons:publish'
     dependsOn ':api:api:publish'
@@ -151,6 +185,9 @@ tasks.register('publishToRepository') {
     dependsOn ':plugins:plugin-velocity:publish'
 
     dependsOn ':limbo-server:publish'
+
+    dependsOn ':dependency:dependency-loader:publish'
+    dependsOn ':dependency:dependency-agent:publish'
 }
 
 allprojects {
@@ -208,16 +245,6 @@ allprojects {
         implementation('org.redisson:redisson:3.17.5')
         implementation('com.google.guava:guava:31.1-jre')
         implementation('org.jetbrains:annotations:23.0.0')
-    }
-
-    tasks.jar.dependsOn tasks.shadowJar
-
-    shadowJar {
-        archiveFileName.set("redicloud-${project.name}.jar")
-        dependencies {
-            configurations = [project.configurations.runtimeClasspath]
-        }
-        relocate 'io.netty', 'dev.redicloud.libs.io.netty'
     }
 
     task createProperties(dependsOn: processResources) {

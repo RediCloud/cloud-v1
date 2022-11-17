@@ -5,6 +5,8 @@ import dev.redicloud.api.console.LogLevel;
 import dev.redicloud.api.utils.ApplicationType;
 import dev.redicloud.api.utils.Files;
 import dev.redicloud.dependency.DependencyLoader;
+import lombok.Getter;
+import lombok.Setter;
 import org.redisson.codec.JsonJacksonCodec;
 
 import java.io.File;
@@ -22,6 +24,8 @@ public class ModuleHandler {
     private final File moduleFolder;
     private final ApplicationType applicationType;
     private final DependencyLoader dependencyLoader;
+    @Setter @Getter
+    private static ClassLoader parentClassLoader = Thread.currentThread().getContextClassLoader();
 
     public ModuleHandler(DependencyLoader loader, ApplicationType applicationType) {
         this.moduleFolder = Files.MODULES_FOLDER.getFile();
@@ -138,19 +142,10 @@ public class ModuleHandler {
 
         if(isBlockedLoading(description.getName())) return true;
 
-        if(description.getFile() != null) {
-            try {
-                this.dependencyLoader.addJarFiles(Collections.singletonList(description.getFile()));
-            } catch (Exception e) {
-                CloudAPI.getInstance().getConsole().error("Can't load module " + description.getName() + " because of an error while loading into class path!");
-                blockLoading(description);
-                return true;
-            }
-        }
         try {
-            CloudAPI.getInstance().getConsole().trace("Loading " + description.getName() + " module with " + Thread.currentThread().getContextClassLoader().getClass().getName() + "! (" + description.getFile().getAbsolutePath() + ")");
+            CloudAPI.getInstance().getConsole().trace("Loading " + description.getName() + " module with " + parentClassLoader.getClass().getName() + "! (" + description.getFile().getAbsolutePath() + ")");
 
-            ModuleClassLoader classLoader = new ModuleClassLoader(description);
+            ModuleClassLoader classLoader = new ModuleClassLoader(description, parentClassLoader);
             CloudModule cloudModule = classLoader.loadClass();
 
             this.onlyLoadedModules.put(description, cloudModule);

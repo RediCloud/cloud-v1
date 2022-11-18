@@ -154,6 +154,7 @@ public class CloudServiceProcess implements ICloudServiceProcess {
                     ) {
                         String line = reader.readLine();
                         if (line == null) continue;
+                        if(this.service.getEnvironment() == ServiceEnvironment.LIMBO && line.contains("connections initialized")) continue;
                         CloudAPI.getInstance().getConsole().log(new ConsoleLine("SCREEN-ERROR [" + this.service.getServiceName() + "]", line));
                     }
                     CloudAPI.getInstance().getConsole().trace("Closed error stream for service " + this.service.getServiceName());

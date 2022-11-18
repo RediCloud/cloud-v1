@@ -15,6 +15,8 @@ test/node-1/storage/versions/
 test/node-2/storage/versions/
 test/node-1/external/
 test/node-2/external/
+test/node-1/modules/
+test/node-2/modules/
 
 plugins/plugin-bungeecord/src/main/resources/bungee.yml
 plugins/plugin-minecraft/src/main/resources/plugin.yml

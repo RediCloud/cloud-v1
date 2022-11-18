@@ -43,10 +43,15 @@ tasks.register('copyToTest') {
             file("${rootDir}/test/node-1/storage/versions/redicloud-limbo-server.jar"),
             file("${rootDir}/test/node-2/storage/versions/redicloud-limbo-server.jar"),
             file("${rootDir}/test/node-1/storage/libs/redicloud-dependency-agent.jar"),
-            file("${rootDir}/test/node-2/storage/libs/redicloud-dependency-agent.jar")
+            file("${rootDir}/test/node-2/storage/libs/redicloud-dependency-agent.jar"),
+            file("${rootDir}/test/node-1/modules/test-module.jar"),
+            file("${rootDir}/test/node-2/modules/test-module.jar"),
+            file("${rootDir}/test/node-1/modules/cloudflare-module.jar"),
+            file("${rootDir}/test/node-2/modules/cloudflare-module.jar")
     )
     dependsOn copyNodeBaseToNode1
     dependsOn copyNodeBaseToNode2
+    dependsOn copyNodeRunnerToNode2
     dependsOn copyMinecraftPluginToNode1
     dependsOn copyMinecraftPluginToNode2
     dependsOn copyProxyPluginToNode1
@@ -59,6 +64,10 @@ tasks.register('copyToTest') {
     dependsOn copyNodeRunnerToNode2
     dependsOn copyDependencyAgentToNode1
     dependsOn copyDependencyAgentToNode2
+    dependsOn copyTestModuleToNode1
+    dependsOn copyTestModuleToNode2
+    dependsOn copyCloudFlareModuleToNode1
+    dependsOn copyCloudFlareModuleToNode2
 }
 
 tasks.register('projectBuild') {
@@ -72,6 +81,7 @@ tasks.register('projectBuild') {
 
     dependsOn ':module-handler:build'
     dependsOn ':modules:test-module:build'
+    dependsOn ':modules:cloudflare-module:build'
 
     dependsOn ':commands:command-locales:build'
     dependsOn ':commands:command-core:build'
@@ -162,6 +172,27 @@ tasks.register('copyDependencyAgentToNode2', Copy) {
     from 'dependency/dependency-agent/build/libs/redicloud-dependency-agent.jar'
     into 'test/node-2/storage/libs/'
 }
+
+tasks.register('copyTestModuleToNode1', Copy) {
+    from 'modules/test-module/build/libs/test-module.jar'
+    into 'test/node-1/modules/'
+}
+
+tasks.register('copyTestModuleToNode2', Copy) {
+    from 'modules/test-module/build/libs/test-module.jar'
+    into 'test/node-2/modules/'
+}
+
+tasks.register('copyCloudFlareModuleToNode1', Copy) {
+    from 'modules/cloudflare-module/build/libs/cloudflare-module.jar'
+    into 'test/node-1/modules/'
+}
+
+tasks.register('copyCloudFlareModuleToNode2', Copy) {
+    from 'modules/cloudflare-module/build/libs/cloudflare-module.jar'
+    into 'test/node-2/modules/'
+}
+
 
 tasks.register('publishToRepository') {
     dependsOn ':commons:publish'

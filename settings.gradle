@@ -72,6 +72,6 @@ findProject(':dependency:dependency-loader')?.name = 'dependency-loader'
 include 'dependency:dependency-agent'
 findProject(':dependency:dependency-agent')?.name = 'dependency-agent'
 
-include 'modules:cloudflare'
-findProject(':modules:cloudflare')?.name = 'cloudflare'
+include 'modules:cloudflare-module'
+findProject(':modules:cloudflare-module')?.name = 'cloudflare-module'
 

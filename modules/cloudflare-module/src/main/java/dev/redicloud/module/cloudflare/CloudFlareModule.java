@@ -23,7 +23,7 @@ import java.util.List;
 @Getter
 public class CloudFlareModule extends CloudModule {
 
-    public static final String CONFIGURATION_KEY = "module-cloudflare";
+    public static final String CONFIGURATION_KEY = "cloudflare";
 
     @Getter
     private static CloudFlareModule instance;
@@ -34,6 +34,8 @@ public class CloudFlareModule extends CloudModule {
     @Override
     public void onEnable() {
 
+        getApi().getConsole().info("CloudFlareModule enabled! " + getApi().getNetworkComponentInfo().getType().name());
+
         if(getApi().getNetworkComponentInfo().getType() != NetworkComponentType.NODE) {
             CloudDefaultAPIImpl.getInstance().getModuleHandler().disableModule(this);
             return;
@@ -42,6 +44,7 @@ public class CloudFlareModule extends CloudModule {
         instance = this;
 
         if(!getApi().getConfigurationManager().existsConfiguration(CONFIGURATION_KEY)) {
+            getApi().getConsole().info("Creating default configuration for cloudflare module...");
             this.configuration = new CloudFlareConfiguration();
             this.configuration.getEntries().add(
                     new CloudFlareDomainEntryConfiguration
@@ -51,6 +54,8 @@ public class CloudFlareModule extends CloudModule {
                                                     false, "Proxy", "@", 1, 1)))
             );
             getApi().getConfigurationManager().createConfiguration(this.configuration);
+        }else{
+            getApi().getConsole().info("Loading configuration for cloudflare module...");
         }
         this.configuration = getApi().getConfigurationManager().getConfiguration(CONFIGURATION_KEY, CloudFlareConfiguration.class);
 
@@ -60,6 +65,8 @@ public class CloudFlareModule extends CloudModule {
         }
 
         String nodeHost = getApi().getNetworkComponentInfo().getAsNode().getHostname();
+
+        getApi().getConsole().info("Creating records for node and services...");
 
         this.domainAccesses = new ArrayList<>();
         for (CloudFlareDomainEntryConfiguration entry : this.configuration.getEntries()) {

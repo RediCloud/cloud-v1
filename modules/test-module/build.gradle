@@ -8,3 +8,7 @@ dependencies {
     compileOnly project(':module-handler')
     compileOnly project(':api:api')
 }
+
+jar {
+    archiveFileName.set("${project.name}.jar")
+}

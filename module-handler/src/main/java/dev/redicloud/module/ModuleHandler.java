@@ -48,7 +48,7 @@ public class ModuleHandler {
             }
             return;
         }else{
-            CloudAPI.getInstance().getConsole().info("Detected " + this.toLoad.size() + " to load!");
+            CloudAPI.getInstance().getConsole().info("Detected " + this.toLoad.size() + " modules to load!");
         }
         this.toLoad.forEach(description -> {
             CloudAPI.getInstance().getConsole().info("Loading module " + description.getName());

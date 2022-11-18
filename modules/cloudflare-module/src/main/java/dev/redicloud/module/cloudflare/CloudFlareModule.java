@@ -34,8 +34,6 @@ public class CloudFlareModule extends CloudModule {
     @Override
     public void onEnable() {
 
-        getApi().getConsole().info("CloudFlareModule enabled! " + getApi().getNetworkComponentInfo().getType().name());
-
         if(getApi().getNetworkComponentInfo().getType() != NetworkComponentType.NODE) {
             CloudDefaultAPIImpl.getInstance().getModuleHandler().disableModule(this);
             return;

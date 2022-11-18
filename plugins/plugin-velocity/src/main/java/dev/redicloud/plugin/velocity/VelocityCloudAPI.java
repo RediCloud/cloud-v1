@@ -89,6 +89,8 @@ public class VelocityCloudAPI extends VelocityDefaultCloudAPI {
             return;
         }
 
+        getModuleHandler().loadModules();
+
         initRedis();
         registerInternalPackets();
         registerInternalListeners();

@@ -1,6 +1,7 @@
 package dev.redicloud.plugin.bungeecord;
 
 import dev.redicloud.dependency.DependencyLoader;
+import dev.redicloud.module.ModuleHandler;
 import dev.redicloud.plugin.bungeecord.command.BungeeCloudCommandManager;
 import dev.redicloud.plugin.bungeecord.command.LoginCommand;
 import dev.redicloud.plugin.bungeecord.command.LogoutCommand;
@@ -84,6 +85,9 @@ public class BungeeCordCloudAPI extends ProxyDefaultCloudAPI {
             this.shutdown(false);
             return;
         }
+
+        ModuleHandler.setParentClassLoader(this.plugin.getClass().getClassLoader());
+        getModuleHandler().loadModules();
 
         initRedis();
         registerInternalPackets();

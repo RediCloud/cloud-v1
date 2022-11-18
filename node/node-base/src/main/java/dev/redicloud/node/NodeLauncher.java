@@ -102,6 +102,8 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
         this.timeOutPollManager = new TimeOutPollManager();
         this.handleProgrammArguments(args);
 
+        getModuleHandler().loadModules();
+
         this.init(() -> {
             this.fileTransferManager = new FileTransferManager();
             this.serviceTemplateManager = new NodeCloudServiceTemplateManager();
@@ -110,7 +112,6 @@ public class NodeLauncher extends NodeCloudDefaultAPI {
             this.registerInternalPackets();
             this.registerListeners();
             this.registerPackets();
-            getModuleHandler().loadModules();
             this.scheduler.runTaskLater(() -> this.syncFiles(() -> {
                 getModuleHandler().enableModules();
             }), 2, TimeUnit.SECONDS);

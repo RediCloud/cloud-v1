@@ -1,6 +1,7 @@
 package dev.redicloud.plugin.minecraft;
 
 import dev.redicloud.dependency.DependencyLoader;
+import dev.redicloud.module.ModuleHandler;
 import dev.redicloud.plugin.minecraft.listener.PlayerLoginListener;
 import dev.redicloud.plugin.minecraft.listener.ServerListPingListener;
 import dev.redicloud.plugin.minecraft.scheduler.BukkitScheduler;
@@ -64,6 +65,9 @@ public class MinecraftCloudAPI extends MinecraftDefaultCloudAPI<CloudService> {
         this.serviceTemplateManager = new CloudServiceTemplateManager();
         this.serviceVersionManager = new CloudServiceVersionManager();
         this.playerManager = new CloudPlayerManager();
+
+        ModuleHandler.setParentClassLoader(this.javaPlugin.getClass().getClassLoader());
+        getModuleHandler().loadModules();
 
         initRedis();
         registerInternalListeners();

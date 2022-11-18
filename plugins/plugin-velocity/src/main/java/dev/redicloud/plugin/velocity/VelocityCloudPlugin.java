@@ -34,7 +34,6 @@ public class VelocityCloudPlugin {
     @Subscribe
     public void onProxyInitialize(ProxyInitializeEvent event){
         this.cloudAPI = new VelocityCloudAPI(this.dependencyLoader, this.proxyServer, this);
-        this.cloudAPI.getModuleHandler().loadModules();
         this.cloudAPI.getService().setServiceState(ServiceState.RUNNING_UNDEFINED);
         this.cloudAPI.getService().setOnlineCount(this.proxyServer.getPlayerCount());
         this.cloudAPI.getService().update();

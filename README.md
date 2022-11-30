@@ -89,7 +89,7 @@ minecraft. **[[Discord](https://discord.gg/g2HV52VV4G) | [Developer](https://git
 
 
 <details>
-  <summary>Generel help</summary>
+  <summary>General help</summary>
   <picture>
     <source srcset="https://content.redicloud.dev/github-img/generel_help.png" media="(min-width: 600px)">
     <img src="https://content.redicloud.dev/github-img/generel_help.png">
